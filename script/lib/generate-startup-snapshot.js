@@ -328,7 +328,7 @@ module.exports = function(packagedAppPath) {
       startupBlobDestinationPath = packagedAppPath;
     }
 
-    const snapshotBinaries = ['v8_context_snapshot.bin', 'snapshot_blob.bin'];
+    const snapshotBinaries = ['v8_context_snapshot.x86_64.bin', 'v8_context_snapshot.bin', 'snapshot_blob.bin'];
     for (let snapshotBinary of snapshotBinaries) {
       const destinationPath = path.join(
         startupBlobDestinationPath,
