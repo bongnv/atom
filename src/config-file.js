@@ -1,3 +1,5 @@
+// bongnv: this file should be under main-process
+
 const _ = require('underscore-plus');
 const fs = require('fs-plus');
 const dedent = require('dedent');

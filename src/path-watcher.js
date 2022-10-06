@@ -596,6 +596,8 @@ class PathWatcherManager {
   // Private: Access the currently active manager instance, creating one if necessary.
   static active() {
     if (!this.activeManager) {
+      const atom = global.atom || global.atomApplication;
+
       this.activeManager = new PathWatcherManager(
         atom.config.get('core.fileSystemWatcher')
       );
