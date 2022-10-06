@@ -13,7 +13,7 @@ if (process.argv.includes('--no-bootstrap')) {
   const childProcess = require('child_process');
   childProcess.execFileSync(
     process.execPath,
-    [path.join(CONFIG.scriptRootPath, 'bootstrap')],
+    [path.join(CONFIG.scriptRootPath, 'bootstrap.js')],
     { env: process.env, cwd: CONFIG.repositoryRootPath, stdio: 'inherit' }
   );
 }
