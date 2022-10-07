@@ -69,7 +69,7 @@
     "fuzzy-finder": "https://github.com/atom/fuzzy-finder/archive/refs/tags/v1.14.3.tar.gz",
     "git-diff": "file:packages/git-diff",
     "git-utils": "5.7.1",
-    "github": "https://www.atom.io/api/packages/github/versions/0.36.10/tarball",
+    "github": "github:bongnv/github#915103872bc22cdfec873f1288434fb683ca839b",
     "glob": "^7.1.1",
     "go-to-line": "file:packages/go-to-line",
     "grammar-selector": "file:packages/grammar-selector",
@@ -271,6 +271,9 @@
   "private": true,
   "scripts": {
     "preinstall": "node -e 'process.exit(0)'",
+    "apm:install": "apm/node_modules/.bin/apm install",
+    "bootstrap": "node script/bootstrap.js",
+    "build": "node script/build.js",
     "test": "node script/test"
   },
   "standard-engine": "./script/node_modules/standard",
