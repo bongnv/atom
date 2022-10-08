@@ -6,6 +6,6 @@
     "url": "https://github.com/atom/atom.git"
   },
   "dependencies": {
-    "atom-package-manager": "github:bongnv/apm#24e84fbdf7d6dfbcc1bbc7c03a8e68c3d32f40f0"
+    "atom-package-manager": "github:bongnv/apm#v3.0.0-atomic.2"
   }
 }
