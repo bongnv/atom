@@ -53,7 +53,7 @@
     "devtron": "1.4.0",
     "document-register-element": "^1.14.10",
     "electron-notarize": "1.0.0",
-    "electron-osx-sign": "0.5.0",
+    "electron-squirrel-startup": "^1.0.0",
     "encoding-selector": "github:atom/encoding-selector#v0.23.9",
     "etch": "0.14.1",
     "event-kit": "^2.5.3",
@@ -69,7 +69,7 @@
     "fuzzy-finder": "github:atom/fuzzy-finder#v1.14.3",
     "git-diff": "file:packages/git-diff",
     "git-utils": "5.7.1",
-    "github": "github:bongnv/github#d7d91add44e698804f6fb9a066021cd1be921802",
+    "github": "github:bongnv/github#v0.36.12",
     "glob": "^7.1.1",
     "go-to-line": "file:packages/go-to-line",
     "grammar-selector": "file:packages/grammar-selector",
@@ -206,7 +206,7 @@
     "exception-reporting": "file:./packages/exception-reporting",
     "find-and-replace": "0.220.1",
     "fuzzy-finder": "1.14.3",
-    "github": "0.36.11",
+    "github": "0.36.12",
     "git-diff": "file:./packages/git-diff",
     "go-to-line": "file:./packages/go-to-line",
     "grammar-selector": "file:./packages/grammar-selector",
@@ -271,11 +271,11 @@
   "private": true,
   "scripts": {
     "preinstall": "node -e 'process.exit(0)'",
-    "apm:install": "apm/node_modules/.bin/apm install",
-    "apm": "apm/node_modules/.bin/apm",
-    "bootstrap": "node script/bootstrap.js",
-    "build": "node script/build.js",
-    "test": "node script/test"
+    "build:apm": "cd apm && npm install",
+    "test": "node script/test",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "standard-engine": "./script/node_modules/standard",
   "standard": {
@@ -289,5 +289,16 @@
       "atom",
       "snapshotResult"
     ]
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.67",
+    "@electron-forge/maker-deb": "^6.0.0-beta.67",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.67",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.67",
+    "@electron-forge/maker-zip": "^6.0.0-beta.67",
+    "electron": "12.2.3"
+  },
+  "config": {
+    "forge": "./forge.config.js"
   }
 }
