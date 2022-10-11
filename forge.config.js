@@ -11,9 +11,15 @@ module.exports = {
         'atom'
       ),
       ignore: [
-        "/docs/",
-        "script/",
-        "packages",
+        "^/script/",
+        "^/docs/",
+        "^/packages/",
+        "/spec/",
+        "\.github/",
+        "package-lock.json",
+        "README.md",
+        "LICENSE.md",
+        "Dockerfile",
       ],
       derefSymlinks: true,
     },
