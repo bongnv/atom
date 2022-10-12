@@ -285,8 +285,7 @@
       "node": true
     },
     "globals": [
-      "atom",
-      "snapshotResult"
+      "atom"
     ]
   },
   "devDependencies": {

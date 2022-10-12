@@ -129,18 +129,6 @@ function writeCachedJavaScript(relativeCachePath, code) {
 const INLINE_SOURCE_MAP_REGEXP = /\/\/[#@]\s*sourceMappingURL=([^'"\n]+)\s*$/gm;
 
 exports.install = function(resourcesPath, nodeRequire) {
-  const snapshotSourceMapConsumer = {
-    originalPositionFor({ line, column }) {
-      const { relativePath, row } = snapshotResult.translateSnapshotRow(line);
-      return {
-        column,
-        line: row,
-        source: path.join(resourcesPath, 'app', 'static', relativePath),
-        name: null
-      };
-    }
-  };
-
   sourceMapSupport.install({
     handleUncaughtExceptions: false,
 
@@ -149,7 +137,8 @@ exports.install = function(resourcesPath, nodeRequire) {
     // code from our cache directory.
     retrieveSourceMap: function(filePath) {
       if (filePath === '<embedded>') {
-        return { map: snapshotSourceMapConsumer };
+        console.warn("<embedded> isn't supported");
+        return null;
       }
 
       if (!cacheDirectory || !fs.isFileSync(filePath)) {
