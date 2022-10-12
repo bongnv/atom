@@ -45,8 +45,8 @@ module.exports = class PaneContainer {
     return this.element != null
       ? this.element
       : (this.element = createPaneContainerElement().initialize(this, {
-          views: this.viewRegistry
-        }));
+        views: this.viewRegistry
+      }));
   }
 
   destroy() {
@@ -334,12 +334,10 @@ module.exports = class PaneContainer {
 
       this.cancelStoppedChangingActivePaneItemTimeout();
       // `setTimeout()` isn't available during the snapshotting phase, but that's okay.
-      if (!global.isGeneratingSnapshot) {
-        this.stoppedChangingActivePaneItemTimeout = setTimeout(() => {
-          this.stoppedChangingActivePaneItemTimeout = null;
-          this.emitter.emit('did-stop-changing-active-pane-item', activeItem);
-        }, STOPPED_CHANGING_ACTIVE_PANE_ITEM_DELAY);
-      }
+      this.stoppedChangingActivePaneItemTimeout = setTimeout(() => {
+        this.stoppedChangingActivePaneItemTimeout = null;
+        this.emitter.emit('did-stop-changing-active-pane-item', activeItem);
+      }, STOPPED_CHANGING_ACTIVE_PANE_ITEM_DELAY);
     }
   }
 

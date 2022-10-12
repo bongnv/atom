@@ -40,15 +40,8 @@ module.exports = class ThemeManager {
     this.configDirPath = configDirPath;
     this.safeMode = safeMode;
     this.lessSourcesByRelativeFilePath = null;
-    if (devMode || typeof snapshotAuxiliaryData === 'undefined') {
-      this.lessSourcesByRelativeFilePath = {};
-      this.importedFilePathsByRelativeImportPath = {};
-    } else {
-      this.lessSourcesByRelativeFilePath =
-        snapshotAuxiliaryData.lessSourcesByRelativeFilePath;
-      this.importedFilePathsByRelativeImportPath =
-        snapshotAuxiliaryData.importedFilePathsByRelativeImportPath;
-    }
+    this.lessSourcesByRelativeFilePath = {};
+    this.importedFilePathsByRelativeImportPath = {};
   }
 
   /*
