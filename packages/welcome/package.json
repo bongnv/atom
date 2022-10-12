@@ -13,13 +13,7 @@
     "lint": "standard",
     "test": "atom --test test/*.test.js"
   },
-  "consumedServices": {
-    "metrics-reporter": {
-      "versions": {
-        "^1.1.0": "consumeReporter"
-      }
-    }
-  },
+  "consumedServices": {},
   "configSchema": {
     "showOnStartup": {
       "type": "boolean",
