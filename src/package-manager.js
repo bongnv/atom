@@ -195,7 +195,7 @@ module.exports = class PackageManager {
     }
 
     const commandName = process.platform === 'win32' ? 'apm.cmd' : 'apm';
-    const apmRoot = path.join(process.resourcesPath, 'app', 'apm');
+    const apmRoot = process.env.DEV_APM_ROOT || path.join(process.resourcesPath, 'app', 'apm');
     this.apmPath = path.join(apmRoot, 'bin', commandName);
     if (!fs.isFileSync(this.apmPath)) {
       this.apmPath = path.join(
