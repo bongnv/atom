@@ -69,10 +69,7 @@ module.exports = function start(resourcePath, devResourcePath, startTime) {
     );
     console.log = previousConsoleLog;
     app.on('ready', function() {
-      const testRunner = require(path.join(
-        args.resourcePath,
-        'spec/main-process/mocha-test-runner'
-      ));
+      const testRunner = require('../../spec/main-process/mocha-test-runner');
       testRunner(args.pathsToOpen);
     });
     return;
@@ -114,12 +111,7 @@ module.exports = function start(resourcePath, devResourcePath, startTime) {
     StartupTime.addMarker('main-process:electron-onready:end');
     app.removeListener('open-file', addPathToOpen);
     app.removeListener('open-url', addUrlToOpen);
-    const AtomApplication = require(path.join(
-      args.resourcePath,
-      'src',
-      'main-process',
-      'atom-application'
-    ));
+    const AtomApplication = require('./atom-application');
     AtomApplication.open(args);
   });
 };

@@ -61,7 +61,7 @@ function assertExecutablePaths(executablePaths) {
 const resourcePath = CONFIG.repositoryRootPath;
 let executablePath;
 if (process.platform === 'darwin') {
-  const executablePaths = glob.sync(path.join(CONFIG.buildOutputPath, '*.app'));
+  const executablePaths = glob.sync(path.join(CONFIG.buildOutputPath, 'Atom-darwin-x64/*.app'));
   assertExecutablePaths(executablePaths);
   executablePath = path.join(
     executablePaths[0],
