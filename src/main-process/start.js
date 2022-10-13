@@ -1,7 +1,6 @@
 const { app } = require('electron');
 const nslog = require('nslog');
 const path = require('path');
-const temp = require('temp');
 const parseCommandLine = require('./parse-command-line');
 const getReleaseChannel = require('../get-release-channel');
 const atomPaths = require('../atom-paths');
@@ -45,7 +44,6 @@ module.exports = function start(startTime) {
 
   // This must happen after parseCommandLine() because yargs uses console.log
   // to display the usage message.
-  const previousConsoleLog = console.log;
   console.log = nslog;
 
   atomPaths.setAtomHome(app.getPath('home'));
@@ -58,17 +56,6 @@ module.exports = function start(startTime) {
   }
 
   if (handleStartupEventWithSquirrel()) {
-    return;
-  } else if (args.test && args.mainProcess) {
-    app.setPath(
-      'userData',
-      temp.mkdirSync('atom-user-data-dir-for-main-process-tests')
-    );
-    console.log = previousConsoleLog;
-    app.on('ready', function() {
-      const testRunner = require('../../spec/main-process/mocha-test-runner');
-      testRunner(args.pathsToOpen);
-    });
     return;
   }
 
@@ -99,8 +86,6 @@ module.exports = function start(startTime) {
 
   if (args.userDataDir != null) {
     app.setPath('userData', args.userDataDir);
-  } else if (args.test) {
-    app.setPath('userData', temp.mkdirSync('atom-test-data'));
   }
 
   StartupTime.addMarker('main-process:electron-onready:start');

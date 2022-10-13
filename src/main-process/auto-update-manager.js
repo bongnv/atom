@@ -13,12 +13,11 @@ const ErrorState = 'error';
 let autoUpdater = null;
 
 module.exports = class AutoUpdateManager extends EventEmitter {
-  constructor(version, testMode, config) {
+  constructor(version, config) {
     super();
     this.onUpdateNotAvailable = this.onUpdateNotAvailable.bind(this);
     this.onUpdateError = this.onUpdateError.bind(this);
     this.version = version;
-    this.testMode = testMode;
     this.config = config;
     this.state = IdleState;
     this.iconPath = path.resolve(
@@ -158,11 +157,11 @@ module.exports = class AutoUpdateManager extends EventEmitter {
       autoUpdater.once('error', this.onUpdateError);
     }
 
-    if (!this.testMode) autoUpdater.checkForUpdates();
+    autoUpdater.checkForUpdates();
   }
 
   install() {
-    if (!this.testMode) autoUpdater.quitAndInstall();
+    autoUpdater.quitAndInstall();
   }
 
   onUpdateNotAvailable() {

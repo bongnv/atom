@@ -170,7 +170,6 @@ module.exports = class AtomApplication extends EventEmitter {
     // speedup startup.
     if (
       !socketPath ||
-      options.test ||
       (process.platform !== 'win32' && !fs.existsSync(socketPath))
     ) {
       return createApplication(options);
@@ -241,7 +240,6 @@ module.exports = class AtomApplication extends EventEmitter {
     this.storageFolder = new StorageFolder(process.env.ATOM_HOME);
     this.autoUpdateManager = new AutoUpdateManager(
       this.version,
-      options.test,
       this.config
     );
 
@@ -268,12 +266,7 @@ module.exports = class AtomApplication extends EventEmitter {
       this.safeMode
     );
 
-    let socketServerPromise;
-    if (options.test) {
-      socketServerPromise = Promise.resolve();
-    } else {
-      socketServerPromise = this.listenForArgumentsFromNewProcess();
-    }
+    const socketServerPromise = this.listenForArgumentsFromNewProcess();
 
     await socketServerPromise;
     this.setupDockMenu();
@@ -310,9 +303,7 @@ module.exports = class AtomApplication extends EventEmitter {
     let optionsForWindowsToOpen = [];
     let shouldReopenPreviousWindows = false;
 
-    if (options.test) {
-      optionsForWindowsToOpen.push(options);
-    } else if (options.newWindow) {
+    if (options.newWindow) {
       shouldReopenPreviousWindows = false;
     } else if (
       (options.pathsToOpen && options.pathsToOpen.length > 0) ||
@@ -351,14 +342,11 @@ module.exports = class AtomApplication extends EventEmitter {
       executedFrom,
       foldersToOpen,
       urlsToOpen,
-      test,
       pidToKillWhenClosed,
       devMode,
       safeMode,
       newWindow,
-      logFile,
       profileStartup,
-      timeout,
       clearWindowState,
       addToLastWindow,
       preserveFocus,
@@ -369,17 +357,7 @@ module.exports = class AtomApplication extends EventEmitter {
       app.focus();
     }
 
-    if (test) {
-      return this.runTests({
-        headless: true,
-        devMode,
-        executedFrom,
-        pathsToOpen,
-        logFile,
-        timeout,
-        env
-      });
-    } else if (
+    if (
       (pathsToOpen && pathsToOpen.length > 0) ||
       (foldersToOpen && foldersToOpen.length > 0)
     ) {
@@ -867,24 +845,6 @@ module.exports = class AtomApplication extends EventEmitter {
           const window = BrowserWindow.fromWebContents(event.sender);
           if (this.applicationMenu)
             this.applicationMenu.update(window, template, menu);
-        }
-      )
-    );
-
-    this.disposable.add(
-      ipcHelpers.on(
-        ipcMain,
-        'run-package-specs',
-        (event, packageSpecPath, options = {}) => {
-          this.runTests(
-            Object.assign(
-              {
-                pathsToOpen: [packageSpecPath],
-                headless: false
-              },
-              options
-            )
-          );
         }
       )
     );
@@ -1629,131 +1589,6 @@ module.exports = class AtomApplication extends EventEmitter {
     }
 
     return this.packages;
-  }
-
-  // Opens up a new {AtomWindow} to run specs within.
-  //
-  // options -
-  //   :headless - A Boolean that, if true, will close the window upon
-  //                   completion.
-  //   :resourcePath - The path to include specs from.
-  //   :specPath - The directory to load specs from.
-  //   :safeMode - A Boolean that, if true, won't run specs from ~/.atom/packages
-  //               and ~/.atom/dev/packages, defaults to false.
-  runTests({
-    headless,
-    executedFrom,
-    pathsToOpen,
-    logFile,
-    safeMode,
-    timeout,
-    env
-  }) {
-    let windowInitializationScript;
-    const resourcePath = path.dirname(path.dirname(__dirname));
-
-    const timeoutInSeconds = Number.parseFloat(timeout);
-    if (!Number.isNaN(timeoutInSeconds)) {
-      const timeoutHandler = function() {
-        console.log(
-          `The test suite has timed out because it has been running for more than ${timeoutInSeconds} seconds.`
-        );
-        return process.exit(124); // Use the same exit code as the UNIX timeout util.
-      };
-      setTimeout(timeoutHandler, timeoutInSeconds * 1000);
-    }
-
-    try {
-      windowInitializationScript = require.resolve(
-        path.resolve(this.devResourcePath, 'src', 'initialize-test-window')
-      );
-    } catch (error) {
-      windowInitializationScript = require.resolve(
-        path.resolve(__dirname, '..', '..', 'src', 'initialize-test-window')
-      );
-    }
-
-    const testPaths = [];
-    if (pathsToOpen != null) {
-      for (let pathToOpen of pathsToOpen) {
-        testPaths.push(path.resolve(executedFrom, fs.normalize(pathToOpen)));
-      }
-    }
-
-    if (testPaths.length === 0) {
-      process.stderr.write('Error: Specify at least one test path\n\n');
-      process.exit(1);
-    }
-
-    const legacyTestRunnerPath = this.resolveLegacyTestRunnerPath();
-    const testRunnerPath = this.resolveTestRunnerPath(testPaths[0]);
-    const devMode = true;
-    const isSpec = true;
-    if (safeMode == null) {
-      safeMode = false;
-    }
-    const window = this.createWindow({
-      windowInitializationScript,
-      resourcePath,
-      headless,
-      isSpec,
-      devMode,
-      testRunnerPath,
-      legacyTestRunnerPath,
-      testPaths,
-      logFile,
-      safeMode,
-      env
-    });
-    this.addWindow(window);
-    if (env) window.replaceEnvironment(env);
-    return window;
-  }
-
-  resolveTestRunnerPath(testPath) {
-    let packageRoot;
-    if (FindParentDir == null) {
-      FindParentDir = require('find-parent-dir');
-    }
-
-    if ((packageRoot = FindParentDir.sync(testPath, 'package.json'))) {
-      const packageMetadata = require(path.join(packageRoot, 'package.json'));
-      if (packageMetadata.atomTestRunner) {
-        let testRunnerPath;
-        if (Resolve == null) {
-          Resolve = require('resolve');
-        }
-        if (
-          (testRunnerPath = Resolve.sync(packageMetadata.atomTestRunner, {
-            basedir: packageRoot,
-            extensions: Object.keys(require.extensions)
-          }))
-        ) {
-          return testRunnerPath;
-        } else {
-          process.stderr.write(
-            `Error: Could not resolve test runner path '${
-            packageMetadata.atomTestRunner
-            }'`
-          );
-          process.exit(1);
-        }
-      }
-    }
-
-    return this.resolveLegacyTestRunnerPath();
-  }
-
-  resolveLegacyTestRunnerPath() {
-    try {
-      return require.resolve(
-        path.resolve(this.devResourcePath, 'spec', 'jasmine-test-runner')
-      );
-    } catch (error) {
-      return require.resolve(
-        path.resolve(__dirname, '..', '..', 'spec', 'jasmine-test-runner')
-      );
-    }
   }
 
   async parsePathToOpen(pathToOpen, executedFrom, extra) {

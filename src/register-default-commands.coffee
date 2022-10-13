@@ -55,7 +55,6 @@ module.exports = ({commandRegistry, commandInstaller, config, notificationManage
       'application:open-your-snippets': -> ipcRenderer.send('command', 'application:open-your-snippets')
       'application:open-your-stylesheet': -> ipcRenderer.send('command', 'application:open-your-stylesheet')
       'application:open-license': -> @getModel().openLicense()
-      'window:run-package-specs': -> @runPackageSpecs()
       'window:toggle-left-dock': -> @getModel().getLeftDock().toggle()
       'window:toggle-right-dock': -> @getModel().getRightDock().toggle()
       'window:toggle-bottom-dock': -> @getModel().getBottomDock().toggle()

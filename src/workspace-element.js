@@ -1,8 +1,5 @@
 'use strict';
 
-const { ipcRenderer } = require('electron');
-const path = require('path');
-const fs = require('fs-plus');
 const { CompositeDisposable, Disposable } = require('event-kit');
 const scrollbarStyle = require('scrollbar-style');
 const _ = require('underscore-plus');
@@ -422,29 +419,6 @@ class WorkspaceElement extends HTMLElement {
       top: { x: boundingBox.left, y: boundingBox.top },
       bottom: { x: boundingBox.left, y: boundingBox.bottom }
     };
-  }
-
-  runPackageSpecs(options = {}) {
-    const activePaneItem = this.model.getActivePaneItem();
-    const activePath =
-      activePaneItem && typeof activePaneItem.getPath === 'function'
-        ? activePaneItem.getPath()
-        : null;
-    let projectPath;
-    if (activePath != null) {
-      [projectPath] = this.project.relativizePath(activePath);
-    } else {
-      [projectPath] = this.project.getPaths();
-    }
-    if (projectPath) {
-      let specPath = path.join(projectPath, 'spec');
-      const testPath = path.join(projectPath, 'test');
-      if (!fs.existsSync(specPath) && fs.existsSync(testPath)) {
-        specPath = testPath;
-      }
-
-      ipcRenderer.send('run-package-specs', specPath, options);
-    }
   }
 }
 

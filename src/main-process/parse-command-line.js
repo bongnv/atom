@@ -79,23 +79,6 @@ module.exports = function parseCommandLine(processArgs) {
       'Do not load packages from ~/.atom/packages or ~/.atom/dev/packages.'
     );
   options
-    .alias('t', 'test')
-    .boolean('t')
-    .describe(
-      't',
-      'Run the specified specs and exit with error code on failures.'
-    );
-  options
-    .alias('m', 'main-process')
-    .boolean('m')
-    .describe('m', 'Run the specified specs in the main process.');
-  options
-    .string('timeout')
-    .describe(
-      'timeout',
-      'When in test mode, waits until the specified time (in minutes) and kills the process (exit code: 130).'
-    );
-  options
     .alias('w', 'wait')
     .boolean('w')
     .describe('w', 'Wait for window to be closed before returning.');
@@ -137,9 +120,6 @@ module.exports = function parseCommandLine(processArgs) {
 
   const addToLastWindow = args['add'];
   const safeMode = args['safe'];
-  const test = args['test'];
-  const mainProcess = args['main-process'];
-  const timeout = args['timeout'];
   const newWindow = args['new-window'];
   let executedFrom = null;
   if (args['executed-from'] && args['executed-from'].toString()) {
@@ -184,10 +164,6 @@ module.exports = function parseCommandLine(processArgs) {
     }
   }
 
-  if (test) {
-    devMode = true;
-  }
-
   if (args['path-environment']) {
     // On Yosemite the $PATH is not inherited by the "open" command, so we have to
     // explicitly pass it by command line, see http://git.io/YC8_Ew.
@@ -198,7 +174,6 @@ module.exports = function parseCommandLine(processArgs) {
     pathsToOpen,
     urlsToOpen,
     executedFrom,
-    test,
     version,
     pidToKillWhenClosed,
     devMode,
@@ -207,10 +182,8 @@ module.exports = function parseCommandLine(processArgs) {
     logFile,
     userDataDir,
     profileStartup,
-    timeout,
     clearWindowState,
     addToLastWindow,
-    mainProcess,
     env: process.env
   };
 };
