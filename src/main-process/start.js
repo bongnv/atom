@@ -99,7 +99,7 @@ module.exports = function start(startTime) {
 
   if (args.userDataDir != null) {
     app.setPath('userData', args.userDataDir);
-  } else if (args.test || args.benchmark || args.benchmarkTest) {
+  } else if (args.test) {
     app.setPath('userData', temp.mkdirSync('atom-test-data'));
   }
 

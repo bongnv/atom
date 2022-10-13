@@ -759,15 +759,14 @@ describe('AtomApplication', function() {
       assert.isNull(w._locations[0].initialColumn);
     });
 
-    it('disregards test and benchmark windows', async function() {
+    it('disregards test windows', async function() {
       await scenario.launch(parseCommandLine(['--test', 'b']));
       await scenario.open(parseCommandLine(['--new-window']));
       await scenario.open(parseCommandLine(['--test', 'c']));
-      await scenario.open(parseCommandLine(['--benchmark', 'b']));
 
       await scenario.open(parseCommandLine(['a/1.md']));
 
-      // Test and benchmark StubWindows are visible as empty editor windows here
+      // Test StubWindows are visible as empty editor windows here
       await scenario.assert('[_ _] [_ 1.md] [_ _] [_ _]');
     });
   });
