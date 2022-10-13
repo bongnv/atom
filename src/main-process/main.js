@@ -13,8 +13,7 @@ const args = yargs(process.argv)
   .help(false)
   .version(false)
   .alias('d', 'dev')
-  .alias('t', 'test')
-  .alias('r', 'resource-path').argv;
+  .alias('t', 'test').argv;
 
 function isAtomRepoPath(repoPath) {
   let packageJsonPath = path.join(repoPath, 'package.json');
@@ -30,36 +29,6 @@ function isAtomRepoPath(repoPath) {
   return false;
 }
 
-let resourcePath;
-let devResourcePath;
-
-if (args.resourcePath) {
-  resourcePath = args.resourcePath;
-  devResourcePath = resourcePath;
-} else {
-  const stableResourcePath = path.dirname(path.dirname(__dirname));
-  const defaultRepositoryPath = path.join(
-    app.getPath('home'),
-    'github',
-    'atom'
-  );
-
-  if (process.env.ATOM_DEV_RESOURCE_PATH) {
-    devResourcePath = process.env.ATOM_DEV_RESOURCE_PATH;
-  } else if (isAtomRepoPath(process.cwd())) {
-    devResourcePath = process.cwd();
-  } else if (fs.statSyncNoException(defaultRepositoryPath)) {
-    devResourcePath = defaultRepositoryPath;
-  } else {
-    devResourcePath = stableResourcePath;
-  }
-
-  if (args.dev || args.test || args.benchmark || args.benchmarkTest) {
-    resourcePath = devResourcePath;
-  } else {
-    resourcePath = stableResourcePath;
-  }
-}
-
+const stableResourcePath = path.dirname(path.dirname(__dirname));
 const start = require('./start');
-start(resourcePath, devResourcePath, startTime);
+start(stableResourcePath, stableResourcePath, startTime);

@@ -270,7 +270,7 @@
     "preinstall": "node -e 'process.exit(0)'",
     "build:apm": "cd apm && npm install",
     "test": "node script/test.js",
-    "start": "DEV_APM_ROOT=\"./apm/node_modules/atom-package-manager\" electron-forge start --enable-logging",
+    "start": "DEV_APM_ROOT=\"./apm/node_modules/atom-package-manager\" electron-forge start --enable-logging -- --dev",
     "package": "electron-forge package",
     "make": "electron-forge make"
   },
