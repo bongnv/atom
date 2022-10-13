@@ -73,13 +73,6 @@ module.exports = function parseCommandLine(processArgs) {
       'Create a profile of the startup execution time.'
     );
   options
-    .alias('r', 'resource-path')
-    .string('r')
-    .describe(
-      'r',
-      'Set the path to the Atom source directory and enable dev-mode.'
-    );
-  options
     .boolean('safe')
     .describe(
       'safe',
@@ -205,7 +198,7 @@ module.exports = function parseCommandLine(processArgs) {
     }
   }
 
-  if (args.resourcePath || test) {
+  if (test) {
     devMode = true;
   }
 

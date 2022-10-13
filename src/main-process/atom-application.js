@@ -199,12 +199,14 @@ module.exports = class AtomApplication extends EventEmitter {
     StartupTime.addMarker('main-process:atom-application:constructor:start');
 
     super();
+    const resourcePath = path.dirname(path.dirname(__dirname));
+
     this.quitting = false;
     this.quittingForUpdate = false;
     this.getAllWindows = this.getAllWindows.bind(this);
     this.getLastFocusedWindow = this.getLastFocusedWindow.bind(this);
-    this.resourcePath = options.resourcePath;
-    this.devResourcePath = options.devResourcePath;
+    this.resourcePath = resourcePath;
+    this.devResourcePath = resourcePath;
     this.version = options.version;
     this.devMode = options.devMode;
     this.safeMode = options.safeMode;
@@ -265,7 +267,6 @@ module.exports = class AtomApplication extends EventEmitter {
       this.autoUpdateManager
     );
     this.atomProtocolHandler = new AtomProtocolHandler(
-      this.resourcePath,
       this.safeMode
     );
 
@@ -376,7 +377,6 @@ module.exports = class AtomApplication extends EventEmitter {
       return this.runTests({
         headless: true,
         devMode,
-        resourcePath: this.resourcePath,
         executedFrom,
         pathsToOpen,
         logFile,
@@ -387,7 +387,6 @@ module.exports = class AtomApplication extends EventEmitter {
       return this.runBenchmarks({
         headless: true,
         test: benchmarkTest,
-        resourcePath: this.resourcePath,
         executedFrom,
         pathsToOpen,
         timeout,
@@ -893,7 +892,6 @@ module.exports = class AtomApplication extends EventEmitter {
           this.runTests(
             Object.assign(
               {
-                resourcePath: this.devResourcePath,
                 pathsToOpen: [packageSpecPath],
                 headless: false
               },
@@ -907,7 +905,6 @@ module.exports = class AtomApplication extends EventEmitter {
     this.disposable.add(
       ipcHelpers.on(ipcMain, 'run-benchmarks', (event, benchmarksPath) => {
         this.runBenchmarks({
-          resourcePath: this.devResourcePath,
           pathsToOpen: [benchmarksPath],
           headless: false,
           test: false
@@ -1074,7 +1071,7 @@ module.exports = class AtomApplication extends EventEmitter {
 
   initializeAtomHome(configDirPath) {
     if (!fs.existsSync(configDirPath)) {
-      const templateConfigDirPath = fs.resolve(this.resourcePath, 'dot-atom');
+      const templateConfigDirPath = path.resolve(__dirname, '../../dot-atom');
       fs.copySync(templateConfigDirPath, configDirPath);
     }
   }
@@ -1373,26 +1370,11 @@ module.exports = class AtomApplication extends EventEmitter {
       }
       openedWindow.replaceEnvironment(env);
     } else {
-      let resourcePath, windowInitializationScript;
-      if (devMode) {
-        try {
-          windowInitializationScript = require.resolve(
-            path.join(
-              this.devResourcePath,
-              'src',
-              'initialize-application-window'
-            )
-          );
-          resourcePath = this.devResourcePath;
-        } catch (error) {}
-      }
+      const resourcePath = path.dirname(path.dirname(__dirname));
+      const windowInitializationScript = require.resolve(
+        '../initialize-application-window'
+      );
 
-      if (!windowInitializationScript) {
-        windowInitializationScript = require.resolve(
-          '../initialize-application-window'
-        );
-      }
-      if (!resourcePath) resourcePath = this.resourcePath;
       if (!windowDimensions)
         windowDimensions = this.getDimensionsForNewWindow();
 
@@ -1468,7 +1450,7 @@ module.exports = class AtomApplication extends EventEmitter {
       if (error.code !== 'ESRCH') {
         console.log(
           `Killing process ${pid} failed: ${
-            error.code != null ? error.code : error.message
+          error.code != null ? error.code : error.message
           }`
         );
       }
@@ -1601,26 +1583,10 @@ module.exports = class AtomApplication extends EventEmitter {
       bestWindow.focus();
       return bestWindow;
     } else {
-      let windowInitializationScript;
-      let { resourcePath } = this;
-      if (devMode) {
-        try {
-          windowInitializationScript = require.resolve(
-            path.join(
-              this.devResourcePath,
-              'src',
-              'initialize-application-window'
-            )
-          );
-          resourcePath = this.devResourcePath;
-        } catch (error) {}
-      }
-
-      if (!windowInitializationScript) {
-        windowInitializationScript = require.resolve(
-          '../initialize-application-window'
-        );
-      }
+      const resourcePath = path.dirname(path.dirname(__dirname));
+      const windowInitializationScript = require.resolve(
+        '../initialize-application-window'
+      );
 
       const windowDimensions = this.getDimensionsForNewWindow();
       const window = this.createWindow({
@@ -1674,12 +1640,14 @@ module.exports = class AtomApplication extends EventEmitter {
 
   getPackageManager(devMode) {
     if (this.packages == null) {
+      const resourcePath = path.dirname(path.dirname(__dirname));
+
       const PackageManager = require('../package-manager');
       this.packages = new PackageManager({});
       this.packages.initialize({
         configDirPath: process.env.ATOM_HOME,
         devMode,
-        resourcePath: this.resourcePath
+        resourcePath,
       });
     }
 
@@ -1697,7 +1665,6 @@ module.exports = class AtomApplication extends EventEmitter {
   //               and ~/.atom/dev/packages, defaults to false.
   runTests({
     headless,
-    resourcePath,
     executedFrom,
     pathsToOpen,
     logFile,
@@ -1706,9 +1673,7 @@ module.exports = class AtomApplication extends EventEmitter {
     env
   }) {
     let windowInitializationScript;
-    if (resourcePath !== this.resourcePath && !fs.existsSync(resourcePath)) {
-      ({ resourcePath } = this);
-    }
+    const resourcePath = path.dirname(path.dirname(__dirname));
 
     const timeoutInSeconds = Number.parseFloat(timeout);
     if (!Number.isNaN(timeoutInSeconds)) {
@@ -1771,15 +1736,12 @@ module.exports = class AtomApplication extends EventEmitter {
   runBenchmarks({
     headless,
     test,
-    resourcePath,
     executedFrom,
     pathsToOpen,
     env
   }) {
     let windowInitializationScript;
-    if (resourcePath !== this.resourcePath && !fs.existsSync(resourcePath)) {
-      ({ resourcePath } = this);
-    }
+    const resourcePath = path.dirname(path.dirname(__dirname));
 
     try {
       windowInitializationScript = require.resolve(
@@ -1852,7 +1814,7 @@ module.exports = class AtomApplication extends EventEmitter {
         } else {
           process.stderr.write(
             `Error: Could not resolve test runner path '${
-              packageMetadata.atomTestRunner
+            packageMetadata.atomTestRunner
             }'`
           );
           process.exit(1);

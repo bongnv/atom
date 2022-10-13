@@ -14,8 +14,9 @@ const path = require('path');
 //   * RESOURCE_PATH/node_modules
 //
 module.exports = class AtomProtocolHandler {
-  constructor(resourcePath, safeMode) {
+  constructor(safeMode) {
     this.loadPaths = [];
+    const resourcePath = path.dirname(path.dirname(__dirname));
 
     if (!safeMode) {
       this.loadPaths.push(path.join(process.env.ATOM_HOME, 'dev', 'packages'));

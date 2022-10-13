@@ -12,7 +12,7 @@ const StartupTime = require('../startup-time');
 
 StartupTime.setStartTime();
 
-module.exports = function start(resourcePath, devResourcePath, startTime) {
+module.exports = function start(startTime) {
   global.shellStartTime = startTime;
   StartupTime.addMarker('main-process:start');
 
@@ -47,9 +47,6 @@ module.exports = function start(resourcePath, devResourcePath, startTime) {
   // to display the usage message.
   const previousConsoleLog = console.log;
   console.log = nslog;
-
-  args.resourcePath = normalizeDriveLetterName(resourcePath);
-  args.devResourcePath = normalizeDriveLetterName(devResourcePath);
 
   atomPaths.setAtomHome(app.getPath('home'));
   atomPaths.setUserData(app);
@@ -142,15 +139,4 @@ function getConfig() {
   }
 
   return config;
-}
-
-function normalizeDriveLetterName(filePath) {
-  if (process.platform === 'win32' && filePath) {
-    return filePath.replace(
-      /^([a-z]):/,
-      ([driveLetter]) => driveLetter.toUpperCase() + ':'
-    );
-  } else {
-    return filePath;
-  }
 }
