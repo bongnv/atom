@@ -31,6 +31,7 @@ const _ = require('underscore-plus');
 let FindParentDir = null;
 let Resolve = null;
 const ConfigSchema = require('../config-schema');
+const { getEnvFromShell } = require('./get-env-from-shell');
 
 const LocationSuffixRegExp = /(:\d+)(:\d+)?$/;
 
@@ -140,6 +141,9 @@ ipcMain.handle('isDefaultProtocolClient', (_, { protocol, path, args }) => {
 ipcMain.handle('setAsDefaultProtocolClient', (_, { protocol, path, args }) => {
   return app.setAsDefaultProtocolClient(protocol, path, args);
 });
+
+ipcMain.handle('getEnvFromShell', getEnvFromShell);
+
 // The application's singleton class.
 //
 // It's the entry point into the Atom application and maintains the global state

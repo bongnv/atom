@@ -64,7 +64,7 @@ class AtomEnvironment {
 
     // Public: A {Clipboard} instance
     this.clipboard = params.clipboard;
-    this.updateProcessEnv = params.updateProcessEnv || updateProcessEnv;
+    this.updateProcessEnv = updateProcessEnv;
     this.enablePersistence = params.enablePersistence;
     this.applicationDelegate = params.applicationDelegate;
 
@@ -1049,7 +1049,7 @@ class AtomEnvironment {
     const output = await Promise.all([
       loadStatePromise,
       loadHistoryPromise,
-      updateProcessEnvPromise
+      updateProcessEnvPromise,
     ]);
 
     StartupTime.addMarker('window:environment:start-editor-window:end');
