@@ -8,7 +8,6 @@
   const Module = require('module');
   const getWindowLoadSettings = require('../src/get-window-load-settings');
   const StartupTime = require('../src/startup-time');
-  const entryPointDirPath = __dirname;
   let blobStore = null;
 
   const startupMarkers = electron.remote.getCurrentWindow().startupMarkers;
@@ -119,11 +118,7 @@
     const CSON = require('season');
     CSON.setCacheDir(path.join(CompileCache.getCacheDirectory(), 'cson'));
 
-    const initScriptPath = path.relative(
-      entryPointDirPath,
-      getWindowLoadSettings().windowInitializationScript
-    );
-    const initialize = require(initScriptPath);
+    const initialize = require(getWindowLoadSettings().windowInitializationScript);
 
     StartupTime.addMarker('window:initialize:start');
 
