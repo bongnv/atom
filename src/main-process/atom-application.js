@@ -1244,17 +1244,12 @@ module.exports = class AtomApplication extends EventEmitter {
       }
       openedWindow.replaceEnvironment(env);
     } else {
-      const windowInitializationScript = require.resolve(
-        '../initialize-application-window'
-      );
-
       if (!windowDimensions)
         windowDimensions = this.getDimensionsForNewWindow();
 
       StartupTime.addMarker('main-process:atom-application:create-window');
       openedWindow = this.createWindow({
         locationsToOpen,
-        windowInitializationScript,
         devMode,
         safeMode,
         windowDimensions,

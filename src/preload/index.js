@@ -6,7 +6,7 @@
   const electron = require('electron');
   const path = require('path');
   const getWindowLoadSettings = require('./get-window-load-settings');
-  const StartupTime = require('./shared/startup-time');
+  const StartupTime = require('../shared/startup-time');
   let blobStore = null;
 
   const startupMarkers = electron.remote.getCurrentWindow().startupMarkers;
@@ -29,36 +29,15 @@
         );
       });
 
-      // Normalize to make sure drive letter case is consistent on Windows
-      process.resourcesPath = path.normalize(process.resourcesPath);
-
       setupAtomHome();
-      const devMode =
-        getWindowLoadSettings().devMode ||
-        !getWindowLoadSettings().resourcePath.startsWith(
-          process.resourcesPath + path.sep
-        );
 
-      if (devMode) {
-        const metadata = require('../package.json');
-        if (!metadata._deprecatedPackages) {
-          try {
-            metadata._deprecatedPackages = require('../script/deprecated-packages.json');
-          } catch (requireError) {
-            console.error(
-              'Failed to setup deprecated packages list',
-              requireError.stack
-            );
-          }
-        }
-      }
-
-      const FileSystemBlobStore = require('../src/file-system-blob-store');
+      const FileSystemBlobStore = require('./file-system-blob-store');
       blobStore = FileSystemBlobStore.load(
         path.join(process.env.ATOM_HOME, 'blob-store')
       );
 
-      const NativeCompileCache = require('../src/native-compile-cache');
+      // TODO: bongnv: remove this
+      const NativeCompileCache = require('../native-compile-cache');
       NativeCompileCache.setCacheStore(blobStore);
       NativeCompileCache.setV8Version(process.versions.v8);
       NativeCompileCache.install();
@@ -94,11 +73,12 @@
   }
 
   function setupWindow() {
-    const CompileCache = require('../src/compile-cache');
+    // TODO: bongnv - remove this
+    const CompileCache = require('../compile-cache');
     CompileCache.setAtomHomeDirectory(process.env.ATOM_HOME);
     CompileCache.install(process.resourcesPath, require);
 
-    const ModuleCache = require('../src/module-cache');
+    const ModuleCache = require('../module-cache');
     ModuleCache.register(getWindowLoadSettings());
 
     require('document-register-element');
@@ -114,10 +94,11 @@
       return documentRegisterElement(type, options);
     };
 
+    // TODO: bongnv - remove this
     const CSON = require('season');
     CSON.setCacheDir(path.join(CompileCache.getCacheDirectory(), 'cson'));
 
-    const initialize = require(getWindowLoadSettings().windowInitializationScript);
+    const initialize = require('./initialize-application-window');
 
     StartupTime.addMarker('window:initialize:start');
 

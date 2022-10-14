@@ -1,7 +1,7 @@
-const AtomEnvironment = require('./atom-environment');
-const ApplicationDelegate = require('./application-delegate');
-const Clipboard = require('./clipboard');
-const TextEditor = require('./text-editor');
+const AtomEnvironment = require('../atom-environment');
+const ApplicationDelegate = require('../application-delegate');
+const Clipboard = require('../clipboard');
+const TextEditor = require('../text-editor');
 
 const clipboard = new Clipboard();
 TextEditor.setClipboard(clipboard);
@@ -18,13 +18,13 @@ global.atom.preloadPackages();
 
 // Like sands through the hourglass, so are the days of our lives.
 module.exports = function({ blobStore }) {
-  const { updateProcessEnv } = require('./update-process-env');
+  const { updateProcessEnv } = require('../update-process-env');
   const path = require('path');
-  require('./window');
+  require('../window');
   const getWindowLoadSettings = require('./get-window-load-settings');
   const { ipcRenderer } = require('electron');
   const { resourcePath, devMode } = getWindowLoadSettings();
-  require('./electron-shims');
+  require('../electron-shims');
 
   // Add application-specific exports to module search path.
   const exportsPath = path.join(resourcePath, 'exports');

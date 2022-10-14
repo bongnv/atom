@@ -65,7 +65,7 @@ module.exports = class AtomWindow extends EventEmitter {
         // The default of contextIsolation is changed to true so we'll have to set it to false.
         // See https://github.com/electron/electron/issues/23506 for more information
         contextIsolation: false,
-        preload: path.join(__dirname, '../preload.js'),
+        preload: path.join(__dirname, '../preload/index.js'),
       },
       simpleFullscreen: this.getSimpleFullscreen()
     };
