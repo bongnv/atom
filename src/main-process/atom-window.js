@@ -29,7 +29,7 @@ module.exports = class AtomWindow extends EventEmitter {
     this.headless = settings.headless;
     this.safeMode = settings.safeMode;
     this.devMode = settings.devMode;
-    this.resourcePath = settings.resourcePath;
+    this.resourcePath = path.dirname(path.dirname(__dirname));
 
     const locationsToOpen = settings.locationsToOpen || [];
 
@@ -99,7 +99,9 @@ module.exports = class AtomWindow extends EventEmitter {
 
     this.handleEvents();
 
-    this.loadSettings = Object.assign({}, settings);
+    this.loadSettings = Object.assign({}, settings, {
+      resourcePath: this.resourcePath,
+    });
     this.loadSettings.appVersion = app.getVersion();
     this.loadSettings.appName = getAppName();
     this.loadSettings.resourcePath = this.resourcePath;

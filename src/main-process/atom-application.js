@@ -19,7 +19,7 @@ const {
 } = require('electron');
 const { CompositeDisposable, Disposable } = require('event-kit');
 const crypto = require('crypto');
-const fs = require('fs-plus');
+const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const net = require('net');
@@ -193,13 +193,9 @@ module.exports = class AtomApplication extends EventEmitter {
     StartupTime.addMarker('main-process:atom-application:constructor:start');
 
     super();
-    const resourcePath = path.dirname(path.dirname(__dirname));
-
     this.quitting = false;
     this.getAllWindows = this.getAllWindows.bind(this);
     this.getLastFocusedWindow = this.getLastFocusedWindow.bind(this);
-    this.resourcePath = resourcePath;
-    this.devResourcePath = resourcePath;
     this.version = options.version;
     this.devMode = options.devMode;
     this.safeMode = options.safeMode;
@@ -1269,7 +1265,6 @@ module.exports = class AtomApplication extends EventEmitter {
       }
       openedWindow.replaceEnvironment(env);
     } else {
-      const resourcePath = path.dirname(path.dirname(__dirname));
       const windowInitializationScript = require.resolve(
         '../initialize-application-window'
       );
@@ -1281,7 +1276,6 @@ module.exports = class AtomApplication extends EventEmitter {
       openedWindow = this.createWindow({
         locationsToOpen,
         windowInitializationScript,
-        resourcePath,
         devMode,
         safeMode,
         windowDimensions,
@@ -1482,14 +1476,12 @@ module.exports = class AtomApplication extends EventEmitter {
       bestWindow.focus();
       return bestWindow;
     } else {
-      const resourcePath = path.dirname(path.dirname(__dirname));
       const windowInitializationScript = require.resolve(
         '../initialize-application-window'
       );
 
       const windowDimensions = this.getDimensionsForNewWindow();
       const window = this.createWindow({
-        resourcePath,
         windowInitializationScript,
         devMode,
         safeMode,
@@ -1526,7 +1518,6 @@ module.exports = class AtomApplication extends EventEmitter {
     const windowDimensions = this.getDimensionsForNewWindow();
     const window = this.createWindow({
       windowInitializationScript,
-      resourcePath: this.resourcePath,
       devMode,
       safeMode,
       urlToOpen,
@@ -1539,14 +1530,11 @@ module.exports = class AtomApplication extends EventEmitter {
 
   getPackageManager(devMode) {
     if (this.packages == null) {
-      const resourcePath = path.dirname(path.dirname(__dirname));
-
       const PackageManager = require('../package-manager');
       this.packages = new PackageManager({});
       this.packages.initialize({
         configDirPath: process.env.ATOM_HOME,
         devMode,
-        resourcePath,
       });
     }
 
@@ -1584,7 +1572,7 @@ module.exports = class AtomApplication extends EventEmitter {
     }
 
     const normalizedPath = path.normalize(
-      path.resolve(executedFrom, fs.normalize(result.pathToOpen))
+      path.resolve(executedFrom, result.pathToOpen)
     );
     if (!url.parse(pathToOpen).protocol) {
       result.pathToOpen = normalizedPath;
@@ -1728,7 +1716,6 @@ module.exports = class AtomApplication extends EventEmitter {
       args.push(`--user-data-dir=${this.userDataDir}`);
     if (this.devMode) {
       args.push('--dev');
-      args.push(`--resource-path=${this.resourcePath}`);
     }
     app.relaunch({ args });
     app.quit();
