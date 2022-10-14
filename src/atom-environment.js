@@ -43,7 +43,6 @@ const Dock = require('./dock');
 const TextEditor = require('./text-editor');
 const TextBuffer = require('text-buffer');
 const TextEditorRegistry = require('./text-editor-registry');
-const AutoUpdateManager = require('./auto-update-manager');
 const StartupTime = require('./startup-time');
 const getReleaseChannel = require('./get-release-channel');
 
@@ -196,10 +195,6 @@ class AtomEnvironment {
 
     this.themes.workspace = this.workspace;
 
-    this.autoUpdater = new AutoUpdateManager({
-      applicationDelegate: this.applicationDelegate
-    });
-
     if (this.keymaps.canLoadBundledKeymapsFromMemory()) {
       this.keymaps.loadBundledKeymaps();
     }
@@ -296,7 +291,6 @@ class AtomEnvironment {
       'core',
       CoreURIHandlers.create(this)
     );
-    this.autoUpdater.initialize();
 
     this.protocolHandlerInstaller.initialize(this.config, this.notifications);
 
@@ -454,7 +448,6 @@ class AtomEnvironment {
     this.project = null;
     this.commands.clear();
     if (this.stylesElement) this.stylesElement.remove();
-    this.autoUpdater.destroy();
     this.uriHandlerRegistry.destroy();
 
     this.uninstallWindowEventHandler();
@@ -938,8 +931,6 @@ class AtomEnvironment {
           this.prepareToUnloadEditorWindow.bind(this)
         )
       );
-
-      this.listenForUpdates();
 
       this.registerDefaultTargetForKeymaps();
 
@@ -1550,24 +1541,6 @@ or use Pane::saveItemAs for programmatic saving.`);
         );
       }
     }
-  }
-
-  // TODO: We should deprecate the update events here, and use `atom.autoUpdater` instead
-  onUpdateAvailable(callback) {
-    return this.emitter.on('update-available', callback);
-  }
-
-  updateAvailable(details) {
-    return this.emitter.emit('update-available', details);
-  }
-
-  listenForUpdates() {
-    // listen for updates available locally (that have been successfully downloaded)
-    this.disposables.add(
-      this.autoUpdater.onDidCompleteDownloadingUpdate(
-        this.updateAvailable.bind(this)
-      )
-    );
   }
 
   setBodyPlatformClass() {

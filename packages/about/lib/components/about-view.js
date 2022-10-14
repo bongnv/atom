@@ -3,7 +3,6 @@ const etch = require('etch');
 const { shell } = require('electron');
 const AtomLogo = require('./atom-logo');
 const EtchComponent = require('../etch-component');
-const UpdateView = require('./update-view');
 
 const $ = etch.dom;
 
@@ -28,13 +27,6 @@ module.exports = class AboutView extends EtchComponent {
     atom.clipboard.write(this.props.currentNodeVersion);
   }
 
-  handleReleaseNotesClick(e) {
-    e.preventDefault();
-    shell.openExternal(
-      this.props.updateManager.getReleaseNotesURLForAvailableVersion()
-    );
-  }
-
   handleLicenseClick(e) {
     e.preventDefault();
     atom.commands.dispatch(
@@ -46,13 +38,6 @@ module.exports = class AboutView extends EtchComponent {
   handleTermsOfUseClick(e) {
     e.preventDefault();
     shell.openExternal('https://atom.io/terms');
-  }
-
-  handleHowToUpdateClick(e) {
-    e.preventDefault();
-    shell.openExternal(
-      'https://flight-manual.atom.io/getting-started/sections/installing-atom/'
-    );
   }
 
   handleShowMoreClick(e) {
@@ -94,13 +79,6 @@ module.exports = class AboutView extends EtchComponent {
                 `${this.props.currentAtomVersion} ${process.arch}`
               ),
               $.span({ className: 'icon icon-clippy about-copy-version' })
-            ),
-            $.a(
-              {
-                className: 'about-header-release-notes',
-                onclick: this.handleReleaseNotesClick.bind(this)
-              },
-              'Release Notes'
             )
           ),
           $.span(
@@ -158,13 +136,6 @@ module.exports = class AboutView extends EtchComponent {
           )
         )
       ),
-
-      $(UpdateView, {
-        updateManager: this.props.updateManager,
-        availableVersion: this.props.availableVersion,
-        viewUpdateReleaseNotes: this.handleReleaseNotesClick.bind(this),
-        viewUpdateInstructions: this.handleHowToUpdateClick.bind(this)
-      }),
 
       $.div(
         { className: 'about-actions group-item' },

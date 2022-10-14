@@ -211,8 +211,7 @@ module.exports = class AtomWindow extends EventEmitter {
   handleEvents() {
     this.browserWindow.on('close', async event => {
       if (
-        (!this.atomApplication.quitting ||
-          this.atomApplication.quittingForUpdate) &&
+        (!this.atomApplication.quitting) &&
         !this.unloading
       ) {
         event.preventDefault();
