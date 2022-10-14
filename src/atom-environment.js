@@ -12,7 +12,7 @@ const WindowEventHandler = require('./window-event-handler');
 const StateStore = require('./state-store');
 const registerDefaultCommands = require('./register-default-commands');
 const { updateProcessEnv } = require('./update-process-env');
-const ConfigSchema = require('./config-schema');
+const ConfigSchema = require('./shared/config-schema');
 
 const DeserializerManager = require('./deserializer-manager');
 const ViewRegistry = require('./view-registry');
@@ -43,7 +43,7 @@ const Dock = require('./dock');
 const TextEditor = require('./text-editor');
 const TextBuffer = require('text-buffer');
 const TextEditorRegistry = require('./text-editor-registry');
-const StartupTime = require('./startup-time');
+const StartupTime = require('./shared/startup-time');
 const getReleaseChannel = require('./shared/get-release-channel');
 
 const stat = util.promisify(fs.stat);

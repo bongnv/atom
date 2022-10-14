@@ -11,7 +11,7 @@ const Cursor = require('./cursor');
 const Selection = require('./selection');
 const NullGrammar = require('./null-grammar');
 const TextMateLanguageMode = require('./text-mate-language-mode');
-const ScopeDescriptor = require('./scope-descriptor');
+const ScopeDescriptor = require('./shared/scope-descriptor');
 
 const TextMateScopeSelector = require('first-mate').ScopeSelector;
 const GutterContainer = require('./gutter-container');

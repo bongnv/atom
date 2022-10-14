@@ -1,12 +1,12 @@
 const AtomWindow = require('./atom-window');
 const ApplicationMenu = require('./application-menu');
 const AtomProtocolHandler = require('./atom-protocol-handler');
-const StorageFolder = require('../storage-folder');
+const StorageFolder = require('./storage-folder');
 const Config = require('./config');
 const ConfigFile = require('./config-file');
 const FileRecoveryService = require('./file-recovery-service');
-const StartupTime = require('../startup-time');
-const ipcHelpers = require('../ipc-helpers');
+const StartupTime = require('../shared/startup-time');
+const ipcHelpers = require('./ipc-helpers');
 const {
   BrowserWindow,
   Menu,
@@ -27,7 +27,6 @@ const url = require('url');
 const { promisify } = require('util');
 const { EventEmitter } = require('events');
 const _ = require('underscore-plus');
-const ConfigSchema = require('../config-schema');
 const { getEnvFromShell } = require('./get-env-from-shell');
 
 const LocationSuffixRegExp = /(:\d+)(:\d+)?$/;
@@ -209,11 +208,6 @@ module.exports = class AtomApplication extends EventEmitter {
 
     this.config = Config.getConfig();
     this.configFile = this.config.configFile;
-
-    this.config.setSchema(null, {
-      type: 'object',
-      properties: _.clone(ConfigSchema)
-    });
 
     this.fileRecoveryService = new FileRecoveryService(
       path.join(process.env.ATOM_HOME, 'recovery')
@@ -1445,7 +1439,7 @@ module.exports = class AtomApplication extends EventEmitter {
     let bestWindow;
 
     if (parsedUrl.host === 'core') {
-      const predicate = require('../core-uri-handlers').windowPredicate(
+      const predicate = require('./core-uri-handlers').windowPredicate(
         parsedUrl
       );
       bestWindow = this.getLastFocusedWindow(

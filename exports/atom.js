@@ -6,7 +6,7 @@ const BufferedNodeProcess = require('../src/buffered-node-process');
 const BufferedProcess = require('../src/buffered-process');
 const GitRepository = require('../src/git-repository');
 const Notification = require('../src/notification');
-const { watchPath } = require('../src/path-watcher');
+const { watchPath } = require('../src/shared/path-watcher');
 
 const atomExport = {
   BufferedNodeProcess,

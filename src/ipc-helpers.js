@@ -1,7 +1,5 @@
 const Disposable = require('event-kit').Disposable;
 let ipcRenderer = null;
-let ipcMain = null;
-let BrowserWindow = null;
 
 let nextResponseChannelId = 0;
 
@@ -26,24 +24,4 @@ exports.call = function(channel, ...args) {
 
     ipcRenderer.send(channel, responseChannel, ...args);
   });
-};
-
-exports.respondTo = function(channel, callback) {
-  if (!ipcMain) {
-    const electron = require('electron');
-    ipcMain = electron.ipcMain;
-    BrowserWindow = electron.BrowserWindow;
-  }
-
-  return exports.on(
-    ipcMain,
-    channel,
-    async (event, responseChannel, ...args) => {
-      const browserWindow = BrowserWindow.fromWebContents(event.sender);
-      const result = await callback(browserWindow, ...args);
-      if (!event.sender.isDestroyed()) {
-        event.sender.send(responseChannel, result);
-      }
-    }
-  );
 };

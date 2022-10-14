@@ -3,7 +3,7 @@ const { CompositeDisposable, Emitter } = require('event-kit');
 const { Point, Range } = require('text-buffer');
 const TokenizedLine = require('./tokenized-line');
 const TokenIterator = require('./token-iterator');
-const ScopeDescriptor = require('./scope-descriptor');
+const ScopeDescriptor = require('./shared/scope-descriptor');
 const NullGrammar = require('./null-grammar');
 const { OnigRegExp } = require('oniguruma');
 const {

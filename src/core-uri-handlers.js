@@ -1,5 +1,3 @@
-const fs = require('fs-plus');
-
 // Converts a query string parameter for a line or column number
 // to a zero-based line or column number for the Atom API.
 function getLineColNumber(numStr) {
@@ -17,21 +15,8 @@ function openFile(atom, { query }) {
   });
 }
 
-function windowShouldOpenFile({ query }) {
-  const { filename } = query;
-  const stat = fs.statSyncNoException(filename);
-
-  return win =>
-    win.containsLocation({
-      pathToOpen: filename,
-      exists: Boolean(stat),
-      isFile: stat.isFile(),
-      isDirectory: stat.isDirectory()
-    });
-}
-
 const ROUTER = {
-  '/open/file': { handler: openFile, getWindowPredicate: windowShouldOpenFile }
+  '/open/file': { handler: openFile }
 };
 
 module.exports = {
@@ -43,13 +28,4 @@ module.exports = {
       }
     };
   },
-
-  windowPredicate(parsed) {
-    const config = ROUTER[parsed.pathname];
-    if (config && config.getWindowPredicate) {
-      return config.getWindowPredicate(parsed);
-    } else {
-      return () => true;
-    }
-  }
 };

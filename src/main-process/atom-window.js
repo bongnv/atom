@@ -9,7 +9,7 @@ const getAppName = require('./get-app-name');
 const path = require('path');
 const url = require('url');
 const { EventEmitter } = require('events');
-const StartupTime = require('../startup-time');
+const StartupTime = require('../shared/startup-time');
 
 const ICON_PATH = path.resolve(__dirname, '..', '..', 'resources', 'atom.png');
 

@@ -5,9 +5,8 @@
 
   const electron = require('electron');
   const path = require('path');
-  const Module = require('module');
-  const getWindowLoadSettings = require('../src/get-window-load-settings');
-  const StartupTime = require('../src/startup-time');
+  const getWindowLoadSettings = require('./get-window-load-settings');
+  const StartupTime = require('./shared/startup-time');
   let blobStore = null;
 
   const startupMarkers = electron.remote.getCurrentWindow().startupMarkers;

@@ -3,9 +3,7 @@ const nslog = require('nslog');
 const parseCommandLine = require('./parse-command-line');
 const getReleaseChannel = require('../shared/get-release-channel');
 const atomPaths = require('./atom-paths');
-const StartupTime = require('../startup-time');
-
-StartupTime.setStartTime();
+const StartupTime = require('../shared/startup-time');
 
 module.exports = function start(startTime) {
   global.shellStartTime = startTime;

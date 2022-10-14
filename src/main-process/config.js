@@ -7,10 +7,11 @@ const {
   pushKeyPath,
   splitKeyPath
 } = require('key-path-helpers');
-const Color = require('../color');
+const Color = require('../shared/color');
 const ScopedPropertyStore = require('scoped-property-store');
-const ScopeDescriptor = require('../scope-descriptor');
+const ScopeDescriptor = require('../shared/scope-descriptor');
 const ConfigFile = require('./config-file');
+const ConfigSchema = require('../shared/config-schema');
 
 const schemaEnforcers = {};
 let globalConfig;
@@ -455,6 +456,11 @@ class Config {
 
     this.configFile.onDidChange(settings => {
       this.resetUserSettings(settings);
+    });
+
+    this.setSchema(null, {
+      type: 'object',
+      properties: _.clone(ConfigSchema)
     });
   }
 
