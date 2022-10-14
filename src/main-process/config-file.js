@@ -1,10 +1,10 @@
 // bongnv: this file should be under main-process
 
 const _ = require('underscore-plus');
-const fs = require('fs-plus');
+const fs = require('fs');
 const dedent = require('dedent');
 const { Disposable, Emitter } = require('event-kit');
-const { watchPath } = require('./path-watcher');
+const { watchPath } = require('../path-watcher');
 const CSON = require('season');
 const Path = require('path');
 const asyncQueue = require('async/queue');
@@ -67,7 +67,6 @@ module.exports = class ConfigFile {
 
   async watch(callback) {
     if (!fs.existsSync(this.path)) {
-      fs.makeTreeSync(Path.dirname(this.path));
       CSON.writeFileSync(this.path, {}, { flag: 'wx' });
     }
 

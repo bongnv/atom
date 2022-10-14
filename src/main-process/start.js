@@ -1,12 +1,8 @@
 const { app } = require('electron');
 const nslog = require('nslog');
-const path = require('path');
 const parseCommandLine = require('./parse-command-line');
 const getReleaseChannel = require('../get-release-channel');
 const atomPaths = require('../atom-paths');
-const fs = require('fs');
-const CSON = require('season');
-const Config = require('../config');
 const StartupTime = require('../startup-time');
 
 StartupTime.setStartTime();
@@ -49,12 +45,6 @@ module.exports = function start(startTime) {
   atomPaths.setAtomHome(app.getPath('home'));
   atomPaths.setUserData(app);
 
-  const config = getConfig();
-  const colorProfile = config.get('core.colorProfile');
-  if (colorProfile && colorProfile !== 'default') {
-    app.commandLine.appendSwitch('force-color-profile', colorProfile);
-  }
-
   if (require('electron-squirrel-startup')) return;
 
   const releaseChannel = getReleaseChannel(app.getVersion());
@@ -95,21 +85,3 @@ module.exports = function start(startTime) {
     AtomApplication.open(args);
   });
 };
-
-function getConfig() {
-  const config = new Config();
-
-  let configFilePath;
-  if (fs.existsSync(path.join(process.env.ATOM_HOME, 'config.json'))) {
-    configFilePath = path.join(process.env.ATOM_HOME, 'config.json');
-  } else if (fs.existsSync(path.join(process.env.ATOM_HOME, 'config.cson'))) {
-    configFilePath = path.join(process.env.ATOM_HOME, 'config.cson');
-  }
-
-  if (configFilePath) {
-    const configFileData = CSON.readFileSync(configFilePath);
-    config.resetUserSettings(configFileData);
-  }
-
-  return config;
-}

@@ -2,8 +2,8 @@ const AtomWindow = require('./atom-window');
 const ApplicationMenu = require('./application-menu');
 const AtomProtocolHandler = require('./atom-protocol-handler');
 const StorageFolder = require('../storage-folder');
-const Config = require('../config');
-const ConfigFile = require('../config-file');
+const Config = require('./config');
+const ConfigFile = require('./config-file');
 const FileRecoveryService = require('./file-recovery-service');
 const StartupTime = require('../startup-time');
 const ipcHelpers = require('../ipc-helpers');
@@ -207,20 +207,9 @@ module.exports = class AtomApplication extends EventEmitter {
 
     this.initializeAtomHome(process.env.ATOM_HOME);
 
-    const configFilePath = fs.existsSync(
-      path.join(process.env.ATOM_HOME, 'config.json')
-    )
-      ? path.join(process.env.ATOM_HOME, 'config.json')
-      : path.join(process.env.ATOM_HOME, 'config.cson');
+    this.config = Config.getConfig();
+    this.configFile = this.config.configFile;
 
-    this.configFile = ConfigFile.at(configFilePath);
-    this.config = new Config({
-      saveCallback: settings => {
-        if (!this.quitting) {
-          return this.configFile.update(settings);
-        }
-      }
-    });
     this.config.setSchema(null, {
       type: 'object',
       properties: _.clone(ConfigSchema)
@@ -278,9 +267,6 @@ module.exports = class AtomApplication extends EventEmitter {
       this.configFilePromise = this.configFile.watch().then(disposable => {
         this.disposable.add(disposable);
         this.config.onDidChange('core.titleBar', () => this.promptForRestart());
-        this.config.onDidChange('core.colorProfile', () =>
-          this.promptForRestart()
-        );
       });
       await this.configFilePromise;
     }
@@ -632,7 +618,6 @@ module.exports = class AtomApplication extends EventEmitter {
       for (let window of this.getAllWindows()) {
         window.didChangeUserSettings(settings);
       }
-      this.config.resetUserSettings(settings);
     });
 
     this.configFile.onDidError(message => {
