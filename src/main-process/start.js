@@ -55,9 +55,7 @@ module.exports = function start(startTime) {
     app.commandLine.appendSwitch('force-color-profile', colorProfile);
   }
 
-  if (handleStartupEventWithSquirrel()) {
-    return;
-  }
+  if (require('electron-squirrel-startup')) return;
 
   const releaseChannel = getReleaseChannel(app.getVersion());
   let appUserModelId = 'com.squirrel.atom.' + process.arch;
@@ -97,16 +95,6 @@ module.exports = function start(startTime) {
     AtomApplication.open(args);
   });
 };
-
-function handleStartupEventWithSquirrel() {
-  if (process.platform !== 'win32') {
-    return false;
-  }
-
-  const SquirrelUpdate = require('./squirrel-update');
-  const squirrelCommand = process.argv[1];
-  return SquirrelUpdate.handleStartupEvent(squirrelCommand);
-}
 
 function getConfig() {
   const config = new Config();
