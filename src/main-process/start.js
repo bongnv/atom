@@ -1,8 +1,8 @@
 const { app } = require('electron');
 const nslog = require('nslog');
 const parseCommandLine = require('./parse-command-line');
-const getReleaseChannel = require('../get-release-channel');
-const atomPaths = require('../atom-paths');
+const getReleaseChannel = require('../shared/get-release-channel');
+const atomPaths = require('./atom-paths');
 const StartupTime = require('../startup-time');
 
 StartupTime.setStartTime();

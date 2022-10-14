@@ -1,8 +1,7 @@
 const Registry = require('winreg');
 const Path = require('path');
-const getAppName = require('../get-app-name');
 
-const appName = getAppName();
+const appName = global.atom.getAppName();
 const exeName = Path.basename(process.execPath);
 const appPath = `"${process.execPath}"`;
 const fileIconPath = `"${Path.join(
