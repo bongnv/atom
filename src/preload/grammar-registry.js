@@ -3,11 +3,11 @@ const Grim = require('grim');
 const CSON = require('season');
 const FirstMate = require('first-mate');
 const { Disposable, CompositeDisposable } = require('event-kit');
-const TextMateLanguageMode = require('./text-mate-language-mode');
-const TreeSitterLanguageMode = require('./tree-sitter-language-mode');
-const TreeSitterGrammar = require('./tree-sitter-grammar');
-const ScopeDescriptor = require('./shared/scope-descriptor');
-const Token = require('./token');
+const TextMateLanguageMode = require('../text-mate-language-mode');
+const TreeSitterLanguageMode = require('../tree-sitter-language-mode');
+const TreeSitterGrammar = require('../tree-sitter-grammar');
+const ScopeDescriptor = require('../shared/scope-descriptor');
+const Token = require('../token');
 const fs = require('fs-plus');
 const { Point, Range } = require('text-buffer');
 

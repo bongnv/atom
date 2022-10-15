@@ -5,7 +5,7 @@ const _ = require('underscore-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
 const { File } = require('pathwatcher');
 const fs = require('fs-plus');
-const LessCompileCache = require('./less-compile-cache');
+const LessCompileCache = require('../less-compile-cache');
 
 // Extended: Handles loading and activating available themes.
 //

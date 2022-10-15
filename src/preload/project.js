@@ -4,11 +4,11 @@ const _ = require('underscore-plus');
 const fs = require('fs-plus');
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
 const TextBuffer = require('text-buffer');
-const { watchPath } = require('./shared/path-watcher');
+const { watchPath } = require('../shared/path-watcher');
 
-const DefaultDirectoryProvider = require('./default-directory-provider');
-const Model = require('./model');
-const GitRepositoryProvider = require('./git-repository-provider');
+const DefaultDirectoryProvider = require('../default-directory-provider');
+const Model = require('../model');
+const GitRepositoryProvider = require('../git-repository-provider');
 
 // Extended: Represents a project that's opened in Atom.
 //

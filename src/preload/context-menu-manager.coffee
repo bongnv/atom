@@ -4,11 +4,11 @@ fs = require 'fs-plus'
 {calculateSpecificity, validateSelector} = require 'clear-cut'
 {Disposable} = require 'event-kit'
 {remote} = require 'electron'
-MenuHelpers = require './menu-helpers'
-{sortMenuItems} = require './menu-sort-helpers'
+MenuHelpers = require '../menu-helpers'
+{sortMenuItems} = require '../menu-sort-helpers'
 _ = require 'underscore-plus'
 
-platformContextMenu = require('../package.json')?._atomMenu?['context-menu']
+platformContextMenu = require('../../package.json')?._atomMenu?['context-menu']
 
 # Extended: Provides a registry for commands that you'd like to appear in the
 # context menu.

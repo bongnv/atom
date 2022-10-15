@@ -7,9 +7,10 @@ const {
   pushKeyPath,
   splitKeyPath
 } = require('key-path-helpers');
-const Color = require('./shared/color');
 const ScopedPropertyStore = require('scoped-property-store');
-const ScopeDescriptor = require('./shared/scope-descriptor');
+
+const Color = require('../shared/color');
+const ScopeDescriptor = require('../shared/scope-descriptor');
 
 const schemaEnforcers = {};
 

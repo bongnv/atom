@@ -1,4 +1,4 @@
-const AtomEnvironment = require('../atom-environment');
+const AtomEnvironment = require('./atom-environment');
 const ApplicationDelegate = require('../application-delegate');
 const Clipboard = require('../clipboard');
 const TextEditor = require('../text-editor');
@@ -18,7 +18,7 @@ global.atom.preloadPackages();
 
 // Like sands through the hourglass, so are the days of our lives.
 module.exports = function({ blobStore }) {
-  const { updateProcessEnv } = require('../update-process-env');
+  const { updateProcessEnv } = require('./update-process-env');
   const path = require('path');
   require('../window');
   const getWindowLoadSettings = require('./get-window-load-settings');

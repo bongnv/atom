@@ -3,7 +3,7 @@ path = require 'path'
 KeymapManager = require 'atom-keymap'
 CSON = require 'season'
 
-bundledKeymaps = require('../package.json')?._atomKeymaps
+bundledKeymaps = require('../../package.json')?._atomKeymaps
 
 KeymapManager::onDidLoadBundledKeymaps = (callback) ->
   @emitter.on 'did-load-bundled-keymaps', callback

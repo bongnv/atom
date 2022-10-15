@@ -1,16 +1,17 @@
 const path = require('path');
-let normalizePackageData = null;
-
 const _ = require('underscore-plus');
 const { Emitter } = require('event-kit');
 const fs = require('fs-plus');
 const CSON = require('season');
 
 const ServiceHub = require('service-hub');
-const Package = require('./package');
-const ThemePackage = require('./theme-package');
-const ModuleCache = require('./module-cache');
-const packageJSON = require('../package.json');
+const Package = require('../package');
+const ThemePackage = require('../theme-package');
+const ModuleCache = require('../module-cache');
+const packageJSON = require('../../package.json');
+
+let normalizePackageData = null;
+
 
 // Extended: Package manager for coordinating the lifecycle of Atom packages.
 //
@@ -69,7 +70,7 @@ module.exports = class PackageManager {
 
   initialize(params) {
     this.devMode = params.devMode;
-    this.resourcePath = path.dirname(__dirname);
+    this.resourcePath = path.dirname(path.dirname(__dirname));
     if (params.configDirPath != null && !params.safeMode) {
       if (this.devMode) {
         this.packageDirPaths.push(
@@ -619,7 +620,7 @@ module.exports = class PackageManager {
   loadPackages() {
     // Ensure atom exports is already in the require cache so the load time
     // of the first package isn't skewed by being the first to require atom
-    require('../exports/atom');
+    require('../../exports/atom');
 
     const disabledPackageNames = new Set(
       this.config.get('core.disabledPackages')

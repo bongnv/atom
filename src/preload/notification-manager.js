@@ -1,5 +1,5 @@
 const { Emitter } = require('event-kit');
-const Notification = require('../src/notification');
+const Notification = require('./notification');
 
 // Public: A notification manager used to create {Notification}s to be shown
 // to the user.

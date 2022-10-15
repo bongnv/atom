@@ -2,18 +2,21 @@ const crypto = require('crypto');
 const path = require('path');
 const util = require('util');
 const { ipcRenderer } = require('electron');
-
+const TextBuffer = require('text-buffer');
 const _ = require('underscore-plus');
 const { deprecate } = require('grim');
 const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
 const fs = require('fs-plus');
 const { mapSourcePosition } = require('@atom/source-map-support');
+
+const ConfigSchema = require('../shared/config-schema');
+const StartupTime = require('../shared/startup-time');
+const getReleaseChannel = require('../shared/get-release-channel');
+
 const WindowEventHandler = require('./window-event-handler');
-const StateStore = require('./state-store');
+const StateStore = require('../state-store');
 const registerDefaultCommands = require('./register-default-commands');
 const { updateProcessEnv } = require('./update-process-env');
-const ConfigSchema = require('./shared/config-schema');
-
 const DeserializerManager = require('./deserializer-manager');
 const ViewRegistry = require('./view-registry');
 const NotificationManager = require('./notification-manager');
@@ -36,15 +39,13 @@ const ProtocolHandlerInstaller = require('./protocol-handler-installer');
 const Project = require('./project');
 const TitleBar = require('./title-bar');
 const Workspace = require('./workspace');
-const PaneContainer = require('./pane-container');
-const PaneAxis = require('./pane-axis');
-const Pane = require('./pane');
+const PaneContainer = require('../pane-container');
+const PaneAxis = require('../pane-axis');
+const Pane = require('../pane');
 const Dock = require('./dock');
-const TextEditor = require('./text-editor');
-const TextBuffer = require('text-buffer');
+const TextEditor = require('../text-editor');
 const TextEditorRegistry = require('./text-editor-registry');
-const StartupTime = require('./shared/startup-time');
-const getReleaseChannel = require('./shared/get-release-channel');
+
 
 const stat = util.promisify(fs.stat);
 
@@ -227,7 +228,7 @@ class AtomEnvironment {
     // This will force TextEditorElement to register the custom element, so that
     // using `document.createElement('atom-text-editor')` works if it's called
     // before opening a buffer.
-    require('./text-editor-element');
+    require('../text-editor-element');
 
     this.window = params.window;
     this.document = params.document;
@@ -1674,7 +1675,7 @@ or use Pane::saveItemAs for programmatic saving.`);
       } of fileLocationsToOpen) {
         fileOpenPromises.push(
           this.workspace &&
-            this.workspace.open(pathToOpen, { initialLine, initialColumn })
+          this.workspace.open(pathToOpen, { initialLine, initialColumn })
         );
       }
       await Promise.all(fileOpenPromises);
@@ -1737,7 +1738,7 @@ module.exports = AtomEnvironment;
 /* eslint-disable */
 
 // Preserve this deprecation until 2.0. Sorry. Should have removed Q sooner.
-Promise.prototype.done = function (callback) {
+Promise.prototype.done = function(callback) {
   deprecate('Atom now uses ES6 Promises instead of Q. Call promise.then instead of promise.done')
   return this.then(callback)
 }
