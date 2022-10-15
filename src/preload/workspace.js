@@ -5,17 +5,18 @@ const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
 const fs = require('fs-plus');
 const { Directory } = require('pathwatcher');
 const Grim = require('grim');
-const DefaultDirectorySearcher = require('../default-directory-searcher');
-const RipgrepDirectorySearcher = require('../ripgrep-directory-searcher');
+
+const DefaultDirectorySearcher = require('./default-directory-searcher');
+const RipgrepDirectorySearcher = require('./ripgrep-directory-searcher');
 const Dock = require('./dock');
 const Model = require('../model');
-const StateStore = require('../state-store');
+const StateStore = require('./state-store');
 const TextEditor = require('../text-editor');
-const Panel = require('../panel');
-const PanelContainer = require('../panel-container');
-const Task = require('../task');
-const WorkspaceCenter = require('../workspace-center');
-const { createWorkspaceElement } = require('../workspace-element');
+const Panel = require('./panel');
+const PanelContainer = require('./panel-container');
+const Task = require('./task');
+const WorkspaceCenter = require('./workspace-center');
+const { createWorkspaceElement } = require('./workspace-element');
 
 const STOPPED_CHANGING_ACTIVE_PANE_ITEM_DELAY = 100;
 const ALL_LOCATIONS = ['center', 'left', 'right', 'bottom'];
@@ -2211,7 +2212,7 @@ module.exports = class Workspace extends Model {
         }
 
         const task = Task.once(
-          require.resolve('./replace-handler'),
+          require.resolve('../replace-handler'),
           outOfProcessPaths,
           regex.source,
           flags,

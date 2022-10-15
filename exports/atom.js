@@ -37,7 +37,7 @@ if (process.platform === 'win32') {
 // The following classes can't be used from a Task handler and should therefore
 // only be exported when not running as a child node process
 if (process.type === 'renderer') {
-  atomExport.Task = require('../src/task');
+  atomExport.Task = require('../src/preload/task');
   atomExport.TextEditor = require('../src/text-editor');
 }
 

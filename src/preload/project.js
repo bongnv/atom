@@ -6,7 +6,7 @@ const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
 const TextBuffer = require('text-buffer');
 const { watchPath } = require('../shared/path-watcher');
 
-const DefaultDirectoryProvider = require('../default-directory-provider');
+const DefaultDirectoryProvider = require('./default-directory-provider');
 const Model = require('../model');
 const GitRepositoryProvider = require('../git-repository-provider');
 

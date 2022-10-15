@@ -66,11 +66,11 @@ class Task
   constructor: (taskPath) ->
     @emitter = new Emitter
 
-    compileCachePath = require('./compile-cache').getCacheDirectory()
+    compileCachePath = require('../compile-cache').getCacheDirectory()
     taskPath = require.resolve(taskPath)
 
     env = Object.assign({}, process.env, {userAgent: navigator.userAgent})
-    @childProcess = ChildProcess.fork require.resolve('./task-bootstrap'), [compileCachePath, taskPath], {env, silent: true}
+    @childProcess = ChildProcess.fork require.resolve('../task-bootstrap'), [compileCachePath, taskPath], {env, silent: true}
 
     @on "task:log", -> console.log(arguments...)
     @on "task:warn", -> console.warn(arguments...)

@@ -14,7 +14,7 @@ const StartupTime = require('../shared/startup-time');
 const getReleaseChannel = require('../shared/get-release-channel');
 
 const WindowEventHandler = require('./window-event-handler');
-const StateStore = require('../state-store');
+const StateStore = require('./state-store');
 const registerDefaultCommands = require('./register-default-commands');
 const { updateProcessEnv } = require('./update-process-env');
 const DeserializerManager = require('./deserializer-manager');
@@ -39,7 +39,7 @@ const ProtocolHandlerInstaller = require('./protocol-handler-installer');
 const Project = require('./project');
 const TitleBar = require('./title-bar');
 const Workspace = require('./workspace');
-const PaneContainer = require('../pane-container');
+const PaneContainer = require('./pane-container');
 const PaneAxis = require('../pane-axis');
 const Pane = require('../pane');
 const Dock = require('./dock');
