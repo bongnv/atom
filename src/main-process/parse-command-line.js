@@ -73,12 +73,6 @@ module.exports = function parseCommandLine(processArgs) {
       'Create a profile of the startup execution time.'
     );
   options
-    .boolean('safe')
-    .describe(
-      'safe',
-      'Do not load packages from ~/.atom/packages or ~/.atom/dev/packages.'
-    );
-  options
     .alias('w', 'wait')
     .boolean('w')
     .describe('w', 'Wait for window to be closed before returning.');
@@ -119,7 +113,6 @@ module.exports = function parseCommandLine(processArgs) {
   }
 
   const addToLastWindow = args['add'];
-  const safeMode = args['safe'];
   const newWindow = args['new-window'];
   let executedFrom = null;
   if (args['executed-from'] && args['executed-from'].toString()) {
@@ -177,7 +170,6 @@ module.exports = function parseCommandLine(processArgs) {
     version,
     pidToKillWhenClosed,
     devMode,
-    safeMode,
     newWindow,
     logFile,
     userDataDir,

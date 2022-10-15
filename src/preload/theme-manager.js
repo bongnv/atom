@@ -35,10 +35,9 @@ module.exports = class ThemeManager {
     });
   }
 
-  initialize({ configDirPath, safeMode, devMode }) {
+  initialize({ configDirPath, devMode }) {
     this.resourcePath = path.dirname(path.dirname(__dirname));
     this.configDirPath = configDirPath;
-    this.safeMode = safeMode;
     this.lessSourcesByRelativeFilePath = null;
     this.lessSourcesByRelativeFilePath = {};
     this.importedFilePathsByRelativeImportPath = {};

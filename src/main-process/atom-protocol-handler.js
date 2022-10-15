@@ -17,6 +17,8 @@ module.exports = class AtomProtocolHandler {
   constructor() {
     this.loadPaths = [];
 
+    this.loadPaths.push(path.join(process.env.ATOM_HOME, 'dev', 'packages'));
+    this.loadPaths.push(path.join(__dirname, '../../packages'));
     this.loadPaths.push(path.join(process.env.ATOM_HOME, 'packages'));
     this.loadPaths.push(path.join(__dirname, '../../node_modules'));
 

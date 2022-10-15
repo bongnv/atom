@@ -27,7 +27,6 @@ module.exports = class AtomWindow extends EventEmitter {
     this.fileRecoveryService = fileRecoveryService;
     this.isSpec = settings.isSpec;
     this.headless = settings.headless;
-    this.safeMode = settings.safeMode;
     this.devMode = settings.devMode;
 
     const locationsToOpen = settings.locationsToOpen || [];
@@ -103,7 +102,6 @@ module.exports = class AtomWindow extends EventEmitter {
     this.loadSettings.appName = getAppName();
     this.loadSettings.atomHome = process.env.ATOM_HOME;
     if (this.loadSettings.devMode == null) this.loadSettings.devMode = false;
-    if (this.loadSettings.safeMode == null) this.loadSettings.safeMode = false;
     if (this.loadSettings.clearWindowState == null)
       this.loadSettings.clearWindowState = false;
 

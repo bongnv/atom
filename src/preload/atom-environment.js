@@ -237,7 +237,6 @@ class AtomEnvironment {
 
     const {
       devMode,
-      safeMode,
       userSettings,
       projectSpecification
     } = this.getLoadSettings();
@@ -275,11 +274,9 @@ class AtomEnvironment {
     this.packages.initialize({
       devMode,
       configDirPath: this.configDirPath,
-      safeMode
     });
     this.themes.initialize({
       configDirPath: this.configDirPath,
-      safeMode,
       devMode
     });
 
@@ -525,12 +522,6 @@ class AtomEnvironment {
     return this.devMode;
   }
 
-  // Public: Returns a {Boolean} that is `true` if the current window is in safe mode.
-  inSafeMode() {
-    if (this.safeMode == null) this.safeMode = this.getLoadSettings().safeMode;
-    return this.safeMode;
-  }
-
   // Public: Returns a {Boolean} that is `true` if the current window is running specs.
   inSpecMode() {
     if (this.specMode == null) this.specMode = this.getLoadSettings().isSpec;
@@ -622,8 +613,6 @@ class AtomEnvironment {
   //   * `devMode` A {Boolean}, true to open the window in development mode.
   //     Development mode loads the Atom source from the locally cloned
   //     repository and also loads all the packages in ~/.atom/dev/packages
-  //   * `safeMode` A {Boolean}, true to open the window in safe mode. Safe
-  //     mode prevents all packages installed to ~/.atom/packages from loading.
   open(params) {
     return this.applicationDelegate.open(params);
   }
@@ -1008,7 +997,7 @@ class AtomEnvironment {
       );
       this.packages.activate();
       this.keymaps.loadUserKeymap();
-      if (!this.getLoadSettings().safeMode) this.requireUserInitScript();
+      this.requireUserInitScript();
 
       this.menu.update();
 
@@ -1027,7 +1016,6 @@ class AtomEnvironment {
         open: paths =>
           this.open({
             pathsToOpen: paths,
-            safeMode: this.inSafeMode(),
             devMode: this.inDevMode()
           })
       });
@@ -1370,7 +1358,6 @@ class AtomEnvironment {
               pathsToOpen: projectPaths.concat(filesToOpen),
               newWindow: true,
               devMode: this.inDevMode(),
-              safeMode: this.inSafeMode()
             });
             resolveDiscardStatePromise(Promise.resolve(null));
           } else if (response === 1) {

@@ -197,7 +197,6 @@ module.exports = class AtomApplication extends EventEmitter {
     this.getLastFocusedWindow = this.getLastFocusedWindow.bind(this);
     this.version = options.version;
     this.devMode = options.devMode;
-    this.safeMode = options.safeMode;
     this.logFile = options.logFile;
     this.userDataDir = options.userDataDir;
     this._killProcess = options.killProcess || process.kill.bind(process);
@@ -307,7 +306,6 @@ module.exports = class AtomApplication extends EventEmitter {
       urlsToOpen,
       pidToKillWhenClosed,
       devMode,
-      safeMode,
       newWindow,
       profileStartup,
       clearWindowState,
@@ -331,7 +329,6 @@ module.exports = class AtomApplication extends EventEmitter {
         pidToKillWhenClosed,
         newWindow,
         devMode,
-        safeMode,
         profileStartup,
         clearWindowState,
         addToLastWindow,
@@ -340,7 +337,7 @@ module.exports = class AtomApplication extends EventEmitter {
     } else if (urlsToOpen && urlsToOpen.length > 0) {
       return Promise.all(
         urlsToOpen.map(urlToOpen =>
-          this.openUrl({ urlToOpen, devMode, safeMode, env })
+          this.openUrl({ urlToOpen, devMode, env })
         )
       );
     } else {
@@ -350,7 +347,6 @@ module.exports = class AtomApplication extends EventEmitter {
         pidToKillWhenClosed,
         newWindow,
         devMode,
-        safeMode,
         profileStartup,
         clearWindowState,
         addToLastWindow,
@@ -486,7 +482,6 @@ module.exports = class AtomApplication extends EventEmitter {
         : this.focusedWindow();
       return {
         devMode: targetWindow ? targetWindow.devMode : false,
-        safeMode: targetWindow ? targetWindow.safeMode : false,
         window: sameWindow && targetWindow ? targetWindow : null
       };
     };
@@ -500,9 +495,6 @@ module.exports = class AtomApplication extends EventEmitter {
     );
     this.on('application:open-dev', () =>
       this.promptForPathToOpen('all', { devMode: true })
-    );
-    this.on('application:open-safe', () =>
-      this.promptForPathToOpen('all', { safeMode: true })
     );
     this.on('application:inspect', ({ x, y, atomWindow }) => {
       if (!atomWindow) atomWindow = this.focusedWindow();
@@ -534,8 +526,8 @@ module.exports = class AtomApplication extends EventEmitter {
       this.on('application:reopen-project', ({ paths }) => {
         const focusedWindow = this.focusedWindow();
         if (focusedWindow) {
-          const { safeMode, devMode } = focusedWindow;
-          this.openPaths({ pathsToOpen: paths, safeMode, devMode });
+          const { devMode } = focusedWindow;
+          this.openPaths({ pathsToOpen: paths, devMode });
           return;
         }
         this.openPaths({ pathsToOpen: paths });
@@ -693,7 +685,6 @@ module.exports = class AtomApplication extends EventEmitter {
         this.openUrl({
           urlToOpen,
           devMode: this.devMode,
-          safeMode: this.safeMode
         });
       })
     );
@@ -1029,12 +1020,11 @@ module.exports = class AtomApplication extends EventEmitter {
   }
 
   // Returns the {AtomWindow} for the given locations.
-  windowForLocations(locationsToOpen, devMode, safeMode) {
+  windowForLocations(locationsToOpen, devMode) {
     return this.getLastFocusedWindow(
       window =>
         !window.isSpec &&
         window.devMode === devMode &&
-        window.safeMode === safeMode &&
         window.containsLocations(locationsToOpen)
     );
   }
@@ -1087,7 +1077,6 @@ module.exports = class AtomApplication extends EventEmitter {
   //   :pidToKillWhenClosed - The integer of the pid to kill
   //   :newWindow - Boolean of whether this should be opened in a new window.
   //   :devMode - Boolean to control the opened window's dev mode.
-  //   :safeMode - Boolean to control the opened window's safe mode.
   //   :profileStartup - Boolean to control creating a profile of the startup time.
   //   :window - {AtomWindow} to open file paths in.
   //   :addToLastWindow - Boolean of whether this should be opened in last focused window.
@@ -1096,7 +1085,6 @@ module.exports = class AtomApplication extends EventEmitter {
     pidToKillWhenClosed,
     newWindow,
     devMode,
-    safeMode,
     profileStartup,
     window,
     clearWindowState,
@@ -1108,7 +1096,6 @@ module.exports = class AtomApplication extends EventEmitter {
       pidToKillWhenClosed,
       newWindow,
       devMode,
-      safeMode,
       profileStartup,
       window,
       clearWindowState,
@@ -1125,7 +1112,6 @@ module.exports = class AtomApplication extends EventEmitter {
   //   :pidToKillWhenClosed - The integer of the pid to kill
   //   :newWindow - Boolean of whether this should be opened in a new window.
   //   :devMode - Boolean to control the opened window's dev mode.
-  //   :safeMode - Boolean to control the opened window's safe mode.
   //   :windowDimensions - Object with height and width keys.
   //   :window - {AtomWindow} to open file paths in.
   //   :addToLastWindow - Boolean of whether this should be opened in last focused window.
@@ -1136,7 +1122,6 @@ module.exports = class AtomApplication extends EventEmitter {
     pidToKillWhenClosed,
     newWindow,
     devMode,
-    safeMode,
     windowDimensions,
     profileStartup,
     window,
@@ -1149,7 +1134,6 @@ module.exports = class AtomApplication extends EventEmitter {
     if (!foldersToOpen) foldersToOpen = [];
 
     devMode = Boolean(devMode);
-    safeMode = Boolean(safeMode);
     clearWindowState = Boolean(clearWindowState);
 
     const locationsToOpen = await Promise.all(
@@ -1192,7 +1176,6 @@ module.exports = class AtomApplication extends EventEmitter {
         existingWindow = this.windowForLocations(
           locationsToOpen,
           devMode,
-          safeMode
         );
       }
 
@@ -1201,7 +1184,7 @@ module.exports = class AtomApplication extends EventEmitter {
       if (!existingWindow && addToLastWindow) {
         existingWindow = this.getLastFocusedWindow(win => {
           return (
-            !win.isSpec && win.devMode === devMode && win.safeMode === safeMode
+            !win.isSpec && win.devMode === devMode
           );
         });
       }
@@ -1222,8 +1205,7 @@ module.exports = class AtomApplication extends EventEmitter {
           existingWindow = this.getLastFocusedWindow(win => {
             return (
               !win.isSpec &&
-              win.devMode === devMode &&
-              win.safeMode === safeMode
+              win.devMode === devMode
             );
           });
         }
@@ -1249,7 +1231,6 @@ module.exports = class AtomApplication extends EventEmitter {
       openedWindow = this.createWindow({
         locationsToOpen,
         devMode,
-        safeMode,
         windowDimensions,
         profileStartup,
         clearWindowState,
@@ -1356,7 +1337,6 @@ module.exports = class AtomApplication extends EventEmitter {
       return state.windows.map(each => ({
         foldersToOpen: each.projectRoots,
         devMode: this.devMode,
-        safeMode: this.safeMode,
         newWindow: true
       }));
     } else if (state.version === undefined) {
@@ -1382,7 +1362,6 @@ module.exports = class AtomApplication extends EventEmitter {
               .filter(({ isDir }) => isDir)
               .map(({ initialPath }) => initialPath),
             devMode: this.devMode,
-            safeMode: this.safeMode,
             newWindow: true
           };
         })
@@ -1461,13 +1440,11 @@ module.exports = class AtomApplication extends EventEmitter {
   //           'folder' or 'all'. The 'all' is only available on macOS.
   //   :devMode - A Boolean which controls whether any newly opened windows
   //              should be in dev mode or not.
-  //   :safeMode - A Boolean which controls whether any newly opened windows
-  //               should be in safe mode or not.
   //   :window - An {AtomWindow} to use for opening selected file paths as long as
   //             all are files.
   //   :path - An optional String which controls the default path to which the
   //           file dialog opens.
-  promptForPathToOpen(type, { devMode, safeMode, window }, path = null) {
+  promptForPathToOpen(type, { devMode, window }, path = null) {
     return this.promptForPath(
       type,
       async pathsToOpen => {
@@ -1494,7 +1471,6 @@ module.exports = class AtomApplication extends EventEmitter {
         return this.openPaths({
           pathsToOpen,
           devMode,
-          safeMode,
           window: targetWindow
         });
       },
@@ -1562,7 +1538,6 @@ module.exports = class AtomApplication extends EventEmitter {
 
   restart() {
     const args = [];
-    if (this.safeMode) args.push('--safe');
     if (this.logFile != null) args.push(`--log-file=${this.logFile}`);
     if (this.userDataDir != null)
       args.push(`--user-data-dir=${this.userDataDir}`);
