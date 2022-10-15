@@ -1,7 +1,8 @@
 const { Emitter, CompositeDisposable } = require('event-kit');
 const { flatten } = require('underscore-plus');
+
 const Model = require('./model');
-const { createPaneAxisElement } = require('./pane-axis-element');
+const { createPaneAxisElement } = require('../pane-axis-element');
 
 class PaneAxis extends Model {
   static deserialize(state, { deserializers, views }) {

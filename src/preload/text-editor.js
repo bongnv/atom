@@ -8,14 +8,14 @@ const TextBuffer = require('text-buffer');
 const { Point, Range } = TextBuffer;
 const TextMateScopeSelector = require('first-mate').ScopeSelector;
 
-const DecorationManager = require('../decoration-manager');
-const Cursor = require('../cursor');
-const Selection = require('../selection');
+const DecorationManager = require('./decoration-manager');
+const Cursor = require('./cursor');
+const Selection = require('./selection');
 const NullGrammar = require('../null-grammar');
 const TextMateLanguageMode = require('../text-mate-language-mode');
 const ScopeDescriptor = require('../shared/scope-descriptor');
 
-const GutterContainer = require('../gutter-container');
+const GutterContainer = require('./gutter-container');
 let TextEditorComponent = null;
 let TextEditorElement = null;
 const {

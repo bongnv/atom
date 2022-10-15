@@ -1,6 +1,6 @@
 const Grim = require('grim');
 const { CompositeDisposable, Emitter } = require('event-kit');
-const PaneAxis = require('../pane-axis');
+const PaneAxis = require('./pane-axis');
 const TextEditor = require('./text-editor');
 const { createPaneElement } = require('../pane-element');
 
