@@ -156,13 +156,7 @@ module.exports = class AtomWindow extends EventEmitter {
       this.browserWindow.webContents.send('did-leave-full-screen');
     });
 
-    this.browserWindow.loadURL(
-      url.format({
-        protocol: 'file',
-        pathname: path.join(__dirname, `../../static/index.html`),
-        slashes: true
-      })
-    );
+    this.browserWindow.loadFile(path.join(__dirname, `../../static/index.html`));
 
     this.browserWindow.showSaveDialog = this.showSaveDialog.bind(this);
 

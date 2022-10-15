@@ -1,7 +1,7 @@
 const { ipcRenderer, remote, shell } = require('electron');
 const ipcHelpers = require('./ipc-helpers');
 const { Emitter, Disposable } = require('event-kit');
-const getWindowLoadSettings = require('./preload/get-window-load-settings');
+const getWindowLoadSettings = require('./get-window-load-settings');
 
 module.exports = class ApplicationDelegate {
   constructor() {

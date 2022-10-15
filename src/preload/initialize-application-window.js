@@ -1,6 +1,6 @@
 const AtomEnvironment = require('./atom-environment');
-const ApplicationDelegate = require('../application-delegate');
-const Clipboard = require('../clipboard');
+const ApplicationDelegate = require('./application-delegate');
+const Clipboard = require('./clipboard');
 const TextEditor = require('../text-editor');
 
 const clipboard = new Clipboard();
@@ -20,11 +20,11 @@ global.atom.preloadPackages();
 module.exports = function({ blobStore }) {
   const { updateProcessEnv } = require('./update-process-env');
   const path = require('path');
-  require('../window');
+  require('./window');
   const getWindowLoadSettings = require('./get-window-load-settings');
   const { ipcRenderer } = require('electron');
   const { devMode } = getWindowLoadSettings();
-  require('../electron-shims');
+  require('./electron-shims');
 
   // Add application-specific exports to module search path.
   const exportsPath = path.join(__dirname, '../../exports');
