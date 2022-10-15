@@ -1,6 +1,6 @@
 'use strict';
 
-const TextEditor = require('../text-editor');
+const TextEditor = require('./text-editor');
 const PaneContainer = require('./pane-container');
 
 // Essential: Represents the workspace at the center of the entire window.

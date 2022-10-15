@@ -1,7 +1,7 @@
 const AtomEnvironment = require('./atom-environment');
 const ApplicationDelegate = require('./application-delegate');
 const Clipboard = require('./clipboard');
-const TextEditor = require('../text-editor');
+const TextEditor = require('./text-editor');
 
 const clipboard = new Clipboard();
 TextEditor.setClipboard(clipboard);

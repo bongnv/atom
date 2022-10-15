@@ -4,8 +4,10 @@ const etch = require('etch');
 const { Point, Range } = require('text-buffer');
 const LineTopIndex = require('line-top-index');
 const TextEditor = require('./text-editor');
-const { isPairedCharacter } = require('./text-utils');
 const electron = require('electron');
+
+const { isPairedCharacter } = require('../text-utils');
+
 const clipboard = electron.clipboard;
 const $ = etch.dom;
 

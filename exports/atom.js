@@ -4,7 +4,7 @@ const { File, Directory } = require('pathwatcher');
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
 const BufferedNodeProcess = require('../src/buffered-node-process');
 const BufferedProcess = require('../src/buffered-process');
-const GitRepository = require('../src/git-repository');
+const GitRepository = require('../src/preload/git-repository');
 const Notification = require('../src/preload/notification');
 const { watchPath } = require('../src/shared/path-watcher');
 
@@ -38,7 +38,7 @@ if (process.platform === 'win32') {
 // only be exported when not running as a child node process
 if (process.type === 'renderer') {
   atomExport.Task = require('../src/preload/task');
-  atomExport.TextEditor = require('../src/text-editor');
+  atomExport.TextEditor = require('../src/preload/text-editor');
 }
 
 module.exports = atomExport;

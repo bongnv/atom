@@ -2,7 +2,7 @@ const etch = require('etch');
 const _ = require('underscore-plus');
 const { CompositeDisposable, Emitter } = require('event-kit');
 const PaneContainer = require('./pane-container');
-const TextEditor = require('../text-editor');
+const TextEditor = require('./text-editor');
 const Grim = require('grim');
 
 const $ = etch.dom;
