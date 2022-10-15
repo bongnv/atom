@@ -2212,7 +2212,7 @@ module.exports = class Workspace extends Model {
         }
 
         const task = Task.once(
-          require.resolve('../replace-handler'),
+          path.join(__dirname, '../task/replace-handler'),
           outOfProcessPaths,
           regex.source,
           flags,

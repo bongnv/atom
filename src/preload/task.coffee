@@ -2,6 +2,7 @@ _ = require 'underscore-plus'
 ChildProcess = require 'child_process'
 {Emitter} = require 'event-kit'
 Grim = require 'grim'
+path = require 'path'
 
 # Extended: Run a node script in a separate process.
 #
@@ -70,7 +71,7 @@ class Task
     taskPath = require.resolve(taskPath)
 
     env = Object.assign({}, process.env, {userAgent: navigator.userAgent})
-    @childProcess = ChildProcess.fork require.resolve('../task-bootstrap'), [compileCachePath, taskPath], {env, silent: true}
+    @childProcess = ChildProcess.fork path.join(__dirname, '../task/task-bootstrap.js'), [compileCachePath, taskPath], {env, silent: true}
 
     @on "task:log", -> console.log(arguments...)
     @on "task:warn", -> console.warn(arguments...)

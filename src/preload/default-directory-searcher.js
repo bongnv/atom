@@ -1,4 +1,5 @@
 const Task = require('./task');
+const path = require('path');
 
 // Searches local files for lines matching a specified regex. Implements `.then()`
 // so that it can be used with `Promise.all()`.
@@ -16,7 +17,7 @@ class DirectorySearch {
       leadingContextLineCount: options.leadingContextLineCount,
       trailingContextLineCount: options.trailingContextLineCount
     };
-    this.task = new Task(require.resolve('../scan-handler'));
+    this.task = new Task(path.join(__dirname, '../task/scan-handler'));
     this.task.on('scan:result-found', options.didMatch);
     this.task.on('scan:file-error', options.didError);
     this.task.on('scan:paths-searched', options.didSearchPaths);

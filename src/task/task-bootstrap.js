@@ -1,7 +1,7 @@
 const { userAgent } = process.env;
 const [compileCachePath, taskPath] = process.argv.slice(2);
 
-const CompileCache = require('./compile-cache');
+const CompileCache = require('../compile-cache');
 CompileCache.setCacheDirectory(compileCachePath);
 CompileCache.install(`${process.resourcesPath}`, require);
 
