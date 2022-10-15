@@ -5,8 +5,8 @@ const fs = require('fs-plus');
 const CSON = require('season');
 
 const ServiceHub = require('service-hub');
-const Package = require('../package');
-const ThemePackage = require('../theme-package');
+const Package = require('./package');
+const ThemePackage = require('./theme-package');
 const ModuleCache = require('../module-cache');
 const packageJSON = require('../../package.json');
 

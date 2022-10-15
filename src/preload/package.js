@@ -5,10 +5,10 @@ const fs = require('fs-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
 const dedent = require('dedent');
 
-const CompileCache = require('./compile-cache');
-const ModuleCache = require('./module-cache');
-const BufferedProcess = require('./buffered-process');
-const { requireModule } = require('./module-utils');
+const CompileCache = require('../compile-cache');
+const ModuleCache = require('../module-cache');
+const BufferedProcess = require('../buffered-process');
+const { requireModule } = require('../module-utils');
 
 // Extended: Loads and activates a package's main module and resources such as
 // stylesheets, keymaps, grammar, editor properties, and menus.

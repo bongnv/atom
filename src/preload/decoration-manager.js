@@ -1,6 +1,6 @@
 const { Emitter } = require('event-kit');
-const Decoration = require('../decoration');
-const LayerDecoration = require('../layer-decoration');
+const Decoration = require('./decoration');
+const LayerDecoration = require('./layer-decoration');
 
 module.exports = class DecorationManager {
   constructor(editor) {
