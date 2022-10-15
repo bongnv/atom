@@ -29,7 +29,6 @@ module.exports = class AtomWindow extends EventEmitter {
     this.headless = settings.headless;
     this.safeMode = settings.safeMode;
     this.devMode = settings.devMode;
-    this.resourcePath = path.dirname(path.dirname(__dirname));
 
     const locationsToOpen = settings.locationsToOpen || [];
 
@@ -99,12 +98,9 @@ module.exports = class AtomWindow extends EventEmitter {
 
     this.handleEvents();
 
-    this.loadSettings = Object.assign({}, settings, {
-      resourcePath: this.resourcePath,
-    });
+    this.loadSettings = Object.assign({}, settings);
     this.loadSettings.appVersion = app.getVersion();
     this.loadSettings.appName = getAppName();
-    this.loadSettings.resourcePath = this.resourcePath;
     this.loadSettings.atomHome = process.env.ATOM_HOME;
     if (this.loadSettings.devMode == null) this.loadSettings.devMode = false;
     if (this.loadSettings.safeMode == null) this.loadSettings.safeMode = false;
@@ -165,7 +161,7 @@ module.exports = class AtomWindow extends EventEmitter {
     this.browserWindow.loadURL(
       url.format({
         protocol: 'file',
-        pathname: `${this.resourcePath}/static/index.html`,
+        pathname: path.join(__dirname, `../../static/index.html`),
         slashes: true
       })
     );

@@ -59,14 +59,14 @@ platformMenu = require('../../package.json')?._atomMenu?.menu
 # See {::add} for more info about adding menu's directly.
 module.exports =
 class MenuManager
-  constructor: ({@resourcePath, @keymapManager, @packageManager}) ->
+  constructor: ({@keymapManager, @packageManager}) ->
     @initialized = false
     @pendingUpdateOperation = null
     @template = []
     @keymapManager.onDidLoadBundledKeymaps => @loadPlatformItems()
     @packageManager.onDidActivateInitialPackages => @sortPackagesMenu()
 
-  initialize: ({@resourcePath}) ->
+  initialize: () ->
     @keymapManager.onDidReloadKeymap => @update()
     @update()
     @initialized = true
@@ -178,7 +178,7 @@ class MenuManager
     if platformMenu?
       @add(platformMenu)
     else
-      menusDirPath = path.join(@resourcePath, 'menus')
+      menusDirPath = path.join(__dirname, '../../menus')
       platformMenuPath = fs.resolve(menusDirPath, process.platform, ['cson', 'json'])
       {menu} = CSON.readFileSync(platformMenuPath)
       @add(menu)

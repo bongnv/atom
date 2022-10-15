@@ -23,11 +23,11 @@ module.exports = function({ blobStore }) {
   require('../window');
   const getWindowLoadSettings = require('./get-window-load-settings');
   const { ipcRenderer } = require('electron');
-  const { resourcePath, devMode } = getWindowLoadSettings();
+  const { devMode } = getWindowLoadSettings();
   require('../electron-shims');
 
   // Add application-specific exports to module search path.
-  const exportsPath = path.join(resourcePath, 'exports');
+  const exportsPath = path.join(__dirname, '../../exports');
   require('module').globalPaths.push(exportsPath);
   process.env.NODE_PATH = exportsPath;
 

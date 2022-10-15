@@ -231,9 +231,7 @@ module.exports = class AtomApplication extends EventEmitter {
     this.applicationMenu = new ApplicationMenu(
       this.version,
     );
-    this.atomProtocolHandler = new AtomProtocolHandler(
-      this.safeMode
-    );
+    this.atomProtocolHandler = new AtomProtocolHandler();
 
     const socketServerPromise = this.listenForArgumentsFromNewProcess();
 

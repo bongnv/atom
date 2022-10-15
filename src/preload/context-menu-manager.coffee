@@ -48,13 +48,13 @@ class ContextMenuManager
 
     @keymapManager.onDidLoadBundledKeymaps => @loadPlatformItems()
 
-  initialize: ({@resourcePath, @devMode}) ->
+  initialize: ({@devMode}) ->
 
   loadPlatformItems: ->
     if platformContextMenu?
       @add(platformContextMenu, @devMode ? false)
     else
-      menusDirPath = path.join(@resourcePath, 'menus')
+      menusDirPath = path.join(__dirname, '../../menus')
       platformMenuPath = fs.resolve(menusDirPath, process.platform, ['cson', 'json'])
       map = CSON.readFileSync(platformMenuPath)
       @add(map['context-menu'])

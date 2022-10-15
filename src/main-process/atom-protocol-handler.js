@@ -14,17 +14,11 @@ const path = require('path');
 //   * RESOURCE_PATH/node_modules
 //
 module.exports = class AtomProtocolHandler {
-  constructor(safeMode) {
+  constructor() {
     this.loadPaths = [];
-    const resourcePath = path.dirname(path.dirname(__dirname));
-
-    if (!safeMode) {
-      this.loadPaths.push(path.join(process.env.ATOM_HOME, 'dev', 'packages'));
-      this.loadPaths.push(path.join(resourcePath, 'packages'));
-    }
 
     this.loadPaths.push(path.join(process.env.ATOM_HOME, 'packages'));
-    this.loadPaths.push(path.join(resourcePath, 'node_modules'));
+    this.loadPaths.push(path.join(__dirname, '../../node_modules'));
 
     this.registerAtomProtocol();
   }

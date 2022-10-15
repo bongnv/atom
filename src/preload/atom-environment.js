@@ -238,7 +238,6 @@ class AtomEnvironment {
     const {
       devMode,
       safeMode,
-      resourcePath,
       userSettings,
       projectSpecification
     } = this.getLoadSettings();
@@ -261,11 +260,10 @@ class AtomEnvironment {
       this.project.replace(projectSpecification);
     }
 
-    this.menu.initialize({ resourcePath });
-    this.contextMenu.initialize({ resourcePath, devMode });
+    this.menu.initialize();
+    this.contextMenu.initialize({ devMode });
 
     this.keymaps.configDirPath = this.configDirPath;
-    this.keymaps.resourcePath = resourcePath;
     this.keymaps.devMode = devMode;
     if (!this.keymaps.canLoadBundledKeymapsFromMemory()) {
       this.keymaps.loadBundledKeymaps();
@@ -277,12 +275,10 @@ class AtomEnvironment {
     this.packages.initialize({
       devMode,
       configDirPath: this.configDirPath,
-      resourcePath,
       safeMode
     });
     this.themes.initialize({
       configDirPath: this.configDirPath,
-      resourcePath,
       safeMode,
       devMode
     });

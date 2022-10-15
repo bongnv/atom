@@ -20,7 +20,7 @@ KeymapManager::loadBundledKeymaps = ->
       keymapPath = "core:#{keymapName}"
       @add(keymapPath, keymap, 0, @devMode ? false)
   else
-    keymapsPath = path.join(@resourcePath, 'keymaps')
+    keymapsPath = path.join(__dirname, '../../keymaps')
     @loadKeymap(keymapsPath)
 
   @emitter.emit 'did-load-bundled-keymaps'

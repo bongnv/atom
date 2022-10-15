@@ -305,7 +305,7 @@ exports.create = function(modulePath) {
   fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
 };
 
-exports.register = function({ resourcePath, devMode } = {}) {
+exports.register = function({ devMode } = {}) {
   if (cache.registered) return;
 
   const originalResolveFilename = Module._resolveFilename;
@@ -318,8 +318,8 @@ exports.register = function({ resourcePath, devMode } = {}) {
   };
 
   cache.registered = true;
-  cache.resourcePath = resourcePath;
-  cache.resourcePathWithTrailingSlash = `${resourcePath}${path.sep}`;
+  cache.resourcePath = path.dirname(__dirname);
+  cache.resourcePathWithTrailingSlash = `${cache.resourcePath}${path.sep}`;
   registerBuiltins(devMode);
 };
 
