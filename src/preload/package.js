@@ -6,7 +6,6 @@ const { Emitter, CompositeDisposable } = require('event-kit');
 const dedent = require('dedent');
 
 const CompileCache = require('../compile-cache');
-const ModuleCache = require('../module-cache');
 const BufferedProcess = require('../buffered-process');
 const { requireModule } = require('../module-utils');
 
@@ -114,7 +113,6 @@ module.exports = class Package {
   finishLoading() {
     this.measure('loadTime', () => {
       this.path = path.join(this.packageManager.resourcePath, this.path);
-      ModuleCache.add(this.path, this.metadata);
 
       this.loadStylesheets();
       // Unfortunately some packages are accessing `@mainModulePath`, so we need
@@ -126,8 +124,6 @@ module.exports = class Package {
   load() {
     this.measure('loadTime', () => {
       try {
-        ModuleCache.add(this.path, this.metadata);
-
         this.loadKeymaps();
         this.loadMenus();
         this.loadStylesheets();

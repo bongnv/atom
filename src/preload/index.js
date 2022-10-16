@@ -78,9 +78,6 @@
     CompileCache.setAtomHomeDirectory(process.env.ATOM_HOME);
     CompileCache.install(process.resourcesPath, __non_webpack_require__);
 
-    const ModuleCache = require('../module-cache');
-    ModuleCache.register(getWindowLoadSettings());
-
     require('document-register-element');
 
     const Grim = require('grim');
