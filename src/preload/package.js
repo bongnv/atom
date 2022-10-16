@@ -876,8 +876,10 @@ module.exports = class Package {
   }
 
   requireMainModule() {
-    if (this.name == "about" || this.name == "notifications") {
-      return require(`./bundled/${this.name}.js`);
+    // FIXME: bongnv - improve this :)
+    if (this.name == "about" || this.name == "notifications" || this.name == "github" || this.name == "fuzzy-finder") {
+      this.mainModule = require(`./bundled/${this.name}.js`);
+      return;
     }
     
     if (this.bundledPackage && this.packageManager.packagesCache[this.name]) {
