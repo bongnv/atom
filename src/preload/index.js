@@ -76,7 +76,7 @@
     // TODO: bongnv - remove this
     const CompileCache = require('../compile-cache');
     CompileCache.setAtomHomeDirectory(process.env.ATOM_HOME);
-    CompileCache.install(process.resourcesPath, require);
+    CompileCache.install(process.resourcesPath, __non_webpack_require__);
 
     const ModuleCache = require('../module-cache');
     ModuleCache.register(getWindowLoadSettings());

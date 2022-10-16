@@ -58,7 +58,8 @@ module.exports = class TreeSitterGrammar {
       paths: Module._nodeModulePaths(path.dirname(filePath))
     });
 
-    this.languageModule = require(languageModulePath);
+    // FIXME: bongnv - fix this
+    this.languageModule = __non_webpack_require__(languageModulePath);
     this.classNamesById = new Map();
     this.scopeNamesById = new Map();
     this.idsByScope = Object.create(null);

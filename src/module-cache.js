@@ -75,7 +75,7 @@ function loadDependencies(modulePath, rootPath, rootMetadata, moduleCache) {
     if (childMetadata && childMetadata.version) {
       let mainPath;
       try {
-        mainPath = require.resolve(childPath);
+        mainPath = __non_webpack_require__.resolve(childPath);
       } catch (error) {
         mainPath = null;
       }
@@ -329,7 +329,7 @@ exports.add = function(directoryPath, metadata) {
 
   if (metadata == null) {
     try {
-      metadata = require(`${directoryPath}${path.sep}package.json`);
+      metadata = __non_webpack_require__(`${directoryPath}${path.sep}package.json`);
     } catch (error) {
       return;
     }

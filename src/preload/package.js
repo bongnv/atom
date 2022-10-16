@@ -880,6 +880,10 @@ module.exports = class Package {
   }
 
   requireMainModule() {
+    if (this.name == "about" || this.name == "notifications") {
+      return require(`./bundled/${this.name}.js`);
+    }
+    
     if (this.bundledPackage && this.packageManager.packagesCache[this.name]) {
       if (this.packageManager.packagesCache[this.name].main) {
         this.mainModule = requireModule(
@@ -927,26 +931,6 @@ module.exports = class Package {
     }
   }
 
-  // a require function with both ES5 and ES6 default export support
-  _require(path) {
-    const modul = require(path);
-    if (modul === null || modul === undefined) {
-      // if null do not bother
-      return modul;
-    } else {
-      if (
-        modul.__esModule === true &&
-        typeof modul.default === 'object' &&
-        typeof modul.default.activate === 'function'
-      ) {
-        // __esModule flag is true and the activate function exists inside it, which means
-        // an object containing the main functions (e.g. activate, etc) is default exported
-        return modul.default;
-      } else {
-        return modul;
-      }
-    }
-  }
 
   getMainModulePath() {
     if (this.resolvedMainModulePath) return this.mainModulePath;
@@ -1342,12 +1326,12 @@ module.exports = class Package {
       try {
         // require each .node file
         for (const nodeFilePath of nodeFilesPaths) {
-          require(nodeFilePath);
+          __non_webpack_require__(nodeFilePath);
         }
       } catch (error) {
         let version;
         try {
-          ({ version } = require(`${nativeModulePath}/package.json`));
+          ({ version } = __non_webpack_require__(`${nativeModulePath}/package.json`));
         } catch (error2) {}
         incompatibleNativeModules.push({
           path: nativeModulePath,

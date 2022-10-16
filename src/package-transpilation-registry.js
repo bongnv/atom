@@ -195,14 +195,14 @@ class PackageTranspilationRegistry {
     Resolve = Resolve || require('resolve');
     return Resolve.sync(spec.transpiler, {
       basedir: spec._config.path,
-      extensions: Object.keys(require.extensions)
+      extensions: Object.keys(__non_webpack_require__.extensions)
     });
   }
 
   getTranspiler(spec) {
     const transpilerPath = this.getTranspilerPath(spec);
     if (transpilerPath) {
-      const transpiler = require(transpilerPath);
+      const transpiler = __non_webpack_require__(transpilerPath);
       this.transpilerPaths[transpilerPath] = true;
       return transpiler;
     }

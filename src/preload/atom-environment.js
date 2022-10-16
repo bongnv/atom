@@ -1514,7 +1514,7 @@ or use Pane::saveItemAs for programmatic saving.`);
     const userInitScriptPath = this.getUserInitScriptPath();
     if (userInitScriptPath) {
       try {
-        if (fs.isFileSync(userInitScriptPath)) require(userInitScriptPath);
+        if (fs.isFileSync(userInitScriptPath)) __non_webpack_require__(userInitScriptPath);
       } catch (error) {
         this.notifications.addError(
           `Failed to load \`${userInitScriptPath}\``,

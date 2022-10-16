@@ -51,13 +51,8 @@ class ContextMenuManager
   initialize: ({@devMode}) ->
 
   loadPlatformItems: ->
-    if platformContextMenu?
-      @add(platformContextMenu, @devMode ? false)
-    else
-      menusDirPath = path.join(__dirname, '../../menus')
-      platformMenuPath = fs.resolve(menusDirPath, process.platform, ['cson', 'json'])
-      map = CSON.readFileSync(platformMenuPath)
-      @add(map['context-menu'])
+    map = require("../../menus/" + process.platform + ".cson")
+    @add(map['context-menu'])
 
   # Public: Add context menu items scoped by CSS selectors.
   #

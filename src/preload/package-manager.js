@@ -70,7 +70,8 @@ module.exports = class PackageManager {
 
   initialize(params) {
     this.devMode = params.devMode;
-    this.resourcePath = path.dirname(path.dirname(__dirname));
+    // FIXME: bongnv - fix this
+    this.resourcePath = path.join(path.dirname(__dirname), "../..");
     if (params.configDirPath != null) {
       if (this.devMode) {
         this.packageDirPaths.push(

@@ -27,9 +27,11 @@ module.exports = function({ blobStore }) {
   require('./electron-shims');
 
   // Add application-specific exports to module search path.
-  const exportsPath = path.join(__dirname, '../../exports');
-  require('module').globalPaths.push(exportsPath);
-  process.env.NODE_PATH = exportsPath;
+  // bongnv: webpack doesn't need this :)
+  // const exportsPath = path.join(__dirname, '../../exports');
+  // require('module').globalPaths.push(exportsPath);
+  // process.env.NODE_PATH = exportsPath;
+  require('../install-global-atom').install();
 
   // Make React faster
   if (!devMode && process.env.NODE_ENV == null) {

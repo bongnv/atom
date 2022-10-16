@@ -178,9 +178,7 @@ class MenuManager
     if platformMenu?
       @add(platformMenu)
     else
-      menusDirPath = path.join(__dirname, '../../menus')
-      platformMenuPath = fs.resolve(menusDirPath, process.platform, ['cson', 'json'])
-      {menu} = CSON.readFileSync(platformMenuPath)
+      {menu} = require("../../menus/" + process.platform + ".cson")
       @add(menu)
 
   # Merges an item in a submenu aware way such that new items are always

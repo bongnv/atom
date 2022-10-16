@@ -63,7 +63,7 @@ module.exports = class AtomWindow extends EventEmitter {
         // The default of contextIsolation is changed to true so we'll have to set it to false.
         // See https://github.com/electron/electron/issues/23506 for more information
         contextIsolation: false,
-        preload: path.join(__dirname, '../preload/index.js'),
+        preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       },
       simpleFullscreen: this.getSimpleFullscreen()
     };
@@ -156,7 +156,7 @@ module.exports = class AtomWindow extends EventEmitter {
       this.browserWindow.webContents.send('did-leave-full-screen');
     });
 
-    this.browserWindow.loadFile(path.join(__dirname, `../../static/index.html`));
+    this.browserWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
     this.browserWindow.showSaveDialog = this.showSaveDialog.bind(this);
 

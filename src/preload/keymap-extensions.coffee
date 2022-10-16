@@ -12,16 +12,13 @@ KeymapManager::onDidLoadUserKeymap = (callback) ->
   @emitter.on 'did-load-user-keymap', callback
 
 KeymapManager::canLoadBundledKeymapsFromMemory = ->
-  bundledKeymaps?
+  true
 
 KeymapManager::loadBundledKeymaps = ->
-  if bundledKeymaps?
-    for keymapName, keymap of bundledKeymaps
-      keymapPath = "core:#{keymapName}"
-      @add(keymapPath, keymap, 0, @devMode ? false)
-  else
-    keymapsPath = path.join(__dirname, '../../keymaps')
-    @loadKeymap(keymapsPath)
+  @add("core:base", require("../../keymaps/base.cson"), 0, @devMode ? false)
+  @add("core:darwin", require("../../keymaps/darwin.cson"), 0, @devMode ? false)
+  @add("core:linux", require("../../keymaps/linux.cson"), 0, @devMode ? false)
+  @add("core:win32", require("../../keymaps/win32.cson"), 0, @devMode ? false)
 
   @emitter.emit 'did-load-bundled-keymaps'
 

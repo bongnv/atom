@@ -1,6 +1,6 @@
 // a require function with both ES5 and ES6 default export support
 function requireModule(path) {
-  const modul = require(path);
+  const modul = __non_webpack_require__(path);
   if (modul === null || modul === undefined) {
     // if null do not bother
     return modul;

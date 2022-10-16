@@ -36,7 +36,8 @@ module.exports = class ThemeManager {
   }
 
   initialize({ configDirPath, devMode }) {
-    this.resourcePath = path.dirname(path.dirname(__dirname));
+    // FIXME: bongnv - find a way to send resourcePath
+    this.resourcePath = path.resolve(__dirname, "../../..");
     this.configDirPath = configDirPath;
     this.lessSourcesByRelativeFilePath = null;
     this.lessSourcesByRelativeFilePath = {};
@@ -259,7 +260,7 @@ On linux there are currently problems with watch sizes. See
   }
 
   reloadBaseStylesheets() {
-    this.requireStylesheet('../static/atom', -2, true);
+    this.requireStylesheet(path.resolve(this.resourcePath, 'static/atom'), -2, true);
   }
 
   stylesheetElementForId(id) {
