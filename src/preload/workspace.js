@@ -2212,7 +2212,8 @@ module.exports = class Workspace extends Model {
         }
 
         const task = Task.once(
-          path.join(__dirname, '../task/replace-handler'),
+          // FIXME: bongnv - see if we can improve this
+          path.join(__dirname, '../../task/replace-handler'),
           outOfProcessPaths,
           regex.source,
           flags,

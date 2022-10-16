@@ -4,10 +4,6 @@ const [compileCachePath, taskPath] = process.argv.slice(2);
 // FIXME: bongnv: find a better way of doing this
 require('../install-global-atom').install();
 
-const CompileCache = require('../compile-cache');
-CompileCache.setCacheDirectory(compileCachePath);
-CompileCache.install(`${process.resourcesPath}`, require);
-
 const setupGlobals = function() {
   global.attachEvent = function() {};
   const console = {
@@ -90,4 +86,4 @@ const setupDeprecations = function() {
 setupGlobals();
 handleEvents();
 setupDeprecations();
-const handler = require(taskPath);
+const handler = __non_webpack_require__(taskPath);

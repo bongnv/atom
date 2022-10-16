@@ -68,11 +68,10 @@ class Task
     @emitter = new Emitter
 
     compileCachePath = require('../compile-cache').getCacheDirectory()
-    taskPath = __non_webpack_require__.resolve(taskPath)
 
     env = Object.assign({}, process.env, {userAgent: navigator.userAgent})
     # FIXME: bongnv - use resources path instead
-    @childProcess = ChildProcess.fork path.join(__dirname, '../../../src/task/task-bootstrap.js'), [compileCachePath, taskPath], {env, silent: true}
+    @childProcess = ChildProcess.fork path.join(__dirname, '../../task/task-bootstrap.js'), [compileCachePath, taskPath], {env, silent: true}
 
     @on "task:log", -> console.log(arguments...)
     @on "task:warn", -> console.warn(arguments...)

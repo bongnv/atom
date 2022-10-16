@@ -17,7 +17,8 @@ class DirectorySearch {
       leadingContextLineCount: options.leadingContextLineCount,
       trailingContextLineCount: options.trailingContextLineCount
     };
-    this.task = new Task(path.join(__dirname, '../task/scan-handler'));
+    // FIXME: bongnv - improve this
+    this.task = new Task(path.join(__dirname, '../../task/scan-handler'));
     this.task.on('scan:result-found', options.didMatch);
     this.task.on('scan:file-error', options.didError);
     this.task.on('scan:paths-searched', options.didSearchPaths);
