@@ -126,7 +126,6 @@ module.exports = class Package {
         this.registerDeserializerMethods();
         this.activateCoreStartupServices();
         this.registerURIHandler();
-        this.registerTranspilerConfig();
         this.configSchemaRegisteredOnLoad = this.registerConfigSchemaFromMetadata();
         this.settingsPromise = this.loadSettings();
         if (this.shouldRequireMainModuleOnLoad() && this.mainModule == null) {
@@ -137,10 +136,6 @@ module.exports = class Package {
       }
     });
     return this;
-  }
-
-  unload() {
-    this.unregisterTranspilerConfig();
   }
 
   shouldRequireMainModuleOnLoad() {
@@ -462,24 +457,6 @@ module.exports = class Package {
         this.mainModule[methodName].apply(this.mainModule, args);
     });
     if (!this.mainActivated) this.activateNow();
-  }
-
-  registerTranspilerConfig() {
-    if (this.metadata.atomTranspilers) {
-      // FIXME: remove the support for transpiler
-      // CompileCache.addTranspilerConfigForPath(
-      //   this.path,
-      //   this.name,
-      //   this.metadata,
-      //   this.metadata.atomTranspilers
-      // );
-    }
-  }
-
-  unregisterTranspilerConfig() {
-    if (this.metadata.atomTranspilers) {
-      // CompileCache.removeTranspilerConfigForPath(this.path);
-    }
   }
 
   loadKeymaps() {

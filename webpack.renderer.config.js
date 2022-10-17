@@ -21,26 +21,33 @@ rules.push(
   },
   {
     test: /\.m?js$/,
+    exclude: [
+      // \\ for Windows, \/ for Mac OS and Linux
+      /node_modules[\\\/]ls-archive/,
+      /node_modules[\\\/] what-the-status/,
+    ],
     use: {
       loader: 'babel-loader',
       options: {
         retainLines: true,
+        sourceMaps: "inline",
         presets: [
           [
-            'babel-preset-atomic',
+            '@babel/preset-env',
             {
               targets: {
                 electron: "12.2.3",
               },
-              keepModules: false,
-              notStrictDirectiveTriggers: ['use babel'],
-              notStrictCommentTriggers: ['@babel', '@flow', '* @babel', '* @flow'],
+              modules: "commonjs",
             },
           ],
+          '@babel/preset-react',
+          '@babel/preset-typescript',
         ],
         plugins: [
           "babel-plugin-relay",
         ],
+        sourceType: "unambiguous",
       },
     },
   },

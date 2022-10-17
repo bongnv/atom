@@ -1,4 +1,6 @@
 const externals = [
+    "fs-admin", // main
+    "fuzzy-finder", // it has task handler script
     "season",
     "spelling-manager",
     "superstring",
@@ -23,8 +25,7 @@ const externals = [
     "underscore", // TODO: look into fixing this
     "dugite", // git :)
     "semver", // no idea
-    "what-the-status", // can't transpiled via babel
-    "fuzzy-finder", // it has task handler script
+    "snippets", // use require.resolve
 ];
 
 const webpackExternals = {};

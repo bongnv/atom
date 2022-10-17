@@ -36,12 +36,6 @@
         path.join(process.env.ATOM_HOME, 'blob-store')
       );
 
-      // TODO: bongnv: remove this
-      // const NativeCompileCache = require('../native-compile-cache');
-      // NativeCompileCache.setCacheStore(blobStore);
-      // NativeCompileCache.setV8Version(process.versions.v8);
-      // NativeCompileCache.install();
-
       if (getWindowLoadSettings().profileStartup) {
         profileStartup(Date.now() - startTime);
       } else {
@@ -73,11 +67,6 @@
   }
 
   function setupWindow() {
-    // TODO: bongnv - remove this
-    // const CompileCache = require('../compile-cache');
-    // CompileCache.setAtomHomeDirectory(process.env.ATOM_HOME);
-    // CompileCache.install(process.resourcesPath, __non_webpack_require__);
-
     require('document-register-element');
 
     const Grim = require('grim');
