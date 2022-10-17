@@ -4,9 +4,10 @@ fs = require 'fs-plus'
 {calculateSpecificity, validateSelector} = require 'clear-cut'
 {Disposable} = require 'event-kit'
 {remote} = require 'electron'
-MenuHelpers = require '../menu-helpers'
-{sortMenuItems} = require '../menu-sort-helpers'
 _ = require 'underscore-plus'
+
+MenuHelpers = require './menu-helpers'
+{sortMenuItems} = require './menu-sort-helpers'
 
 platformContextMenu = require('../../package.json')?._atomMenu?['context-menu']
 

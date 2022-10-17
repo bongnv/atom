@@ -6,7 +6,7 @@ CSON = require 'season'
 fs = require 'fs-plus'
 {Disposable} = require 'event-kit'
 
-MenuHelpers = require '../menu-helpers'
+MenuHelpers = require './menu-helpers'
 
 platformMenu = require('../../package.json')?._atomMenu?.menu
 

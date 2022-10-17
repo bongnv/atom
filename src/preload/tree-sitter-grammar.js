@@ -1,6 +1,7 @@
 const path = require('path');
-const SyntaxScopeMap = require('./syntax-scope-map');
 const Module = require('module');
+
+const SyntaxScopeMap = require('./syntax-scope-map');
 
 module.exports = class TreeSitterGrammar {
   constructor(registry, filePath, params) {

@@ -2,7 +2,7 @@
 
 const EventKit = require('event-kit');
 const tooltipComponentsByElement = new WeakMap();
-const listen = require('../delegated-listener');
+const listen = require('./delegated-listener');
 
 // This tooltip class is derived from Bootstrap 3, but modified to not require
 // jQuery, which is an expensive dependency we want to eliminate.

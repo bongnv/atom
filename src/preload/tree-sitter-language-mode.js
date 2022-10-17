@@ -2,7 +2,8 @@ const Parser = require('tree-sitter');
 const { Point, Range, spliceArray } = require('text-buffer');
 const { Patch } = require('superstring');
 const { Emitter } = require('event-kit');
-const ScopeDescriptor = require('./shared/scope-descriptor');
+
+const ScopeDescriptor = require('../shared/scope-descriptor');
 const Token = require('./token');
 const TokenizedLine = require('./tokenized-line');
 const TextMateLanguageMode = require('./text-mate-language-mode');

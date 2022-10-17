@@ -11,8 +11,8 @@ const TextMateScopeSelector = require('first-mate').ScopeSelector;
 const DecorationManager = require('./decoration-manager');
 const Cursor = require('./cursor');
 const Selection = require('./selection');
-const NullGrammar = require('../null-grammar');
-const TextMateLanguageMode = require('../text-mate-language-mode');
+const NullGrammar = require('./null-grammar');
+const TextMateLanguageMode = require('./text-mate-language-mode');
 const ScopeDescriptor = require('../shared/scope-descriptor');
 
 const GutterContainer = require('./gutter-container');
@@ -23,7 +23,7 @@ const {
   isHalfWidthCharacter,
   isKoreanCharacter,
   isWrapBoundary
-} = require('../text-utils');
+} = require('./text-utils');
 
 const SERIALIZATION_VERSION = 1;
 const NON_WHITESPACE_REGEXP = /\S/;
