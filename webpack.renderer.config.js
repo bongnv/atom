@@ -21,12 +21,26 @@ rules.push(
   },
   {
     test: /\.m?js$/,
-    exclude: /(node_modules|bower_components)/,
     use: {
       loader: 'babel-loader',
       options: {
         retainLines: true,
-        presets: ['babel-preset-atomic'],
+        presets: [
+          [
+            'babel-preset-atomic',
+            {
+              targets: {
+                electron: "12.2.3",
+              },
+              keepModules: false,
+              notStrictDirectiveTriggers: ['use babel'],
+              notStrictCommentTriggers: ['@babel', '@flow', '* @babel', '* @flow'],
+            },
+          ],
+        ],
+        plugins: [
+          "babel-plugin-relay",
+        ],
       },
     },
   },

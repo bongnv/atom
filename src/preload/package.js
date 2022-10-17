@@ -5,7 +5,6 @@ const fs = require('fs-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
 const dedent = require('dedent');
 
-const CompileCache = require('../compile-cache');
 const BufferedProcess = require('../buffered-process');
 const { requireModule } = require('../module-utils');
 
@@ -115,9 +114,6 @@ module.exports = class Package {
       this.path = path.join(this.packageManager.resourcePath, this.path);
 
       this.loadStylesheets();
-      // Unfortunately some packages are accessing `@mainModulePath`, so we need
-      // to compute that variable eagerly also for preloaded packages.
-      this.getMainModulePath();
     });
   }
 
@@ -154,7 +150,7 @@ module.exports = class Package {
       this.metadata.configSchema ||
       this.activationShouldBeDeferred() ||
       localStorage.getItem(this.getCanDeferMainModuleRequireStorageKey()) ===
-        'true'
+      'true'
     );
   }
 
@@ -470,18 +466,19 @@ module.exports = class Package {
 
   registerTranspilerConfig() {
     if (this.metadata.atomTranspilers) {
-      CompileCache.addTranspilerConfigForPath(
-        this.path,
-        this.name,
-        this.metadata,
-        this.metadata.atomTranspilers
-      );
+      // FIXME: remove the support for transpiler
+      // CompileCache.addTranspilerConfigForPath(
+      //   this.path,
+      //   this.name,
+      //   this.metadata,
+      //   this.metadata.atomTranspilers
+      // );
     }
   }
 
   unregisterTranspilerConfig() {
     if (this.metadata.atomTranspilers) {
-      CompileCache.removeTranspilerConfigForPath(this.path);
+      // CompileCache.removeTranspilerConfigForPath(this.path);
     }
   }
 
@@ -876,12 +873,6 @@ module.exports = class Package {
   }
 
   requireMainModule() {
-    // FIXME: bongnv - improve this :)
-    if (this.name == "about" || this.name == "notifications" || this.name == "github" || this.name == "fuzzy-finder") {
-      this.mainModule = require(`./bundled/${this.name}.js`);
-      return;
-    }
-    
     if (this.bundledPackage && this.packageManager.packagesCache[this.name]) {
       if (this.packageManager.packagesCache[this.name].main) {
         this.mainModule = requireModule(
@@ -896,8 +887,7 @@ module.exports = class Package {
         .map(m => m.name)
         .join(', ');
       console.warn(dedent`
-        Failed to require the main module of '${
-          this.name
+        Failed to require the main module of '${this.name
         }' because it requires one or more incompatible native modules (${nativeModuleNames}).
         Run \`apm rebuild\` in the package directory and restart Atom to resolve.\
       `);
@@ -908,12 +898,25 @@ module.exports = class Package {
 
         const previousViewProviderCount = this.viewRegistry.getViewProviderCount();
         const previousDeserializerCount = this.deserializerManager.getDeserializerCount();
-        this.mainModule = requireModule(mainModulePath);
+
+        // FIXME: bongnv - improve this :)
+        if (this.packageManager.isBundledPackage(this.name) && this.name != "fuzzy-finder" && this.name != "spellchecker") {
+          try {
+            this.mainModule = require(`./bundled/${this.name}.js`);
+          } catch (error) {
+            console.log(`${this.name} isn't bundled`, error)
+            throw error;
+          }
+        } else {
+          console.log(`${this.name} will be loaded manually`);
+          this.mainModule = requireModule(mainModulePath);
+        }
+
         if (
           this.viewRegistry.getViewProviderCount() ===
-            previousViewProviderCount &&
+          previousViewProviderCount &&
           this.deserializerManager.getDeserializerCount() ===
-            previousDeserializerCount
+          previousDeserializerCount
         ) {
           localStorage.setItem(
             this.getCanDeferMainModuleRequireStorageKey(),
@@ -950,7 +953,9 @@ module.exports = class Package {
         : path.join(this.path, 'index');
       this.mainModulePath = fs.resolveExtension(mainModulePath, [
         '',
-        ...CompileCache.supportedExtensions
+        '.js',
+        '.ts',
+        '.coffee',
       ]);
     }
     return this.mainModulePath;
@@ -1007,7 +1012,7 @@ module.exports = class Package {
           // The real command will be registered on package activation
           try {
             this.activationCommandSubscriptions.add(
-              this.commandRegistry.add(selector, command, function() {})
+              this.commandRegistry.add(selector, command, function () { })
             );
           } catch (error) {
             if (error.code === 'EBADSELECTOR') {
@@ -1189,7 +1194,7 @@ module.exports = class Package {
           }
           traversePath(path.join(modulePath, 'node_modules'));
         }
-      } catch (error) {}
+      } catch (error) { }
     };
 
     traversePath(path.join(this.path, 'node_modules'));
@@ -1285,22 +1290,19 @@ module.exports = class Package {
   }
 
   getBuildFailureOutputStorageKey() {
-    return `installed-packages:${this.name}:${
-      this.metadata.version
-    }:build-error`;
+    return `installed-packages:${this.name}:${this.metadata.version
+      }:build-error`;
   }
 
   getIncompatibleNativeModulesStorageKey() {
     const electronVersion = process.versions.electron;
-    return `installed-packages:${this.name}:${
-      this.metadata.version
-    }:electron-${electronVersion}:incompatible-native-modules`;
+    return `installed-packages:${this.name}:${this.metadata.version
+      }:electron-${electronVersion}:incompatible-native-modules`;
   }
 
   getCanDeferMainModuleRequireStorageKey() {
-    return `installed-packages:${this.name}:${
-      this.metadata.version
-    }:can-defer-main-module-require`;
+    return `installed-packages:${this.name}:${this.metadata.version
+      }:can-defer-main-module-require`;
   }
 
   // Get the incompatible native modules that this package depends on.
@@ -1315,7 +1317,7 @@ module.exports = class Package {
           this.getIncompatibleNativeModulesStorageKey()
         );
         if (arrayAsString) return JSON.parse(arrayAsString);
-      } catch (error1) {}
+      } catch (error1) { }
     }
 
     const incompatibleNativeModules = [];
@@ -1330,7 +1332,7 @@ module.exports = class Package {
         let version;
         try {
           ({ version } = __non_webpack_require__(`${nativeModulePath}/package.json`));
-        } catch (error2) {}
+        } catch (error2) { }
         incompatibleNativeModules.push({
           path: nativeModulePath,
           name: path.basename(nativeModulePath),

@@ -593,10 +593,6 @@ module.exports = class PackageManager {
   }
 
   loadPackages() {
-    // Ensure atom exports is already in the require cache so the load time
-    // of the first package isn't skewed by being the first to require atom
-    require('../../exports/atom');
-
     const disabledPackageNames = new Set(
       this.config.get('core.disabledPackages')
     );

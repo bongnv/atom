@@ -37,10 +37,10 @@
       );
 
       // TODO: bongnv: remove this
-      const NativeCompileCache = require('../native-compile-cache');
-      NativeCompileCache.setCacheStore(blobStore);
-      NativeCompileCache.setV8Version(process.versions.v8);
-      NativeCompileCache.install();
+      // const NativeCompileCache = require('../native-compile-cache');
+      // NativeCompileCache.setCacheStore(blobStore);
+      // NativeCompileCache.setV8Version(process.versions.v8);
+      // NativeCompileCache.install();
 
       if (getWindowLoadSettings().profileStartup) {
         profileStartup(Date.now() - startTime);
@@ -74,9 +74,9 @@
 
   function setupWindow() {
     // TODO: bongnv - remove this
-    const CompileCache = require('../compile-cache');
-    CompileCache.setAtomHomeDirectory(process.env.ATOM_HOME);
-    CompileCache.install(process.resourcesPath, __non_webpack_require__);
+    // const CompileCache = require('../compile-cache');
+    // CompileCache.setAtomHomeDirectory(process.env.ATOM_HOME);
+    // CompileCache.install(process.resourcesPath, __non_webpack_require__);
 
     require('document-register-element');
 
@@ -93,7 +93,8 @@
 
     // TODO: bongnv - remove this
     const CSON = require('season');
-    CSON.setCacheDir(path.join(CompileCache.getCacheDirectory(), 'cson'));
+    // FIXME: bongnv - recheck on cache folder
+    CSON.setCacheDir(path.join(process.env.ATOM_HOME, 'compile-cache/cson'));
 
     const initialize = require('./initialize-application-window');
 

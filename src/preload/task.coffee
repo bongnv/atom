@@ -67,7 +67,8 @@ class Task
   constructor: (taskPath) ->
     @emitter = new Emitter
 
-    compileCachePath = require('../compile-cache').getCacheDirectory()
+    # FIXME: bongnv - remove compile-cache in task
+    compileCachePath = path.join(process.env.ATOM_HOME, "compile-cache")
 
     env = Object.assign({}, process.env, {userAgent: navigator.userAgent})
     # FIXME: bongnv - use resources path instead

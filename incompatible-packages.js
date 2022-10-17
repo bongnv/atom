@@ -1,35 +1,13 @@
 const externals = [
     "season",
-    "snippets",
     "spelling-manager",
+    "spellchecker", // native
     "superstring",
     "tree-sitter",
     "nslog",
     "@atom/source-map-support",
-    "archive-view",
-    "image-view",
-    "autocomplete-plus",
     "atom-select-list",
-    "autosave",
-    "background-tips",
-    "bracket-matcher",
-    "command-palette",
-    "encoding-selector",
-    "fuzzy-finder",
-    "keybinding-resolver",
-    "markdown-preview",
-    "open-on-github",
-    "package-generator",
     "scrollbar-style",
-    "github",
-    "settings-view",
-    "spell-check",
-    "styleguide",
-    "symbols-view",
-    "tabs",
-    "timecop",
-    "tree-view",
-    "whitespace",
     "spdx-correct",
     "spdx-license-ids",
     "spdx-expression-parse",
@@ -45,6 +23,12 @@ const externals = [
     "less-cache", // main process
     "fswin", // main
     "fs-admin", // main
+    "underscore", // TODO: look into fixing this
+    "keytar", // native
+    "dugite", // git :)
+    "semver",
+    "what-the-status", // can't transpiled via babel
+    "fuzzy-finder", // it has task handler script
 ];
 
 const webpackExternals = {};
