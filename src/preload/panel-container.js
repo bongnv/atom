@@ -1,7 +1,7 @@
 'use strict';
 
 const { Emitter, CompositeDisposable } = require('event-kit');
-const { createPanelContainerElement } = require('../panel-container-element');
+const { createPanelContainerElement } = require('./panel-container-element');
 
 module.exports = class PanelContainer {
   constructor({ location, dock, viewRegistry } = {}) {

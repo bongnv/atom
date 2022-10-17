@@ -46,6 +46,8 @@ rules.push(
         ],
         plugins: [
           "babel-plugin-relay",
+          // TODO: bongnv - remove the need of this plugin some day
+          "babel-plugin-add-module-exports",
         ],
         sourceType: "unambiguous",
       },
