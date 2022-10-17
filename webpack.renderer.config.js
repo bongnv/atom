@@ -65,7 +65,7 @@ module.exports = {
   },
   externals: webpackExternals,
   resolve: {
-    extensions: ['.js', '.json', '.wasm', ".coffee", ".less", ".cson"],
+    extensions: ['.js', '.json', '.wasm', ".coffee", ".less", ".cson", ".node"],
     modules: [path.resolve(__dirname, 'exports'), 'node_modules'],
   },
   devtool: 'inline-source-map',

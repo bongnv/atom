@@ -17,6 +17,10 @@ module.exports = [
   //   },
   // },
   {
+    test: /\.node$/,
+    type: 'asset/resource',
+  },
+  {
     test: /\.coffee$/,
     loader: "coffee-loader",
   },

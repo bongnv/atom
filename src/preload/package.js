@@ -900,7 +900,7 @@ module.exports = class Package {
         const previousDeserializerCount = this.deserializerManager.getDeserializerCount();
 
         // FIXME: bongnv - improve this :)
-        if (this.packageManager.isBundledPackage(this.name) && this.name != "fuzzy-finder" && this.name != "spellchecker") {
+        if (this.packageManager.isBundledPackage(this.name) && this.name != "fuzzy-finder") {
           try {
             this.mainModule = require(`./bundled/${this.name}.js`);
           } catch (error) {

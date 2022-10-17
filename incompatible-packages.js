@@ -1,7 +1,6 @@
 const externals = [
     "season",
     "spelling-manager",
-    "spellchecker", // native
     "superstring",
     "tree-sitter",
     "nslog",
@@ -21,12 +20,9 @@ const externals = [
     "coffeescript",
     "coffee-script",
     "less-cache", // main process
-    "fswin", // main
-    "fs-admin", // main
     "underscore", // TODO: look into fixing this
-    "keytar", // native
     "dugite", // git :)
-    "semver",
+    "semver", // no idea
     "what-the-status", // can't transpiled via babel
     "fuzzy-finder", // it has task handler script
 ];
