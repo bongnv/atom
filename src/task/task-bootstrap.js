@@ -1,7 +1,6 @@
 const { userAgent } = process.env;
-const [compileCachePath, taskPath] = process.argv.slice(2);
+const [ taskPath ] = process.argv.slice(2);
 
-// FIXME: bongnv: find a better way of doing this
 require('../install-global-atom').install();
 
 const setupGlobals = function() {

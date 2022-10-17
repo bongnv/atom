@@ -25,7 +25,6 @@ const externals = [
     "underscore", // TODO: look into fixing this
     "dugite", // git :)
     "semver", // no idea
-    "snippets", // use require.resolve
 ];
 
 const webpackExternals = {};

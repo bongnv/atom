@@ -1,5 +1,5 @@
 const path = require('path');
-const { externals } = require('./incompatible-packages');
+const { externals } = require('./external-packages');
 
 module.exports = {
   packagerConfig: {

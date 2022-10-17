@@ -3,7 +3,7 @@ const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
 
 const rules = require('./webpack.rules');
-const { webpackExternals } = require('./incompatible-packages');
+const { webpackExternals } = require('./external-packages');
 
 rules.push(
   {

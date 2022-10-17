@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { webpackExternals } = require('./incompatible-packages');
+const { webpackExternals } = require('./external-packages');
 
 module.exports = {
   /**
