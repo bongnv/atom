@@ -17,8 +17,12 @@ module.exports = [
   //   },
   // },
   {
-    test: /\.node$/,
+    resourceQuery: /raw/,
     type: 'asset/resource',
+  },
+  {
+    test: /\.node$/,
+    use: 'node-loader',
   },
   {
     test: /\.coffee$/,
