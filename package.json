@@ -124,7 +124,7 @@
     "mocha-multi-reporters": "^1.1.4",
     "mock-spawn": "^0.2.6",
     "normalize-package-data": "3.0.2",
-    "notifications": "github:atom/notifications#v0.72.1",
+    "notifications": "file:packages/notifications",
     "nsfw": "2.2.2",
     "nslog": "^3.0.0",
     "one-dark-syntax": "file:packages/one-dark-syntax",
