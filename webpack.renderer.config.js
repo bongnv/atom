@@ -1,9 +1,9 @@
 const webpack = require('webpack');
 const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
+const nodeExternals = require('webpack-node-externals');
 
 const rules = require('./webpack.rules');
-const { webpackExternals } = require('./external-packages');
 
 rules.push(
   {
@@ -21,11 +21,7 @@ rules.push(
   },
   {
     test: /\.m?js$/,
-    exclude: [
-      // \\ for Windows, \/ for Mac OS and Linux
-      /node_modules[\\\/]ls-archive/,
-      /node_modules[\\\/] what-the-status/,
-    ],
+    exclude: /node_modules/,
     use: {
       loader: 'babel-loader',
       options: {
@@ -72,7 +68,13 @@ module.exports = {
       },
     },
   },
-  externals: webpackExternals,
+  externals: [nodeExternals()],
+  externalsPresets: {
+    node: true,
+    electron: true,
+    electronPreload: true,
+    electronRenderer: true,
+  },
   resolve: {
     extensions: ['.js', '.json', '.wasm', ".coffee", ".less", ".cson", ".node"],
     modules: [path.resolve(__dirname, 'exports'), 'node_modules'],

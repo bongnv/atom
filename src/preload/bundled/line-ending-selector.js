@@ -1,1 +1,0 @@
-module.exports = require('line-ending-selector');

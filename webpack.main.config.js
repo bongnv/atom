@@ -1,6 +1,5 @@
 const path = require('path');
-
-const { webpackExternals } = require('./external-packages');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   /**
@@ -33,7 +32,12 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
-  externals: webpackExternals,
+  externals: [nodeExternals()],
+  externalsPresets: {
+    node: true,
+    electron: true,
+    electronMain: true,
+  },
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, ".webpack"),

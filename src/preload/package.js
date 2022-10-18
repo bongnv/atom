@@ -773,18 +773,7 @@ module.exports = class Package {
         const previousViewProviderCount = this.viewRegistry.getViewProviderCount();
         const previousDeserializerCount = this.deserializerManager.getDeserializerCount();
 
-        // FIXME: bongnv - improve this :)
-        if (this.packageManager.isBundledPackage(this.name) && this.name != "fuzzy-finder") {
-          try {
-            this.mainModule = require(`./bundled/${this.name}.js`);
-          } catch (error) {
-            console.log(`${this.name} isn't bundled`, error)
-            throw error;
-          }
-        } else {
-          console.log(`${this.name} will be loaded manually`);
-          this.mainModule = requireModule(mainModulePath);
-        }
+        this.mainModule = requireModule(mainModulePath);
 
         if (
           this.viewRegistry.getViewProviderCount() ===
