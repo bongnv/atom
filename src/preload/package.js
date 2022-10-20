@@ -38,6 +38,7 @@ module.exports = class Package {
       params.bundledPackage != null
         ? params.bundledPackage
         : this.packageManager.isBundledPackagePath(this.path);
+    this.isLocal = params.isLocal;
     this.name =
       (this.metadata && this.metadata.name) ||
       params.name ||
@@ -767,13 +768,17 @@ module.exports = class Package {
       `);
     } else {
       const mainModulePath = this.getMainModulePath();
-      if (fs.isFileSync(mainModulePath)) {
+      if (mainModulePath) {
         this.mainModuleRequired = true;
 
         const previousViewProviderCount = this.viewRegistry.getViewProviderCount();
         const previousDeserializerCount = this.deserializerManager.getDeserializerCount();
 
-        this.mainModule = requireModule(mainModulePath);
+        if (this.isLocal) {
+          this.mainModule = require(`../../packages/${this.name}/lib/main`)
+        } else {
+          this.mainModule = requireModule(mainModulePath);
+        }
 
         if (
           this.viewRegistry.getViewProviderCount() ===
@@ -800,7 +805,9 @@ module.exports = class Package {
     if (this.resolvedMainModulePath) return this.mainModulePath;
     this.resolvedMainModulePath = true;
 
-    const mainModulePath = this.metadata.main
+    const mainModulePath = this.isLocal
+    ? path.join(this.path, 'lib/main')
+    : this.metadata.main
       ? path.join(this.path, this.metadata.main)
       : path.join(this.path, 'index');
     this.mainModulePath = fs.resolveExtension(mainModulePath, [

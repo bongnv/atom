@@ -26,7 +26,7 @@ rules.push(
       loader: 'babel-loader',
       options: {
         retainLines: true,
-        sourceMaps: "inline",
+        sourceMaps: true,
         presets: [
           [
             '@babel/preset-env',
@@ -57,9 +57,6 @@ rules.push(
 
 module.exports = {
   // Put your normal webpack config below here
-  devServer: {
-    inline: true,
-  },
   module: {
     rules,
     parser: {
@@ -68,7 +65,9 @@ module.exports = {
       },
     },
   },
-  externals: [nodeExternals()],
+  externals: [nodeExternals({
+    importType: 'commonjs',
+  })],
   externalsPresets: {
     node: true,
     electron: true,
@@ -79,7 +78,7 @@ module.exports = {
     extensions: ['.js', '.json', '.wasm', ".coffee", ".less", ".cson", ".node"],
     modules: [path.resolve(__dirname, 'exports'), 'node_modules'],
   },
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   plugins: [
     new CopyPlugin({
       patterns: [

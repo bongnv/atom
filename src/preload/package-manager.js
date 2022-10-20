@@ -71,7 +71,6 @@ module.exports = class PackageManager {
         this.packageDirPaths.push(
           path.join(params.configDirPath, 'dev', 'packages')
         );
-        this.packageDirPaths.push(path.join(this.resourcePath, 'packages'));
       }
       this.packageDirPaths.push(path.join(params.configDirPath, 'packages'));
     }
@@ -418,6 +417,27 @@ module.exports = class PackageManager {
       }
     }
 
+    const bundledPackagesDir = path.join(this.resourcePath, 'packages');
+    fs
+    .readdirSync(bundledPackagesDir, { withFileTypes: true })
+    // TODO: bongnv - we may not to check directory here
+    .filter(
+      dirent =>
+        dirent.isDirectory() ||
+        (dirent.isSymbolicLink() &&
+          fs.isDirectorySync(path.join(packageDirPath, dirent.name)))
+    )
+    .map(dirent => dirent.name)
+    .filter(packageName => !packagesByName.has(packageName))
+    .map(packageName => {
+      packages.push({
+        name: packageName,
+        path: path.join(this.resourcePath, 'packages', packageName),
+        isBundled: true,
+        isLocal: true,
+      });
+    })
+
     for (const packageName in this.packageDependencies) {
       if (!packagesByName.has(packageName)) {
         packages.push({
@@ -581,7 +601,6 @@ module.exports = class PackageManager {
 
     const loadedPackage = this.getLoadedPackage(availablePackage.name);
     if (loadedPackage != null) {
-      console.log("loadedPackage is loaded for", availablePackage.name);
       return loadedPackage;
     }
 
@@ -598,6 +617,7 @@ module.exports = class PackageManager {
       name: availablePackage.name,
       metadata,
       bundledPackage: availablePackage.isBundled,
+      isLocal: availablePackage.isLocal,
       packageManager: this,
       config: this.config,
       styleManager: this.styleManager,
