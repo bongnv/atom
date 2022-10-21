@@ -1,11 +1,3 @@
-const globalModules = {
-  atom: true,
-  remote: true,
-  clipboard: true,
-  ipc: true,
-  shell: true,
-};
-
 let installed = false;
 
 install = () => {
@@ -17,8 +9,8 @@ install = () => {
   var originalRequire = Module.prototype.require;
 
   Module.prototype.require = function (name) {
-    if (globalModules[name]) {
-      return require('../exports/' + name + '.js');
+    if (name == "atom") {
+      return require('./atom.js');
     }
 
     return originalRequire.apply(this, arguments);

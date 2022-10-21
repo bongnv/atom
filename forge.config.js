@@ -11,7 +11,6 @@ module.exports = {
     helperBundleId: 'com.github.atom.helper',
     icon: path.join('resources', 'app-icons', 'dev', 'atom'),
     ignore: [
-      /^\/exports\//,
       /^\/keymap\//,
       /^\/menus\//,
       /^\/script\//,
