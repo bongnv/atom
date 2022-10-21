@@ -82,11 +82,6 @@ require('../install-global-atom');
       return documentRegisterElement(type, options);
     };
 
-    // TODO: bongnv - remove this
-    const CSON = require('season');
-    // FIXME: bongnv - recheck on cache folder
-    CSON.setCacheDir(path.join(process.env.ATOM_HOME, 'compile-cache/cson'));
-
     const initialize = require('./initialize-application-window');
 
     StartupTime.addMarker('window:initialize:start');

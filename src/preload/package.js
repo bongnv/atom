@@ -1,6 +1,5 @@
 const path = require('path');
 const asyncEach = require('async/each');
-const CSON = require('season');
 const fs = require('fs-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
 const dedent = require('dedent');
@@ -441,14 +440,14 @@ module.exports = class Package {
   loadKeymaps() {
     this.keymaps = this.getKeymapPaths().map(keymapPath => [
       keymapPath,
-      CSON.readFileSync(keymapPath, { allowDuplicateKeys: false }) || {}
+      JSON.parse(fs.readFileSync(keymapPath)) || {},
     ]);
   }
 
   loadMenus() {
     this.menus = this.getMenuPaths().map(menuPath => [
       menuPath,
-      CSON.readFileSync(menuPath) || {}
+      JSON.parse(fs.readFileSync(menuPath)) || {}
     ]);
   }
 
@@ -456,10 +455,10 @@ module.exports = class Package {
     const keymapsDirPath = path.join(this.path, 'keymaps');
     if (this.metadata.keymaps) {
       return this.metadata.keymaps.map(name =>
-        fs.resolve(keymapsDirPath, name, ['json', 'cson', ''])
+        fs.resolve(keymapsDirPath, name, ['json'])
       );
     } else {
-      return fs.listSync(keymapsDirPath, ['cson', 'json']);
+      return fs.listSync(keymapsDirPath, ['json']);
     }
   }
 
@@ -467,10 +466,10 @@ module.exports = class Package {
     const menusDirPath = path.join(this.path, 'menus');
     if (this.metadata.menus) {
       return this.metadata.menus.map(name =>
-        fs.resolve(menusDirPath, name, ['json', 'cson', ''])
+        fs.resolve(menusDirPath, name, ['json'])
       );
     } else {
-      return fs.listSync(menusDirPath, ['cson', 'json']);
+      return fs.listSync(menusDirPath, ['json']);
     }
   }
 
@@ -573,7 +572,6 @@ module.exports = class Package {
 
     grammarPaths = fs.listSync(path.join(this.path, 'grammars'), [
       'json',
-      'cson'
     ]);
 
     for (let grammarPath of grammarPaths) {
@@ -599,6 +597,12 @@ module.exports = class Package {
     if (this.grammarsLoaded) return Promise.resolve();
 
     const loadGrammar = (grammarPath, callback) => {
+      if (grammarPath.endsWith('.cson')) {
+        console.warn("CSON is deprecated. Please use json format.", grammarPath);
+        callback()
+        return
+      }
+
       return this.grammarRegistry.readGrammar(grammarPath, (error, grammar) => {
         if (error) {
           const detail = `${error.message} in ${grammarPath}`;
@@ -653,7 +657,7 @@ module.exports = class Package {
       const settingsDirPath = path.join(this.path, 'settings');
       fs.exists(settingsDirPath, settingsDirExists => {
         if (!settingsDirExists) return resolve();
-        fs.list(settingsDirPath, ['json', 'cson'], (error, settingsPaths) => {
+        fs.list(settingsDirPath, ['json'], (error, settingsPaths) => {
           if (error || !settingsPaths) return resolve();
           asyncEach(settingsPaths, loadSettingsFile, () => resolve());
         });
@@ -1241,11 +1245,11 @@ module.exports = class Package {
 
 class SettingsFile {
   static load(path, callback) {
-    CSON.readFile(path, (error, properties = {}) => {
+    fs.readFile(path, (error, data) => {
       if (error) {
         callback(error);
       } else {
-        callback(null, new SettingsFile(path, properties));
+        callback(null, new SettingsFile(path, JSON.parse(data)));
       }
     });
   }

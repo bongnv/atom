@@ -250,7 +250,7 @@ class AtomEnvironment {
 
     this.config.initialize({
       mainSource:
-        this.enablePersistence && path.join(this.configDirPath, 'config.cson'),
+        this.enablePersistence && path.join(this.configDirPath, 'config.json'),
       projectHomeSchema: ConfigSchema.projectHome
     });
     this.config.resetUserSettings(userSettings);

@@ -77,7 +77,7 @@ module.exports = {
     electronRenderer: true,
   },
   resolve: {
-    extensions: ['.js', '.json', '.wasm', ".coffee", ".less", ".cson", ".node"],
+    extensions: ['.js', '.json', '.wasm', ".coffee", ".less", ".node"],
   },
   devtool: 'source-map',
   plugins: [

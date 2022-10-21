@@ -2,7 +2,6 @@ path = require 'path'
 
 _ = require 'underscore-plus'
 {ipcRenderer} = require 'electron'
-CSON = require 'season'
 fs = require 'fs-plus'
 {Disposable} = require 'event-kit'
 
@@ -15,9 +14,9 @@ platformMenu = require('../../package.json')?._atomMenu?.menu
 #
 # An instance of this class is always available as the `atom.menu` global.
 #
-# ## Menu CSON Format
+# ## Menu JSON Format
 #
-# Here is an example from the [tree-view](https://github.com/atom/tree-view/blob/master/menus/tree-view.cson):
+# Here is an example from the [tree-view](https://github.com/atom/tree-view/blob/master/menus/tree-view.json):
 #
 # ```coffee
 # [
@@ -42,7 +41,7 @@ platformMenu = require('../../package.json')?._atomMenu?.menu
 # ]
 # ```
 #
-# Use in your package's menu `.cson` file requires that you place your menu
+# Use in your package's menu `.json` file requires that you place your menu
 # structure under a `menu` key.
 #
 # ```coffee
@@ -178,7 +177,7 @@ class MenuManager
     if platformMenu?
       @add(platformMenu)
     else
-      {menu} = require("../../menus/" + process.platform + ".cson")
+      {menu} = require("../../menus/" + process.platform + ".json")
       @add(menu)
 
   # Merges an item in a submenu aware way such that new items are always

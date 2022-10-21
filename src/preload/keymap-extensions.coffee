@@ -1,7 +1,6 @@
 fs = require 'fs-plus'
 path = require 'path'
 KeymapManager = require 'atom-keymap'
-CSON = require 'season'
 
 bundledKeymaps = require('../../package.json')?._atomKeymaps
 
@@ -15,20 +14,16 @@ KeymapManager::canLoadBundledKeymapsFromMemory = ->
   true
 
 KeymapManager::loadBundledKeymaps = ->
-  @add("core:base", require("../../keymaps/base.cson"), 0, @devMode ? false)
-  @add("core:darwin", require("../../keymaps/darwin.cson"), 0, @devMode ? false)
-  @add("core:linux", require("../../keymaps/linux.cson"), 0, @devMode ? false)
-  @add("core:win32", require("../../keymaps/win32.cson"), 0, @devMode ? false)
+  @add("core:base", require("../../keymaps/base.json"), 0, @devMode ? false)
+  @add("core:darwin", require("../../keymaps/darwin.json"), 0, @devMode ? false)
+  @add("core:linux", require("../../keymaps/linux.json"), 0, @devMode ? false)
+  @add("core:win32", require("../../keymaps/win32.json"), 0, @devMode ? false)
 
   @emitter.emit 'did-load-bundled-keymaps'
 
 KeymapManager::getUserKeymapPath = ->
   return "" unless @configDirPath?
-
-  if userKeymapPath = CSON.resolve(path.join(@configDirPath, 'keymap'))
-    userKeymapPath
-  else
-    path.join(@configDirPath, 'keymap.cson')
+  path.join(@configDirPath, 'keymap.json')
 
 KeymapManager::loadUserKeymap = ->
   userKeymapPath = @getUserKeymapPath()

@@ -1,18 +1,17 @@
 const path = require('path')
-const {Emitter, Disposable, CompositeDisposable, File} = require('atom')
+const { Emitter, Disposable, CompositeDisposable, File } = require('atom')
 const _ = require('underscore-plus')
 const async = require('async')
-const CSON = require('season')
 const fs = require('fs-plus')
 const ScopedPropertyStore = require('scoped-property-store')
 
 const Snippet = require('./snippet')
 const SnippetExpansion = require('./snippet-expansion')
 const EditorStore = require('./editor-store')
-const {getPackageRoot} = require('./helpers')
+const { getPackageRoot } = require('./helpers')
 
 module.exports = {
-  activate () {
+  activate() {
     this.loaded = false
     this.userSnippetsPath = null
     this.snippetIdCounter = 0
@@ -41,8 +40,8 @@ module.exports = {
       this.subscriptions.add(watchDisposable)
     })
 
-    this.subscriptions.add(atom.config.onDidChange('core.packagesWithSnippetsDisabled', ({newValue, oldValue}) => {
-       this.handleDisabledPackagesDidChange(newValue, oldValue)
+    this.subscriptions.add(atom.config.onDidChange('core.packagesWithSnippetsDisabled', ({ newValue, oldValue }) => {
+      this.handleDisabledPackagesDidChange(newValue, oldValue)
     }))
 
     const snippets = this
@@ -77,7 +76,7 @@ module.exports = {
     }))
   },
 
-  deactivate () {
+  deactivate() {
     if (this.emitter != null) {
       this.emitter.dispose()
     }
@@ -86,15 +85,14 @@ module.exports = {
     atom.config.transact(() => this.subscriptions.dispose())
   },
 
-  getUserSnippetsPath () {
+  getUserSnippetsPath() {
     if (this.userSnippetsPath != null) { return this.userSnippetsPath }
 
-    this.userSnippetsPath = CSON.resolve(path.join(atom.getConfigDirPath(), 'snippets'))
-    if (this.userSnippetsPath == null) { this.userSnippetsPath = path.join(atom.getConfigDirPath(), 'snippets.cson') }
+    this.userSnippetsPath = path.join(atom.getConfigDirPath(), 'snippets.json')
     return this.userSnippetsPath
   },
 
-  loadAll () {
+  loadAll() {
     this.loadBundledSnippets(bundledSnippets => {
       this.loadPackageSnippets(packageSnippets => {
         this.loadUserSnippets(userSnippets => {
@@ -112,16 +110,14 @@ module.exports = {
     })
   },
 
-  loadBundledSnippets (callback) {
-    const bundledSnippetsPath = CSON.resolve(path.join(getPackageRoot(), 'lib', 'snippets'))
-    this.loadSnippetsFile(bundledSnippetsPath, snippets => {
-      const snippetsByPath = {}
-      snippetsByPath[bundledSnippetsPath] = snippets
-      callback(snippetsByPath)
-    })
+  loadBundledSnippets(callback) {
+    const bundledSnippetsPath = "<core>"
+    const snippetsByPath = {}
+    snippetsByPath[bundledSnippetsPath] = JSON.parse(require('./snippets.json?raw'));
+    callback(snippetsByPath)
   },
 
-  loadUserSnippets (callback) {
+  loadUserSnippets(callback) {
     const userSnippetsPath = this.getUserSnippetsPath()
     fs.stat(userSnippetsPath, (error, stat) => {
       if (stat != null && stat.isFile()) {
@@ -136,7 +132,7 @@ module.exports = {
     })
   },
 
-  watchUserSnippets (callback) {
+  watchUserSnippets(callback) {
     const userSnippetsPath = this.getUserSnippetsPath()
     fs.stat(userSnippetsPath, (error, stat) => {
       if (stat != null && stat.isFile()) {
@@ -148,14 +144,14 @@ module.exports = {
           userSnippetsFileDisposable.add(userSnippetsFile.onDidRename(() => this.handleUserSnippetsDidChange()))
         } catch (e) {
           const message = `\
-          Unable to watch path: \`snippets.cson\`. Make sure you have permissions
+          Unable to watch path: \`snippets.json\`. Make sure you have permissions
           to the \`~/.atom\` directory and \`${userSnippetsPath}\`.
 
           On linux there are currently problems with watch sizes. See
           [this document][watches] for more info.
           [watches]:https://github.com/atom/atom/blob/master/docs/build-instructions/linux.md#typeerror-unable-to-watch-path\
           `
-          atom.notifications.addError(message, {dismissable: true})
+          atom.notifications.addError(message, { dismissable: true })
         }
 
         callback(userSnippetsFileDisposable)
@@ -167,7 +163,7 @@ module.exports = {
 
   // Called when a user's snippets file is changed, deleted, or moved so that we
   // can immediately re-process the snippets it contains.
-  handleUserSnippetsDidChange () {
+  handleUserSnippetsDidChange() {
     const userSnippetsPath = this.getUserSnippetsPath()
     atom.config.transact(() => {
       this.clearSnippetsForPath(userSnippetsPath)
@@ -179,7 +175,7 @@ module.exports = {
 
   // Called when the "Enable" checkbox is checked/unchecked in the Snippets
   // section of a package's settings view.
-  handleDisabledPackagesDidChange (newDisabledPackages = [], oldDisabledPackages = []) {
+  handleDisabledPackagesDidChange(newDisabledPackages = [], oldDisabledPackages = []) {
     const packagesToAdd = []
     const packagesToRemove = []
     for (const p of oldDisabledPackages) {
@@ -196,7 +192,7 @@ module.exports = {
     })
   },
 
-  addSnippetsForPackage (packageName) {
+  addSnippetsForPackage(packageName) {
     const snippetSet = this.snippetsByPackage.get(packageName)
     for (const filePath in snippetSet) {
       const snippetsBySelector = snippetSet[filePath]
@@ -204,7 +200,7 @@ module.exports = {
     }
   },
 
-  removeSnippetsForPackage (packageName) {
+  removeSnippetsForPackage(packageName) {
     const snippetSet = this.snippetsByPackage.get(packageName)
     // Copy these snippets to the "quarantined" ScopedPropertyStore so that they
     // remain present in the list of unparsed snippets reported to the settings
@@ -215,7 +211,7 @@ module.exports = {
     }
   },
 
-  loadPackageSnippets (callback) {
+  loadPackageSnippets(callback) {
     const disabledPackageNames = atom.config.get('core.packagesWithSnippetsDisabled') || []
     const packages = atom.packages.getLoadedPackages().sort((pack, _) => {
       return /\/node_modules\//.test(pack.path) ? -1 : 1
@@ -229,7 +225,7 @@ module.exports = {
     async.map(snippetsDirPaths, this.loadSnippetsDirectory.bind(this), (error, results) => {
       const zipped = []
       for (const key in results) {
-        zipped.push({result: results[key], pack: packages[key]})
+        zipped.push({ result: results[key], pack: packages[key] })
       }
 
       const enabledPackages = []
@@ -256,23 +252,23 @@ module.exports = {
     })
   },
 
-  doneLoading () {
+  doneLoading() {
     this.loaded = true
     this.getEmitter().emit('did-load-snippets')
   },
 
-  onDidLoadSnippets (callback) {
+  onDidLoadSnippets(callback) {
     this.getEmitter().on('did-load-snippets', callback)
   },
 
-  getEmitter () {
+  getEmitter() {
     if (this.emitter == null) {
       this.emitter = new Emitter
     }
     return this.emitter
   },
 
-  loadSnippetsDirectory (snippetsDirPath, callback) {
+  loadSnippetsDirectory(snippetsDirPath, callback) {
     fs.isDirectory(snippetsDirPath, isDirectory => {
       if (!isDirectory) { return callback(null, {}) }
 
@@ -286,37 +282,39 @@ module.exports = {
           entries,
           (entry, done) => {
             const filePath = path.join(snippetsDirPath, entry)
-            this.loadSnippetsFile(filePath, snippets => done(null, {filePath, snippets}))
+            this.loadSnippetsFile(filePath, snippets => done(null, { filePath, snippets }))
           },
           (error, results) => {
             const snippetsByPath = {}
-            for (const {filePath, snippets} of results) {
+            for (const { filePath, snippets } of results) {
               snippetsByPath[filePath] = snippets
             }
             callback(null, snippetsByPath)
-        })
+          })
       })
     })
   },
 
-  loadSnippetsFile (filePath, callback) {
-    if (!CSON.isObjectPath(filePath)) { return callback({}) }
-    CSON.readFile(filePath, {allowDuplicateKeys: false}, (error, object = {}) => {
-      if (error != null) {
+  loadSnippetsFile(filePath, callback) {
+    fs.readFile(filePath, function (err, data) {
+      // Check for errors
+      if (err != null) {
         console.warn(`Error reading snippets file '${filePath}': ${error.stack != null ? error.stack : error}`)
-        atom.notifications.addError(`Failed to load snippets from '${filePath}'`, {detail: error.message, dismissable: true})
+        atom.notifications.addError(`Failed to load snippets from '${filePath}'`, { detail: error.message, dismissable: true })
       }
-      callback(object)
-    })
+      // Converting to JSON
+      const snippets = JSON.parse(data);
+      callback(snippets)
+    });
   },
 
-  add (filePath, snippetsBySelector, isDisabled = false) {
+  add(filePath, snippetsBySelector, isDisabled = false) {
     for (const selector in snippetsBySelector) {
       const snippetsByName = snippetsBySelector[selector]
       const unparsedSnippetsByPrefix = {}
       for (const name in snippetsByName) {
         const attributes = snippetsByName[name]
-        const {prefix, body} = attributes
+        const { prefix, body } = attributes
         attributes.name = name
         attributes.id = this.snippetIdCounter++
         if (typeof body === 'string') {
@@ -330,14 +328,14 @@ module.exports = {
     }
   },
 
-  addSnippetsInDisabledPackage (bundle) {
+  addSnippetsInDisabledPackage(bundle) {
     for (const filePath in bundle) {
       const snippetsBySelector = bundle[filePath]
       this.add(filePath, snippetsBySelector, true)
     }
   },
 
-  getScopeChain (object) {
+  getScopeChain(object) {
     let scopesArray = object
     if (object && object.getScopesArray) {
       scopesArray = object.getScopesArray()
@@ -348,19 +346,19 @@ module.exports = {
       .join(' ')
   },
 
-  storeUnparsedSnippets (value, path, selector, isDisabled = false) {
+  storeUnparsedSnippets(value, path, selector, isDisabled = false) {
     // The `isDisabled` flag determines which scoped property store we'll use.
     // Active snippets get put into one and inactive snippets get put into
     // another. Only the first one gets consulted when we look up a snippet
     // prefix for expansion, but both stores have their contents exported when
     // the settings view asks for all available snippets.
     const unparsedSnippets = {}
-    unparsedSnippets[selector] = {"snippets": value}
+    unparsedSnippets[selector] = { "snippets": value }
     const store = isDisabled ? this.disabledSnippetsScopedPropertyStore : this.scopedPropertyStore
-    store.addProperties(path, unparsedSnippets, {priority: this.priorityForSource(path)})
+    store.addProperties(path, unparsedSnippets, { priority: this.priorityForSource(path) })
   },
 
-  clearSnippetsForPath (path) {
+  clearSnippetsForPath(path) {
     for (const scopeSelector in this.scopedPropertyStore.propertiesForSource(path)) {
       const object = this.scopedPropertyStore.propertiesForSourceAndSelector(path, scopeSelector)
       for (const prefix in object) {
@@ -372,7 +370,7 @@ module.exports = {
     }
   },
 
-  parsedSnippetsForScopes (scopeDescriptor) {
+  parsedSnippetsForScopes(scopeDescriptor) {
     let unparsedLegacySnippetsByPrefix
 
     const unparsedSnippetsByPrefix = this.scopedPropertyStore.getPropertyValue(
@@ -413,18 +411,18 @@ module.exports = {
     return snippets
   },
 
-  getParsedSnippet (attributes) {
+  getParsedSnippet(attributes) {
     let snippet = this.parsedSnippetsById.get(attributes.id)
     if (snippet == null) {
-      let {id, prefix, name, body, bodyTree, description, descriptionMoreURL, rightLabelHTML, leftLabel, leftLabelHTML} = attributes
+      let { id, prefix, name, body, bodyTree, description, descriptionMoreURL, rightLabelHTML, leftLabel, leftLabelHTML } = attributes
       if (bodyTree == null) { bodyTree = this.getBodyParser().parse(body) }
-      snippet = new Snippet({id, name, prefix, bodyTree, description, descriptionMoreURL, rightLabelHTML, leftLabel, leftLabelHTML, bodyText: body})
+      snippet = new Snippet({ id, name, prefix, bodyTree, description, descriptionMoreURL, rightLabelHTML, leftLabel, leftLabelHTML, bodyText: body })
       this.parsedSnippetsById.set(attributes.id, snippet)
     }
     return snippet
   },
 
-  priorityForSource (source) {
+  priorityForSource(source) {
     if (source === this.getUserSnippetsPath()) {
       return 1000
     } else {
@@ -432,7 +430,7 @@ module.exports = {
     }
   },
 
-  getBodyParser () {
+  getBodyParser() {
     if (this.bodyParser == null) {
       this.bodyParser = require('./snippet-body-parser')
     }
@@ -444,7 +442,7 @@ module.exports = {
   // * `wordPrefix`: the word preceding the cursor
   //
   // Returns `null` if the values aren't the same for all cursors
-  getPrefixText (snippets, editor) {
+  getPrefixText(snippets, editor) {
     const wordRegex = this.wordRegexForSnippets(snippets)
 
     let snippetPrefix = null
@@ -453,7 +451,7 @@ module.exports = {
     for (const cursor of editor.getCursors()) {
       const position = cursor.getBufferPosition()
 
-      const prefixStart = cursor.getBeginningOfCurrentWordBufferPosition({wordRegex})
+      const prefixStart = cursor.getBeginningOfCurrentWordBufferPosition({ wordRegex })
       const cursorSnippetPrefix = editor.getTextInRange([prefixStart, position])
       if ((snippetPrefix != null) && (cursorSnippetPrefix !== snippetPrefix)) { return null }
       snippetPrefix = cursorSnippetPrefix
@@ -464,11 +462,11 @@ module.exports = {
       wordPrefix = cursorWordPrefix
     }
 
-    return {snippetPrefix, wordPrefix}
+    return { snippetPrefix, wordPrefix }
   },
 
   // Get a RegExp of all the characters used in the snippet prefixes
-  wordRegexForSnippets (snippets) {
+  wordRegexForSnippets(snippets) {
     const prefixes = {}
 
     for (const prefix in snippets) {
@@ -481,7 +479,7 @@ module.exports = {
 
   // Get the best match snippet for the given prefix text.  This will return
   // the longest match where there is no exact match to the prefix text.
-  snippetForPrefix (snippets, prefix, wordPrefix) {
+  snippetForPrefix(snippets, prefix, wordPrefix) {
     let longestPrefixMatch = null
 
     for (const snippetPrefix in snippets) {
@@ -496,11 +494,11 @@ module.exports = {
     return longestPrefixMatch
   },
 
-  getSnippets (editor) {
+  getSnippets(editor) {
     return this.parsedSnippetsForScopes(editor.getLastCursor().getScopeDescriptor())
   },
 
-  snippetToExpandUnderCursor (editor) {
+  snippetToExpandUnderCursor(editor) {
     if (!editor.getLastSelection().isEmpty()) { return false }
     const snippets = this.getSnippets(editor)
     if (_.isEmpty(snippets)) { return false }
@@ -511,7 +509,7 @@ module.exports = {
     }
   },
 
-  expandSnippetsUnderCursors (editor) {
+  expandSnippetsUnderCursors(editor) {
     const snippet = this.snippetToExpandUnderCursor(editor)
     if (!snippet) { return false }
 
@@ -533,7 +531,7 @@ module.exports = {
     return true
   },
 
-  goToNextTabStop (editor) {
+  goToNextTabStop(editor) {
     let nextTabStopVisited = false
     for (const expansion of this.getExpansions(editor)) {
       if (expansion && expansion.goToNextTabStop()) {
@@ -543,7 +541,7 @@ module.exports = {
     return nextTabStopVisited
   },
 
-  goToPreviousTabStop (editor) {
+  goToPreviousTabStop(editor) {
     let previousTabStopVisited = false
     for (const expansion of this.getExpansions(editor)) {
       if (expansion && expansion.goToPreviousTabStop()) {
@@ -553,24 +551,24 @@ module.exports = {
     return previousTabStopVisited
   },
 
-  getStore (editor) {
+  getStore(editor) {
     return EditorStore.findOrCreate(editor)
   },
 
-  findOrCreateMarkerLayer (editor) {
+  findOrCreateMarkerLayer(editor) {
     let layer = this.editorMarkerLayers.get(editor)
     if (layer === undefined) {
-      layer = editor.addMarkerLayer({maintainHistory: true})
+      layer = editor.addMarkerLayer({ maintainHistory: true })
       this.editorMarkerLayers.set(editor, layer)
     }
     return layer
   },
 
-  getExpansions (editor) {
+  getExpansions(editor) {
     return this.getStore(editor).getExpansions()
   },
 
-  clearExpansions (editor) {
+  clearExpansions(editor) {
     const store = this.getStore(editor)
     store.clearExpansions()
     // There are no more active instances of this expansion, so we should undo
@@ -579,11 +577,11 @@ module.exports = {
     store.stopObservingHistory()
   },
 
-  addExpansion (editor, snippetExpansion) {
+  addExpansion(editor, snippetExpansion) {
     this.getStore(editor).addExpansion(snippetExpansion)
   },
 
-  textChanged (editor, event) {
+  textChanged(editor, event) {
     const store = this.getStore(editor)
     const activeExpansions = store.getExpansions()
 
@@ -601,35 +599,35 @@ module.exports = {
 
   // Perform an action inside the editor without triggering our `textChanged`
   // callback.
-  ignoringTextChangesForEditor (editor, callback) {
+  ignoringTextChangesForEditor(editor, callback) {
     this.stopObservingEditor(editor)
     callback()
     this.observeEditor(editor)
   },
 
-  observeEditor (editor) {
+  observeEditor(editor) {
     this.getStore(editor).observe(event => this.textChanged(editor, event))
   },
 
-  stopObservingEditor (editor) {
+  stopObservingEditor(editor) {
     this.getStore(editor).stopObserving()
   },
 
-  makeCheckpoint (editor) {
+  makeCheckpoint(editor) {
     this.getStore(editor).makeCheckpoint()
   },
 
-  insert (snippet, editor, cursor) {
+  insert(snippet, editor, cursor) {
     if (editor == null) { editor = atom.workspace.getActiveTextEditor() }
     if (cursor == null) { cursor = editor.getLastCursor() }
     if (typeof snippet === 'string') {
       const bodyTree = this.getBodyParser().parse(snippet)
-      snippet = new Snippet({name: '__anonymous', prefix: '', bodyTree, bodyText: snippet})
+      snippet = new Snippet({ name: '__anonymous', prefix: '', bodyTree, bodyText: snippet })
     }
     return new SnippetExpansion(snippet, editor, cursor, this)
   },
 
-  getUnparsedSnippets () {
+  getUnparsedSnippets() {
     const results = []
     const iterate = sets => {
       for (const item of sets) {
@@ -649,7 +647,7 @@ module.exports = {
     return results
   },
 
-  provideSnippets () {
+  provideSnippets() {
     return {
       bundledSnippetsLoaded: () => this.loaded,
       insertSnippet: this.insert.bind(this),
@@ -659,7 +657,7 @@ module.exports = {
     }
   },
 
-  onUndoOrRedo (editor, isUndo) {
+  onUndoOrRedo(editor, isUndo) {
     const activeExpansions = this.getExpansions(editor)
     activeExpansions.forEach(expansion => expansion.onUndoOrRedo(isUndo))
   }

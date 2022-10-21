@@ -2,7 +2,6 @@ const path = require('path');
 const _ = require('underscore-plus');
 const { Emitter } = require('event-kit');
 const fs = require('fs-plus');
-const CSON = require('season');
 
 const ServiceHub = require('service-hub');
 const Package = require('./package');
@@ -883,15 +882,13 @@ module.exports = class PackageManager {
     }
 
     let metadata;
-    const metadataPath = CSON.resolve(path.join(packagePath, 'package'));
-    if (metadataPath) {
-      try {
-        metadata = CSON.readFileSync(metadataPath);
-        this.normalizePackageMetadata(metadata);
-      } catch (error) {
-        if (!ignoreErrors) {
-          throw error;
-        }
+    const metadataPath = path.join(packagePath, 'package.json');
+    try {
+      metadata = JSON.parse(fs.readFileSync(metadataPath));
+      this.normalizePackageMetadata(metadata);
+    } catch (error) {
+      if (!ignoreErrors) {
+        throw error;
       }
     }
 

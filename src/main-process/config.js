@@ -446,7 +446,7 @@ class Config {
 
   initialize() {
     const path = require('path');
-    const configFilePath = path.join(process.env.ATOM_HOME, 'config.cson');
+    const configFilePath = path.join(process.env.ATOM_HOME, 'config.json');
     this.configFile = ConfigFile.at(configFilePath);
     this.saveCallback = settings => {
       if (!this.quitting) {

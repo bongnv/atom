@@ -5,7 +5,6 @@ const fs = require('fs');
 const dedent = require('dedent');
 const { Disposable, Emitter } = require('event-kit');
 const { watchPath } = require('../shared/path-watcher');
-const CSON = require('season');
 const Path = require('path');
 const asyncQueue = require('async/queue');
 
@@ -35,7 +34,7 @@ module.exports = class ConfigFile {
 
     // Use a queue to prevent multiple concurrent write to the same file.
     const writeQueue = asyncQueue((data, callback) =>
-      CSON.writeFile(this.path, data, error => {
+      fs.writeFile(this.path, JSON.stringify(data), error => {
         if (error) {
           this.emitter.emit(
             'did-error',
@@ -67,7 +66,7 @@ module.exports = class ConfigFile {
 
   async watch(callback) {
     if (!fs.existsSync(this.path)) {
-      CSON.writeFileSync(this.path, {}, { flag: 'wx' });
+      fs.writeFileSync(this.path, JSON.stringify({}), { flag: 'wx' });
     }
 
     await this.reload();
@@ -104,14 +103,14 @@ module.exports = class ConfigFile {
 
   reload() {
     return new Promise(resolve => {
-      CSON.readFile(this.path, (error, data) => {
+      fs.readFile(this.path, (error, data) => {
         if (error) {
           this.emitter.emit(
             'did-error',
             `Failed to load \`${Path.basename(this.path)}\` - ${error.message}`
           );
         } else {
-          this.value = data || {};
+          this.value = JSON.parse(data) || {};
           this.emitter.emit('did-change', this.value);
 
           for (const callback of this.reloadCallbacks) callback();

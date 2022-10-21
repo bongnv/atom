@@ -1,6 +1,5 @@
 const _ = require('underscore-plus');
 const Grim = require('grim');
-const CSON = require('season');
 const FirstMate = require('first-mate');
 const { Disposable, CompositeDisposable } = require('event-kit');
 const fs = require('fs-plus');
@@ -578,10 +577,10 @@ module.exports = class GrammarRegistry {
   // Returns undefined.
   readGrammar(grammarPath, callback) {
     if (!callback) callback = () => {};
-    CSON.readFile(grammarPath, (error, params = {}) => {
+    fs.readFile(grammarPath, (error, data) => {
       if (error) return callback(error);
       try {
-        callback(null, this.createGrammar(grammarPath, params));
+        callback(null, this.createGrammar(grammarPath, JSON.parse(data)));
       } catch (error) {
         callback(error);
       }
@@ -596,7 +595,7 @@ module.exports = class GrammarRegistry {
   readGrammarSync(grammarPath) {
     return this.createGrammar(
       grammarPath,
-      CSON.readFileSync(grammarPath) || {}
+      JSON.parse(fs.readFileSync(grammarPath)) || {}
     );
   }
 

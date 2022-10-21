@@ -12,6 +12,7 @@ module.exports = {
       'atom'
     ),
     ignore: [
+      /^\/exports\//,
       /^\/keymap\//,
       /^\/menus\//,
       /^\/script\//,
@@ -21,7 +22,7 @@ module.exports = {
       /\/\.github\//,
       /\/docs\//,
       /\/spec\//,
-      /^\/packages\/[\d\w-]+\/(?!keymaps|menus|styles|package\.json)/,
+      /^\/packages\/[\d\w-]+\/(?!keymaps|menus|styles|package\.json|settings|grammars)/,
       /\/package-lock\.json$/,
       /\/.travis.yml$/i,
       /\/README\.md$/i,

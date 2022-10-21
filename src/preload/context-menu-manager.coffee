@@ -1,5 +1,4 @@
 path = require 'path'
-CSON = require 'season'
 fs = require 'fs-plus'
 {calculateSpecificity, validateSelector} = require 'clear-cut'
 {Disposable} = require 'event-kit'
@@ -17,7 +16,7 @@ platformContextMenu = require('../../package.json')?._atomMenu?['context-menu']
 # An instance of this class is always available as the `atom.contextMenu`
 # global.
 #
-# ## Context Menu CSON Format
+# ## Context Menu JSON Format
 #
 # ```coffee
 # 'atom-workspace': [{label: 'Help', command: 'application:open-documentation'}]
@@ -30,7 +29,7 @@ platformContextMenu = require('../../package.json')?._atomMenu?['context-menu']
 # }]
 # ```
 #
-# In your package's menu `.cson` file you need to specify it under a
+# In your package's menu `.json` file you need to specify it under a
 # `context-menu` key:
 #
 # ```coffee
@@ -52,7 +51,7 @@ class ContextMenuManager
   initialize: ({@devMode}) ->
 
   loadPlatformItems: ->
-    map = require("../../menus/" + process.platform + ".cson")
+    map = require("../../menus/" + process.platform + ".json")
     @add(map['context-menu'])
 
   # Public: Add context menu items scoped by CSS selectors.
