@@ -1,10 +1,10 @@
 require('../install-global-atom');
 
 const { userAgent } = process.env;
-const [ taskPath ] = process.argv.slice(2);
+const [taskPath] = process.argv.slice(2);
 
-const setupGlobals = function() {
-  global.attachEvent = function() {};
+const setupGlobals = function () {
+  global.attachEvent = function () {};
   const console = {
     warn() {
       return global.emit('task:warn', ...arguments);
@@ -15,7 +15,7 @@ const setupGlobals = function() {
     error() {
       return global.emit('task:error', ...arguments);
     },
-    trace() {}
+    trace() {},
   };
   global.__defineGetter__('console', () => console);
 
@@ -26,12 +26,12 @@ const setupGlobals = function() {
         getElementsByTagName() {
           return [];
         },
-        appendChild() {}
+        appendChild() {},
       };
     },
     documentElement: {
       insertBefore() {},
-      removeChild() {}
+      removeChild() {},
     },
     getElementById() {
       return {};
@@ -41,7 +41,7 @@ const setupGlobals = function() {
     },
     createDocumentFragment() {
       return {};
-    }
+    },
   };
 
   global.emit = (event, ...args) => process.send({ event, args });
@@ -49,20 +49,20 @@ const setupGlobals = function() {
   return (global.window = global);
 };
 
-const handleEvents = function() {
-  process.on('uncaughtException', error =>
+const handleEvents = function () {
+  process.on('uncaughtException', (error) =>
     console.error(error.message, error.stack)
   );
 
-  return process.on('message', function({ event, args } = {}) {
+  return process.on('message', function ({ event, args } = {}) {
     if (event !== 'start') {
       return;
     }
 
     let isAsync = false;
-    const async = function() {
+    const async = function () {
       isAsync = true;
-      return result => global.emit('task:completed', result);
+      return (result) => global.emit('task:completed', result);
     };
     const result = handler.bind({ async })(...args);
     if (!isAsync) {
@@ -71,10 +71,10 @@ const handleEvents = function() {
   });
 };
 
-const setupDeprecations = function() {
+const setupDeprecations = function () {
   const Grim = require('grim');
-  return Grim.on('updated', function() {
-    const deprecations = Grim.getDeprecations().map(deprecation =>
+  return Grim.on('updated', function () {
+    const deprecations = Grim.getDeprecations().map((deprecation) =>
       deprecation.serialize()
     );
     Grim.clearDeprecations();

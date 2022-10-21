@@ -35,7 +35,7 @@ function getPathsToTranspile() {
             '**',
             '*.js'
           ),
-          nodir: true
+          nodir: true,
         }
       )
     );

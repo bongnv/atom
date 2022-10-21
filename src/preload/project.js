@@ -23,7 +23,7 @@ module.exports = class Project extends Model {
     packageManager,
     config,
     applicationDelegate,
-    grammarRegistry
+    grammarRegistry,
   }) {
     super();
     this.notificationManager = notificationManager;
@@ -54,7 +54,7 @@ module.exports = class Project extends Model {
       if (repository != null) repository.destroy();
     }
     for (let path in this.watcherPromisesByPath) {
-      this.watcherPromisesByPath[path].then(watcher => {
+      this.watcherPromisesByPath[path].then((watcher) => {
         watcher.dispose();
       });
     }
@@ -100,7 +100,7 @@ module.exports = class Project extends Model {
       // If no path is specified, set to directory of originPath.
       if (!Array.isArray(projectSpecification.paths)) {
         projectSpecification.paths = [
-          path.dirname(projectSpecification.originPath)
+          path.dirname(projectSpecification.originPath),
         ];
       }
       atom.config.resetProjectSettings(
@@ -124,7 +124,7 @@ module.exports = class Project extends Model {
     this.retiredBufferIDs = new Set();
     this.retiredBufferPaths = new Set();
 
-    const handleBufferState = bufferState => {
+    const handleBufferState = (bufferState) => {
       if (bufferState.shouldDestroyOnFileDelete == null) {
         bufferState.shouldDestroyOnFileDelete = () =>
           atom.config.get('core.closeDeletedFileTabs');
@@ -135,7 +135,7 @@ module.exports = class Project extends Model {
       // TextBuffers backed by files that have been deleted from being saved.
       bufferState.mustExist = bufferState.digestWhenLastPersisted !== false;
 
-      return TextBuffer.deserialize(bufferState).catch(_ => {
+      return TextBuffer.deserialize(bufferState).catch((_) => {
         this.retiredBufferIDs.add(bufferState.id);
         this.retiredBufferPaths.add(bufferState.filePath);
         return null;
@@ -147,7 +147,7 @@ module.exports = class Project extends Model {
       bufferPromises.push(handleBufferState(bufferState));
     }
 
-    return Promise.all(bufferPromises).then(buffers => {
+    return Promise.all(bufferPromises).then((buffers) => {
       this.buffers = buffers.filter(Boolean);
       for (let buffer of this.buffers) {
         this.grammarRegistry.maintainLanguageMode(buffer);
@@ -162,16 +162,16 @@ module.exports = class Project extends Model {
       deserializer: 'Project',
       paths: this.getPaths(),
       buffers: _.compact(
-        this.buffers.map(function(buffer) {
+        this.buffers.map(function (buffer) {
           if (buffer.isRetained()) {
             const isUnloading = options.isUnloading === true;
             return buffer.serialize({
               markerLayers: isUnloading,
-              history: isUnloading
+              history: isUnloading,
             });
           }
         })
-      )
+      ),
     };
   }
 
@@ -317,11 +317,11 @@ module.exports = class Project extends Model {
     const pathForDirectory = directory.getRealPathSync();
     let promise = this.repositoryPromisesByPath.get(pathForDirectory);
     if (!promise) {
-      const promises = this.repositoryProviders.map(provider =>
+      const promises = this.repositoryProviders.map((provider) =>
         provider.repositoryForDirectory(directory)
       );
-      promise = Promise.all(promises).then(repositories => {
-        const repo = repositories.find(repo => repo != null) || null;
+      promise = Promise.all(promises).then((repositories) => {
+        const repo = repositories.find((repo) => repo != null) || null;
 
         // If no repository is found, remove the entry for the directory in
         // @repositoryPromisesByPath in case some other RepositoryProvider is
@@ -351,7 +351,9 @@ module.exports = class Project extends Model {
   // directories.
   getPaths() {
     try {
-      return this.rootDirectories.map(rootDirectory => rootDirectory.getPath());
+      return this.rootDirectories.map((rootDirectory) =>
+        rootDirectory.getPath()
+      );
     } catch (e) {
       atom.notifications.addError(
         "Please clear Atom's window state with: atom --clear-window-state"
@@ -375,7 +377,7 @@ module.exports = class Project extends Model {
     this.repositories = [];
 
     for (let path in this.watcherPromisesByPath) {
-      this.watcherPromisesByPath[path].then(watcher => {
+      this.watcherPromisesByPath[path].then((watcher) => {
         watcher.dispose();
       });
     }
@@ -387,7 +389,7 @@ module.exports = class Project extends Model {
         this.addPath(projectPath, {
           emitEvent: false,
           mustExist: true,
-          exact: options.exact === true
+          exact: options.exact === true,
         });
       } catch (e) {
         if (e.missingProjectPaths != null) {
@@ -441,7 +443,7 @@ module.exports = class Project extends Model {
 
     this.rootDirectories.push(directory);
 
-    const didChangeCallback = events => {
+    const didChangeCallback = (events) => {
       // Stop event delivery immediately on removal of a rootDirectory, even if its watcher
       // promise has yet to resolve at the time of removal
       if (this.rootDirectories.includes(directory)) {
@@ -458,8 +460,8 @@ module.exports = class Project extends Model {
         : watchPath(directory.getPath(), {}, didChangeCallback);
 
     for (let watchedPath in this.watcherPromisesByPath) {
-      if (!this.rootDirectories.find(dir => dir.getPath() === watchedPath)) {
-        this.watcherPromisesByPath[watchedPath].then(watcher => {
+      if (!this.rootDirectories.find((dir) => dir.getPath() === watchedPath)) {
+        this.watcherPromisesByPath[watchedPath].then((watcher) => {
           watcher.dispose();
         });
       }
@@ -499,9 +501,8 @@ module.exports = class Project extends Model {
   getDirectoryForProjectPath(projectPath) {
     let directory = this.getProvidedDirectoryForProjectPath(projectPath);
     if (directory == null) {
-      directory = this.defaultDirectoryProvider.directoryForURISync(
-        projectPath
-      );
+      directory =
+        this.defaultDirectoryProvider.directoryForURISync(projectPath);
     }
     return directory;
   }
@@ -549,7 +550,7 @@ module.exports = class Project extends Model {
         if (removedRepository) removedRepository.destroy();
       }
       if (this.watcherPromisesByPath[projectPath] != null) {
-        this.watcherPromisesByPath[projectPath].then(w => w.dispose());
+        this.watcherPromisesByPath[projectPath].then((w) => w.dispose());
       }
       delete this.watcherPromisesByPath[projectPath];
       this.emitter.emit('did-change-paths', this.getPaths());
@@ -642,7 +643,7 @@ module.exports = class Project extends Model {
   //
   // Returns whether the path is inside the project's root directory.
   contains(pathToCheck) {
-    return this.rootDirectories.some(dir => dir.contains(pathToCheck));
+    return this.rootDirectories.some((dir) => dir.contains(pathToCheck));
   }
 
   /*
@@ -650,7 +651,7 @@ module.exports = class Project extends Model {
   */
 
   consumeServices({ serviceHub }) {
-    serviceHub.consume('atom.directory-provider', '^0.1.0', provider => {
+    serviceHub.consume('atom.directory-provider', '^0.1.0', (provider) => {
       this.directoryProviders.unshift(provider);
       return new Disposable(() => {
         return this.directoryProviders.splice(
@@ -663,7 +664,7 @@ module.exports = class Project extends Model {
     return serviceHub.consume(
       'atom.repository-provider',
       '^0.1.0',
-      provider => {
+      (provider) => {
         this.repositoryProviders.unshift(provider);
         if (this.repositories.includes(null)) {
           this.setPaths(this.getPaths());
@@ -693,11 +694,11 @@ module.exports = class Project extends Model {
   }
 
   findBufferForPath(filePath) {
-    return _.find(this.buffers, buffer => buffer.getPath() === filePath);
+    return _.find(this.buffers, (buffer) => buffer.getPath() === filePath);
   }
 
   findBufferForId(id) {
-    return _.find(this.buffers, buffer => buffer.getId() === id);
+    return _.find(this.buffers, (buffer) => buffer.getId() === id);
   }
 
   // Only to be used in specs
@@ -756,7 +757,7 @@ module.exports = class Project extends Model {
   // Still needed when deserializing a tokenized buffer
   buildBufferSync(absoluteFilePath) {
     const params = {
-      shouldDestroyOnFileDelete: this.shouldDestroyBufferOnFileDelete
+      shouldDestroyOnFileDelete: this.shouldDestroyBufferOnFileDelete,
     };
 
     let buffer;
@@ -777,7 +778,7 @@ module.exports = class Project extends Model {
   // Returns a {Promise} that resolves to the {TextBuffer}.
   async buildBuffer(absoluteFilePath) {
     const params = {
-      shouldDestroyOnFileDelete: this.shouldDestroyBufferOnFileDelete
+      shouldDestroyOnFileDelete: this.shouldDestroyBufferOnFileDelete,
     };
 
     let buffer;
@@ -787,11 +788,11 @@ module.exports = class Project extends Model {
           absoluteFilePath,
           params
         )
-          .then(result => {
+          .then((result) => {
             delete this.loadPromisesByPath[absoluteFilePath];
             return result;
           })
-          .catch(error => {
+          .catch((error) => {
             delete this.loadPromisesByPath[absoluteFilePath];
             throw error;
           });
@@ -841,11 +842,11 @@ module.exports = class Project extends Model {
       callback(buffer);
     }
     if (subscriber) {
-      return subscriber.subscribe(this, 'buffer-created', buffer =>
+      return subscriber.subscribe(this, 'buffer-created', (buffer) =>
         callback(buffer)
       );
     } else {
-      return this.on('buffer-created', buffer => callback(buffer));
+      return this.on('buffer-created', (buffer) => callback(buffer));
     }
   }
 
@@ -869,7 +870,7 @@ module.exports = class Project extends Model {
         `Make sure you have permission to access \`${buffer.getPath()}\`.`;
       this.notificationManager.addWarning(message, {
         detail: error.message,
-        dismissable: true
+        dismissable: true,
       });
     });
   }

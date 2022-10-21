@@ -3,7 +3,7 @@
 const childProcess = require('child_process');
 const path = require('path');
 
-module.exports = function(ci) {
+module.exports = function (ci) {
   verifyNode();
   verifyPython();
 };
@@ -52,7 +52,7 @@ function verifyPython() {
 
       let allFlags = [
         '-c',
-        'import platform\nprint(platform.python_version())'
+        'import platform\nprint(platform.python_version())',
       ];
       if (prependFlag) {
         // prependFlag is an optional argument,
@@ -67,7 +67,7 @@ function verifyPython() {
       try {
         stdout = childProcess.execFileSync(binary, allFlags, {
           env: process.env,
-          stdio: ['ignore', 'pipe', 'ignore']
+          stdio: ['ignore', 'pipe', 'ignore'],
         });
       } catch (e) {}
 

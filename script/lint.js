@@ -11,7 +11,7 @@ const path = require('path');
 
 const CONFIG = require('./config');
 
-process.on('unhandledRejection', function(e) {
+process.on('unhandledRejection', function (e) {
   console.error(e.stack || e);
   process.exit(1);
 });
@@ -19,8 +19,8 @@ process.on('unhandledRejection', function(e) {
 Promise.all([
   lintCoffeeScriptPaths(),
   lintJavaScriptPaths(),
-  lintLessPaths()
-]).then(lintResults => {
+  lintLessPaths(),
+]).then((lintResults) => {
   let hasLintErrors = false;
   for (let errors of lintResults) {
     for (let error of errors) {

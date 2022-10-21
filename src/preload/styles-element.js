@@ -128,9 +128,8 @@ class StylesElement extends HTMLElement {
       return;
     }
 
-    const styleElementClone = this.styleElementClonesByOriginalElement.get(
-      styleElement
-    );
+    const styleElementClone =
+      this.styleElementClonesByOriginalElement.get(styleElement);
     styleElementClone.textContent = styleElement.textContent;
     this.emitter.emit('did-update-style-element', styleElementClone);
   }
@@ -147,5 +146,5 @@ function createStylesElement() {
 }
 
 module.exports = {
-  createStylesElement
+  createStylesElement,
 };

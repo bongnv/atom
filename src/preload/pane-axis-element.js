@@ -14,7 +14,7 @@ class PaneAxisElement extends HTMLElement {
   disconnectedCallback() {
     this.subscriptions.dispose();
     this.subscriptions = null;
-    this.model.getChildren().map(child => this.childRemoved({ child }));
+    this.model.getChildren().map((child) => this.childRemoved({ child }));
   }
 
   initialize(model, viewRegistry) {
@@ -122,5 +122,5 @@ function createPaneAxisElement() {
 }
 
 module.exports = {
-  createPaneAxisElement
+  createPaneAxisElement,
 };

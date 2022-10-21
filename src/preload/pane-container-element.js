@@ -50,5 +50,5 @@ function createPaneContainerElement() {
 }
 
 module.exports = {
-  createPaneContainerElement
+  createPaneContainerElement,
 };

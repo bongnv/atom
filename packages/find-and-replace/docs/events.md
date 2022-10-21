@@ -10,14 +10,14 @@ Currently Find and Replace does not log any counter events.
 
 #### Time to search on a project
 
-* **eventType**: `find-and-replace-v1`
-* **metadata**
+- **eventType**: `find-and-replace-v1`
+- **metadata**
 
-  | field | value |
-  |-------|-------|
-  | `ec` | `time-to-search`
-  | `ev` | Number of found results
-  | `el` | Search system in use (`ripgrep` or `standard`)
+  | field | value                                          |
+  | ----- | ---------------------------------------------- |
+  | `ec`  | `time-to-search`                               |
+  | `ev`  | Number of found results                        |
+  | `el`  | Search system in use (`ripgrep` or `standard`) |
 
 ## Standard events
 

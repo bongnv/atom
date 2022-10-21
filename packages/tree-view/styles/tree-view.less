@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 .project-root-header {
   -webkit-user-drag: element;
@@ -104,7 +104,7 @@
     z-index: 999;
     display: inline-block;
 
-    width: calc(~"100% -" @component-icon-padding);
+    width: calc(~'100% -' @component-icon-padding);
     background: @background-color-info;
 
     list-style: none;
@@ -112,16 +112,17 @@
 
     // bar
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       height: 2px;
-      margin: -1px; padding: 0;
+      margin: -1px;
+      padding: 0;
       width: inherit;
       background: inherit;
     }
 
     &:after {
-      content: "";
+      content: '';
       position: absolute;
       left: 0;
       margin-top: -2px;

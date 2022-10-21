@@ -10,7 +10,6 @@ const packageJSON = require('../../package.json');
 
 let normalizePackageData = null;
 
-
 // Extended: Package manager for coordinating the lifecycle of Atom packages.
 //
 // An instance of this class is always available as the `atom.packages` global.
@@ -37,7 +36,7 @@ module.exports = class PackageManager {
       grammarRegistry: this.grammarRegistry,
       deserializerManager: this.deserializerManager,
       viewRegistry: this.viewRegistry,
-      uriHandlerRegistry: this.uriHandlerRegistry
+      uriHandlerRegistry: this.uriHandlerRegistry,
     } = params);
 
     this.emitter = new Emitter();
@@ -64,7 +63,7 @@ module.exports = class PackageManager {
   initialize(params) {
     this.devMode = params.devMode;
     // FIXME: bongnv - fix this
-    this.resourcePath = path.join(path.dirname(__dirname), "../..");
+    this.resourcePath = path.join(path.dirname(__dirname), '../..');
     if (params.configDirPath != null) {
       if (this.devMode) {
         this.packageDirPaths.push(
@@ -186,7 +185,9 @@ module.exports = class PackageManager {
     }
 
     const commandName = process.platform === 'win32' ? 'apm.cmd' : 'apm';
-    const apmRoot = process.env.DEV_APM_ROOT || path.join(process.resourcesPath, 'app', 'apm');
+    const apmRoot =
+      process.env.DEV_APM_ROOT ||
+      path.join(process.resourcesPath, 'app', 'apm');
     this.apmPath = path.join(apmRoot, 'bin', commandName);
     if (!fs.isFileSync(this.apmPath)) {
       this.apmPath = path.join(
@@ -327,7 +328,7 @@ module.exports = class PackageManager {
   //
   // * `types` an {Array} of {String}s like ['atom', 'textmate'].
   getLoadedPackagesForTypes(types) {
-    return this.getLoadedPackages().filter(p => types.includes(p.getType()));
+    return this.getLoadedPackages().filter((p) => types.includes(p.getType()));
   }
 
   // Public: Get the loaded {Package} with the given name.
@@ -359,12 +360,12 @@ module.exports = class PackageManager {
 
   // Public: Returns an {Array} of {String}s of all the available package paths.
   getAvailablePackagePaths() {
-    return this.getAvailablePackages().map(a => a.path);
+    return this.getAvailablePackages().map((a) => a.path);
   }
 
   // Public: Returns an {Array} of {String}s of all the available package names.
   getAvailablePackageNames() {
-    return this.getAvailablePackages().map(a => a.name);
+    return this.getAvailablePackages().map((a) => a.name);
   }
 
   // Public: Returns an {Array} of {String}s of all the available package metadata.
@@ -392,12 +393,12 @@ module.exports = class PackageManager {
         const packageNames = fs
           .readdirSync(packageDirPath, { withFileTypes: true })
           .filter(
-            dirent =>
+            (dirent) =>
               dirent.isDirectory() ||
               (dirent.isSymbolicLink() &&
                 fs.isDirectorySync(path.join(packageDirPath, dirent.name)))
           )
-          .map(dirent => dirent.name);
+          .map((dirent) => dirent.name);
 
         for (const packageName of packageNames) {
           if (
@@ -408,7 +409,7 @@ module.exports = class PackageManager {
             packages.push({
               name: packageName,
               path: packagePath,
-              isBundled: false
+              isBundled: false,
             });
             packagesByName.add(packageName);
           }
@@ -417,32 +418,31 @@ module.exports = class PackageManager {
     }
 
     const bundledPackagesDir = path.join(this.resourcePath, 'packages');
-    fs
-    .readdirSync(bundledPackagesDir, { withFileTypes: true })
-    // TODO: bongnv - we may not to check directory here
-    .filter(
-      dirent =>
-        dirent.isDirectory() ||
-        (dirent.isSymbolicLink() &&
-          fs.isDirectorySync(path.join(packageDirPath, dirent.name)))
-    )
-    .map(dirent => dirent.name)
-    .filter(packageName => !packagesByName.has(packageName))
-    .map(packageName => {
-      packages.push({
-        name: packageName,
-        path: path.join(this.resourcePath, 'packages', packageName),
-        isBundled: true,
-        isLocal: true,
+    fs.readdirSync(bundledPackagesDir, { withFileTypes: true })
+      // TODO: bongnv - we may not to check directory here
+      .filter(
+        (dirent) =>
+          dirent.isDirectory() ||
+          (dirent.isSymbolicLink() &&
+            fs.isDirectorySync(path.join(packageDirPath, dirent.name)))
+      )
+      .map((dirent) => dirent.name)
+      .filter((packageName) => !packagesByName.has(packageName))
+      .map((packageName) => {
+        packages.push({
+          name: packageName,
+          path: path.join(this.resourcePath, 'packages', packageName),
+          isBundled: true,
+          isLocal: true,
+        });
       });
-    })
 
     for (const packageName in this.packageDependencies) {
       if (!packagesByName.has(packageName)) {
         packages.push({
           name: packageName,
           path: path.join(this.resourcePath, 'node_modules', packageName),
-          isBundled: true
+          isBundled: true,
         });
       }
     }
@@ -492,10 +492,10 @@ module.exports = class PackageManager {
       ({ newValue, oldValue }) => {
         const packagesToEnable = _.difference(oldValue, newValue);
         const packagesToDisable = _.difference(newValue, oldValue);
-        packagesToDisable.forEach(name => {
+        packagesToDisable.forEach((name) => {
           if (this.getActivePackage(name)) this.deactivatePackage(name);
         });
-        packagesToEnable.forEach(name => this.activatePackage(name));
+        packagesToEnable.forEach((name) => this.activatePackage(name));
         return null;
       }
     );
@@ -540,12 +540,12 @@ module.exports = class PackageManager {
         performOnLoadedActivePackages(
           keymapsToDisable,
           disabledPackageNames,
-          p => p.deactivateKeymaps()
+          (p) => p.deactivateKeymaps()
         );
         performOnLoadedActivePackages(
           keymapsToEnable,
           disabledPackageNames,
-          p => p.activateKeymaps()
+          (p) => p.activateKeymaps()
         );
         return null;
       }
@@ -582,7 +582,7 @@ module.exports = class PackageManager {
       return this.loadAvailablePackage({
         name,
         path: packagePath,
-        isBundled: this.isBundledPackagePath(packagePath)
+        isBundled: this.isBundledPackagePath(packagePath),
       });
     }
 
@@ -628,7 +628,7 @@ module.exports = class PackageManager {
       menuManager: this.menuManager,
       contextMenuManager: this.contextMenuManager,
       deserializerManager: this.deserializerManager,
-      viewRegistry: this.viewRegistry
+      viewRegistry: this.viewRegistry,
     };
 
     const pack = metadata.theme
@@ -641,7 +641,7 @@ module.exports = class PackageManager {
   }
 
   unloadPackages() {
-    _.keys(this.loadedPackages).forEach(name => this.unloadPackage(name));
+    _.keys(this.loadedPackages).forEach((name) => this.unloadPackage(name));
   }
 
   unloadPackage(name) {
@@ -723,7 +723,7 @@ module.exports = class PackageManager {
     });
 
     if (this.deferredActivationHooks == null) {
-      this.triggeredActivationHooks.forEach(hook =>
+      this.triggeredActivationHooks.forEach((hook) =>
         this.activationHookEmitter.emit(hook)
       );
     }
@@ -780,7 +780,7 @@ module.exports = class PackageManager {
   async deactivatePackages() {
     await this.config.transactAsync(() =>
       Promise.all(
-        this.getLoadedPackages().map(pack =>
+        this.getLoadedPackages().map((pack) =>
           this.deactivatePackage(pack.name, true)
         )
       )
@@ -819,22 +819,22 @@ module.exports = class PackageManager {
       stack,
       detail,
       packageName: path.basename(packagePath),
-      dismissable: true
+      dismissable: true,
     });
   }
 
   uninstallDirectory(directory) {
-    const symlinkPromise = new Promise(resolve =>
-      fs.isSymbolicLink(directory, isSymLink => resolve(isSymLink))
+    const symlinkPromise = new Promise((resolve) =>
+      fs.isSymbolicLink(directory, (isSymLink) => resolve(isSymLink))
     );
-    const dirPromise = new Promise(resolve =>
-      fs.isDirectory(directory, isDir => resolve(isDir))
+    const dirPromise = new Promise((resolve) =>
+      fs.isDirectory(directory, (isDir) => resolve(isDir))
     );
 
-    return Promise.all([symlinkPromise, dirPromise]).then(values => {
+    return Promise.all([symlinkPromise, dirPromise]).then((values) => {
       const [isSymLink, isDir] = values;
       if (!isSymLink && isDir) {
-        return fs.remove(directory, function() {});
+        return fs.remove(directory, function () {});
       }
     });
   }
@@ -926,5 +926,5 @@ module.exports = class PackageManager {
 const NullVersionRange = {
   test() {
     return false;
-  }
+  },
 };

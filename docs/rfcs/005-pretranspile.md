@@ -12,9 +12,9 @@ This feature will enable package authors to use conventional npm tooling and pac
 
 Transpiling packages on _publish_ rather than _load_ will have great benefits for package authors:
 
-* Standard `npm` tooling like `prepare` scripts will work for apm packages exactly as they work for npm packages. This will remove the need for custom transpiler pipeline modules like [atom-babel6-transpiler](https://github.com/atom/atom-babel6-transpiler) or [atom-typescript-transpiler](https://github.com/smhxx/atom-ts-transpiler) with their own, independent documentation, configuration and setup.
-* Packages can move transpiler-related dependencies to `devDependencies` and trim installation bloat substantially. (as a data point, the TypeScript compiler is 30MB.)
-* First-time package load will no longer take a hit from transpiling all of the source into the cache.
+- Standard `npm` tooling like `prepare` scripts will work for apm packages exactly as they work for npm packages. This will remove the need for custom transpiler pipeline modules like [atom-babel6-transpiler](https://github.com/atom/atom-babel6-transpiler) or [atom-typescript-transpiler](https://github.com/smhxx/atom-ts-transpiler) with their own, independent documentation, configuration and setup.
+- Packages can move transpiler-related dependencies to `devDependencies` and trim installation bloat substantially. (as a data point, the TypeScript compiler is 30MB.)
+- First-time package load will no longer take a hit from transpiling all of the source into the cache.
 
 ## Explanation
 
@@ -36,10 +36,10 @@ Doing this makes installing a package in production more different than loading 
 
 _Alternative: publish packages to Actual Npm.org._ We could identify Atom packages in the npm registry by the `engine` field we already use, which should keep regular npm from installing it by mistake. The downsides here are:
 
-* It becomes harder to search for _just_ Atom packages; we'd have to hack npm search a bit.
-* "Starring" would likely break.
-* The transition path for existing users of apm and atom.io is not as smooth.
-* Easier to typo `apm` and `npm` commands and have an undesirable outcome.
+- It becomes harder to search for _just_ Atom packages; we'd have to hack npm search a bit.
+- "Starring" would likely break.
+- The transition path for existing users of apm and atom.io is not as smooth.
+- Easier to typo `apm` and `npm` commands and have an undesirable outcome.
 
 ## Unresolved questions
 

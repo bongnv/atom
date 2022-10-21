@@ -265,7 +265,9 @@
     "build:apm": "cd apm && npm install",
     "test": "node script/test.js",
     "start": "DEV_APM_ROOT=\"./apm/node_modules/atom-package-manager\" electron-forge start --enable-logging -- --dev",
+    "lint": "eslint --fix src script packages",
     "package": "electron-forge package",
+    "prettier": "prettier --write .",
     "make": "electron-forge make"
   },
   "standard-engine": "./script/node_modules/standard",
@@ -299,9 +301,12 @@
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
     "electron": "12.2.3",
+    "eslint": "^8.25.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "less": "^4.1.3",
     "less-loader": "^11.1.0",
     "node-loader": "^2.0.0",
+    "prettier": "^2.7.1",
     "style-loader": "^3.3.1",
     "webpack-node-externals": "^3.0.0"
   },

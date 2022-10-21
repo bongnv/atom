@@ -7,7 +7,8 @@ function requireModule(path) {
   } else {
     if (
       modul.__esModule === true &&
-      (modul.default !== undefined && modul.default !== null)
+      modul.default !== undefined &&
+      modul.default !== null
     ) {
       // __esModule flag is true and default is exported, which means that
       // an object containing the main functions (e.g. activate, etc) is default exported

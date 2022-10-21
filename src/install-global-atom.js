@@ -1,16 +1,16 @@
 const globalModules = {
-  'atom': true,
-  'remote': true,
-  'clipboard': true,
-  'ipc': true,
-  'shell': true,
+  atom: true,
+  remote: true,
+  clipboard: true,
+  ipc: true,
+  shell: true,
 };
 
 let installed = false;
 
 install = () => {
   if (installed) {
-    return
+    return;
   }
 
   var Module = require('module');
@@ -23,7 +23,7 @@ install = () => {
 
     return originalRequire.apply(this, arguments);
   };
-  installed = true
-}
+  installed = true;
+};
 
-module.exports = install()
+module.exports = install();

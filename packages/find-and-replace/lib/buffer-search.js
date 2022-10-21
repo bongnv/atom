@@ -3,13 +3,12 @@ const FindOptions = require('./find-options');
 const escapeHelper = require('./escape-helper');
 const Util = require('./project/util');
 
-const ResultsMarkerLayersByEditor = new WeakMap;
+const ResultsMarkerLayersByEditor = new WeakMap();
 
-module.exports =
-class BufferSearch {
+module.exports = class BufferSearch {
   constructor(findOptions) {
     this.findOptions = findOptions;
-    this.emitter = new Emitter;
+    this.emitter = new Emitter();
     this.subscriptions = null;
     this.markers = [];
     this.editor = null;
@@ -31,27 +30,48 @@ class BufferSearch {
     this.editor = editor;
     if (this.subscriptions) this.subscriptions.dispose();
     if (this.editor) {
-      this.subscriptions = new CompositeDisposable;
-      this.subscriptions.add(this.editor.onDidStopChanging(this.bufferStoppedChanging.bind(this)));
-      this.subscriptions.add(this.editor.onDidAddSelection(this.setCurrentMarkerFromSelection.bind(this)));
-      this.subscriptions.add(this.editor.onDidChangeSelectionRange(this.setCurrentMarkerFromSelection.bind(this)));
-      this.resultsMarkerLayer = this.resultsMarkerLayerForTextEditor(this.editor);
+      this.subscriptions = new CompositeDisposable();
+      this.subscriptions.add(
+        this.editor.onDidStopChanging(this.bufferStoppedChanging.bind(this))
+      );
+      this.subscriptions.add(
+        this.editor.onDidAddSelection(
+          this.setCurrentMarkerFromSelection.bind(this)
+        )
+      );
+      this.subscriptions.add(
+        this.editor.onDidChangeSelectionRange(
+          this.setCurrentMarkerFromSelection.bind(this)
+        )
+      );
+      this.resultsMarkerLayer = this.resultsMarkerLayerForTextEditor(
+        this.editor
+      );
       if (this.resultsLayerDecoration) this.resultsLayerDecoration.destroy();
-      this.resultsLayerDecoration = this.editor.decorateMarkerLayer(this.resultsMarkerLayer, {type: 'highlight', class: 'find-result'});
+      this.resultsLayerDecoration = this.editor.decorateMarkerLayer(
+        this.resultsMarkerLayer,
+        { type: 'highlight', class: 'find-result' }
+      );
     }
     this.recreateMarkers();
   }
 
-  getEditor() { return this.editor; }
+  getEditor() {
+    return this.editor;
+  }
 
-  setFindOptions(newParams) { return this.findOptions.set(newParams); }
+  setFindOptions(newParams) {
+    return this.findOptions.set(newParams);
+  }
 
-  getFindOptions() { return this.findOptions; }
+  getFindOptions() {
+    return this.findOptions;
+  }
 
   resultsMarkerLayerForTextEditor(editor) {
-    let layer = ResultsMarkerLayersByEditor.get(editor)
+    let layer = ResultsMarkerLayersByEditor.get(editor);
     if (!layer) {
-      layer = editor.addMarkerLayer({maintainHistory: false});
+      layer = editor.addMarkerLayer({ maintainHistory: false });
       ResultsMarkerLayersByEditor.set(editor, layer);
     }
     return layer;
@@ -59,7 +79,7 @@ class BufferSearch {
 
   patternMatchesEmptyString(findPattern) {
     const findOptions = new FindOptions(this.findOptions.serialize());
-    findOptions.set({findPattern});
+    findOptions.set({ findPattern });
     try {
       return findOptions.getFindPatternRegex().test('');
     } catch (e) {
@@ -69,30 +89,37 @@ class BufferSearch {
   }
 
   search(findPattern, otherOptions) {
-    const options = {findPattern};
+    const options = { findPattern };
     Object.assign(options, otherOptions);
 
     const changedParams = this.findOptions.set(options);
-    if (!this.editor ||
-        changedParams.findPattern != null ||
-        changedParams.useRegex != null ||
-        changedParams.wholeWord != null ||
-        changedParams.caseSensitive != null ||
-        changedParams.inCurrentSelection != null ||
-        (this.findOptions.inCurrentSelection === true
-          && !selectionsEqual(this.editor.getSelectedBufferRanges(), this.selectedRanges))) {
-        this.recreateMarkers();
+    if (
+      !this.editor ||
+      changedParams.findPattern != null ||
+      changedParams.useRegex != null ||
+      changedParams.wholeWord != null ||
+      changedParams.caseSensitive != null ||
+      changedParams.inCurrentSelection != null ||
+      (this.findOptions.inCurrentSelection === true &&
+        !selectionsEqual(
+          this.editor.getSelectedBufferRanges(),
+          this.selectedRanges
+        ))
+    ) {
+      this.recreateMarkers();
     }
   }
 
   replace(markers, replacePattern) {
     if (!markers || markers.length === 0) return;
 
-    this.findOptions.set({replacePattern});
-    const preserveCaseOnReplace = atom.config.get('find-and-replace.preserveCaseOnReplace')
+    this.findOptions.set({ replacePattern });
+    const preserveCaseOnReplace = atom.config.get(
+      'find-and-replace.preserveCaseOnReplace'
+    );
 
     this.editor.transact(() => {
-      let findRegex = null
+      let findRegex = null;
 
       if (this.findOptions.useRegex) {
         findRegex = this.getFindPatternRegex();
@@ -100,11 +127,15 @@ class BufferSearch {
       }
 
       for (let i = 0, n = markers.length; i < n; i++) {
-        const marker = markers[i]
+        const marker = markers[i];
         const bufferRange = marker.getBufferRange();
-        const replacedText = this.editor.getTextInBufferRange(bufferRange)
-        let replacementText = findRegex ? replacedText.replace(findRegex, replacePattern) : replacePattern;
-        replacementText = preserveCaseOnReplace ? Util.preserveCase(replacementText, replacedText): replacementText
+        const replacedText = this.editor.getTextInBufferRange(bufferRange);
+        let replacementText = findRegex
+          ? replacedText.replace(findRegex, replacePattern)
+          : replacePattern;
+        replacementText = preserveCaseOnReplace
+          ? Util.preserveCase(replacementText, replacedText)
+          : replacementText;
         this.editor.setTextInBufferRange(bufferRange, replacementText);
 
         marker.destroy();
@@ -125,43 +156,51 @@ class BufferSearch {
 
   recreateMarkers() {
     if (this.resultsMarkerLayer) {
-      this.resultsMarkerLayer.clear()
+      this.resultsMarkerLayer.clear();
     }
 
     this.markers.length = 0;
     const markers = this.createMarkers(Point.ZERO, Point.INFINITY);
     if (markers) {
       this.markers = markers;
-      return this.emitter.emit("did-update", this.markers.slice());
+      return this.emitter.emit('did-update', this.markers.slice());
     }
   }
 
   createMarkers(start, end) {
     const newMarkers = [];
     if (this.findOptions.findPattern && this.editor) {
-      this.selectedRanges = this.editor.getSelectedBufferRanges()
+      this.selectedRanges = this.editor.getSelectedBufferRanges();
 
-      const searchRanges = []
+      const searchRanges = [];
       if (this.findOptions.inCurrentSelection) {
-        searchRanges.push(...this.selectedRanges.filter(range => !range.isEmpty()))
+        searchRanges.push(
+          ...this.selectedRanges.filter((range) => !range.isEmpty())
+        );
       }
       if (searchRanges.length === 0) {
-        searchRanges.push(Range(start, end))
+        searchRanges.push(Range(start, end));
       }
 
-      const buffer = this.editor.getBuffer()
-      const regex = this.getFindPatternRegex(buffer.hasAstral && buffer.hasAstral())
+      const buffer = this.editor.getBuffer();
+      const regex = this.getFindPatternRegex(
+        buffer.hasAstral && buffer.hasAstral()
+      );
       if (regex) {
         try {
           for (const range of searchRanges) {
-            const bufferMarkers = this.editor.getBuffer().findAndMarkAllInRangeSync(
-              this.resultsMarkerLayer.bufferMarkerLayer,
-              regex,
-              range,
-              {invalidate: 'inside'}
-            );
+            const bufferMarkers = this.editor
+              .getBuffer()
+              .findAndMarkAllInRangeSync(
+                this.resultsMarkerLayer.bufferMarkerLayer,
+                regex,
+                range,
+                { invalidate: 'inside' }
+              );
             for (const bufferMarker of bufferMarkers) {
-              newMarkers.push(this.resultsMarkerLayer.getMarker(bufferMarker.id))
+              newMarkers.push(
+                this.resultsMarkerLayer.getMarker(bufferMarker.id)
+              );
             }
           }
         } catch (error) {
@@ -175,7 +214,7 @@ class BufferSearch {
     return newMarkers;
   }
 
-  bufferStoppedChanging({changes}) {
+  bufferStoppedChanging({ changes }) {
     let marker;
     let scanEnd = Point.ZERO;
     let markerIndex = 0;
@@ -186,9 +225,11 @@ class BufferSearch {
       if (changeEnd.isLessThan(scanEnd)) continue;
 
       let precedingMarkerIndex = -1;
-      while (marker = this.markers[markerIndex]) {
+      while ((marker = this.markers[markerIndex])) {
         if (marker.isValid()) {
-          if (marker.getBufferRange().end.isGreaterThan(changeStart)) { break; }
+          if (marker.getBufferRange().end.isGreaterThan(changeStart)) {
+            break;
+          }
           precedingMarkerIndex = markerIndex;
         } else {
           this.markers[markerIndex] = this.recreateMarker(marker);
@@ -197,17 +238,20 @@ class BufferSearch {
       }
 
       let followingMarkerIndex = -1;
-      while (marker = this.markers[markerIndex]) {
+      while ((marker = this.markers[markerIndex])) {
         if (marker.isValid()) {
           followingMarkerIndex = markerIndex;
-          if (marker.getBufferRange().start.isGreaterThanOrEqual(changeEnd)) { break; }
+          if (marker.getBufferRange().start.isGreaterThanOrEqual(changeEnd)) {
+            break;
+          }
         } else {
           this.markers[markerIndex] = this.recreateMarker(marker);
         }
         markerIndex++;
       }
 
-      let spliceStart; let scanStart
+      let spliceStart;
+      let scanStart;
       if (precedingMarkerIndex >= 0) {
         spliceStart = precedingMarkerIndex;
         scanStart = this.markers[precedingMarkerIndex].getBufferRange().start;
@@ -216,7 +260,7 @@ class BufferSearch {
         scanStart = Point.ZERO;
       }
 
-      let spliceEnd
+      let spliceEnd;
       if (followingMarkerIndex >= 0) {
         spliceEnd = followingMarkerIndex;
         scanEnd = this.markers[followingMarkerIndex].getBufferRange().end;
@@ -226,14 +270,18 @@ class BufferSearch {
       }
 
       const newMarkers = this.createMarkers(scanStart, scanEnd) || [];
-      const oldMarkers = this.markers.splice(spliceStart, (spliceEnd - spliceStart) + 1, ...newMarkers);
+      const oldMarkers = this.markers.splice(
+        spliceStart,
+        spliceEnd - spliceStart + 1,
+        ...newMarkers
+      );
       for (const oldMarker of oldMarkers) {
         oldMarker.destroy();
       }
       markerIndex += newMarkers.length - oldMarkers.length;
     }
 
-    while (marker = this.markers[++markerIndex]) {
+    while ((marker = this.markers[++markerIndex])) {
       if (!marker.isValid()) {
         this.markers[markerIndex] = this.recreateMarker(marker);
       }
@@ -250,12 +298,18 @@ class BufferSearch {
     if (marker === this.currentResultMarker) return;
 
     if (this.currentResultMarker) {
-      this.resultsLayerDecoration.setPropertiesForMarker(this.currentResultMarker, null);
+      this.resultsLayerDecoration.setPropertiesForMarker(
+        this.currentResultMarker,
+        null
+      );
       this.currentResultMarker = null;
     }
 
     if (marker && !marker.isDestroyed()) {
-      this.resultsLayerDecoration.setPropertiesForMarker(marker, {type: 'highlight', class: 'current-result'});
+      this.resultsLayerDecoration.setPropertiesForMarker(marker, {
+        type: 'highlight',
+        class: 'current-result',
+      });
       this.currentResultMarker = marker;
     }
 
@@ -266,19 +320,21 @@ class BufferSearch {
     if (this.resultsMarkerLayer) {
       return this.resultsMarkerLayer.findMarkers({
         startBufferPosition: range.start,
-        endBufferPosition: range.end
+        endBufferPosition: range.end,
       })[0];
     }
   }
 
   recreateMarker(marker) {
-    const range = marker.getBufferRange()
+    const range = marker.getBufferRange();
     marker.destroy();
     return this.createMarker(range);
   }
 
   createMarker(range) {
-    return this.resultsMarkerLayer.markBufferRange(range, {invalidate: 'inside'});
+    return this.resultsMarkerLayer.markBufferRange(range, {
+      invalidate: 'inside',
+    });
   }
 
   getFindPatternRegex(forceUnicode) {
@@ -295,11 +351,11 @@ function selectionsEqual(selectionsA, selectionsB) {
   if (selectionsA.length === selectionsB.length) {
     for (let i = 0; i < selectionsA.length; i++) {
       if (!selectionsA[i].isEqual(selectionsB[i])) {
-        return false
+        return false;
       }
     }
-    return true
+    return true;
   } else {
-    return false
+    return false;
   }
 }

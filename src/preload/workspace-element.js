@@ -32,7 +32,7 @@ class WorkspaceElement extends HTMLElement {
 
   observeScrollbarStyle() {
     this.subscriptions.add(
-      scrollbarStyle.observePreferredScrollbarStyle(style => {
+      scrollbarStyle.observePreferredScrollbarStyle((style) => {
         switch (style) {
           case 'legacy':
             this.classList.remove('scrollbars-visible-when-scrolling');
@@ -77,7 +77,7 @@ class WorkspaceElement extends HTMLElement {
 }`;
     this.styleManager.addStyleSheet(styleSheetSource, {
       sourcePath: 'global-text-editor-styles',
-      priority: -1
+      priority: -1,
     });
   }
 
@@ -138,9 +138,9 @@ class WorkspaceElement extends HTMLElement {
       ...[
         this.model.getLeftDock(),
         this.model.getRightDock(),
-        this.model.getBottomDock()
-      ].map(dock =>
-        dock.onDidChangeHovered(hovered => {
+        this.model.getBottomDock(),
+      ].map((dock) =>
+        dock.onDidChangeHovered((hovered) => {
           if (hovered) this.hoveredDock = dock;
           else if (dock === this.hoveredDock) this.hoveredDock = null;
           this.checkCleanupDockHoverEvents();
@@ -156,7 +156,7 @@ class WorkspaceElement extends HTMLElement {
     this.addEventListener('focus', this.handleFocus.bind(this));
 
     this.addEventListener('mousewheel', this.handleMousewheel.bind(this), {
-      capture: true
+      capture: true,
     });
     window.addEventListener('dragstart', this.handleDragStart);
     window.addEventListener('mousemove', this.handleEdgesMouseMove);
@@ -168,7 +168,7 @@ class WorkspaceElement extends HTMLElement {
       bottom: this.model.panelContainers.bottom.getElement(),
       header: this.model.panelContainers.header.getElement(),
       footer: this.model.panelContainers.footer.getElement(),
-      modal: this.model.panelContainers.modal.getElement()
+      modal: this.model.panelContainers.modal.getElement(),
     };
 
     this.horizontalAxis.insertBefore(
@@ -259,13 +259,13 @@ class WorkspaceElement extends HTMLElement {
     const docks = [
       this.model.getLeftDock(),
       this.model.getRightDock(),
-      this.model.getBottomDock()
+      this.model.getBottomDock(),
     ];
     const nextHoveredDock = docks.find(
-      dock =>
+      (dock) =>
         dock !== this.hoveredDock && dock.pointWithinHoverArea(mousePosition)
     );
-    docks.forEach(dock => {
+    docks.forEach((dock) => {
       dock.setHovered(dock === nextHoveredDock);
     });
   }
@@ -359,7 +359,7 @@ class WorkspaceElement extends HTMLElement {
   }
 
   nearestVisiblePaneInDirection(direction, pane) {
-    const distance = function(pointA, pointB) {
+    const distance = function (pointA, pointB) {
       const x = pointB.x - pointA.x;
       const y = pointB.y - pointA.y;
       return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
@@ -370,8 +370,8 @@ class WorkspaceElement extends HTMLElement {
 
     const paneViews = atom.workspace
       .getVisiblePanes()
-      .map(otherPane => otherPane.getElement())
-      .filter(otherPaneView => {
+      .map((otherPane) => otherPane.getElement())
+      .filter((otherPaneView) => {
         const otherBox = this.boundingBoxForPaneView(otherPaneView);
         switch (direction) {
           case 'left':
@@ -417,7 +417,7 @@ class WorkspaceElement extends HTMLElement {
       left: { x: boundingBox.left, y: boundingBox.top },
       right: { x: boundingBox.right, y: boundingBox.top },
       top: { x: boundingBox.left, y: boundingBox.top },
-      bottom: { x: boundingBox.left, y: boundingBox.bottom }
+      bottom: { x: boundingBox.left, y: boundingBox.bottom },
     };
   }
 }
@@ -438,5 +438,5 @@ function createWorkspaceElement() {
 }
 
 module.exports = {
-  createWorkspaceElement
+  createWorkspaceElement,
 };

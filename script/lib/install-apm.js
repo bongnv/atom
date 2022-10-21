@@ -17,8 +17,12 @@ function installApm(ci = false, showVersion = true) {
     ['--global-style', '--loglevel=error', ci ? 'ci' : 'install'],
     { env: process.env, cwd: CONFIG.apmRootPath }
   );
-  
-  const apmModulePath = path.join(CONFIG.apmRootPath, 'node_modules', 'atom-package-manager');
+
+  const apmModulePath = path.join(
+    CONFIG.apmRootPath,
+    'node_modules',
+    'atom-package-manager'
+  );
   childProcess.execFileSync(
     CONFIG.getLocalNpmBinPath(),
     ['run', 'rebuild:apm'],
@@ -30,7 +34,7 @@ function installApm(ci = false, showVersion = true) {
 
   if (showVersion) {
     childProcess.execFileSync(CONFIG.getApmBinPath(), ['--version'], {
-      stdio: 'inherit'
+      stdio: 'inherit',
     });
   }
 }

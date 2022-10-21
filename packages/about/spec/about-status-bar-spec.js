@@ -11,7 +11,7 @@ describe('the status bar', () => {
     spyOn(window.localStorage, 'setItem').andCallFake((key, value) => {
       storage[key] = value;
     });
-    spyOn(window.localStorage, 'getItem').andCallFake(key => {
+    spyOn(window.localStorage, 'getItem').andCallFake((key) => {
       return storage[key];
     });
     spyOn(atom, 'getVersion').andCallFake(() => {
@@ -30,7 +30,7 @@ describe('the status bar', () => {
     await atom.packages.deactivatePackage('status-bar');
   });
 
-  describe('on a stable version', function() {
+  describe('on a stable version', function () {
     beforeEach(async () => {
       atomVersion = '1.2.3';
 
@@ -95,7 +95,7 @@ describe('the status bar', () => {
     });
   });
 
-  describe('on a beta version', function() {
+  describe('on a beta version', function () {
     beforeEach(async () => {
       atomVersion = '1.2.3-beta4';
 
@@ -160,7 +160,7 @@ describe('the status bar', () => {
     });
   });
 
-  describe('on a development version', function() {
+  describe('on a development version', function () {
     beforeEach(async () => {
       atomVersion = '1.2.3-dev-0123abcd';
 

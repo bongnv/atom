@@ -1,1 +1,15 @@
-{"menu":[{"label":"Edit","submenu":[{"label":"Select Grammar","command":"grammar-selector:show"}]}],"context-menu":{".overlayer":[{"label":"Change Grammar","command":"grammar-selector:show"}]}}
+{
+  "menu": [
+    {
+      "label": "Edit",
+      "submenu": [
+        { "label": "Select Grammar", "command": "grammar-selector:show" }
+      ]
+    }
+  ],
+  "context-menu": {
+    ".overlayer": [
+      { "label": "Change Grammar", "command": "grammar-selector:show" }
+    ]
+  }
+}

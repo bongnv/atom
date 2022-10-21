@@ -1,6 +1,10 @@
 require('etch').setScheduler({
-  updateDocument(callback) { callback(); },
-  getNextUpdatePromise() { return Promise.resolve(); }
+  updateDocument(callback) {
+    callback();
+  },
+  getNextUpdatePromise() {
+    return Promise.resolve();
+  },
 });
 
 // The CI on Atom has been failing with this package. Experiments
@@ -15,5 +19,7 @@ require('etch').setScheduler({
 //
 // See more in https://github.com/atom/atom/pull/21335
 global.beforeEach(() => {
-  spyOn(atom, 'openDevTools').andReturn((console.error("ERROR: Dev tools attempted to open"), Promise.resolve()));
+  spyOn(atom, 'openDevTools').andReturn(
+    (console.error('ERROR: Dev tools attempted to open'), Promise.resolve())
+  );
 });

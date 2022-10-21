@@ -6,7 +6,7 @@ pr: none # no PR triggers
 
 # workaround for https://developercommunity.visualstudio.com/t/inconsistent-behavior-between-variablessecretvar-a/1151302
 variables:
-  _ATOM_RELEASES_AZURE_CONN_STRING:  $[ variables.ATOM_RELEASES_AZURE_CONN_STRING ]
+  _ATOM_RELEASES_AZURE_CONN_STRING: $[ variables.ATOM_RELEASES_AZURE_CONN_STRING ]
   _PACKAGE_CLOUD_API_KEY: $[ variables.PACKAGE_CLOUD_API_KEY ]
 
 jobs:

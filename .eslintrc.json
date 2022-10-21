@@ -1,12 +1,10 @@
 {
+  "root": true,
   "extends": [
-    "./script/node_modules/eslint-config-standard/eslintrc.json",
-    "./script/node_modules/eslint-config-prettier/index.js",
-    "./script/node_modules/eslint-config-prettier/standard.js"
+    "eslint:recommended",
+    "plugin:prettier/recommended"
   ],
-  "plugins": [
-    "prettier"
-  ],
+  "plugins": ["prettier"],
   "env": {
     "browser": true,
     "node": true

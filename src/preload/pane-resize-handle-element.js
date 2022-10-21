@@ -116,5 +116,5 @@ function createPaneResizeHandleElement() {
 }
 
 module.exports = {
-  createPaneResizeHandleElement
+  createPaneResizeHandleElement,
 };

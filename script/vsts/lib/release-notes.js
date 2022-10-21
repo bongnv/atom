@@ -5,28 +5,28 @@ const childProcess = require('child_process');
 
 const { REPO_OWNER, MAIN_REPO, NIGHTLY_RELEASE_REPO } = require('../../config');
 
-module.exports.getRelease = async function(releaseVersion, githubToken) {
+module.exports.getRelease = async function (releaseVersion, githubToken) {
   if (githubToken) {
     octokit.authenticate({
       type: 'token',
-      token: githubToken
+      token: githubToken,
     });
   }
 
   const releases = await octokit.repos.getReleases({
     owner: REPO_OWNER,
-    repo: MAIN_REPO
+    repo: MAIN_REPO,
   });
-  const release = releases.data.find(r => semver.eq(r.name, releaseVersion));
+  const release = releases.data.find((r) => semver.eq(r.name, releaseVersion));
 
   return {
     exists: release !== undefined,
     isDraft: release && release.draft,
-    releaseNotes: release ? release.body : undefined
+    releaseNotes: release ? release.body : undefined,
   };
 };
 
-module.exports.generateForVersion = async function(
+module.exports.generateForVersion = async function (
   releaseVersion,
   githubToken,
   oldReleaseNotes
@@ -40,7 +40,7 @@ module.exports.generateForVersion = async function(
     changelog.setGithubAccessToken(githubToken);
     octokit.authenticate({
       type: 'token',
-      token: githubToken
+      token: githubToken,
     });
   }
 
@@ -52,7 +52,7 @@ module.exports.generateForVersion = async function(
   } else {
     let releases = await octokit.repos.getReleases({
       owner: REPO_OWNER,
-      repo: MAIN_REPO
+      repo: MAIN_REPO,
     });
     oldVersion = 'v' + getPreviousRelease(releaseVersion, releases.data).name;
     oldVersionName = oldVersion;
@@ -64,12 +64,12 @@ module.exports.generateForVersion = async function(
     fromTag: oldVersion,
     toTag: newVersionBranch,
     dependencyKey: 'packageDependencies',
-    changelogFormatter: function({
+    changelogFormatter: function ({
       pullRequests,
       owner,
       repo,
       fromTag,
-      toTag
+      toTag,
     }) {
       let prString = changelog.pullRequestsToString(pullRequests);
       let title = repo;
@@ -79,7 +79,7 @@ module.exports.generateForVersion = async function(
         toTag = releaseVersion;
       }
       return `### [${title}](https://github.com/${owner}/${repo})\n\n${fromTag}...${toTag}\n\n${prString}`;
-    }
+    },
   });
 
   const writtenReleaseNotes =
@@ -95,14 +95,14 @@ ${allChangesText}
 `;
 };
 
-module.exports.generateForNightly = async function(
+module.exports.generateForNightly = async function (
   releaseVersion,
   githubToken
 ) {
   const latestCommitResult = childProcess.spawnSync('git', [
     'rev-parse',
     '--short',
-    'HEAD'
+    'HEAD',
   ]);
   if (!latestCommitResult) {
     console.log("Couldn't get the current commmit from git.");
@@ -112,13 +112,13 @@ module.exports.generateForNightly = async function(
 
   const latestCommit = latestCommitResult.stdout.toString().trim();
   const output = [
-    `### This nightly release is based on https://github.com/${REPO_OWNER}/${MAIN_REPO}/commit/${latestCommit} :atom: :night_with_stars:`
+    `### This nightly release is based on https://github.com/${REPO_OWNER}/${MAIN_REPO}/commit/${latestCommit} :atom: :night_with_stars:`,
   ];
 
   try {
     const releases = await octokit.repos.getReleases({
       owner: REPO_OWNER,
-      repo: NIGHTLY_RELEASE_REPO
+      repo: NIGHTLY_RELEASE_REPO,
     });
 
     const previousRelease = getPreviousRelease(releaseVersion, releases.data);

@@ -1,4 +1,5 @@
 ## Installing Atom Community
+
 <!-- ### Prerequisites
 - [Git](https://git-scm.com)
 
@@ -49,8 +50,9 @@ Currently, to get binaries based on code by the Atom community:
 1. Click the desired binary for your platform to download. (If there is no binary for your platform, try viewing another run.)
 1. After the download is complete, extract the archive and run the executable.
 1. (Optional): To ensure you have a usable build, visit the associated CI run by clicking "(link to azure)".
-  - Select the job named after your OS (eg. _Linux_)
-  - At the bottom of the now visible log pane, make sure `100% tests passed` is visible
+
+- Select the job named after your OS (eg. _Linux_)
+- At the bottom of the now visible log pane, make sure `100% tests passed` is visible
 
 OR
 
@@ -58,6 +60,8 @@ OR
 2. select the Job named after your OS (eg. _Linux_);
 3. at the bottom of the now visible log pane, make sure `100% tests passed` is visible and then select the `artifacts produced` link to browse the `Published artifacts` page;
 4. pick a file which is compatible with your system and click on the "3 dots" menu that appears when hovering the mouse on the file name (right side of the page), then:
-  - click on the `Download artifacts` menu option and wait for the download to start in your web browser or
-  - click on `Copy download URL` to feed the file URL to a download manager.
+
+- click on the `Download artifacts` menu option and wait for the download to start in your web browser or
+- click on `Copy download URL` to feed the file URL to a download manager.
+
 5. after the download is complete, extract the archive and run the executable.

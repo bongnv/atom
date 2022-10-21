@@ -1,6 +1,6 @@
 require('../install-global-atom');
 
-(function() {
+(function () {
   // Define the window start time before the requires so we get a more accurate
   // window:start marker.
   const startWindowTime = Date.now();
@@ -18,12 +18,12 @@ require('../install-global-atom');
   }
   StartupTime.addMarker('window:start', startWindowTime);
 
-  window.onload = function() {
+  window.onload = function () {
     try {
       StartupTime.addMarker('window:onload:start');
       const startTime = Date.now();
 
-      process.on('unhandledRejection', function(error, promise) {
+      process.on('unhandledRejection', function (error, promise) {
         console.error(
           'Unhandled promise rejection %o with error: %o',
           promise,
@@ -86,7 +86,7 @@ require('../install-global-atom');
 
     StartupTime.addMarker('window:initialize:start');
 
-    return initialize({ blobStore: blobStore }).then(function() {
+    return initialize({ blobStore: blobStore }).then(function () {
       StartupTime.addMarker('window:initialize:end');
       electron.ipcRenderer.send('window-command', 'window:loaded');
     });
@@ -96,7 +96,7 @@ require('../install-global-atom');
     function profile() {
       console.profile('startup');
       const startTime = Date.now();
-      setupWindow().then(function() {
+      setupWindow().then(function () {
         setLoadTime(Date.now() - startTime + initialTime);
         console.profileEnd('startup');
         console.log(

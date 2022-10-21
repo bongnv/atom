@@ -7,7 +7,7 @@ module.exports = class TreeIndenter {
     this.scopes =
       scopes ||
       languageMode.config.get('editor.scopes', {
-        scope: this.languageMode.rootScopeDescriptor
+        scope: this.languageMode.rootScopeDescriptor,
       });
     log('[TreeIndenter] constructor', this.scopes);
   }
@@ -110,7 +110,7 @@ module.exports = class TreeIndenter {
         node,
         notFirstOrLastSibling,
         type: node.parent.type,
-        increment
+        increment,
       });
       const newLastScope =
         isScope || isScope2 ? { node: node.parent } : lastScope;

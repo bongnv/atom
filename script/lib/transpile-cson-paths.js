@@ -35,7 +35,7 @@ function getPathsToTranspile() {
             '**',
             '*.cson'
           ),
-          nodir: true
+          nodir: true,
         }
       )
     );

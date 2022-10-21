@@ -1,1 +1,7 @@
-{"context-menu":{"atom-text-editor .syntax--markup.syntax--underline.syntax--link":[{"label":"Open link","command":"link:open"}]}}
+{
+  "context-menu": {
+    "atom-text-editor .syntax--markup.syntax--underline.syntax--link": [
+      { "label": "Open link", "command": "link:open" }
+    ]
+  }
+}

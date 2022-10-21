@@ -12,7 +12,7 @@ async function clean() {
   return Promise.all([
     cleanDependencies(),
     cleanCaches(),
-    cleanOutputDirectory()
+    cleanOutputDirectory(),
   ]);
 }
 
@@ -20,6 +20,6 @@ clean()
   .then(() => {
     process.exit(0);
   })
-  .catch(e => {
+  .catch((e) => {
     throw e;
   });

@@ -7,11 +7,11 @@ describe('GitDiff when targeting nested repository', () => {
 
   beforeEach(() => {
     screenUpdates = 0;
-    spyOn(window, 'requestAnimationFrame').andCallFake(fn => {
+    spyOn(window, 'requestAnimationFrame').andCallFake((fn) => {
       fn();
       screenUpdates++;
     });
-    spyOn(window, 'cancelAnimationFrame').andCallFake(i => null);
+    spyOn(window, 'cancelAnimationFrame').andCallFake((i) => null);
 
     projectPath = temp.mkdirSync('git-diff-spec-');
 

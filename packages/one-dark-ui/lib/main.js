@@ -16,7 +16,7 @@ module.exports = {
     unsetTabCloseButton();
     unsetHideDockButtons();
     unsetStickyHeaders();
-  }
+  },
 };
 
 // Font Size -----------------------

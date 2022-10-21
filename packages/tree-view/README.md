@@ -1,5 +1,7 @@
 ##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
- # Tree View package
+
+# Tree View package
+
 [![CI](https://github.com/atom/tree-view/actions/workflows/ci.yml/badge.svg)](https://github.com/atom/tree-view/actions/workflows/ci.yml)
 
 Explore and open files in the current project.
@@ -15,11 +17,12 @@ To move the Tree view to the opposite side, select and drag the Tree view dock t
 ![](https://f.cloud.github.com/assets/671378/2241932/6d9cface-9ceb-11e3-9026-31d5011d889d.png)
 
 ## API
+
 This package provides a service that you can use in other Atom packages.
 To use it, include `tree-view` in the `consumedServices` section of your
 `package.json`:
 
-``` json
+```json
 {
   "name": "my-package",
   "consumedServices": {
@@ -34,7 +37,7 @@ To use it, include `tree-view` in the `consumedServices` section of your
 
 Then, in your package's main module, call methods on the service:
 
-``` coffee
+```coffee
 module.exports =
   activate: -> # ...
 
@@ -44,12 +47,15 @@ module.exports =
 ```
 
 The `tree-view` API has two methods:
-* `selectedPaths()` - Returns the paths to the selected tree view entries.
-* `entryForPath(entryPath)` - Returns a tree view entry for the given path.
+
+- `selectedPaths()` - Returns the paths to the selected tree view entries.
+- `entryForPath(entryPath)` - Returns a tree view entry for the given path.
 
 ## Customization
+
 The tree view displays icons next to files. These icons are customizable by
 installing a package that provides an `atom.file-icons` service.
 
 The `atom.file-icons` service must provide the following methods:
-* `iconClassForPath(path)` - Returns a CSS class name to add to the file view.
+
+- `iconClassForPath(path)` - Returns a CSS class name to add to the file view.

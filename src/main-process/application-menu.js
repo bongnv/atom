@@ -121,7 +121,7 @@ module.exports = class ApplicationMenu {
             click: () => {
               const window = this.focusedWindow();
               if (window) window.reload();
-            }
+            },
           },
           {
             label: 'Close Window',
@@ -130,7 +130,7 @@ module.exports = class ApplicationMenu {
             click: () => {
               const window = this.focusedWindow();
               if (window) window.close();
-            }
+            },
           },
           {
             label: 'Toggle Dev Tools',
@@ -139,23 +139,23 @@ module.exports = class ApplicationMenu {
             click: () => {
               const window = this.focusedWindow();
               if (window) window.toggleDevTools();
-            }
+            },
           },
           {
             label: 'Quit',
             id: 'Quit',
             accelerator: 'Command+Q',
-            click: () => app.quit()
-          }
-        ]
-      }
+            click: () => app.quit(),
+          },
+        ],
+      },
     ];
   }
 
   focusedWindow() {
     return global.atomApplication
       .getAllWindows()
-      .find(window => window.isFocused());
+      .find((window) => window.isFocused());
   }
 
   // Combines a menu template with the appropriate keystroke.
@@ -167,7 +167,7 @@ module.exports = class ApplicationMenu {
   //
   // Returns a complete menu configuration object for atom-shell's menu API.
   translateTemplate(template, keystrokesByCommand) {
-    template.forEach(item => {
+    template.forEach((item) => {
       if (item.metadata == null) item.metadata = {};
       if (item.command) {
         const keystrokes = keystrokesByCommand[item.command];

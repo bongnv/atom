@@ -16,7 +16,7 @@ module.exports = class ThemeManager {
     config,
     styleManager,
     notificationManager,
-    viewRegistry
+    viewRegistry,
   }) {
     this.packageManager = packageManager;
     this.config = config;
@@ -37,7 +37,7 @@ module.exports = class ThemeManager {
 
   initialize({ configDirPath, devMode }) {
     // FIXME: bongnv - find a way to send resourcePath
-    this.resourcePath = path.resolve(__dirname, "../../..");
+    this.resourcePath = path.resolve(__dirname, '../../..');
     this.configDirPath = configDirPath;
     this.lessSourcesByRelativeFilePath = null;
     this.lessSourcesByRelativeFilePath = {};
@@ -73,14 +73,14 @@ module.exports = class ThemeManager {
 
   // Public: Returns an {Array} of {String}s of all the loaded theme names.
   getLoadedThemeNames() {
-    return this.getLoadedThemes().map(theme => theme.name);
+    return this.getLoadedThemes().map((theme) => theme.name);
   }
 
   // Public: Returns an {Array} of all the loaded themes.
   getLoadedThemes() {
     return this.packageManager
       .getLoadedPackages()
-      .filter(pack => pack.isTheme());
+      .filter((pack) => pack.isTheme());
   }
 
   /*
@@ -89,14 +89,14 @@ module.exports = class ThemeManager {
 
   // Public: Returns an {Array} of {String}s of all the active theme names.
   getActiveThemeNames() {
-    return this.getActiveThemes().map(theme => theme.name);
+    return this.getActiveThemes().map((theme) => theme.name);
   }
 
   // Public: Returns an {Array} of all the active themes.
   getActiveThemes() {
     return this.packageManager
       .getActivePackages()
-      .filter(pack => pack.isTheme());
+      .filter((pack) => pack.isTheme());
   }
 
   activatePackages() {
@@ -132,7 +132,7 @@ module.exports = class ThemeManager {
       themeNames = [themeNames];
     }
     themeNames = themeNames.filter(
-      themeName =>
+      (themeName) =>
         typeof themeName === 'string' &&
         this.packageManager.resolvePackagePath(themeName)
     );
@@ -148,7 +148,7 @@ module.exports = class ThemeManager {
         'base16-tomorrow-dark-theme',
         'base16-tomorrow-light-theme',
         'solarized-dark-syntax',
-        'solarized-light-syntax'
+        'solarized-light-syntax',
       ];
       themeNames = _.intersection(themeNames, builtInThemeNames);
       if (themeNames.length === 0) {
@@ -260,7 +260,11 @@ On linux there are currently problems with watch sizes. See
   }
 
   reloadBaseStylesheets() {
-    this.requireStylesheet(path.resolve(this.resourcePath, 'static/atom'), -2, true);
+    this.requireStylesheet(
+      path.resolve(this.resourcePath, 'static/atom'),
+      -2,
+      true
+    );
   }
 
   stylesheetElementForId(id) {
@@ -291,9 +295,9 @@ On linux there are currently problems with watch sizes. See
       this.lessCache = new LessCompileCache({
         resourcePath: this.resourcePath,
         lessSourcesByRelativeFilePath: this.lessSourcesByRelativeFilePath,
-        importedFilePathsByRelativeImportPath: this
-          .importedFilePathsByRelativeImportPath,
-        importPaths: this.getImportPaths()
+        importedFilePathsByRelativeImportPath:
+          this.importedFilePathsByRelativeImportPath,
+        importPaths: this.getImportPaths(),
       });
     }
 
@@ -351,19 +355,18 @@ On linux there are currently problems with watch sizes. See
   }
 
   applyStylesheet(path, text, priority, skipDeprecatedSelectorsTransformation) {
-    this.styleSheetDisposablesBySourcePath[
-      path
-    ] = this.styleManager.addStyleSheet(text, {
-      priority,
-      skipDeprecatedSelectorsTransformation,
-      sourcePath: path
-    });
+    this.styleSheetDisposablesBySourcePath[path] =
+      this.styleManager.addStyleSheet(text, {
+        priority,
+        skipDeprecatedSelectorsTransformation,
+        sourcePath: path,
+      });
 
     return this.styleSheetDisposablesBySourcePath[path];
   }
 
   activateThemes() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       // @config.observe runs the callback once, then on subsequent changes.
       this.config.observe('core.themes', () => {
         this.deactivateThemes().then(() => {
@@ -398,11 +401,11 @@ On linux there are currently problems with watch sizes. See
   deactivateThemes() {
     this.removeActiveThemeClasses();
     this.unwatchUserStylesheet();
-    const results = this.getActiveThemes().map(pack =>
+    const results = this.getActiveThemes().map((pack) =>
       this.packageManager.deactivatePackage(pack.name)
     );
     return Promise.all(
-      results.filter(r => r != null && typeof r.then === 'function')
+      results.filter((r) => r != null && typeof r.then === 'function')
     );
   }
 
@@ -435,8 +438,8 @@ On linux there are currently problems with watch sizes. See
     const activeThemes = this.getActiveThemes();
     if (activeThemes.length > 0) {
       themePaths = activeThemes
-        .filter(theme => theme)
-        .map(theme => theme.getStylesheetsPath());
+        .filter((theme) => theme)
+        .map((theme) => theme.getStylesheetsPath());
     } else {
       themePaths = [];
       for (const themeName of this.getEnabledThemeNames()) {
@@ -452,6 +455,6 @@ On linux there are currently problems with watch sizes. See
       }
     }
 
-    return themePaths.filter(themePath => fs.isDirectorySync(themePath));
+    return themePaths.filter((themePath) => fs.isDirectorySync(themePath));
   }
 };

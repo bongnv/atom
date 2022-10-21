@@ -9,13 +9,13 @@ const argv = yargs
     string: true,
     demandOption: true,
     requiresArg: true,
-    describe: 'Directory to search for JUnit XML results'
+    describe: 'Directory to search for JUnit XML results',
   })
   .option('test-results-files', {
     string: true,
     demandOption: true,
     requiresArg: true,
-    describe: 'Glob that matches JUnit XML files within searchFolder'
+    describe: 'Glob that matches JUnit XML files within searchFolder',
   })
   .wrap(yargs.terminalWidth()).argv;
 
@@ -57,7 +57,7 @@ async function postProcessJUnitXML(junitXmlPath) {
   const modified = $.xml();
 
   await new Promise((resolve, reject) => {
-    fs.writeFile(fullPath, modified, { encoding: 'utf8' }, err => {
+    fs.writeFile(fullPath, modified, { encoding: 'utf8' }, (err) => {
       if (err) {
         reject(err);
       } else {
@@ -68,7 +68,7 @@ async function postProcessJUnitXML(junitXmlPath) {
   console.log(`${fullPath}: complete`);
 }
 
-(async function() {
+(async function () {
   const testResultFiles = await discoverTestFiles();
   console.log(`Post-processing ${testResultFiles.length} JUnit XML files`);
 
@@ -77,7 +77,7 @@ async function postProcessJUnitXML(junitXmlPath) {
   console.log(`${testResultFiles.length} JUnit XML files complete`);
 })().then(
   () => process.exit(0),
-  err => {
+  (err) => {
     console.error(err.stack || err);
     process.exit(1);
   }

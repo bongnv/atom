@@ -8,11 +8,11 @@ module.exports = class About {
 
     this.state = initialState;
     this.views = {
-      aboutView: null
+      aboutView: null,
     };
 
     this.subscriptions.add(
-      atom.workspace.addOpener(uriToOpen => {
+      atom.workspace.addOpener((uriToOpen) => {
         if (uriToOpen === this.state.uri) {
           return this.deserialize();
         }

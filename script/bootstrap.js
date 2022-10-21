@@ -9,7 +9,7 @@ const dependenciesFingerprint = require('./lib/dependencies-fingerprint');
 const installScriptRunnerDependencies = require('./lib/install-script-runner-dependencies');
 const verifyMachineRequirements = require('./lib/verify-machine-requirements');
 
-process.on('unhandledRejection', function(e) {
+process.on('unhandledRejection', function (e) {
   console.error(e.stack || e);
   process.exit(1);
 });
@@ -39,9 +39,11 @@ async function bootstrap() {
 
   installScriptRunnerDependencies();
 
-  const { spawn, Thread, Worker } = require(`${
-    CONFIG.scriptRunnerModulesPath
-  }/threads`);
+  const {
+    spawn,
+    Thread,
+    Worker,
+  } = require(`${CONFIG.scriptRunnerModulesPath}/threads`);
 
   const installScriptDependencies = await spawn(
     new Worker('./lib/install-script-dependencies')
@@ -65,6 +67,6 @@ bootstrap()
   .then(() => {
     process.exit(0);
   })
-  .catch(e => {
+  .catch((e) => {
     throw e;
   });

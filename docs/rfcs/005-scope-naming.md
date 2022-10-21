@@ -19,7 +19,7 @@ Scopes themselves are immensely powerful; they’re hooks that allow weirdos lik
 I think this is best illustrated by example. [Here’s a ticket](https://github.com/atom/language-javascript/issues/615) from `language-javascript` about syntax highlighting of imports. For example:
 
 ```js
-import { foo } from "thing";
+import { foo } from 'thing';
 ```
 
 For reference, the `language-babel` grammar scopes `foo` as `variable.other.readwrite.js`. I’d probably opt for something like `variable.import`; others may want to put it into the `support` namespace. There’s actually little cross-language consensus here.

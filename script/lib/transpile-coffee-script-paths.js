@@ -20,12 +20,12 @@ function getPathsToTranspile() {
   let paths = [];
   paths = paths.concat(
     glob.sync(path.join(CONFIG.intermediateAppPath, 'src', '**', '*.coffee'), {
-      nodir: true
+      nodir: true,
     })
   );
   paths = paths.concat(
     glob.sync(path.join(CONFIG.intermediateAppPath, 'spec', '*.coffee'), {
-      nodir: true
+      nodir: true,
     })
   );
   for (let packageName of Object.keys(CONFIG.appMetadata.packageDependencies)) {
@@ -47,7 +47,7 @@ function getPathsToTranspile() {
             '**',
             '*.coffee'
           ),
-          nodir: true
+          nodir: true,
         }
       )
     );

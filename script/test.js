@@ -7,29 +7,29 @@ const argv = require('yargs')
   .option('core-main', {
     describe: 'Run core main process tests',
     boolean: true,
-    default: false
+    default: false,
   })
   .option('skip-main', {
     describe:
       'Skip main process tests if they would otherwise run on your platform',
     boolean: true,
     default: false,
-    conflicts: 'core-main'
+    conflicts: 'core-main',
   })
   .option('core-renderer', {
     describe: 'Run core renderer process tests',
     boolean: true,
-    default: false
+    default: false,
   })
   .option('core-benchmark', {
     describe: 'Run core benchmarks',
     boolean: true,
-    default: false
+    default: false,
   })
   .option('package', {
     describe: 'Run bundled package specs',
     boolean: true,
-    default: false
+    default: false,
   })
   .help().argv;
 
@@ -61,7 +61,9 @@ function assertExecutablePaths(executablePaths) {
 const resourcePath = CONFIG.repositoryRootPath;
 let executablePath;
 if (process.platform === 'darwin') {
-  const executablePaths = glob.sync(path.join(CONFIG.buildOutputPath, 'Atom-darwin-x64/*.app'));
+  const executablePaths = glob.sync(
+    path.join(CONFIG.buildOutputPath, 'Atom-darwin-x64/*.app')
+  );
   assertExecutablePaths(executablePaths);
   executablePath = path.join(
     executablePaths[0],
@@ -113,16 +115,16 @@ function spawnTest(
   // collect outputs and errors
   let stderrOutput = '';
   if (cp.stdout) {
-    cp.stderr.on('data', data => {
+    cp.stderr.on('data', (data) => {
       stderrOutput += data;
     });
-    cp.stdout.on('data', data => {
+    cp.stdout.on('data', (data) => {
       stderrOutput += data;
     });
   }
 
   // on error
-  cp.on('error', error => {
+  cp.on('error', (error) => {
     console.log(error, 'error');
     if (finalize) {
       finalize();
@@ -131,7 +133,7 @@ function spawnTest(
   });
 
   // on close
-  cp.on('close', exitCode => {
+  cp.on('close', (exitCode) => {
     if (exitCode !== 0) {
       retryOrFailTest(
         stderrOutput,
@@ -153,7 +155,7 @@ function spawnTest(
         step: testName,
         testCommand: `You can run the test again using: \n\t ${executablePath} ${testArguments.join(
           ' '
-        )}`
+        )}`,
       });
     }
   });
@@ -199,7 +201,7 @@ function retryOrFailTest(
       step: testName,
       testCommand: `You can run the test again using: \n\t ${executablePath} ${testArguments.join(
         ' '
-      )}`
+      )}`,
     });
   }
 }
@@ -241,7 +243,7 @@ function runCoreMainProcessTests(callback) {
     resourcePath,
     '--test',
     '--main-process',
-    testPath
+    testPath,
   ];
 
   if (process.env.CI && process.platform === 'linux') {
@@ -249,7 +251,7 @@ function runCoreMainProcessTests(callback) {
   }
 
   const testEnv = Object.assign({}, prepareEnv('core-main-process'), {
-    ATOM_GITHUB_INLINE_GIT_EXEC: 'true'
+    ATOM_GITHUB_INLINE_GIT_EXEC: 'true',
   });
 
   console.log('##[command] Executing core main process tests'.bold.green);
@@ -272,7 +274,7 @@ function getCoreRenderProcessTestSuites() {
   for (let testFile of testFiles) {
     const testArguments = ['--resource-path', resourcePath, '--test', testFile];
     // the function which runs by async:
-    coreRenderProcessTestSuites.push(function(callback) {
+    coreRenderProcessTestSuites.push(function (callback) {
       const testEnv = prepareEnv('core-render-process');
       console.log(
         `##[command] Executing core render process tests for ${testFile}`.bold
@@ -297,7 +299,7 @@ function getPackageTestSuites() {
   for (let packageName in CONFIG.appMetadata.packageDependencies) {
     if (process.env.ATOM_PACKAGES_TO_TEST) {
       const packagesToTest = process.env.ATOM_PACKAGES_TO_TEST.split(',').map(
-        pkg => pkg.trim()
+        (pkg) => pkg.trim()
       );
       if (!packagesToTest.includes(packageName)) continue;
     }
@@ -307,7 +309,7 @@ function getPackageTestSuites() {
       'node_modules',
       packageName
     );
-    const testSubdir = ['spec', 'test'].find(subdir =>
+    const testSubdir = ['spec', 'test'].find((subdir) =>
       fs.existsSync(path.join(repositoryPackagePath, subdir))
     );
 
@@ -322,14 +324,14 @@ function getPackageTestSuites() {
       '--resource-path',
       resourcePath,
       '--test',
-      testFolder
+      testFolder,
     ];
 
     const pkgJsonPath = path.join(repositoryPackagePath, 'package.json');
     const nodeModulesPath = path.join(repositoryPackagePath, 'node_modules');
 
     // the function which runs by async:
-    packageTestSuites.push(function(callback) {
+    packageTestSuites.push(function (callback) {
       const testEnv = prepareEnv(`bundled-package-${packageName}`);
       let finalize = () => null;
       if (require(pkgJsonPath).atomTestRunner) {
@@ -463,7 +465,7 @@ function requestedTestSuites(platform) {
   }
 
   if (argv.skipMainProcessTests) {
-    suites = suites.filter(suite => suite !== runCoreMainProcessTests);
+    suites = suites.filter((suite) => suite !== runCoreMainProcessTests);
   }
 
   // Remove duplicates
@@ -476,7 +478,7 @@ function requestedTestSuites(platform) {
   return suites;
 }
 
-asyncSeries(testSuitesToRun, function(err, results) {
+asyncSeries(testSuitesToRun, function (err, results) {
   if (err) {
     console.error(err);
     process.exit(1);

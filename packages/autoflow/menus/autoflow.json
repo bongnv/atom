@@ -1,1 +1,10 @@
-{"menu":[{"label":"Edit","submenu":[{"label":"Reflow Selection","command":"autoflow:reflow-selection"}]}]}
+{
+  "menu": [
+    {
+      "label": "Edit",
+      "submenu": [
+        { "label": "Reflow Selection", "command": "autoflow:reflow-selection" }
+      ]
+    }
+  ]
+}

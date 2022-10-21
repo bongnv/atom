@@ -69,7 +69,7 @@ const packageApplication = require('./lib/package-application');
 const prebuildLessCache = require('./lib/prebuild-less-cache');
 const testSignOnMac = require('./lib/test-sign-on-mac');
 
-process.on('unhandledRejection', function(e) {
+process.on('unhandledRejection', function (e) {
   console.error(e.stack || e);
   process.exit(1);
 });
@@ -77,14 +77,17 @@ process.on('unhandledRejection', function(e) {
 process.env.ELECTRON_VERSION = CONFIG.appMetadata.electronVersion;
 
 async function transpile() {
-  const { spawn, Thread, Worker } = require(`${
-    CONFIG.scriptRunnerModulesPath
-  }/threads`);
+  const {
+    spawn,
+    Thread,
+    Worker,
+  } = require(`${CONFIG.scriptRunnerModulesPath}/threads`);
 
   const transpilePackagesWithCustomTranspilerPaths = await spawn(
     new Worker('./lib/transpile-packages-with-custom-transpiler-paths')
   );
-  const transpilePackagesWithCustomTranspilerPathsPromise = transpilePackagesWithCustomTranspilerPaths();
+  const transpilePackagesWithCustomTranspilerPathsPromise =
+    transpilePackagesWithCustomTranspilerPaths();
 
   const transpileBabelPaths = await spawn(
     new Worker('./lib/transpile-babel-paths')
@@ -145,7 +148,7 @@ async function singAndCreateInstaller(packagedAppPath) {
 
       if (argv.codeSign) {
         const executablesToSign = [
-          path.join(packagedAppPath, CONFIG.executableName)
+          path.join(packagedAppPath, CONFIG.executableName),
         ];
         if (argv.createWindowsInstaller) {
           executablesToSign.push(
@@ -167,7 +170,7 @@ async function singAndCreateInstaller(packagedAppPath) {
         );
       }
       if (argv.createWindowsInstaller) {
-        return createWindowsInstaller(packagedAppPath).then(installerPath => {
+        return createWindowsInstaller(packagedAppPath).then((installerPath) => {
           argv.codeSign && codeSignOnWindows([installerPath]);
           return packagedAppPath;
         });
@@ -247,6 +250,6 @@ build()
   .then(() => {
     process.exit(0);
   })
-  .catch(e => {
+  .catch((e) => {
     throw e;
   });

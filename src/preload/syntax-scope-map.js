@@ -12,7 +12,7 @@ module.exports = class SyntaxScopeMap {
   }
 
   addSelector(selector, result) {
-    parser(parseResult => {
+    parser((parseResult) => {
       for (let selectorNode of parseResult.nodes) {
         let currentTable = null;
         let currentIndexValue = null;
@@ -55,9 +55,8 @@ module.exports = class SyntaxScopeMap {
                 currentTable = currentTable['*'];
               } else {
                 if (!this.namedScopeTable['*']) {
-                  this.namedScopeTable['*'] = this.anonymousScopeTable[
-                    '*'
-                  ] = {};
+                  this.namedScopeTable['*'] = this.anonymousScopeTable['*'] =
+                    {};
                 }
                 currentTable = this.namedScopeTable['*'];
               }

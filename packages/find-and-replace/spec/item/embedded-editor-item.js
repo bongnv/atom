@@ -19,20 +19,19 @@ class EmbeddedEditorItem {
   }
 
   render() {
-    return (
-      $.div({className: 'wrapper'},
-        etch.dom(TextEditor, {ref: 'theEditor'})
-      )
-    )
+    return $.div(
+      { className: 'wrapper' },
+      etch.dom(TextEditor, { ref: 'theEditor' })
+    );
   }
 
   update() {}
 
   getEmbeddedTextEditor() {
-    return this.refs.theEditor
+    return this.refs.theEditor;
   }
 }
 
-EmbeddedEditorItem.uri = 'atom://find-and-replace/spec/embedded-editor'
+EmbeddedEditorItem.uri = 'atom://find-and-replace/spec/embedded-editor';
 
-module.exports = EmbeddedEditorItem
+module.exports = EmbeddedEditorItem;

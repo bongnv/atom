@@ -39,7 +39,7 @@ module.exports = class TextEditorComponent {
 
   static didUpdateStyles() {
     if (this.attachedComponents) {
-      this.attachedComponents.forEach(component => {
+      this.attachedComponents.forEach((component) => {
         component.didUpdateStyles();
       });
     }
@@ -47,7 +47,7 @@ module.exports = class TextEditorComponent {
 
   static didUpdateScrollbarStyles() {
     if (this.attachedComponents) {
-      this.attachedComponents.forEach(component => {
+      this.attachedComponents.forEach((component) => {
         component.didUpdateScrollbarStyles();
       });
     }
@@ -59,7 +59,7 @@ module.exports = class TextEditorComponent {
     if (!props.model) {
       props.model = new TextEditor({
         mini: props.mini,
-        readOnly: props.readOnly
+        readOnly: props.readOnly,
       });
     }
     this.props.model.component = this;
@@ -112,7 +112,7 @@ module.exports = class TextEditorComponent {
       clientContainerWidth: 0,
       verticalScrollbarWidth: 0,
       horizontalScrollbarHeight: 0,
-      longestLineWidth: 0
+      longestLineWidth: 0,
     };
     this.derivedDimensionsCache = {};
     this.visible = false;
@@ -158,7 +158,7 @@ module.exports = class TextEditorComponent {
       screenRows: [],
       keys: [],
       softWrappedFlags: [],
-      foldableFlags: []
+      foldableFlags: [],
     };
     this.decorationsToRender = {
       lineNumbers: new Map(),
@@ -168,11 +168,11 @@ module.exports = class TextEditorComponent {
       overlays: [],
       customGutter: new Map(),
       blocks: new Map(),
-      text: []
+      text: [],
     };
     this.decorationsToMeasure = {
       highlights: [],
-      cursors: new Map()
+      cursors: new Map(),
     };
     this.textDecorationsByMarker = new Map();
     this.textDecorationBoundaries = [];
@@ -328,7 +328,7 @@ module.exports = class TextEditorComponent {
       const sentinelElements = new Set();
 
       blockDecorationMeasurementArea.appendChild(document.createElement('div'));
-      this.blockDecorationsToMeasure.forEach(decoration => {
+      this.blockDecorationsToMeasure.forEach((decoration) => {
         const { item } = decoration.getProperties();
         const decorationElement = TextEditor.viewForItem(item);
         if (document.contains(decorationElement)) {
@@ -364,7 +364,7 @@ module.exports = class TextEditorComponent {
           this.getScrollWidth() + 'px';
       }
 
-      this.blockDecorationsToMeasure.forEach(decoration => {
+      this.blockDecorationsToMeasure.forEach((decoration) => {
         const { item } = decoration.getProperties();
         const decorationElement = TextEditor.viewForItem(item);
         const { previousSibling, nextSibling } = decorationElement;
@@ -375,7 +375,7 @@ module.exports = class TextEditorComponent {
         this.lineTopIndex.resizeBlock(decoration, height);
       });
 
-      sentinelElements.forEach(sentinelElement => sentinelElement.remove());
+      sentinelElements.forEach((sentinelElement) => sentinelElement.remove());
       while (blockDecorationMeasurementArea.firstChild) {
         blockDecorationMeasurementArea.firstChild.remove();
       }
@@ -525,7 +525,7 @@ module.exports = class TextEditorComponent {
         attributes,
         dataset,
         tabIndex: -1,
-        on: { mousewheel: this.didMouseWheel }
+        on: { mousewheel: this.didMouseWheel },
       },
       $.div(
         {
@@ -536,8 +536,8 @@ module.exports = class TextEditorComponent {
             overflow: 'hidden',
             backgroundColor: 'inherit',
             height: clientContainerHeight,
-            width: clientContainerWidth
-          }
+            width: clientContainerWidth,
+          },
         },
         this.renderGutterContainer(),
         this.renderScrollContainer()
@@ -568,7 +568,7 @@ module.exports = class TextEditorComponent {
         isLineNumberGutterVisible: this.props.model.isLineNumberGutterVisible(),
         showLineNumbers: this.showLineNumbers,
         lineNumbersToRender: this.lineNumbersToRender,
-        didMeasureVisibleBlockDecoration: this.didMeasureVisibleBlockDecoration
+        didMeasureVisibleBlockDecoration: this.didMeasureVisibleBlockDecoration,
       });
     }
   }
@@ -580,7 +580,7 @@ module.exports = class TextEditorComponent {
       overflow: 'hidden',
       top: 0,
       bottom: 0,
-      backgroundColor: 'inherit'
+      backgroundColor: 'inherit',
     };
 
     if (this.hasInitialMeasurements) {
@@ -593,7 +593,7 @@ module.exports = class TextEditorComponent {
         ref: 'scrollContainer',
         key: 'scrollContainer',
         className: 'scroll-view',
-        style
+        style,
       },
       this.renderContent(),
       this.renderDummyScrollbars()
@@ -604,7 +604,7 @@ module.exports = class TextEditorComponent {
     let style = {
       contain: 'strict',
       overflow: 'hidden',
-      backgroundColor: 'inherit'
+      backgroundColor: 'inherit',
     };
     if (this.hasInitialMeasurements) {
       style.width = ceilToPhysicalPixelBoundary(this.getScrollWidth()) + 'px';
@@ -619,7 +619,7 @@ module.exports = class TextEditorComponent {
       {
         ref: 'content',
         on: { mousedown: this.didMouseDownOnContent },
-        style
+        style,
       },
       this.renderLineTiles(),
       this.renderBlockDecorationMeasurementArea(),
@@ -633,7 +633,7 @@ module.exports = class TextEditorComponent {
       highlightDecorations: this.decorationsToRender.highlights.slice(),
       width: this.getScrollWidth(),
       height: this.getScrollHeight(),
-      lineHeight: this.getLineHeight()
+      lineHeight: this.getLineHeight(),
     });
   }
 
@@ -641,7 +641,7 @@ module.exports = class TextEditorComponent {
     const style = {
       position: 'absolute',
       contain: 'strict',
-      overflow: 'hidden'
+      overflow: 'hidden',
     };
 
     const children = [];
@@ -688,7 +688,7 @@ module.exports = class TextEditorComponent {
             blockDecorations: this.decorationsToRender.blocks.get(tileStartRow),
             displayLayer: this.props.model.displayLayer,
             nodePool: this.lineNodesPool,
-            lineComponentsByScreenLineId
+            lineComponentsByScreenLineId,
           })
         );
       }
@@ -703,7 +703,7 @@ module.exports = class TextEditorComponent {
               screenRow,
               displayLayer: this.props.model.displayLayer,
               nodePool: this.lineNodesPool,
-              lineComponentsByScreenLineId
+              lineComponentsByScreenLineId,
             })
           );
         }
@@ -743,7 +743,7 @@ module.exports = class TextEditorComponent {
       decorationsToRender: this.decorationsToRender,
       cursorsBlinkedOff: this.cursorsBlinkedOff,
       hiddenInputPosition: this.hiddenInputPosition,
-      tabIndex: this.tabIndex
+      tabIndex: this.tabIndex,
     });
   }
 
@@ -764,7 +764,7 @@ module.exports = class TextEditorComponent {
         key: 'characterMeasurementLine',
         ref: 'characterMeasurementLine',
         className: 'line dummy',
-        style: { position: 'absolute', visibility: 'hidden' }
+        style: { position: 'absolute', visibility: 'hidden' },
       },
       $.span({ ref: 'normalWidthCharacterSpan' }, NORMAL_WIDTH_CHARACTER),
       $.span({ ref: 'doubleWidthCharacterSpan' }, DOUBLE_WIDTH_CHARACTER),
@@ -781,8 +781,8 @@ module.exports = class TextEditorComponent {
         contain: 'strict',
         position: 'absolute',
         visibility: 'hidden',
-        width: this.getScrollWidth() + 'px'
-      }
+        width: this.getScrollWidth() + 'px',
+      },
     });
   }
 
@@ -819,7 +819,7 @@ module.exports = class TextEditorComponent {
           scrollHeight,
           scrollTop,
           horizontalScrollbarHeight,
-          forceScrollbarVisible
+          forceScrollbarVisible,
         }),
         $(DummyScrollbarComponent, {
           ref: 'horizontalScrollbar',
@@ -830,7 +830,7 @@ module.exports = class TextEditorComponent {
           scrollWidth,
           scrollLeft,
           verticalScrollbarWidth,
-          forceScrollbarVisible
+          forceScrollbarVisible,
         }),
 
         // Force a "corner" to render where the two scrollbars meet at the lower right
@@ -843,9 +843,9 @@ module.exports = class TextEditorComponent {
             width: '20px',
             bottom: 0,
             right: 0,
-            overflow: 'scroll'
-          }
-        })
+            overflow: 'scroll',
+          },
+        }),
       ];
     } else {
       return null;
@@ -853,17 +853,17 @@ module.exports = class TextEditorComponent {
   }
 
   renderOverlayDecorations() {
-    return this.decorationsToRender.overlays.map(overlayProps =>
+    return this.decorationsToRender.overlays.map((overlayProps) =>
       $(
         OverlayComponent,
         Object.assign(
           {
             key: overlayProps.element,
             overlayComponents: this.overlayComponents,
-            didResize: overlayComponent => {
+            didResize: (overlayComponent) => {
               this.updateOverlayToRender(overlayProps);
               overlayComponent.update(overlayProps);
-            }
+            },
           },
           overlayProps
         )
@@ -1015,7 +1015,7 @@ module.exports = class TextEditorComponent {
     const oldGuttersToRender = this.guttersToRender;
     const oldGuttersVisibility = this.guttersVisibility;
     this.guttersToRender = this.props.model.getGutters();
-    this.guttersVisibility = this.guttersToRender.map(g => g.visible);
+    this.guttersVisibility = this.guttersToRender.map((g) => g.visible);
 
     if (
       !oldGuttersToRender ||
@@ -1047,10 +1047,11 @@ module.exports = class TextEditorComponent {
     this.textDecorationsByMarker.clear();
     this.textDecorationBoundaries.length = 0;
 
-    const decorationsByMarker = this.props.model.decorationManager.decorationPropertiesByMarkerForScreenRowRange(
-      this.getRenderedStartRow(),
-      this.getRenderedEndRow()
-    );
+    const decorationsByMarker =
+      this.props.model.decorationManager.decorationPropertiesByMarkerForScreenRowRange(
+        this.getRenderedStartRow(),
+        this.getRenderedEndRow()
+      );
 
     decorationsByMarker.forEach((decorations, marker) => {
       const screenRange = marker.getScreenRange();
@@ -1129,9 +1130,8 @@ module.exports = class TextEditorComponent {
       decorationsToRender = this.decorationsToRender.lines;
     } else {
       const gutterName = decoration.gutterName || 'line-number';
-      decorationsToRender = this.decorationsToRender.lineNumbers.get(
-        gutterName
-      );
+      decorationsToRender =
+        this.decorationsToRender.lineNumbers.get(gutterName);
       if (!decorationsToRender) {
         decorationsToRender = [];
         this.decorationsToRender.lineNumbers.set(
@@ -1188,7 +1188,7 @@ module.exports = class TextEditorComponent {
       class: className,
       flashRequested,
       flashClass,
-      flashDuration
+      flashDuration,
     } = decoration;
     decoration.flashRequested = false;
     this.decorationsToMeasure.highlights.push({
@@ -1197,7 +1197,7 @@ module.exports = class TextEditorComponent {
       className,
       flashRequested,
       flashClass,
-      flashDuration
+      flashDuration,
     });
     this.requestHorizontalMeasurement(
       screenRange.start.row,
@@ -1265,7 +1265,7 @@ module.exports = class TextEditorComponent {
       className,
       element,
       avoidOverflow,
-      screenPosition
+      screenPosition,
     });
   }
 
@@ -1289,7 +1289,7 @@ module.exports = class TextEditorComponent {
         'decoration' + (decoration.class ? ' ' + decoration.class : ''),
       element: TextEditor.viewForItem(decoration.item),
       top,
-      height
+      height,
     });
   }
 
@@ -1299,13 +1299,11 @@ module.exports = class TextEditorComponent {
       return;
 
     const tileStartRow = this.tileStartRowForRow(row);
-    const screenLine = this.renderedScreenLines[
-      row - this.getRenderedStartRow()
-    ];
+    const screenLine =
+      this.renderedScreenLines[row - this.getRenderedStartRow()];
 
-    let decorationsByScreenLine = this.decorationsToRender.blocks.get(
-      tileStartRow
-    );
+    let decorationsByScreenLine =
+      this.decorationsToRender.blocks.get(tileStartRow);
     if (!decorationsByScreenLine) {
       decorationsByScreenLine = new Map();
       this.decorationsToRender.blocks.set(
@@ -1337,11 +1335,11 @@ module.exports = class TextEditorComponent {
       this.textDecorationsByMarker.set(marker, decorationsForMarker);
       this.textDecorationBoundaries.push({
         position: screenRange.start,
-        starting: [marker]
+        starting: [marker],
       });
       this.textDecorationBoundaries.push({
         position: screenRange.end,
-        ending: [marker]
+        ending: [marker],
       });
     }
     decorationsForMarker.push(decoration);
@@ -1464,9 +1462,8 @@ module.exports = class TextEditorComponent {
 
   addTextDecorationStart(row, column, className, style) {
     const renderedStartRow = this.getRenderedStartRow();
-    let decorationStarts = this.decorationsToRender.text[
-      row - renderedStartRow
-    ];
+    let decorationStarts =
+      this.decorationsToRender.text[row - renderedStartRow];
     if (!decorationStarts) {
       decorationStarts = [];
       this.decorationsToRender.text[row - renderedStartRow] = decorationStarts;
@@ -1503,7 +1500,7 @@ module.exports = class TextEditorComponent {
   updateCursorsToRender() {
     this.decorationsToRender.cursors.length = 0;
 
-    this.decorationsToMeasure.cursors.forEach(cursor => {
+    this.decorationsToMeasure.cursors.forEach((cursor) => {
       const { screenPosition, className, style } = cursor;
       const { row, column } = screenPosition;
 
@@ -1521,7 +1518,7 @@ module.exports = class TextEditorComponent {
         pixelLeft,
         pixelWidth,
         className,
-        style
+        style,
       };
       this.decorationsToRender.cursors.push(cursorPosition);
       if (cursor.isLastCursor) this.hiddenInputPosition = cursorPosition;
@@ -1582,7 +1579,7 @@ module.exports = class TextEditorComponent {
   didAttach() {
     if (!this.attached) {
       this.attached = true;
-      this.intersectionObserver = new IntersectionObserver(entries => {
+      this.intersectionObserver = new IntersectionObserver((entries) => {
         const { intersectionRect } = entries[entries.length - 1];
         if (intersectionRect.width > 0 || intersectionRect.height > 0) {
           this.didShow();
@@ -1604,7 +1601,7 @@ module.exports = class TextEditorComponent {
         );
       }
 
-      this.overlayComponents.forEach(component => component.didAttach());
+      this.overlayComponents.forEach((component) => component.didAttach());
 
       if (this.isVisible()) {
         this.didShow();
@@ -1629,7 +1626,7 @@ module.exports = class TextEditorComponent {
       this.resizeObserver.disconnect();
       if (this.gutterContainerResizeObserver)
         this.gutterContainerResizeObserver.disconnect();
-      this.overlayComponents.forEach(component => component.didDetach());
+      this.overlayComponents.forEach((component) => component.didDetach());
 
       this.didHide();
       this.attached = false;
@@ -1978,9 +1975,8 @@ module.exports = class TextEditorComponent {
     if (platform === 'darwin' && ctrlKey) return;
 
     if (target && target.matches('.fold-marker')) {
-      const bufferPosition = model.bufferPositionForScreenPosition(
-        screenPosition
-      );
+      const bufferPosition =
+        model.bufferPositionForScreenPosition(screenPosition);
       model.destroyFoldsContainingBufferPositions([bufferPosition], false);
       return;
     }
@@ -1992,14 +1988,13 @@ module.exports = class TextEditorComponent {
     switch (detail) {
       case 1:
         if (addOrRemoveSelection) {
-          const existingSelection = model.getSelectionAtScreenPosition(
-            screenPosition
-          );
+          const existingSelection =
+            model.getSelectionAtScreenPosition(screenPosition);
           if (existingSelection) {
             if (model.hasMultipleCursors()) existingSelection.destroy();
           } else {
             model.addCursorAtScreenPosition(screenPosition, {
-              autoscroll: false
+              autoscroll: false,
             });
           }
         } else {
@@ -2007,7 +2002,7 @@ module.exports = class TextEditorComponent {
             model.selectToScreenPosition(screenPosition, { autoscroll: false });
           } else {
             model.setCursorScreenPosition(screenPosition, {
-              autoscroll: false
+              autoscroll: false,
             });
           }
         }
@@ -2015,26 +2010,26 @@ module.exports = class TextEditorComponent {
       case 2:
         if (addOrRemoveSelection)
           model.addCursorAtScreenPosition(screenPosition, {
-            autoscroll: false
+            autoscroll: false,
           });
         model.getLastSelection().selectWord({ autoscroll: false });
         break;
       case 3:
         if (addOrRemoveSelection)
           model.addCursorAtScreenPosition(screenPosition, {
-            autoscroll: false
+            autoscroll: false,
           });
         model.getLastSelection().selectLine(null, { autoscroll: false });
         break;
     }
 
     this.handleMouseDragUntilMouseUp({
-      didDrag: event => {
+      didDrag: (event) => {
         this.autoscrollOnMouseDrag(event);
         const screenPosition = this.screenPositionForMouseEvent(event);
         model.selectToScreenPosition(screenPosition, {
           suppressSelectionMerge: true,
-          autoscroll: false
+          autoscroll: false,
         });
         this.updateSync();
       },
@@ -2042,7 +2037,7 @@ module.exports = class TextEditorComponent {
         model.finalizeSelections();
         model.mergeIntersectingSelections();
         this.updateSync();
-      }
+      },
     });
   }
 
@@ -2056,7 +2051,7 @@ module.exports = class TextEditorComponent {
     const clickedScreenRow = this.screenPositionForMouseEvent(event).row;
     const startBufferRow = model.bufferPositionForScreenPosition([
       clickedScreenRow,
-      0
+      0,
     ]).row;
 
     if (
@@ -2072,7 +2067,7 @@ module.exports = class TextEditorComponent {
       metaKey || (ctrlKey && this.getPlatform() !== 'darwin');
     const endBufferRow = model.bufferPositionForScreenPosition([
       clickedScreenRow,
-      Infinity
+      Infinity,
     ]).row;
     const clickedLineBufferRange = Range(
       Point(startBufferRow, 0),
@@ -2089,7 +2084,7 @@ module.exports = class TextEditorComponent {
           reversed: clickedScreenRow < lastSelection.getScreenRange().start.row,
           autoscroll: false,
           preserveFolds: true,
-          suppressSelectionMerge: true
+          suppressSelectionMerge: true,
         }
       );
     } else {
@@ -2097,21 +2092,20 @@ module.exports = class TextEditorComponent {
       if (addOrRemoveSelection) {
         model.addSelectionForBufferRange(clickedLineBufferRange, {
           autoscroll: false,
-          preserveFolds: true
+          preserveFolds: true,
         });
       } else {
         model.setSelectedBufferRange(clickedLineBufferRange, {
           autoscroll: false,
-          preserveFolds: true
+          preserveFolds: true,
         });
       }
     }
 
-    const initialScreenRange = model.screenRangeForBufferRange(
-      initialBufferRange
-    );
+    const initialScreenRange =
+      model.screenRangeForBufferRange(initialBufferRange);
     this.handleMouseDragUntilMouseUp({
-      didDrag: event => {
+      didDrag: (event) => {
         this.autoscrollOnMouseDrag(event, true);
         const dragRow = this.screenPositionForMouseEvent(event).row;
         const draggedLineScreenRange = Range(
@@ -2123,14 +2117,14 @@ module.exports = class TextEditorComponent {
           .setScreenRange(draggedLineScreenRange.union(initialScreenRange), {
             reversed: dragRow < initialScreenRange.start.row,
             autoscroll: false,
-            preserveFolds: true
+            preserveFolds: true,
           });
         this.updateSync();
       },
       didStopDragging: () => {
         model.mergeIntersectingSelections();
         this.updateSync();
-      }
+      },
     });
   }
 
@@ -2171,12 +2165,8 @@ module.exports = class TextEditorComponent {
   }
 
   autoscrollOnMouseDrag({ clientX, clientY }, verticalOnly = false) {
-    let {
-      top,
-      bottom,
-      left,
-      right
-    } = this.refs.scrollContainer.getBoundingClientRect(); // Using var to avoid deopt on += assignments below
+    let { top, bottom, left, right } =
+      this.refs.scrollContainer.getBoundingClientRect(); // Using var to avoid deopt on += assignments below
     top += MOUSE_DRAG_AUTOSCROLL_MARGIN;
     bottom -= MOUSE_DRAG_AUTOSCROLL_MARGIN;
     left += MOUSE_DRAG_AUTOSCROLL_MARGIN;
@@ -2221,7 +2211,8 @@ module.exports = class TextEditorComponent {
   }
 
   pixelPositionForMouseEvent({ clientX, clientY }) {
-    const scrollContainerRect = this.refs.scrollContainer.getBoundingClientRect();
+    const scrollContainerRect =
+      this.refs.scrollContainer.getBoundingClientRect();
     clientX = Math.min(
       scrollContainerRect.right,
       Math.max(scrollContainerRect.left, clientX)
@@ -2233,7 +2224,7 @@ module.exports = class TextEditorComponent {
     const linesRect = this.refs.lineTiles.getBoundingClientRect();
     return {
       top: clientY - linesRect.top,
-      left: clientX - linesRect.left
+      left: clientX - linesRect.left,
     };
   }
 
@@ -2407,7 +2398,8 @@ module.exports = class TextEditorComponent {
   // potential changes in the editor's width into the model before proceeding.
   updateModelSoftWrapColumn() {
     const { model } = this.props;
-    const newEditorWidthInChars = this.getScrollContainerClientWidthInBaseCharacters();
+    const newEditorWidthInChars =
+      this.getScrollContainerClientWidthInBaseCharacters();
     if (newEditorWidthInChars !== model.getEditorWidthInChars()) {
       this.suppressUpdates = true;
 
@@ -2449,10 +2441,14 @@ module.exports = class TextEditorComponent {
       1,
       this.refs.characterMeasurementLine.getBoundingClientRect().height
     );
-    this.measurements.baseCharacterWidth = this.refs.normalWidthCharacterSpan.getBoundingClientRect().width;
-    this.measurements.doubleWidthCharacterWidth = this.refs.doubleWidthCharacterSpan.getBoundingClientRect().width;
-    this.measurements.halfWidthCharacterWidth = this.refs.halfWidthCharacterSpan.getBoundingClientRect().width;
-    this.measurements.koreanCharacterWidth = this.refs.koreanCharacterSpan.getBoundingClientRect().width;
+    this.measurements.baseCharacterWidth =
+      this.refs.normalWidthCharacterSpan.getBoundingClientRect().width;
+    this.measurements.doubleWidthCharacterWidth =
+      this.refs.doubleWidthCharacterSpan.getBoundingClientRect().width;
+    this.measurements.halfWidthCharacterWidth =
+      this.refs.halfWidthCharacterSpan.getBoundingClientRect().width;
+    this.measurements.koreanCharacterWidth =
+      this.refs.koreanCharacterSpan.getBoundingClientRect().width;
 
     this.props.model.setLineHeightInPixels(this.measurements.lineHeight);
     this.props.model.setDefaultCharWidth(
@@ -2468,8 +2464,8 @@ module.exports = class TextEditorComponent {
     let dimensionsChanged = false;
 
     if (this.refs.gutterContainer) {
-      const gutterContainerWidth = this.refs.gutterContainer.element
-        .offsetWidth;
+      const gutterContainerWidth =
+        this.refs.gutterContainer.element.offsetWidth;
       if (gutterContainerWidth !== this.measurements.gutterContainerWidth) {
         dimensionsChanged = true;
         this.measurements.gutterContainerWidth = gutterContainerWidth;
@@ -2482,8 +2478,8 @@ module.exports = class TextEditorComponent {
       this.refs.gutterContainer &&
       this.refs.gutterContainer.refs.lineNumberGutter
     ) {
-      const lineNumberGutterWidth = this.refs.gutterContainer.refs
-        .lineNumberGutter.element.offsetWidth;
+      const lineNumberGutterWidth =
+        this.refs.gutterContainer.refs.lineNumberGutter.element.offsetWidth;
       if (lineNumberGutterWidth !== this.measurements.lineNumberGutterWidth) {
         dimensionsChanged = true;
         this.measurements.lineNumberGutterWidth = lineNumberGutterWidth;
@@ -2520,8 +2516,10 @@ module.exports = class TextEditorComponent {
       this.measurements.verticalScrollbarWidth = 0;
       this.measurements.horizontalScrollbarHeight = 0;
     } else {
-      this.measurements.verticalScrollbarWidth = this.refs.verticalScrollbar.getRealScrollbarWidth();
-      this.measurements.horizontalScrollbarHeight = this.refs.horizontalScrollbar.getRealScrollbarHeight();
+      this.measurements.verticalScrollbarWidth =
+        this.refs.verticalScrollbar.getRealScrollbarWidth();
+      this.measurements.horizontalScrollbarHeight =
+        this.refs.horizontalScrollbar.getRealScrollbarHeight();
     }
   }
 
@@ -2572,7 +2570,9 @@ module.exports = class TextEditorComponent {
         error.metadata = {
           row,
           columnsToMeasure,
-          renderedScreenLineIds: this.renderedScreenLines.map(line => line.id),
+          renderedScreenLineIds: this.renderedScreenLines.map(
+            (line) => line.id
+          ),
           extraRenderedScreenLineIds: Array.from(
             this.extraRenderedScreenLines.keys()
           ),
@@ -2581,7 +2581,7 @@ module.exports = class TextEditorComponent {
           ),
           renderedStartRow: this.getRenderedStartRow(),
           renderedEndRow: this.getRenderedEndRow(),
-          requestedScreenLineId: screenLine.id
+          requestedScreenLineId: screenLine.id,
         };
         throw error;
       }
@@ -2715,9 +2715,8 @@ module.exports = class TextEditorComponent {
     if (column === 0) return 0;
     const screenLine = this.renderedScreenLineForRow(row);
     if (screenLine) {
-      const horizontalPositionsByColumn = this.horizontalPixelPositionsByScreenLineId.get(
-        screenLine.id
-      );
+      const horizontalPositionsByColumn =
+        this.horizontalPixelPositionsByScreenLineId.get(screenLine.id);
       if (horizontalPositionsByColumn) {
         return horizontalPositionsByColumn.get(column);
       }
@@ -2952,7 +2951,7 @@ module.exports = class TextEditorComponent {
       oldExtent,
       newExtent
     );
-    invalidatedBlockDecorations.forEach(decoration => {
+    invalidatedBlockDecorations.forEach((decoration) => {
       const newPosition = decoration.getMarker().getHeadScreenPosition();
       this.lineTopIndex.moveBlock(decoration, newPosition.row);
     });
@@ -3369,7 +3368,7 @@ module.exports = class TextEditorComponent {
 
   getNextUpdatePromise() {
     if (!this.nextUpdatePromise) {
-      this.nextUpdatePromise = new Promise(resolve => {
+      this.nextUpdatePromise = new Promise((resolve) => {
         this.resolveNextUpdatePromise = () => {
           this.nextUpdatePromise = null;
           this.resolveNextUpdatePromise = null;
@@ -3438,14 +3437,14 @@ class DummyScrollbarComponent {
       horizontalScrollbarHeight,
       canScroll,
       forceScrollbarVisible,
-      didScroll
+      didScroll,
     } = this.props;
 
     const outerStyle = {
       position: 'absolute',
       contain: 'content',
       zIndex: 1,
-      willChange: 'transform'
+      willChange: 'transform',
     };
     if (!canScroll) outerStyle.visibility = 'hidden';
 
@@ -3480,8 +3479,8 @@ class DummyScrollbarComponent {
         style: outerStyle,
         on: {
           scroll: didScroll,
-          mousedown: this.didMouseDown
-        }
+          mousedown: this.didMouseDown,
+        },
       },
       $.div({ style: innerStyle })
     );
@@ -3531,12 +3530,12 @@ class GutterContainerComponent {
       scrollTop,
       scrollHeight,
       guttersToRender,
-      decorationsToRender
+      decorationsToRender,
     } = this.props;
 
     const innerStyle = {
       willChange: 'transform',
-      display: 'flex'
+      display: 'flex',
     };
 
     if (hasInitialMeasurements) {
@@ -3553,12 +3552,12 @@ class GutterContainerComponent {
         style: {
           position: 'relative',
           zIndex: 1,
-          backgroundColor: 'inherit'
-        }
+          backgroundColor: 'inherit',
+        },
       },
       $.div(
         { style: innerStyle },
-        guttersToRender.map(gutter => {
+        guttersToRender.map((gutter) => {
           if (gutter.type === 'line-number') {
             return this.renderLineNumberGutter(gutter);
           } else {
@@ -3568,7 +3567,7 @@ class GutterContainerComponent {
               name: gutter.name,
               visible: gutter.isVisible(),
               height: scrollHeight,
-              decorations: decorationsToRender.customGutter.get(gutter.name)
+              decorations: decorationsToRender.customGutter.get(gutter.name),
             });
           }
         })
@@ -3589,7 +3588,7 @@ class GutterContainerComponent {
       didMeasureVisibleBlockDecoration,
       scrollHeight,
       lineNumberGutterWidth,
-      lineHeight
+      lineHeight,
     } = this.props;
 
     if (!gutter.isVisible()) {
@@ -3607,7 +3606,7 @@ class GutterContainerComponent {
         bufferRows,
         screenRows,
         softWrappedFlags,
-        foldableFlags
+        foldableFlags,
       } = lineNumbersToRender;
       return $(LineNumberGutterComponent, {
         ref,
@@ -3633,7 +3632,7 @@ class GutterContainerComponent {
         height: scrollHeight,
         width,
         lineHeight: lineHeight,
-        showLineNumbers
+        showLineNumbers,
       });
     } else {
       return $(LineNumberGutterComponent, {
@@ -3644,7 +3643,7 @@ class GutterContainerComponent {
         onMouseDown: gutter.onMouseDown,
         onMouseMove: gutter.onMouseMove,
         maxDigits: lineNumbersToRender.maxDigits,
-        showLineNumbers
+        showLineNumbers,
       });
     }
   }
@@ -3683,7 +3682,7 @@ class LineNumberGutterComponent {
       softWrappedFlags,
       foldableFlags,
       decorations,
-      className
+      className,
     } = this.props;
 
     let children = null;
@@ -3722,7 +3721,7 @@ class LineNumberGutterComponent {
                 screenRow,
                 foldable,
                 softWrapped,
-                maxDigits
+                maxDigits,
               });
             }
           }
@@ -3747,16 +3746,14 @@ class LineNumberGutterComponent {
             screenRow,
             number,
             marginTop,
-            nodePool: this.nodePool
+            nodePool: this.nodePool,
           });
         }
 
-        const tileTop = rootComponent.pixelPositionBeforeBlocksForRow(
-          tileStartRow
-        );
-        const tileBottom = rootComponent.pixelPositionBeforeBlocksForRow(
-          tileEndRow
-        );
+        const tileTop =
+          rootComponent.pixelPositionBeforeBlocksForRow(tileStartRow);
+        const tileBottom =
+          rootComponent.pixelPositionBeforeBlocksForRow(tileEndRow);
         const tileHeight = tileBottom - tileTop;
         const tileWidth = width != null && width > 0 ? width + 'px' : '';
 
@@ -3769,8 +3766,8 @@ class LineNumberGutterComponent {
               top: 0,
               height: tileHeight + 'px',
               width: tileWidth,
-              transform: `translateY(${tileTop}px)`
-            }
+              transform: `translateY(${tileTop}px)`,
+            },
           },
           ...tileChildren
         );
@@ -3788,18 +3785,18 @@ class LineNumberGutterComponent {
         attributes: { 'gutter-name': this.props.name },
         style: {
           position: 'relative',
-          height: ceilToPhysicalPixelBoundary(height) + 'px'
+          height: ceilToPhysicalPixelBoundary(height) + 'px',
         },
         on: {
           mousedown: this.didMouseDown,
-          mousemove: this.didMouseMove
-        }
+          mousemove: this.didMouseMove,
+        },
       },
       $.div(
         {
           key: 'placeholder',
           className: 'line-number dummy',
-          style: { visibility: 'hidden' }
+          style: { visibility: 'hidden' },
         },
         showLineNumbers ? '0'.repeat(maxDigits) : null,
         $.div({ className: 'icon-right' })
@@ -3834,12 +3831,10 @@ class LineNumberGutterComponent {
       oldTileStartRow < oldProps.endRow ||
       newTileStartRow < newProps.endRow
     ) {
-      let oldTileBlockDecorations = oldProps.blockDecorations.get(
-        oldTileStartRow
-      );
-      let newTileBlockDecorations = newProps.blockDecorations.get(
-        newTileStartRow
-      );
+      let oldTileBlockDecorations =
+        oldProps.blockDecorations.get(oldTileStartRow);
+      let newTileBlockDecorations =
+        newProps.blockDecorations.get(newTileStartRow);
 
       if (oldTileBlockDecorations && newTileBlockDecorations) {
         if (oldTileBlockDecorations.size !== newTileBlockDecorations.size)
@@ -3885,7 +3880,7 @@ class LineNumberGutterComponent {
       this.props.onMouseDown({
         bufferRow: parseInt(bufferRow, 10),
         screenRow: parseInt(screenRow, 10),
-        domEvent: event
+        domEvent: event,
       });
     }
   }
@@ -3896,7 +3891,7 @@ class LineNumberGutterComponent {
       this.props.onMouseMove({
         bufferRow: parseInt(bufferRow, 10),
         screenRow: parseInt(screenRow, 10),
-        domEvent: event
+        domEvent: event,
       });
     }
   }
@@ -3911,7 +3906,7 @@ class LineNumberComponent {
       bufferRow,
       screenRow,
       number,
-      nodePool
+      nodePool,
     } = props;
     this.props = props;
     const style = {};
@@ -3937,7 +3932,7 @@ class LineNumberComponent {
       marginTop,
       bufferRow,
       screenRow,
-      number
+      number,
     } = props;
 
     if (this.props.bufferRow !== bufferRow)
@@ -4007,13 +4002,13 @@ class CustomGutterComponent {
         className,
         attributes: { 'gutter-name': this.props.name },
         style: {
-          display: this.props.visible ? '' : 'none'
-        }
+          display: this.props.visible ? '' : 'none',
+        },
       },
       $.div(
         {
           className: 'custom-decorations',
-          style: { height: this.props.height + 'px' }
+          style: { height: this.props.height + 'px' },
         },
         this.renderDecorations()
       )
@@ -4028,7 +4023,7 @@ class CustomGutterComponent {
         className,
         element,
         top,
-        height
+        height,
       });
     });
   }
@@ -4094,12 +4089,8 @@ class CursorsAndInputComponent {
   }
 
   render() {
-    const {
-      lineHeight,
-      decorationsToRender,
-      scrollHeight,
-      scrollWidth
-    } = this.props;
+    const { lineHeight, decorationsToRender, scrollHeight, scrollWidth } =
+      this.props;
 
     const className = this.getCursorsClassName();
     const cursorHeight = lineHeight + 'px';
@@ -4111,7 +4102,7 @@ class CursorsAndInputComponent {
         pixelTop,
         pixelWidth,
         className: extraCursorClassName,
-        style: extraCursorStyle
+        style: extraCursorStyle,
       } = decorationsToRender.cursors[i];
       let cursorClassName = 'cursor';
       if (extraCursorClassName) cursorClassName += ' ' + extraCursorClassName;
@@ -4119,14 +4110,14 @@ class CursorsAndInputComponent {
       const cursorStyle = {
         height: cursorHeight,
         width: Math.min(pixelWidth, scrollWidth - pixelLeft) + 'px',
-        transform: `translate(${pixelLeft}px, ${pixelTop}px)`
+        transform: `translate(${pixelLeft}px, ${pixelTop}px)`,
       };
       if (extraCursorStyle) Object.assign(cursorStyle, extraCursorStyle);
 
       children.push(
         $.div({
           className: cursorClassName,
-          style: cursorStyle
+          style: cursorStyle,
         })
       );
     }
@@ -4143,8 +4134,8 @@ class CursorsAndInputComponent {
           width: scrollWidth + 'px',
           height: scrollHeight + 'px',
           pointerEvents: 'none',
-          userSelect: 'none'
-        }
+          userSelect: 'none',
+        },
       },
       children
     );
@@ -4168,7 +4159,7 @@ class CursorsAndInputComponent {
       didCompositionStart,
       didCompositionUpdate,
       didCompositionEnd,
-      tabIndex
+      tabIndex,
     } = this.props;
 
     let top, left;
@@ -4194,7 +4185,7 @@ class CursorsAndInputComponent {
         keypress: didKeypress,
         compositionstart: didCompositionStart,
         compositionupdate: didCompositionUpdate,
-        compositionend: didCompositionEnd
+        compositionend: didCompositionEnd,
       },
       tabIndex: tabIndex,
       style: {
@@ -4205,8 +4196,8 @@ class CursorsAndInputComponent {
         left: left + 'px',
         opacity: 0,
         padding: 0,
-        border: 0
-      }
+        border: 0,
+      },
     });
   }
 }
@@ -4250,8 +4241,8 @@ class LinesTileComponent {
           position: 'absolute',
           height: height + 'px',
           width: width + 'px',
-          transform: `translateY(${top}px)`
-        }
+          transform: `translateY(${top}px)`,
+        },
       }
       // Lines and block decorations will be manually inserted here for efficiency
     );
@@ -4265,7 +4256,7 @@ class LinesTileComponent {
       textDecorations,
       nodePool,
       displayLayer,
-      lineComponentsByScreenLineId
+      lineComponentsByScreenLineId,
     } = this.props;
 
     this.lineComponents = [];
@@ -4277,7 +4268,7 @@ class LinesTileComponent {
         textDecorations: textDecorations[i],
         displayLayer,
         nodePool,
-        lineComponentsByScreenLineId
+        lineComponentsByScreenLineId,
       });
       this.element.appendChild(component.element);
       this.lineComponents.push(component);
@@ -4292,7 +4283,7 @@ class LinesTileComponent {
       textDecorations,
       nodePool,
       displayLayer,
-      lineComponentsByScreenLineId
+      lineComponentsByScreenLineId,
     } = newProps;
 
     const oldScreenLines = oldProps.screenLines;
@@ -4318,7 +4309,7 @@ class LinesTileComponent {
           textDecorations: textDecorations[newScreenLineIndex],
           displayLayer,
           nodePool,
-          lineComponentsByScreenLineId
+          lineComponentsByScreenLineId,
         });
         this.element.appendChild(newScreenLineComponent.element);
         this.lineComponents.push(newScreenLineComponent);
@@ -4335,19 +4326,17 @@ class LinesTileComponent {
         lineComponent.update({
           screenRow: tileStartRow + newScreenLineIndex,
           lineDecoration: lineDecorations[newScreenLineIndex],
-          textDecorations: textDecorations[newScreenLineIndex]
+          textDecorations: textDecorations[newScreenLineIndex],
         });
 
         oldScreenLineIndex++;
         newScreenLineIndex++;
         lineComponentIndex++;
       } else {
-        const oldScreenLineIndexInNewScreenLines = newScreenLines.indexOf(
-          oldScreenLine
-        );
-        const newScreenLineIndexInOldScreenLines = oldScreenLines.indexOf(
-          newScreenLine
-        );
+        const oldScreenLineIndexInNewScreenLines =
+          newScreenLines.indexOf(oldScreenLine);
+        const newScreenLineIndexInOldScreenLines =
+          oldScreenLines.indexOf(newScreenLine);
         if (
           newScreenLineIndex < oldScreenLineIndexInNewScreenLines &&
           oldScreenLineIndexInNewScreenLines < newScreenLinesEndIndex
@@ -4362,7 +4351,7 @@ class LinesTileComponent {
               textDecorations: textDecorations[newScreenLineIndex],
               displayLayer,
               nodePool,
-              lineComponentsByScreenLineId
+              lineComponentsByScreenLineId,
             });
             this.element.insertBefore(
               newScreenLineComponent.element,
@@ -4391,9 +4380,8 @@ class LinesTileComponent {
             oldScreenLineIndex++;
           }
         } else {
-          const oldScreenLineComponent = this.lineComponents[
-            lineComponentIndex
-          ];
+          const oldScreenLineComponent =
+            this.lineComponents[lineComponentIndex];
           // eslint-disable-next-line no-redeclare
           var newScreenLineComponent = new LineComponent({
             screenLine: newScreenLines[newScreenLineIndex],
@@ -4402,7 +4390,7 @@ class LinesTileComponent {
             textDecorations: textDecorations[newScreenLineIndex],
             displayLayer,
             nodePool,
-            lineComponentsByScreenLineId
+            lineComponentsByScreenLineId,
           });
           this.element.insertBefore(
             newScreenLineComponent.element,
@@ -4569,7 +4557,7 @@ class LineComponent {
       screenRow,
       screenLine,
       lineComponentsByScreenLineId,
-      offScreen
+      offScreen,
     } = props;
     this.props = props;
     this.element = nodePool.getElement('DIV', this.buildClassName(), null);
@@ -4742,7 +4730,7 @@ class HighlightsComponent {
   }
 
   destroy() {
-    this.highlightComponentsByKey.forEach(highlightComponent => {
+    this.highlightComponentsByKey.forEach((highlightComponent) => {
       highlightComponent.destroy();
     });
     this.highlightComponentsByKey.clear();
@@ -4844,7 +4832,7 @@ class HighlightComponent {
 
   destroy() {
     if (this.timeoutsByClassName) {
-      this.timeoutsByClassName.forEach(timeout => {
+      this.timeoutsByClassName.forEach((timeout) => {
         window.clearTimeout(timeout);
       });
       this.timeoutsByClassName.clear();
@@ -4890,7 +4878,7 @@ class HighlightComponent {
       startPixelTop,
       startPixelLeft,
       endPixelTop,
-      endPixelLeft
+      endPixelLeft,
     } = this.props;
     const regionClassName = 'region ' + className;
 
@@ -4904,8 +4892,8 @@ class HighlightComponent {
           top: startPixelTop + 'px',
           left: startPixelLeft + 'px',
           width: endPixelLeft - startPixelLeft + 'px',
-          height: lineHeight + 'px'
-        }
+          height: lineHeight + 'px',
+        },
       });
     } else {
       children = [];
@@ -4918,8 +4906,8 @@ class HighlightComponent {
             top: startPixelTop + 'px',
             left: startPixelLeft + 'px',
             right: 0,
-            height: lineHeight + 'px'
-          }
+            height: lineHeight + 'px',
+          },
         })
       );
 
@@ -4933,8 +4921,8 @@ class HighlightComponent {
               top: startPixelTop + lineHeight + 'px',
               left: 0,
               right: 0,
-              height: endPixelTop - startPixelTop - lineHeight * 2 + 'px'
-            }
+              height: endPixelTop - startPixelTop - lineHeight * 2 + 'px',
+            },
           })
         );
       }
@@ -4949,8 +4937,8 @@ class HighlightComponent {
               top: endPixelTop - lineHeight + 'px',
               left: 0,
               width: endPixelLeft + 'px',
-              height: lineHeight + 'px'
-            }
+              height: lineHeight + 'px',
+            },
           })
         );
       }
@@ -4977,7 +4965,7 @@ class OverlayComponent {
     // "loop limit exceeded" error. We disconnect the observer before
     // potentially mutating the DOM, and then reconnect it on the next tick.
     // Note: ResizeObserver calls its callback when .observe is called
-    this.resizeObserver = new ResizeObserver(entries => {
+    this.resizeObserver = new ResizeObserver((entries) => {
       const { contentRect } = entries[0];
 
       if (
@@ -5005,7 +4993,7 @@ class OverlayComponent {
 
   getNextUpdatePromise() {
     if (!this.nextUpdatePromise) {
-      this.nextUpdatePromise = new Promise(resolve => {
+      this.nextUpdatePromise = new Promise((resolve) => {
         this.resolveNextUpdatePromise = () => {
           this.nextUpdatePromise = null;
           this.resolveNextUpdatePromise = null;
@@ -5116,7 +5104,7 @@ function debounce(fn, wait) {
     }
   }
 
-  return function() {
+  return function () {
     timestamp = Date.now();
     if (!timeout) timeout = setTimeout(later, wait);
   };

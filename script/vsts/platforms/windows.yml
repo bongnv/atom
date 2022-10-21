@@ -113,7 +113,7 @@ jobs:
       - template: templates/download-unzip.yml
         parameters:
           artifacts:
-            -  atom$(FileID)-windows.zip
+            - atom$(FileID)-windows.zip
 
       #  tests
       - template: templates/test.yml

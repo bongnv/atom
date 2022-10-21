@@ -11,7 +11,7 @@ const majorElectronVersion = semver.major(
     require('../config').appMetadata.electronVersion
 );
 
-module.exports = function() {
+module.exports = function () {
   // Chromedriver should be at least v9.0.0
   // Mksnapshot should be at least v9.0.2
   const chromedriverVer = buildMetadata.dependencies['electron-chromedriver'];

@@ -63,9 +63,7 @@ async function uploadArtifacts() {
 
   if (process.env.ATOM_RELEASES_AZURE_CONN_STRING) {
     console.log(
-      `Uploading ${
-        assets.length
-      } release assets for ${releaseVersion} to Azure Blob Storage under '${azureBlobPath}'`
+      `Uploading ${assets.length} release assets for ${releaseVersion} to Azure Blob Storage under '${azureBlobPath}'`
     );
 
     await uploadToAzure(
@@ -135,9 +133,7 @@ async function uploadArtifacts() {
     console.log(`New release notes:\n\n${newReleaseNotes}`);
 
     const releaseSha = !isNightlyRelease
-      ? spawnSync('git', ['rev-parse', 'HEAD'])
-          .stdout.toString()
-          .trimEnd()
+      ? spawnSync('git', ['rev-parse', 'HEAD']).stdout.toString().trimEnd()
       : 'master'; // Nightly tags are created in REPO_OWNER/NIGHTLY_RELEASE_REPO so the SHA is irrelevant
 
     console.log(`Creating GitHub release v${releaseVersion}`);
@@ -154,7 +150,7 @@ async function uploadArtifacts() {
       editRelease: true,
       reuseRelease: true,
       skipIfPublished: true,
-      assets
+      assets,
     });
 
     console.log('Release published successfully: ', release.html_url);
@@ -177,7 +173,7 @@ async function publishReleaseAsync(options) {
 
 // Wrap the call the async function and catch errors from its promise because
 // Node.js doesn't yet allow use of await at the script scope
-uploadArtifacts().catch(err => {
+uploadArtifacts().catch((err) => {
   console.error('An error occurred while uploading the release:\n\n', err);
   process.exit(1);
 });

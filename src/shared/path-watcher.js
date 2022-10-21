@@ -10,7 +10,7 @@ const ACTION_MAP = new Map([
   [nsfw.actions.MODIFIED, 'modified'],
   [nsfw.actions.CREATED, 'created'],
   [nsfw.actions.DELETED, 'deleted'],
-  [nsfw.actions.RENAMED, 'renamed']
+  [nsfw.actions.RENAMED, 'renamed'],
 ]);
 
 // Private: Possible states of a {NativeWatcher}.
@@ -18,7 +18,7 @@ const WATCHER_STATE = {
   STOPPED: Symbol('stopped'),
   STARTING: Symbol('starting'),
   RUNNING: Symbol('running'),
-  STOPPING: Symbol('stopping')
+  STOPPING: Symbol('stopping'),
 };
 
 // Private: Interface with and normalize events from a filesystem watcher implementation.
@@ -167,9 +167,9 @@ class NativeWatcher {
 // Private: Implement a native watcher by translating events from an NSFW watcher.
 class NSFWNativeWatcher extends NativeWatcher {
   async doStart(rootPath, eventCallback, errorCallback) {
-    const handler = events => {
+    const handler = (events) => {
       this.onEvents(
-        events.map(event => {
+        events.map((event) => {
           const action =
             ACTION_MAP.get(event.action) || `unexpected (${event.action})`;
           const payload = { action };
@@ -194,7 +194,7 @@ class NSFWNativeWatcher extends NativeWatcher {
 
     this.watcher = await nsfw(this.normalizedPath, handler, {
       debounceMS: 100,
-      errorCallback: this.onError
+      errorCallback: this.onError,
     });
 
     await this.watcher.start();
@@ -264,7 +264,7 @@ class PathWatcher {
     this.native = null;
     this.changeCallbacks = new Map();
 
-    this.attachedPromise = new Promise(resolve => {
+    this.attachedPromise = new Promise((resolve) => {
       this.resolveAttachedPromise = resolve;
     });
 
@@ -284,7 +284,7 @@ class PathWatcher {
         resolve(real);
       });
     });
-    this.normalizedPathPromise.catch(err => this.rejectStartPromise(err));
+    this.normalizedPathPromise.catch((err) => this.rejectStartPromise(err));
 
     this.emitter = new Emitter();
     this.subs = new CompositeDisposable();
@@ -335,7 +335,7 @@ class PathWatcher {
   // Returns a {Disposable} that will stop the underlying watcher when all callbacks mapped to it have been disposed.
   onDidChange(callback) {
     if (this.native) {
-      const sub = this.native.onDidChange(events =>
+      const sub = this.native.onDidChange((events) =>
         this.onNativeEvents(events, callback)
       );
       this.changeCallbacks.set(callback, sub);
@@ -382,7 +382,7 @@ class PathWatcher {
 
     // Transfer any native event subscriptions to the new NativeWatcher.
     for (const [callback, formerSub] of this.changeCallbacks) {
-      const newSub = native.onDidChange(events =>
+      const newSub = native.onDidChange((events) =>
         this.onNativeEvents(events, callback)
       );
       this.changeCallbacks.set(callback, newSub);
@@ -390,7 +390,7 @@ class PathWatcher {
     }
 
     this.subs.add(
-      native.onDidError(err => {
+      native.onDidError((err) => {
         this.emitter.emit('did-error', err);
       })
     );
@@ -423,7 +423,7 @@ class PathWatcher {
   // events may include events for paths above this watcher's root path, so filter them to only include the relevant
   // ones, then re-broadcast them to our subscribers.
   onNativeEvents(events, callback) {
-    const isWatchedPath = eventPath =>
+    const isWatchedPath = (eventPath) =>
       eventPath.startsWith(this.normalizedPath);
 
     const filtered = [];
@@ -440,13 +440,13 @@ class PathWatcher {
           filtered.push({
             action: 'deleted',
             kind: event.kind,
-            path: event.oldPath
+            path: event.oldPath,
           });
         } else if (!srcWatched && destWatched) {
           filtered.push({
             action: 'created',
             kind: event.kind,
-            path: event.path
+            path: event.path,
           });
         }
       } else {
@@ -489,8 +489,8 @@ class PathWatcherManager {
     this.setting = setting;
     this.live = new Map();
 
-    const initLocal = NativeConstructor => {
-      this.nativeRegistry = new NativeWatcherRegistry(normalizedPath => {
+    const initLocal = (NativeConstructor) => {
+      this.nativeRegistry = new NativeWatcherRegistry((normalizedPath) => {
         const nativeWatcher = new NativeConstructor(normalizedPath);
 
         this.live.set(normalizedPath, nativeWatcher);
@@ -597,12 +597,12 @@ function stopAllWatchers() {
 }
 
 // Private: Show the currently active native watchers in a formatted {String}.
-watchPath.printWatchers = function() {
+watchPath.printWatchers = function () {
   return PathWatcherManager.active().print();
 };
 
 // Private: Access the active {NativeWatcherRegistry}.
-watchPath.getRegistry = function() {
+watchPath.getRegistry = function () {
   return PathWatcherManager.active().getRegistry();
 };
 

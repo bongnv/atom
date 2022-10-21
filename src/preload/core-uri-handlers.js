@@ -11,12 +11,12 @@ function openFile(atom, { query }) {
   atom.workspace.open(filename, {
     initialLine: getLineColNumber(line),
     initialColumn: getLineColNumber(column),
-    searchAllPanes: true
+    searchAllPanes: true,
   });
 }
 
 const ROUTER = {
-  '/open/file': { handler: openFile }
+  '/open/file': { handler: openFile },
 };
 
 module.exports = {

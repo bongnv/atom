@@ -67,7 +67,7 @@ module.exports = {
   snapshotAuxiliaryData: {},
   REPO_OWNER,
   MAIN_REPO,
-  NIGHTLY_RELEASE_REPO
+  NIGHTLY_RELEASE_REPO,
 };
 
 function getChannelName(channel) {
@@ -88,8 +88,10 @@ function getChannel(version) {
 function getAppName(channel) {
   return channel === 'stable'
     ? 'Atom'
-    : `Atom ${process.env.ATOM_CHANNEL_DISPLAY_NAME ||
-        channel.charAt(0).toUpperCase() + channel.slice(1)}`;
+    : `Atom ${
+        process.env.ATOM_CHANNEL_DISPLAY_NAME ||
+        channel.charAt(0).toUpperCase() + channel.slice(1)
+      }`;
 }
 
 function getExecutableName(channel, appName) {
@@ -105,7 +107,7 @@ function getExecutableName(channel, appName) {
 function computeAppVersion(version) {
   if (version.match(/-dev$/)) {
     const result = spawnSync('git', ['rev-parse', '--short', 'HEAD'], {
-      cwd: repositoryRootPath
+      cwd: repositoryRootPath,
     });
     const commitHash = result.stdout.toString().trim();
     version += '-' + commitHash;

@@ -17,6 +17,7 @@ My specific need is for the resolution of `BLOCK_COMMENT_START` and similar vari
 ## Explanation
 
 This RFC is to have both line and block delims a property of the grammar. E.g.,
+
 ```cson
 # javascript.cson
 comments:
@@ -36,24 +37,29 @@ Many community grammars would not get this property added to them. However, this
 ## Rationale and alternatives
 
 #### Why is this approach the best in the space of possible approaches?
+
 Tying all language specific data to the language file makes intuitive sense. This is stuff that will not change based on what the user wants (and already is tied directly to Tree-sitter language files).
 
 #### What other approaches have been considered and what is the rationale for not choosing them?
+
 It's possible to use the settings approach like for TextMate grammars. I find this unnecessarily separated though, especially for something like comment delims which shouldn't rely on what the user fancies.
 
-However, I'm not set on requiring the TextMate grammars to have it in the file (doing so would require an update on the First mate side too*). It can still work in the settings file. This would also support the possible language that has multiple delim characters (if it exists), letting the user set their choice.
+However, I'm not set on requiring the TextMate grammars to have it in the file (doing so would require an update on the First mate side too\*). It can still work in the settings file. This would also support the possible language that has multiple delim characters (if it exists), letting the user set their choice.
 
 \* Maybe First mate should just add all properties from the file to the grammar it constructs, instead of a whitelist? It would save headaches around enhancing future grammar features.
 
-
 #### What is the impact of not doing this?
-  Getting the snippet variables working would require hard coding them for each language, which is impossible to do completely.
+
+Getting the snippet variables working would require hard coding them for each language, which is impossible to do completely.
 
 ## Unresolved questions
 
-####  What unresolved questions do you expect to resolve through the RFC process before this gets merged?
+#### What unresolved questions do you expect to resolve through the RFC process before this gets merged?
+
 #### What unresolved questions do you expect to resolve through the implementation of this feature before it is released in a new version of Atom?
+
 #### What related issues do you consider out of scope for this RFC that could be addressed in the future independently of the solution that comes out of this RFC?
+
 What I would like is then for public TextEditor methods `getCommentDelims` and `getCommentDelimsForPoint`, which returns all the correct delims for the root grammar, or the one at the given point (accounting for embedded grammars ... though could be weird when the embedded grammar is only something like TODO or SQL syntax).
 
 However, this future enhancement is not necessary for the current RFC. This RFC is about getting comment delim information tied to the Grammar object and is independant of any attempt to handle this information.

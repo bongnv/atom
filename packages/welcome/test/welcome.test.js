@@ -17,7 +17,7 @@ describe('Welcome', () => {
     atom.reset();
   });
 
-  describe("when welcomePackage.activate is called", () => {
+  describe('when welcomePackage.activate is called', () => {
     beforeEach(async () => {
       await welcomePackage.activate();
     });
@@ -49,7 +49,7 @@ describe('Welcome', () => {
         atom.workspace
           .getCenter()
           .getPanes()
-          .map(pane => pane.destroy());
+          .map((pane) => pane.destroy());
         assert(!atom.workspace.getActivePaneItem());
 
         const workspaceElement = atom.views.getView(atom.workspace);
@@ -127,7 +127,7 @@ describe('Welcome', () => {
             .click();
           assert.deepEqual(reportedEvents, [
             ['expand-packages-section'],
-            ['collapse-packages-section']
+            ['collapse-packages-section'],
           ]);
         });
 
@@ -157,13 +157,13 @@ describe('Welcome', () => {
           addCustomEvent(category, event) {
             this.reportedEvents.push({ category, ...event });
           },
-          reportedEvents: []
+          reportedEvents: [],
         };
         const reporter2 = {
           addCustomEvent(category, event) {
             this.reportedEvents.push({ category, ...event });
           },
-          reportedEvents: []
+          reportedEvents: [],
         };
 
         welcomePackage.reporterProxy.sendEvent('foo', 'bar', 10);
@@ -172,7 +172,7 @@ describe('Welcome', () => {
 
         assert.deepEqual(reporter1.reportedEvents, [
           { category: 'welcome-v1', ea: 'foo', el: 'bar', ev: 10 },
-          { category: 'welcome-v1', ea: 'foo2', el: 'bar2', ev: 60 }
+          { category: 'welcome-v1', ea: 'foo2', el: 'bar2', ev: 60 },
         ]);
 
         welcomePackage.consumeReporter(reporter2);

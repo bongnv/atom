@@ -9,14 +9,14 @@ module.exports = class StateStore {
 
   get dbPromise() {
     if (!this._dbPromise) {
-      this._dbPromise = new Promise(resolve => {
+      this._dbPromise = new Promise((resolve) => {
         const dbOpenRequest = indexedDB.open(this.databaseName, this.version);
-        dbOpenRequest.onupgradeneeded = event => {
+        dbOpenRequest.onupgradeneeded = (event) => {
           let db = event.target.result;
-          db.onerror = error => {
+          db.onerror = (error) => {
             atom.notifications.addFatalError('Error loading database', {
               stack: new Error('Error loading database').stack,
-              dismissable: true
+              dismissable: true,
             });
             console.error('Error loading database', error);
           };
@@ -26,10 +26,10 @@ module.exports = class StateStore {
           this.connected = true;
           resolve(dbOpenRequest.result);
         };
-        dbOpenRequest.onerror = error => {
+        dbOpenRequest.onerror = (error) => {
           atom.notifications.addFatalError('Could not connect to indexedDB', {
             stack: new Error('Could not connect to indexedDB').stack,
-            dismissable: true
+            dismissable: true,
           });
           console.error('Could not connect to indexedDB', error);
           this.connected = false;
@@ -46,12 +46,12 @@ module.exports = class StateStore {
   }
 
   connect() {
-    return this.dbPromise.then(db => !!db);
+    return this.dbPromise.then((db) => !!db);
   }
 
   save(key, value) {
     return new Promise((resolve, reject) => {
-      this.dbPromise.then(db => {
+      this.dbPromise.then((db) => {
         if (db == null) return resolve();
 
         const request = db
@@ -66,7 +66,7 @@ module.exports = class StateStore {
   }
 
   load(key) {
-    return this.dbPromise.then(db => {
+    return this.dbPromise.then((db) => {
       if (!db) return;
 
       return new Promise((resolve, reject) => {
@@ -75,7 +75,7 @@ module.exports = class StateStore {
           .objectStore('states')
           .get(key);
 
-        request.onsuccess = event => {
+        request.onsuccess = (event) => {
           let result = event.target.result;
           if (result && !result.isJSON) {
             resolve(result.value);
@@ -84,14 +84,14 @@ module.exports = class StateStore {
           }
         };
 
-        request.onerror = event => reject(event);
+        request.onerror = (event) => reject(event);
       });
     });
   }
 
   delete(key) {
     return new Promise((resolve, reject) => {
-      this.dbPromise.then(db => {
+      this.dbPromise.then((db) => {
         if (db == null) return resolve();
 
         const request = db
@@ -106,7 +106,7 @@ module.exports = class StateStore {
   }
 
   clear() {
-    return this.dbPromise.then(db => {
+    return this.dbPromise.then((db) => {
       if (!db) return;
 
       return new Promise((resolve, reject) => {
@@ -122,7 +122,7 @@ module.exports = class StateStore {
   }
 
   count() {
-    return this.dbPromise.then(db => {
+    return this.dbPromise.then((db) => {
       if (!db) return;
 
       return new Promise((resolve, reject) => {

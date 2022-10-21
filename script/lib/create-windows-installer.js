@@ -8,7 +8,7 @@ const path = require('path');
 const CONFIG = require('../config');
 const { REPO_OWNER, MAIN_REPO } = CONFIG;
 
-module.exports = packagedAppPath => {
+module.exports = (packagedAppPath) => {
   const archSuffix = process.arch === 'ia32' ? '' : '-' + process.arch;
   const updateUrlPrefix =
     process.env.ATOM_UPDATE_URL_PREFIX || 'https://atom.io';
@@ -18,9 +18,7 @@ module.exports = packagedAppPath => {
     exe: CONFIG.executableName,
     appDirectory: packagedAppPath,
     authors: 'GitHub Inc.',
-    iconUrl: `https://raw.githubusercontent.com/${REPO_OWNER}/${MAIN_REPO}/master/resources/app-icons/${
-      CONFIG.channel
-    }/atom.ico`,
+    iconUrl: `https://raw.githubusercontent.com/${REPO_OWNER}/${MAIN_REPO}/master/resources/app-icons/${CONFIG.channel}/atom.ico`,
     loadingGif: path.join(
       CONFIG.repositoryRootPath,
       'resources',
@@ -29,9 +27,7 @@ module.exports = packagedAppPath => {
     ),
     outputDirectory: CONFIG.buildOutputPath,
     noMsi: true,
-    remoteReleases: `${updateUrlPrefix}/api/updates${archSuffix}?version=${
-      CONFIG.computedAppVersion
-    }`,
+    remoteReleases: `${updateUrlPrefix}/api/updates${archSuffix}?version=${CONFIG.computedAppVersion}`,
     setupExe: `AtomSetup${process.arch === 'x64' ? '-x64' : ''}.exe`,
     setupIcon: path.join(
       CONFIG.repositoryRootPath,
@@ -39,7 +35,7 @@ module.exports = packagedAppPath => {
       'app-icons',
       CONFIG.channel,
       'atom.ico'
-    )
+    ),
   };
 
   const cleanUp = () => {
@@ -76,7 +72,7 @@ module.exports = packagedAppPath => {
   console.log(`Creating Windows Installer for ${packagedAppPath}`);
   return electronInstaller
     .createWindowsInstaller(options)
-    .then(cleanUp, error => {
+    .then(cleanUp, (error) => {
       cleanUp();
       return Promise.reject(error);
     });
