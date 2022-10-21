@@ -65,9 +65,11 @@ module.exports = {
       },
     },
   },
-  externals: [nodeExternals({
-    importType: 'commonjs',
-  })],
+  externals: [
+    'atom',
+    nodeExternals(),
+  ],
+  externalsType: 'commonjs',
   externalsPresets: {
     node: true,
     electron: true,
@@ -76,7 +78,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.json', '.wasm', ".coffee", ".less", ".cson", ".node"],
-    modules: [path.resolve(__dirname, 'exports'), 'node_modules'],
   },
   devtool: 'source-map',
   plugins: [

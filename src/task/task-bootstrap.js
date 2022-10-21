@@ -1,7 +1,7 @@
+require('../install-global-atom');
+
 const { userAgent } = process.env;
 const [ taskPath ] = process.argv.slice(2);
-
-require('../install-global-atom').install();
 
 const setupGlobals = function() {
   global.attachEvent = function() {};

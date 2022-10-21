@@ -6,7 +6,13 @@ const globalModules = {
   'shell': true,
 };
 
-exports.install = () => {
+let installed = false;
+
+install = () => {
+  if (installed) {
+    return
+  }
+
   var Module = require('module');
   var originalRequire = Module.prototype.require;
 
@@ -17,4 +23,7 @@ exports.install = () => {
 
     return originalRequire.apply(this, arguments);
   };
+  installed = true
 }
+
+module.exports = install()

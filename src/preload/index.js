@@ -1,3 +1,5 @@
+require('../install-global-atom');
+
 (function() {
   // Define the window start time before the requires so we get a more accurate
   // window:start marker.

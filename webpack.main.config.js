@@ -26,13 +26,16 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.json', '.wasm', ".coffee"],
-    modules: [path.resolve(__dirname, 'exports'), 'node_modules'],
   },
   // Put your normal webpack config below here
   module: {
     rules: require('./webpack.rules'),
   },
-  externals: [nodeExternals()],
+  externals: [
+    'atom',
+    nodeExternals(),
+  ],
+  externalsType: 'commonjs',
   externalsPresets: {
     node: true,
     electron: true,
