@@ -4,7 +4,9 @@
     "eslint:recommended",
     "plugin:prettier/recommended"
   ],
-  "plugins": ["prettier"],
+  "plugins": [
+    "prettier"
+  ],
   "env": {
     "browser": true,
     "node": true
@@ -17,16 +19,33 @@
     }
   },
   "globals": {
-    "atom": true
+    "atom": true,
+    "ROOT_DIR": "readonly",
+    "PRELOAD_WEBPACK_ENTRY": "readonly",
+    "TASK_WEBPACK_DIR": "readonly",
+    "Promise": true,
+    "Map": true,
+    "Symbol": true,
+    "Set": true
   },
   "rules": {
-    "standard/no-callback-literal": ["off"],
-    "node/no-deprecated-api": ["off"],
-    "prettier/prettier": ["error"]
+    "standard/no-callback-literal": [
+      "off"
+    ],
+    "node/no-deprecated-api": [
+      "off"
+    ],
+    "prettier/prettier": [
+      "error"
+    ]
   },
   "overrides": [
     {
-      "files": ["spec/**", "**-spec.js", "**.test.js"],
+      "files": [
+        "spec/**",
+        "**-spec.js",
+        "**.test.js"
+      ],
       "env": {
         "jasmine": true
       },

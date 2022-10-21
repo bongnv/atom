@@ -123,7 +123,7 @@ module.exports = class Package {
       this.metadata.configSchema ||
       this.activationShouldBeDeferred() ||
       localStorage.getItem(this.getCanDeferMainModuleRequireStorageKey()) ===
-      'true'
+        'true'
     );
   }
 
@@ -787,9 +787,9 @@ module.exports = class Package {
 
         if (
           this.viewRegistry.getViewProviderCount() ===
-          previousViewProviderCount &&
+            previousViewProviderCount &&
           this.deserializerManager.getDeserializerCount() ===
-          previousDeserializerCount
+            previousDeserializerCount
         ) {
           localStorage.setItem(
             this.getCanDeferMainModuleRequireStorageKey(),
@@ -812,8 +812,8 @@ module.exports = class Package {
     const mainModulePath = this.isLocal
       ? path.join(this.path, 'lib/main')
       : this.metadata.main
-        ? path.join(this.path, this.metadata.main)
-        : path.join(this.path, 'index');
+      ? path.join(this.path, this.metadata.main)
+      : path.join(this.path, 'index');
     this.mainModulePath = fs.resolveExtension(mainModulePath, [
       '',
       '.js',
@@ -875,7 +875,7 @@ module.exports = class Package {
           // The real command will be registered on package activation
           try {
             this.activationCommandSubscriptions.add(
-              this.commandRegistry.add(selector, command, function () { })
+              this.commandRegistry.add(selector, command, function () {})
             );
           } catch (error) {
             if (error.code === 'EBADSELECTOR') {
@@ -1057,7 +1057,7 @@ module.exports = class Package {
           }
           traversePath(path.join(modulePath, 'node_modules'));
         }
-      } catch (error) { }
+      } catch (error) {}
     };
 
     traversePath(path.join(this.path, 'node_modules'));
@@ -1175,7 +1175,7 @@ module.exports = class Package {
           this.getIncompatibleNativeModulesStorageKey()
         );
         if (arrayAsString) return JSON.parse(arrayAsString);
-      } catch (error1) { }
+      } catch (error1) {}
     }
 
     const incompatibleNativeModules = [];
@@ -1184,15 +1184,16 @@ module.exports = class Package {
       try {
         // require each .node file
         for (const nodeFilePath of nodeFilesPaths) {
-          __non_webpack_require__(nodeFilePath);
+          require(/* webpackIgnore: true */ nodeFilePath);
         }
       } catch (error) {
         let version;
         try {
-          ({ version } = __non_webpack_require__(
+          ({ version } = webpack(
+            /* webpackIgnore: true */
             `${nativeModulePath}/package.json`
           ));
-        } catch (error2) { }
+        } catch (error2) {}
         incompatibleNativeModules.push({
           path: nativeModulePath,
           name: path.basename(nativeModulePath),
@@ -1215,8 +1216,9 @@ module.exports = class Package {
 
     let detail, location, stack;
     if (error.filename && error.location && error instanceof SyntaxError) {
-      location = `${error.filename}:${error.location.first_line + 1}:${error.location.first_column + 1
-        }`;
+      location = `${error.filename}:${error.location.first_line + 1}:${
+        error.location.first_column + 1
+      }`;
       detail = `${error.message} in ${location}`;
       stack = 'SyntaxError: ' + error.message + '\n' + 'at ' + location;
     } else if (

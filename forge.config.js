@@ -59,5 +59,23 @@ module.exports = {
         resolve();
       });
     })),
+    postStart: (_, child) => new Promise((resolve, reject) => {
+      const compiler = webpack(webpackConfig);
+
+      const watching = compiler.watch({}, (err, stats) => {
+        if (err || stats.hasErrors()) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+
+      child.on('exit', () => {
+        if (child.restarted) return;
+        watching.close((closeErr) => {
+          console.log('Watching Ended', closeErr || '');
+        });
+      });
+    }),
   },
 };

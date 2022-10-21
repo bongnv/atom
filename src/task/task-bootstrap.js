@@ -85,4 +85,4 @@ const setupDeprecations = function () {
 setupGlobals();
 handleEvents();
 setupDeprecations();
-const handler = __non_webpack_require__(taskPath);
+const handler = require(/* webpackIgnore: true */ taskPath);

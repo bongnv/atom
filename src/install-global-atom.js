@@ -9,7 +9,7 @@ install = () => {
   var originalRequire = Module.prototype.require;
 
   Module.prototype.require = function (name) {
-    if (name == "atom") {
+    if (name == 'atom') {
       return require('./atom.js');
     }
 

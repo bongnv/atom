@@ -932,7 +932,10 @@ module.exports = class AtomApplication extends EventEmitter {
 
   initializeAtomHome(configDirPath) {
     if (!fs.existsSync(configDirPath)) {
-      const templateConfigDirPath = path.resolve(atomConfig.rootDir, 'dot-atom');
+      const templateConfigDirPath = path.resolve(
+        atomConfig.rootDir,
+        'dot-atom'
+      );
       fs.copySync(templateConfigDirPath, configDirPath);
     }
   }
