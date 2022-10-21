@@ -2,8 +2,9 @@ const path = require('path');
 const _ = require('underscore-plus');
 const { Emitter } = require('event-kit');
 const fs = require('fs-plus');
-
 const ServiceHub = require('service-hub');
+
+const atomConfig = require('../shared/config');
 const Package = require('./package');
 const ThemePackage = require('./theme-package');
 const packageJSON = require('../../package.json');
@@ -63,7 +64,6 @@ module.exports = class PackageManager {
   initialize(params) {
     this.devMode = params.devMode;
     // FIXME: bongnv - fix this
-    this.resourcePath = path.join(path.dirname(__dirname), '../..');
     if (params.configDirPath != null) {
       if (this.devMode) {
         this.packageDirPaths.push(
@@ -227,7 +227,7 @@ module.exports = class PackageManager {
       return packagePath;
     }
 
-    packagePath = path.join(this.resourcePath, 'node_modules', name);
+    packagePath = path.join(atomConfig.rootDir, 'node_modules', name);
     if (this.hasAtomEngine(packagePath)) {
       return packagePath;
     }
@@ -417,7 +417,7 @@ module.exports = class PackageManager {
       }
     }
 
-    const bundledPackagesDir = path.join(this.resourcePath, 'packages');
+    const bundledPackagesDir = path.join(atomConfig.rootDir, 'packages');
     fs.readdirSync(bundledPackagesDir, { withFileTypes: true })
       // TODO: bongnv - we may not to check directory here
       .filter(
@@ -431,7 +431,7 @@ module.exports = class PackageManager {
       .map((packageName) => {
         packages.push({
           name: packageName,
-          path: path.join(this.resourcePath, 'packages', packageName),
+          path: path.join(atomConfig.rootDir, 'packages', packageName),
           isBundled: true,
           isLocal: true,
         });
@@ -441,7 +441,7 @@ module.exports = class PackageManager {
       if (!packagesByName.has(packageName)) {
         packages.push({
           name: packageName,
-          path: path.join(this.resourcePath, 'node_modules', packageName),
+          path: path.join(atomConfig.rootDir, 'node_modules', packageName),
           isBundled: true,
         });
       }
@@ -853,13 +853,13 @@ module.exports = class PackageManager {
   isBundledPackagePath(packagePath) {
     if (
       this.devMode &&
-      !this.resourcePath.startsWith(`${process.resourcesPath}${path.sep}`)
+      !atomConfig.rootDir.startsWith(`${process.resourcesPath}${path.sep}`)
     ) {
       return false;
     }
 
     if (this.resourcePathWithTrailingSlash == null) {
-      this.resourcePathWithTrailingSlash = `${this.resourcePath}${path.sep}`;
+      this.resourcePathWithTrailingSlash = `${atomConfig.rootDir}${path.sep}`;
     }
 
     return (

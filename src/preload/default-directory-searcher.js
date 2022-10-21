@@ -1,5 +1,7 @@
-const Task = require('./task');
 const path = require('path');
+
+const atomConfig = require('../shared/config');
+const Task = require('./task');
 
 // Searches local files for lines matching a specified regex. Implements `.then()`
 // so that it can be used with `Promise.all()`.
@@ -17,8 +19,7 @@ class DirectorySearch {
       leadingContextLineCount: options.leadingContextLineCount,
       trailingContextLineCount: options.trailingContextLineCount,
     };
-    // FIXME: bongnv - improve this
-    this.task = new Task(path.join(__dirname, '../../task/scan-handler'));
+    this.task = new Task(path.join(atomConfig.taskWebpackDir, 'scan-handler.js'));
     this.task.on('scan:result-found', options.didMatch);
     this.task.on('scan:file-error', options.didError);
     this.task.on('scan:paths-searched', options.didSearchPaths);

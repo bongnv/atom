@@ -5,7 +5,9 @@ const _ = require('underscore-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
 const { File } = require('pathwatcher');
 const fs = require('fs-plus');
+
 const LessCompileCache = require('../less-compile-cache');
+const atomConfig = require('../shared/config');
 
 // Extended: Handles loading and activating available themes.
 //
@@ -36,8 +38,6 @@ module.exports = class ThemeManager {
   }
 
   initialize({ configDirPath, devMode }) {
-    // FIXME: bongnv - find a way to send resourcePath
-    this.resourcePath = path.resolve(__dirname, '../../..');
     this.configDirPath = configDirPath;
     this.lessSourcesByRelativeFilePath = null;
     this.lessSourcesByRelativeFilePath = {};
@@ -261,7 +261,7 @@ On linux there are currently problems with watch sizes. See
 
   reloadBaseStylesheets() {
     this.requireStylesheet(
-      path.resolve(this.resourcePath, 'static/atom'),
+      path.resolve(atomConfig.rootDir, 'static/atom'),
       -2,
       true
     );
@@ -293,7 +293,7 @@ On linux there are currently problems with watch sizes. See
   loadLessStylesheet(lessStylesheetPath, importFallbackVariables = false) {
     if (this.lessCache == null) {
       this.lessCache = new LessCompileCache({
-        resourcePath: this.resourcePath,
+        resourcePath: atomConfig.rootDir,
         lessSourcesByRelativeFilePath: this.lessSourcesByRelativeFilePath,
         importedFilePathsByRelativeImportPath:
           this.importedFilePathsByRelativeImportPath,
@@ -308,7 +308,7 @@ On linux there are currently problems with watch sizes. See
 @import "variables/syntax-variables";\
 `;
         const relativeFilePath = path.relative(
-          this.resourcePath,
+          atomConfig.rootDir,
           lessStylesheetPath
         );
         const lessSource = this.lessSourcesByRelativeFilePath[relativeFilePath];

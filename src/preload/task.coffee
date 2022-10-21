@@ -4,6 +4,8 @@ ChildProcess = require 'child_process'
 Grim = require 'grim'
 path = require 'path'
 
+atomConfig = require '../shared/config'
+
 # Extended: Run a node script in a separate process.
 #
 # Used by the fuzzy-finder and [find in project](https://github.com/atom/atom/blob/master/src/scan-handler.coffee).
@@ -68,8 +70,7 @@ class Task
     @emitter = new Emitter
 
     env = Object.assign({}, process.env, {userAgent: navigator.userAgent})
-    # FIXME: bongnv - use resources path instead
-    @childProcess = ChildProcess.fork path.join(__dirname, '../../task/task-bootstrap.js'), [taskPath], {env, silent: true}
+    @childProcess = ChildProcess.fork path.join(atomConfig.taskWebpackDir, 'task-bootstrap.js'), [taskPath], {env, silent: true}
 
     @on "task:log", -> console.log(arguments...)
     @on "task:warn", -> console.warn(arguments...)

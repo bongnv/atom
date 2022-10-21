@@ -1,12 +1,3 @@
-const AtomWindow = require('./atom-window');
-const ApplicationMenu = require('./application-menu');
-const AtomProtocolHandler = require('./atom-protocol-handler');
-const StorageFolder = require('./storage-folder');
-const Config = require('./config');
-const ConfigFile = require('./config-file');
-const FileRecoveryService = require('./file-recovery-service');
-const StartupTime = require('../shared/startup-time');
-const ipcHelpers = require('./ipc-helpers');
 const {
   BrowserWindow,
   Menu,
@@ -27,7 +18,18 @@ const url = require('url');
 const { promisify } = require('util');
 const { EventEmitter } = require('events');
 const _ = require('underscore-plus');
+
+const atomConfig = require('../shared/config');
 const { getEnvFromShell } = require('./get-env-from-shell');
+const AtomWindow = require('./atom-window');
+const ApplicationMenu = require('./application-menu');
+const AtomProtocolHandler = require('./atom-protocol-handler');
+const StorageFolder = require('./storage-folder');
+const Config = require('./config');
+const ConfigFile = require('./config-file');
+const FileRecoveryService = require('./file-recovery-service');
+const StartupTime = require('../shared/startup-time');
+const ipcHelpers = require('./ipc-helpers');
 
 const LocationSuffixRegExp = /(:\d+)(:\d+)?$/;
 
@@ -930,7 +932,7 @@ module.exports = class AtomApplication extends EventEmitter {
 
   initializeAtomHome(configDirPath) {
     if (!fs.existsSync(configDirPath)) {
-      const templateConfigDirPath = path.resolve(__dirname, '../../dot-atom');
+      const templateConfigDirPath = path.resolve(atomConfig.rootDir, 'dot-atom');
       fs.copySync(templateConfigDirPath, configDirPath);
     }
   }

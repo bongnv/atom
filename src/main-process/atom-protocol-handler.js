@@ -2,6 +2,8 @@ const { protocol } = require('electron');
 const fs = require('fs-plus');
 const path = require('path');
 
+const atomConfig = require('../shared/config');
+
 // Handles requests with 'atom' protocol.
 //
 // It's created by {AtomApplication} upon instantiation and is used to create a
@@ -17,10 +19,9 @@ module.exports = class AtomProtocolHandler {
   constructor() {
     this.loadPaths = [];
 
-    this.loadPaths.push(path.join(process.env.ATOM_HOME, 'dev', 'packages'));
-    this.loadPaths.push(path.join(__dirname, '../../packages'));
     this.loadPaths.push(path.join(process.env.ATOM_HOME, 'packages'));
-    this.loadPaths.push(path.join(__dirname, '../../node_modules'));
+    this.loadPaths.push(path.join(atomConfig.rootDir, 'packages'));
+    this.loadPaths.push(path.join(atomConfig.rootDir, 'node_modules'));
 
     this.registerAtomProtocol();
   }

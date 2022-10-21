@@ -1,4 +1,9 @@
+const { reject } = require('async');
 const path = require('path');
+const webpack = require('webpack');
+const { asyncOra } = require('@electron-forge/async-ora');
+
+const webpackConfig = require('./webpack.config.js');
 
 module.exports = {
   packagerConfig: {
@@ -45,31 +50,15 @@ module.exports = {
       config: {},
     },
   ],
-  plugins: [
-    [
-      '@electron-forge/plugin-webpack',
-      {
-        devServer: {
-          client: {
-            logging: 'verbose',
-          },
-        },
-        mainConfig: './webpack.main.config.js',
-        renderer: {
-          nodeIntegration: true,
-          config: './webpack.renderer.config.js',
-          entryPoints: [
-            {
-              html: './static/index.html',
-              js: './static/index.js',
-              name: 'main_window',
-              preload: {
-                js: './src/preload/index.js',
-              },
-            },
-          ],
-        },
-      },
-    ],
-  ],
+  hooks: {
+    generateAssets: () => asyncOra('Compiling code', () => new Promise((resolve, reject) => {
+      webpack(webpackConfig, (err, stats) => {
+        if (err || stats.hasErrors()) {
+          reject(err);
+          return;
+        }
+        resolve();
+      });
+    })),
+  },
 };
