@@ -1,6 +1,6 @@
 {
   "name": "notifications",
-  "main": "./dist/main",
+  "main": "./lib/main.coffee",
   "version": "0.72.1",
   "description": "A tidy way to display Atom notifications.",
   "repository": "https://github.com/atom/notifications",
@@ -35,9 +35,5 @@
   },
   "deserializers": {
     "notifications/NotificationsLog": "createLog"
-  },
-  "scripts": {
-    "build": "coffee -c -o dist lib/*.coffee",
-    "prepare": "npm run build"
   }
 }

@@ -11,7 +11,24 @@ module.exports = {
       'dev',
       'atom'
     ),
-    derefSymlinks: true,
+    ignore: [
+      /^\/keymap\//,
+      /^\/menus\//,
+      /^\/script\//,
+      /^\/src\//,
+      /^\/vendor\//,
+      /^\/webpack.*/,
+      /\/\.github\//,
+      /\/docs\//,
+      /\/spec\//,
+      /^\/packages\/[\d\w-]+\/(?!keymaps|menus|styles|package\.json)/,
+      /\/package-lock\.json$/,
+      /\/.travis.yml$/i,
+      /\/README\.md$/i,
+      /\/LICENSE(\.md)?$/i,
+      /\.Dockerfile$/i,
+      /.*\/.ts$/i,
+    ],
   },
   makers: [
     {
@@ -61,12 +78,5 @@ module.exports = {
         }
       }
     ],
-    [
-      "@timfish/forge-externals-plugin",
-      {
-        "externals": externals,
-        "includeDeps": true
-      }
-    ]
   ]
 }

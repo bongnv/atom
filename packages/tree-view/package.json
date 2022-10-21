@@ -1,7 +1,7 @@
 {
   "name": "tree-view",
   "version": "0.229.1",
-  "main": "./dist/main",
+  "main": "./lib/main.js",
   "description": "Explore and open files in the current project.",
   "repository": "https://github.com/atom/tree-view",
   "license": "MIT",
@@ -43,10 +43,6 @@
         "1.0.0": "provideTreeView"
       }
     }
-  },
-  "scripts": {
-    "build": "coffee -c -o dist lib/*.coffee && babel lib -d dist",
-    "prepare": "npm run build"
   },
   "standard": {
     "env": [
