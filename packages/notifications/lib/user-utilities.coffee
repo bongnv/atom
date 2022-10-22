@@ -123,6 +123,7 @@ module.exports =
     pack?.metadata.version
 
   getPackageVersionShippedWithAtom: (packageName) ->
+    # webpackIgnore: true
     require(path.join(atom.getLoadSettings().resourcePath, 'package.json')).packageDependencies[packageName]
 
   getLatestPackageData: (packageName) ->

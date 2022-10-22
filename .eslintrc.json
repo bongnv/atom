@@ -24,6 +24,7 @@
     "PRELOAD_WEBPACK_ENTRY": "readonly",
     "TASK_WEBPACK_DIR": "readonly",
     "Promise": true,
+    "WeakMap": true,
     "Map": true,
     "Symbol": true,
     "Set": true

@@ -263,8 +263,8 @@
   "scripts": {
     "build:apm": "cd apm && npm install",
     "test": "node script/test.js",
-    "start": "DEV_APM_ROOT=\"./apm/node_modules/atom-package-manager\" electron-forge start --enable-logging -- --dev",
-    "lint": "eslint --fix src script packages",
+    "start": "NODE_ENV=development DEV_APM_ROOT=\"./apm/node_modules/atom-package-manager\" electron-forge start --enable-logging -- --dev",
+    "lint": "eslint --fix src packages",
     "package": "electron-forge package",
     "prettier": "prettier --write .",
     "make": "electron-forge make"

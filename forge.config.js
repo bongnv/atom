@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const { asyncOra } = require('@electron-forge/async-ora');
 
 const webpackConfig = require('./webpack.config.js');
+const compiler = webpack(webpackConfig);
 
 module.exports = {
   packagerConfig: {
@@ -51,23 +52,22 @@ module.exports = {
   ],
   hooks: {
     generateAssets: () => asyncOra('Compiling code', () => new Promise((resolve, reject) => {
-      webpack(webpackConfig, (err, stats) => {
+      compiler.run((err, stats) => {
         if (err || stats.hasErrors()) {
-          reject(err);
+          reject(err || stats);
           return;
         }
         resolve();
       });
     })),
-    postStart: (_, child) => new Promise((resolve, reject) => {
-      const compiler = webpack(webpackConfig);
-
+    postStart: (_, child) => {
       const watching = compiler.watch({}, (err, stats) => {
-        if (err || stats.hasErrors()) {
-          reject(err);
+        if (err) {
+          console.log(err);
           return;
         }
-        resolve();
+
+        console.log(stats.toString());
       });
 
       child.on('exit', () => {
@@ -76,6 +76,6 @@ module.exports = {
           console.log('Watching Ended', closeErr || '');
         });
       });
-    }),
+    },
   },
 };

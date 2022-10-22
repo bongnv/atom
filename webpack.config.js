@@ -4,6 +4,7 @@ const webpack = require('webpack');
 
 const webpackDir = path.resolve(__dirname, ".webpack");
 const commonConfig = {
+  mode: process.env.NODE_ENV === "development" ? "development" : "production",
   devtool: 'source-map',
   resolve: {
     extensions: ['.js', '.json', '.wasm', ".coffee", ".node"],
