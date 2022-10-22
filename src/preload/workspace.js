@@ -2182,7 +2182,7 @@ module.exports = class Workspace extends Model {
   //
   // Returns a {Promise}.
   replace(regex, replacementText, filePaths, iterator) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       let buffer;
       const openPaths = this.project
         .getBuffers()

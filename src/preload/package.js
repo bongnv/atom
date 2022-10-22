@@ -594,15 +594,6 @@ module.exports = class Package {
     if (this.grammarsLoaded) return Promise.resolve();
 
     const loadGrammar = (grammarPath, callback) => {
-      if (grammarPath.endsWith('.cson')) {
-        console.warn(
-          'CSON is deprecated. Please use json format.',
-          grammarPath
-        );
-        callback();
-        return;
-      }
-
       return this.grammarRegistry.readGrammar(grammarPath, (error, grammar) => {
         if (error) {
           const detail = `${error.message} in ${grammarPath}`;
@@ -625,7 +616,7 @@ module.exports = class Package {
       const grammarsDirPath = path.join(this.path, 'grammars');
       fs.exists(grammarsDirPath, (grammarsDirExists) => {
         if (!grammarsDirExists) return resolve();
-        fs.list(grammarsDirPath, ['json', 'cson'], (error, grammarPaths) => {
+        fs.list(grammarsDirPath, ['json'], (error, grammarPaths) => {
           if (error || !grammarPaths) return resolve();
           asyncEach(grammarPaths, loadGrammar, () => resolve());
         });

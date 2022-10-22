@@ -123,8 +123,8 @@ module.exports =
     pack?.metadata.version
 
   getPackageVersionShippedWithAtom: (packageName) ->
-    # webpackIgnore: true
-    require(path.join(atom.getLoadSettings().resourcePath, 'package.json')).packageDependencies[packageName]
+    # eslint no-undef: false
+    __non_webpack_require__(path.join(atom.getLoadSettings().resourcePath, 'package.json')).packageDependencies[packageName]
 
   getLatestPackageData: (packageName) ->
     githubHeaders = new Headers({
