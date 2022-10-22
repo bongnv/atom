@@ -140,7 +140,7 @@
     "scrollbar-style": "^4.0.1",
     "semver": "7.3.2",
     "service-hub": "^0.7.4",
-    "settings-view": "github:bongnv/settings-view#134cfb35035ba56a6bdb137f5cada8e513bb4abd",
+    "settings-view": "file:packages/settings-view",
     "sinon": "9.2.1",
     "snippets": "file:packages/snippets",
     "solarized-dark-syntax": "file:packages/solarized-dark-syntax",
