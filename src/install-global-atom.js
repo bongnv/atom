@@ -1,6 +1,6 @@
 let installed = false;
 
-install = () => {
+const install = () => {
   if (installed) {
     return;
   }

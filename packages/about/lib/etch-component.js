@@ -9,7 +9,6 @@ module.exports = class EtchComponent {
     this.props = props;
 
     etch.initialize(this);
-    EtchComponent.setScheduler(atom.views);
   }
 
   /*
@@ -19,15 +18,6 @@ module.exports = class EtchComponent {
   */
   static getScheduler() {
     return etch.getScheduler();
-  }
-
-  /*
-    Public: Sets the scheduler Etch uses for coordinating DOM updates.
-
-    * `scheduler` {Scheduler}
-  */
-  static setScheduler(scheduler) {
-    etch.setScheduler(scheduler);
   }
 
   /*

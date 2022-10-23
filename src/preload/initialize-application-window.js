@@ -1,3 +1,5 @@
+const etch = require('etch');
+
 const AtomEnvironment = require('./atom-environment');
 const ApplicationDelegate = require('./application-delegate');
 const Clipboard = require('./clipboard');
@@ -13,7 +15,7 @@ global.atom = new AtomEnvironment({
   enablePersistence: true,
 });
 
-TextEditor.setScheduler(global.atom.views);
+etch.setScheduler(global.atom.views);
 
 // Like sands through the hourglass, so are the days of our lives.
 module.exports = function ({ blobStore }) {

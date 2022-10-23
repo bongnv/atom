@@ -76,13 +76,6 @@ module.exports = class TextEditor {
     this.clipboard = clipboard;
   }
 
-  static setScheduler(scheduler) {
-    if (TextEditorComponent == null) {
-      TextEditorComponent = require('./text-editor-component');
-    }
-    return TextEditorComponent.setScheduler(scheduler);
-  }
-
   static didUpdateStyles() {
     if (TextEditorComponent == null) {
       TextEditorComponent = require('./text-editor-component');
@@ -3441,7 +3434,7 @@ module.exports = class TextEditor {
     const positions = {};
     for (let cursor of this.getCursors()) {
       const position = cursor.getBufferPosition().toString();
-      if (positions.hasOwnProperty(position)) {
+      if (!positions[position]) {
         cursor.destroy();
       } else {
         positions[position] = true;

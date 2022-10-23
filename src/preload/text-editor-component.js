@@ -1,11 +1,9 @@
-/* global ResizeObserver */
-
 const etch = require('etch');
 const { Point, Range } = require('text-buffer');
 const LineTopIndex = require('line-top-index');
-const TextEditor = require('./text-editor');
 const electron = require('electron');
 
+const TextEditor = require('./text-editor');
 const { isPairedCharacter } = require('./text-utils');
 
 const clipboard = electron.clipboard;
@@ -29,10 +27,6 @@ function scaleMouseDragAutoscrollDelta(delta) {
 }
 
 module.exports = class TextEditorComponent {
-  static setScheduler(scheduler) {
-    etch.setScheduler(scheduler);
-  }
-
   static getScheduler() {
     return etch.getScheduler();
   }
@@ -1880,7 +1874,7 @@ module.exports = class TextEditorComponent {
     this.lastKeydown = event;
   }
 
-  didKeypress(event) {
+  didKeypress() {
     this.lastKeydownBeforeKeypress = this.lastKeydown;
 
     // This cancels the accented character behavior if we type a key normally
