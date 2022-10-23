@@ -45,19 +45,7 @@ function setupWindow() {
   });
 }
 
-function profileStartup(initialTime) {
-  function profile() {
-    console.profile('startup');
-    const startTime = Date.now();
-    setupWindow().then(function () {
-      setLoadTime(Date.now() - startTime + initialTime);
-      console.profileEnd('startup');
-      console.log(
-        'Switch to the Profiles tab to view the created startup profile'
-      );
-    });
-  }
-
+function openWithDevTools(profile) {
   const webContents = electron.remote.getCurrentWindow().webContents;
   if (webContents.devToolsWebContents) {
     profile();
@@ -69,47 +57,21 @@ function profileStartup(initialTime) {
   }
 }
 
-function setupAtomHome() {
-  if (process.env.ATOM_HOME) {
-    return;
-  }
-
-  // Ensure ATOM_HOME is always set before anything else is required
-  // This is because of a difference in Linux not inherited between browser and render processes
-  // https://github.com/atom/atom/issues/5412
-  if (getWindowLoadSettings() && getWindowLoadSettings().atomHome) {
-    process.env.ATOM_HOME = getWindowLoadSettings().atomHome;
-  }
-}
+process.on('unhandledRejection', function (error, promise) {
+  console.error(
+    'Unhandled promise rejection %o with error: %o',
+    promise,
+    error
+  );
+});
 
 global.atomAPI = {
-  load: () => {
-    try {
-      StartupTime.addMarker('window:onload:start');
-      const startTime = Date.now();
-
-      process.on('unhandledRejection', function (error, promise) {
-        console.error(
-          'Unhandled promise rejection %o with error: %o',
-          promise,
-          error
-        );
-      });
-
-      setupAtomHome();
-
-      if (getWindowLoadSettings().profileStartup) {
-        profileStartup(Date.now() - startTime);
-      } else {
-        StartupTime.addMarker('window:setup-window:start');
-        setupWindow().then(() => {
-          StartupTime.addMarker('window:setup-window:end');
-        });
-        setLoadTime(Date.now() - startTime);
-      }
-    } catch (error) {
-      handleSetupError(error);
-    }
-    StartupTime.addMarker('window:onload:end');
-  },
+  setupWindow,
+  handleSetupError,
+  setLoadTime,
+  addTimeMarker: (label) => StartupTime.addMarker(label),
+  config: () => ({
+    profileStartup: getWindowLoadSettings().profileStartup,
+  }),
+  openWithDevTools,
 };

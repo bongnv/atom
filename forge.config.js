@@ -54,7 +54,7 @@ module.exports = {
     generateAssets: () => asyncOra('Compiling code', () => new Promise((resolve, reject) => {
       compiler.run((err, stats) => {
         if (err || stats.hasErrors()) {
-          reject(err || stats);
+          reject(err || stats.toString());
           return;
         }
         resolve();

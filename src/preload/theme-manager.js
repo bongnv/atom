@@ -1,5 +1,3 @@
-/* global snapshotAuxiliaryData */
-
 const path = require('path');
 const _ = require('underscore-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
@@ -37,7 +35,7 @@ module.exports = class ThemeManager {
     });
   }
 
-  initialize({ configDirPath, devMode }) {
+  initialize({ configDirPath }) {
     this.configDirPath = configDirPath;
     this.lessSourcesByRelativeFilePath = null;
     this.lessSourcesByRelativeFilePath = {};

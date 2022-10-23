@@ -17,7 +17,6 @@ const net = require('net');
 const url = require('url');
 const { promisify } = require('util');
 const { EventEmitter } = require('events');
-const _ = require('underscore-plus');
 
 const atomConfig = require('../shared/config');
 const { getEnvFromShell } = require('./get-env-from-shell');
@@ -1586,7 +1585,7 @@ class WindowStack {
 
   getLastFocusedWindow(predicate) {
     if (predicate == null) {
-      predicate = (win) => true;
+      predicate = () => true;
     }
     return this.windows.find(predicate);
   }
