@@ -46,7 +46,6 @@
     "deprecation-cop": "file:packages/deprecation-cop",
     "dev-live-reload": "file:packages/dev-live-reload",
     "devtron": "1.4.0",
-    "document-register-element": "^1.14.10",
     "electron-squirrel-startup": "^1.0.0",
     "encoding-selector": "github:atom/encoding-selector#v0.23.9",
     "etch": "0.14.1",
@@ -264,7 +263,7 @@
     "build:apm": "cd apm && npm install",
     "test": "node script/test.js",
     "start": "NODE_ENV=development DEV_APM_ROOT=\"./apm/node_modules/atom-package-manager\" electron-forge start --enable-logging -- --dev",
-    "lint": "eslint --fix src packages",
+    "lint": "eslint --fix --ext .js,.coffee src/ packages/",
     "package": "electron-forge package",
     "prettier": "prettier --write .",
     "make": "electron-forge make"

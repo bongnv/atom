@@ -18,7 +18,6 @@ TextEditor.setScheduler(global.atom.views);
 // Like sands through the hourglass, so are the days of our lives.
 module.exports = function ({ blobStore }) {
   const { updateProcessEnv } = require('./update-process-env');
-  const path = require('path');
   require('./window');
   const getWindowLoadSettings = require('./get-window-load-settings');
   const { ipcRenderer } = require('electron');
