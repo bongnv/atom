@@ -34,7 +34,7 @@ module.exports = {
       ruleStack: null,
     };
   },
-  onDidUpdate(callback) {
+  onDidUpdate() {
     return new Disposable(noop);
   },
 };

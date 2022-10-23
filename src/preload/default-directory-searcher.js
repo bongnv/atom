@@ -57,7 +57,7 @@ module.exports = class DefaultDirectorySearcher {
   // * `directory` {Directory} whose search needs might be supported by this object.
   //
   // Returns a `boolean` indicating whether this object can search this `Directory`.
-  canSearchDirectory(directory) {
+  canSearchDirectory() {
     return true;
   }
 

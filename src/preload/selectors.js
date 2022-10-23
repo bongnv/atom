@@ -13,7 +13,7 @@ function parse(selector) {
     : selector;
 }
 
-const always = (scope) => true;
+const always = () => true;
 
 // Essential: Return a matcher function for a selector.
 //

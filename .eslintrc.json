@@ -9,6 +9,7 @@
   ],
   "env": {
     "browser": true,
+    "es6": true,
     "node": true
   },
   "parser": "babel-eslint",
@@ -23,12 +24,7 @@
     "ROOT_DIR": "readonly",
     "PRELOAD_WEBPACK_ENTRY": "readonly",
     "TASK_WEBPACK_DIR": "readonly",
-    "WINDOW_WEBPACK_ENTRY": "readonly",
-    "Promise": true,
-    "WeakMap": true,
-    "Map": true,
-    "Symbol": true,
-    "Set": true
+    "WINDOW_WEBPACK_ENTRY": "readonly"
   },
   "rules": {
     "standard/no-callback-literal": [
@@ -63,6 +59,21 @@
         "fakeSetInterval": true,
         "waitsForPromise": true
       }
+    },
+    {
+      "files": [
+        "*.ts",
+        "*.tsx"
+      ],
+      "extends": [
+        "eslint:recommended",
+        "plugin:prettier/recommended",
+        "plugin:@typescript-eslint/recommended"
+      ],
+      "parser": "@typescript-eslint/parser",
+      "plugins": [
+        "@typescript-eslint"
+      ]
     }
   ]
 }
