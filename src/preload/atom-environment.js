@@ -1681,7 +1681,7 @@ or use Pane::saveItemAs for programmatic saving.`);
   }
 
   resolveProxy(url) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const requestId = this.nextProxyRequestId++;
       const disposable = this.applicationDelegate.onDidResolveProxy(
         (id, proxy) => {

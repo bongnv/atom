@@ -13,7 +13,6 @@ require('../install-global-atom');
 
 const path = require('path');
 const getWindowLoadSettings = require('./get-window-load-settings');
-let blobStore = null;
 
 function setLoadTime(loadTime) {
   if (global.atom) {
@@ -34,6 +33,11 @@ function setupWindow() {
   const initialize = require('./initialize-application-window');
 
   StartupTime.addMarker('window:initialize:start');
+
+  const FileSystemBlobStore = require('./file-system-blob-store');
+  const blobStore = FileSystemBlobStore.load(
+    path.join(process.env.ATOM_HOME, 'blob-store')
+  );
 
   return initialize({ blobStore: blobStore }).then(function () {
     StartupTime.addMarker('window:initialize:end');
@@ -78,37 +82,34 @@ function setupAtomHome() {
   }
 }
 
-window.onload = function () {
-  try {
-    StartupTime.addMarker('window:onload:start');
-    const startTime = Date.now();
+global.atomAPI = {
+  load: () => {
+    try {
+      StartupTime.addMarker('window:onload:start');
+      const startTime = Date.now();
 
-    process.on('unhandledRejection', function (error, promise) {
-      console.error(
-        'Unhandled promise rejection %o with error: %o',
-        promise,
-        error
-      );
-    });
-
-    setupAtomHome();
-
-    const FileSystemBlobStore = require('./file-system-blob-store');
-    blobStore = FileSystemBlobStore.load(
-      path.join(process.env.ATOM_HOME, 'blob-store')
-    );
-
-    if (getWindowLoadSettings().profileStartup) {
-      profileStartup(Date.now() - startTime);
-    } else {
-      StartupTime.addMarker('window:setup-window:start');
-      setupWindow().then(() => {
-        StartupTime.addMarker('window:setup-window:end');
+      process.on('unhandledRejection', function (error, promise) {
+        console.error(
+          'Unhandled promise rejection %o with error: %o',
+          promise,
+          error
+        );
       });
-      setLoadTime(Date.now() - startTime);
+
+      setupAtomHome();
+
+      if (getWindowLoadSettings().profileStartup) {
+        profileStartup(Date.now() - startTime);
+      } else {
+        StartupTime.addMarker('window:setup-window:start');
+        setupWindow().then(() => {
+          StartupTime.addMarker('window:setup-window:end');
+        });
+        setLoadTime(Date.now() - startTime);
+      }
+    } catch (error) {
+      handleSetupError(error);
     }
-  } catch (error) {
-    handleSetupError(error);
-  }
-  StartupTime.addMarker('window:onload:end');
+    StartupTime.addMarker('window:onload:end');
+  },
 };

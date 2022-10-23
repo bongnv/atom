@@ -23,6 +23,7 @@
     "ROOT_DIR": "readonly",
     "PRELOAD_WEBPACK_ENTRY": "readonly",
     "TASK_WEBPACK_DIR": "readonly",
+    "WINDOW_WEBPACK_ENTRY": "readonly",
     "Promise": true,
     "WeakMap": true,
     "Map": true,
