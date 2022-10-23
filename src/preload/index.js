@@ -34,12 +34,7 @@ function setupWindow() {
 
   StartupTime.addMarker('window:initialize:start');
 
-  const FileSystemBlobStore = require('./file-system-blob-store');
-  const blobStore = FileSystemBlobStore.load(
-    path.join(process.env.ATOM_HOME, 'blob-store')
-  );
-
-  return initialize({ blobStore: blobStore }).then(function () {
+  return initialize().then(function () {
     StartupTime.addMarker('window:initialize:end');
     electron.ipcRenderer.send('window-command', 'window:loaded');
   });

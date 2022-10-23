@@ -18,7 +18,7 @@ global.atom = new AtomEnvironment({
 etch.setScheduler(global.atom.views);
 
 // Like sands through the hourglass, so are the days of our lives.
-module.exports = function ({ blobStore }) {
+module.exports = function () {
   const { updateProcessEnv } = require('./update-process-env');
   require('./window');
   const getWindowLoadSettings = require('./get-window-load-settings');
@@ -34,7 +34,6 @@ module.exports = function ({ blobStore }) {
   global.atom.initialize({
     window,
     document,
-    blobStore,
     configDirPath: process.env.ATOM_HOME,
     env: process.env,
   });

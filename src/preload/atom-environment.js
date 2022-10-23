@@ -231,7 +231,6 @@ class AtomEnvironment {
 
     this.window = params.window;
     this.document = params.document;
-    this.blobStore = params.blobStore;
     this.configDirPath = params.configDirPath;
 
     const { devMode, userSettings, projectSpecification } =
@@ -1060,13 +1059,6 @@ class AtomEnvironment {
     if (!this.project) return;
 
     this.storeWindowBackground();
-    this.saveBlobStoreSync();
-  }
-
-  saveBlobStoreSync() {
-    if (this.enablePersistence) {
-      this.blobStore.save();
-    }
   }
 
   openInitialEmptyEditorIfNecessary() {
