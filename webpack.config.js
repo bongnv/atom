@@ -11,7 +11,7 @@ const commonConfig = {
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'source-map' : 'inline-source-map',
   resolve: {
-    extensions: ['.js', '.json', '.wasm', ".coffee", ".node"],
+    extensions: ['.js', '.json', '.wasm', ".coffee", ".node", '.ts', '.tsx'],
   },
   module: {
     parser: {
@@ -150,7 +150,7 @@ module.exports = [
   },
   {
     ...commonConfig,
-    entry: './src/renderer/index.js',
+    entry: './src/renderer/index.ts',
     target: 'electron-renderer',
     externalsPresets: {
       ...commonConfig.externalsPresets,
@@ -193,6 +193,16 @@ module.exports = [
                 "babel-plugin-add-module-exports",
               ],
               sourceType: "unambiguous",
+            },
+          },
+        },
+        {
+          test: /\.tsx?$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'ts-loader',
+            options: {
+              onlyCompileBundledFiles: true,
             },
           },
         },
