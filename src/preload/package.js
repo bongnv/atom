@@ -31,8 +31,7 @@ module.exports = class Package {
 
     this.mainModule = null;
     this.path = params.path;
-    this.metadata =
-      params.metadata || this.packageManager.loadPackageMetadata(this.path);
+    this.metadata = params.metadata;
     this.bundledPackage = params.bundledPackage;
     this.isLocal = params.isLocal;
     this.name =
@@ -165,7 +164,7 @@ module.exports = class Package {
   activate() {
     if (!this.grammarsPromise) this.grammarsPromise = this.loadGrammars();
     if (!this.activationPromise) {
-      this.activationPromise = new Promise((resolve, reject) => {
+      this.activationPromise = new Promise((resolve) => {
         this.resolveActivationPromise = resolve;
         this.measure('activateTime', () => {
           try {
@@ -1048,7 +1047,9 @@ module.exports = class Package {
           }
           traversePath(path.join(modulePath, 'node_modules'));
         }
-      } catch (error) {}
+      } catch (error) {
+        // bongnv - should we ignore this error?
+      }
     };
 
     traversePath(path.join(this.path, 'node_modules'));
@@ -1166,7 +1167,9 @@ module.exports = class Package {
           this.getIncompatibleNativeModulesStorageKey()
         );
         if (arrayAsString) return JSON.parse(arrayAsString);
-      } catch (error1) {}
+      } catch (error) {
+        // bongnv - should we ignore this error?
+      }
     }
 
     const incompatibleNativeModules = [];
@@ -1180,11 +1183,12 @@ module.exports = class Package {
       } catch (error) {
         let version;
         try {
-          ({ version } = webpack(
-            /* webpackIgnore: true */
-            `${nativeModulePath}/package.json`
-          ));
-        } catch (error2) {}
+          ({
+            version,
+          } = require(/* webpackIgnore: true */ `${nativeModulePath}/package.json`));
+        } catch (error) {
+          // bongnv - should we ignore this error?
+        }
         incompatibleNativeModules.push({
           path: nativeModulePath,
           name: path.basename(nativeModulePath),

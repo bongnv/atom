@@ -241,7 +241,7 @@ module.exports = class PackageManager {
   //
   // Returns a {Boolean}.
   isBundledPackage(name) {
-    return this.getPackageDependencies().hasOwnProperty(name);
+    return !!this.getPackageDependencies()[name];
   }
 
   /*
@@ -417,25 +417,23 @@ module.exports = class PackageManager {
       }
     }
 
-    const bundledPackagesDir = path.join(atomConfig.rootDir, 'packages');
-    fs.readdirSync(bundledPackagesDir, { withFileTypes: true })
-      // TODO: bongnv - we may not to check directory here
-      .filter(
-        (dirent) =>
-          dirent.isDirectory() ||
-          (dirent.isSymbolicLink() &&
-            fs.isDirectorySync(path.join(packageDirPath, dirent.name)))
-      )
-      .map((dirent) => dirent.name)
-      .filter((packageName) => !packagesByName.has(packageName))
-      .map((packageName) => {
-        packages.push({
-          name: packageName,
-          path: path.join(atomConfig.rootDir, 'packages', packageName),
-          isBundled: true,
-          isLocal: true,
-        });
+    const packagesContext = require.context(
+      '../../packages',
+      true,
+      /^\.\/[\w\d-]*\/package\.json$/
+    );
+    packagesContext.keys().forEach((packagePath) => {
+      const packageName = packagePath.match(
+        /^\.\/([\w\d-]*)\/package\.json$/
+      )[1];
+      packages.push({
+        name: packageName,
+        path: path.join(atomConfig.rootDir, 'packages', packageName),
+        isBundled: true,
+        isLocal: true,
+        metadata: packagesContext(packagePath),
       });
+    });
 
     for (const packageName in this.packageDependencies) {
       if (!packagesByName.has(packageName)) {
@@ -869,22 +867,22 @@ module.exports = class PackageManager {
   }
 
   loadPackageMetadata(packagePathOrAvailablePackage, ignoreErrors = false) {
-    let isBundled, packageName, packagePath;
+    let packageName, packagePath, metadata;
     if (typeof packagePathOrAvailablePackage === 'object') {
       const availablePackage = packagePathOrAvailablePackage;
       packageName = availablePackage.name;
       packagePath = availablePackage.path;
-      isBundled = availablePackage.isBundled;
+      metadata = availablePackage.metadata;
     } else {
       packagePath = packagePathOrAvailablePackage;
       packageName = path.basename(packagePath);
-      isBundled = this.isBundledPackagePath(packagePath);
     }
 
-    let metadata;
-    const metadataPath = path.join(packagePath, 'package.json');
     try {
-      metadata = JSON.parse(fs.readFileSync(metadataPath));
+      if (!metadata) {
+        const metadataPath = path.join(packagePath, 'package.json');
+        metadata = JSON.parse(fs.readFileSync(metadataPath));
+      }
       this.normalizePackageMetadata(metadata);
     } catch (error) {
       if (!ignoreErrors) {
@@ -921,10 +919,4 @@ module.exports = class PackageManager {
       normalizePackageData(metadata);
     }
   }
-};
-
-const NullVersionRange = {
-  test() {
-    return false;
-  },
 };
