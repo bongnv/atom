@@ -1,0 +1,46 @@
+{
+  "name": "keybinding-resolver",
+  "main": "./lib/main.js",
+  "version": "0.39.1",
+  "description": "Show what commands a keybinding resolves to",
+  "license": "MIT",
+  "repository": "https://github.com/atom/keybinding-resolver",
+  "engines": {
+    "atom": ">=1.17.0"
+  },
+  "deserializers": {
+    "keybinding-resolver/KeyBindingResolverView": "deserializeKeyBindingResolverView"
+  },
+  "dependencies": {
+    "etch": "0.9.0",
+    "fs-plus": "^3.0.0",
+    "temp": "^0.9.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/preset-env": "^7.19.4",
+    "@babel/preset-react": "^7.18.6",
+    "@rollup/plugin-babel": "^6.0.0",
+    "@rollup/plugin-commonjs": "^23.0.0",
+    "rollup": "^3.2.3",
+    "standard": "^10.0.3"
+  },
+  "files": [
+    "dist",
+    "keymaps",
+    "menus",
+    "styles"
+  ],
+  "scripts": {},
+  "standard": {
+    "env": {
+      "atomtest": true,
+      "browser": true,
+      "jasmine": true,
+      "node": true
+    },
+    "globals": [
+      "atom"
+    ]
+  }
+}

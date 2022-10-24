@@ -1,5 +1,4 @@
 const fs = require('fs');
-const childProcess = require('child_process');
 const { ipcRenderer } = require('electron');
 
 const ENVIRONMENT_VARIABLES_TO_PRESERVE = new Set([
@@ -10,12 +9,6 @@ const ENVIRONMENT_VARIABLES_TO_PRESERVE = new Set([
 ]);
 
 const PLATFORMS_KNOWN_TO_WORK = new Set(['darwin', 'linux']);
-
-// Shell command that returns env var=value lines separated by \0s so that
-// newlines are handled properly. Note: need to use %c to inject the \0s
-// to work with some non GNU awks.
-const ENV_COMMAND =
-  'command awk \'BEGIN{for(v in ENVIRON) printf("%s=%s%c", v, ENVIRON[v], 0)}\'';
 
 async function updateProcessEnv(launchEnv) {
   let envToAssign;

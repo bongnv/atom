@@ -1,6 +1,6 @@
 {
   "name": "update-package-dependencies",
-  "main": "./lib/update-package-dependencies",
+  "main": "./lib/main.js",
   "version": "0.13.1",
   "private": true,
   "description": "Runs `apm install` for the current project",

@@ -32,6 +32,10 @@ const commonConfig = {
         test: /\.coffee$/,
         loader: "coffee-loader",
       },
+      {
+        test: /\.pegjs$/,
+        loader: 'pegjs-loader',
+      }
     ],
   },
   externals: [

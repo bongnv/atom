@@ -134,9 +134,7 @@ module.exports = {
   loadBundledSnippets(callback) {
     const bundledSnippetsPath = '<core>';
     const snippetsByPath = {};
-    snippetsByPath[bundledSnippetsPath] = JSON.parse(
-      require('./snippets.json?raw')
-    );
+    snippetsByPath[bundledSnippetsPath] = require('./snippets.json');
     callback(snippetsByPath);
   },
 

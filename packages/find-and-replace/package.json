@@ -1,6 +1,6 @@
 {
   "name": "find-and-replace",
-  "main": "./lib/find",
+  "main": "./lib/main.js",
   "description": "Find and replace within buffers and across the project.",
   "version": "0.220.1",
   "license": "MIT",

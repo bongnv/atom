@@ -1,0 +1,40 @@
+{
+  "name": "bookmarks",
+  "version": "0.47.0-bong.1",
+  "main": "./lib/main.js",
+  "description": "Can mark lines, then jump back to them",
+  "license": "MIT",
+  "repository": "https://github.com/atom/bookmarks",
+  "engines": {
+    "atom": "*"
+  },
+  "dependencies": {
+    "atom-select-list": "^0.7.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^23.0.0",
+    "rollup": "^3.2.3",
+    "standard": "^10.0.3"
+  },
+  "files": [
+    "dist",
+    "keymaps",
+    "styles",
+    "menus"
+  ],
+  "scripts": {},
+  "standard": {
+    "env": [
+      "browser",
+      "node",
+      "atomtest",
+      "jasmine"
+    ],
+    "globals": [
+      "atom"
+    ],
+    "ignore": [
+      "spec/fixtures"
+    ]
+  }
+}
