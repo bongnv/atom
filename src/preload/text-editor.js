@@ -3434,7 +3434,7 @@ module.exports = class TextEditor {
     const positions = {};
     for (let cursor of this.getCursors()) {
       const position = cursor.getBufferPosition().toString();
-      if (!positions[position]) {
+      if (positions[position]) {
         cursor.destroy();
       } else {
         positions[position] = true;
