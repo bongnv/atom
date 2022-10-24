@@ -5,7 +5,6 @@ import CommandPaletteView from './command-palette-view';
 
 class CommandPalettePackage {
   activate() {
-    console.log('activate CommandPalettePackage');
     this.commandPaletteView = new CommandPaletteView();
     this.disposables = new CompositeDisposable();
     this.disposables.add(
