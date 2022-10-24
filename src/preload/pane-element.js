@@ -188,7 +188,7 @@ class PaneElement extends HTMLElement {
     }
   }
 
-  itemRemoved({ item, index, destroyed }) {
+  itemRemoved({ item }) {
     const viewToRemove = this.views.getView(item);
     if (viewToRemove) {
       viewToRemove.remove();

@@ -11,8 +11,8 @@ StartupTime.addMarker('window:start', Date.now());
 
 require('../install-global-atom');
 
-const path = require('path');
 const getWindowLoadSettings = require('./get-window-load-settings');
+const initializeWindow = require('./initialize-application-window');
 
 function setLoadTime() {
   if (global.atom) {
@@ -29,17 +29,6 @@ function handleSetupError(error) {
   console.error(error.stack || error);
 }
 
-function setupWindow() {
-  const initialize = require('./initialize-application-window');
-
-  StartupTime.addMarker('window:initialize:start');
-
-  return initialize().then(function () {
-    StartupTime.addMarker('window:initialize:end');
-    electron.ipcRenderer.send('window-command', 'window:loaded');
-  });
-}
-
 process.on('unhandledRejection', function (error, promise) {
   console.error(
     'Unhandled promise rejection %o with error: %o',
@@ -49,11 +38,13 @@ process.on('unhandledRejection', function (error, promise) {
 });
 
 global.atomAPI = {
-  setupWindow,
   handleSetupError,
   setLoadTime,
+  initializeWindow,
   addTimeMarker: (label) => StartupTime.addMarker(label),
   config: () => ({
     profileStartup: getWindowLoadSettings().profileStartup,
   }),
+  sendWindowCommand: (command) =>
+    electron.ipcRenderer.send('window-command', command),
 };

@@ -5,9 +5,10 @@ declare global {
       config: () => {
         profileStartup: boolean;
       };
-      setupWindow: () => Promise<void>;
+      initializeWindow: () => Promise<void>;
       setLoadTime: () => void;
       handleSetupError: (err: Error) => void;
+      sendWindowCommand: (command: string) => void;
     };
   }
 }
