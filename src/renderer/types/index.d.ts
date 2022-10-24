@@ -5,9 +5,8 @@ declare global {
       config: () => {
         profileStartup: boolean;
       };
-      openWithDevTools: (callback: () => void) => void;
       setupWindow: () => Promise<void>;
-      setLoadTime: (loadTime: number) => void;
+      setLoadTime: () => void;
       handleSetupError: (err: Error) => void;
     };
   }

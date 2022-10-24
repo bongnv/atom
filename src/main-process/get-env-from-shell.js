@@ -8,6 +8,7 @@ const ENV_COMMAND =
 
 let catchedResult;
 
+// FIXME: bongnv - should check if there is any active promise, otherwise, we may run the command twice.
 async function getEnvFromShell() {
   if (catchedResult) {
     return catchedResult;

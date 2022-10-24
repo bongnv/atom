@@ -14,9 +14,9 @@ require('../install-global-atom');
 const path = require('path');
 const getWindowLoadSettings = require('./get-window-load-settings');
 
-function setLoadTime(loadTime) {
+function setLoadTime() {
   if (global.atom) {
-    global.atom.loadTime = loadTime;
+    global.atom.loadTime = Date.now() - StartupTime.exportData().startTime;
   }
 }
 
@@ -40,18 +40,6 @@ function setupWindow() {
   });
 }
 
-function openWithDevTools(profile) {
-  const webContents = electron.remote.getCurrentWindow().webContents;
-  if (webContents.devToolsWebContents) {
-    profile();
-  } else {
-    webContents.once('devtools-opened', () => {
-      setTimeout(profile, 1000);
-    });
-    webContents.openDevTools();
-  }
-}
-
 process.on('unhandledRejection', function (error, promise) {
   console.error(
     'Unhandled promise rejection %o with error: %o',
@@ -68,5 +56,4 @@ global.atomAPI = {
   config: () => ({
     profileStartup: getWindowLoadSettings().profileStartup,
   }),
-  openWithDevTools,
 };

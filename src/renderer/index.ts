@@ -3,22 +3,18 @@ window.onload = function () {
   atomAPI.addTimeMarker('window:onload:start');
   try {
     if (atomAPI.config().profileStartup) {
-      atomAPI.openWithDevTools(() => {
-        console.profile('startup');
-        const startTime = Date.now();
-        atomAPI.setupWindow().then(function () {
-          atomAPI.setLoadTime(Date.now() - startTime);
-          console.profileEnd('startup');
-          console.log(
-            'Switch to the Profiles tab to view the created startup profile'
-          );
-        });
+      console.profile('startup');
+      atomAPI.setupWindow().then(function () {
+        atomAPI.setLoadTime();
+        console.profileEnd('startup');
+        console.log(
+          'Switch to the Profiles tab to view the created startup profile'
+        );
       });
     } else {
-      const startTime = Date.now();
       atomAPI.addTimeMarker('window:setup-window:start');
       atomAPI.setupWindow().then(() => {
-        atomAPI.setLoadTime(Date.now() - startTime);
+        atomAPI.setLoadTime();
         atomAPI.addTimeMarker('window:setup-window:end');
       });
     }
