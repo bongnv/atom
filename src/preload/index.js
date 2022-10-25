@@ -1,3 +1,4 @@
+const startTime = Date.now();
 const electron = require('electron');
 const startupMarkers = electron.remote.getCurrentWindow().startupMarkers;
 const StartupTime = require('../shared/startup-time');
@@ -16,7 +17,7 @@ const initializeWindow = require('./initialize-application-window');
 
 function setLoadTime() {
   if (global.atom) {
-    global.atom.loadTime = Date.now() - StartupTime.exportData().startTime;
+    global.atom.loadTime = Date.now() - startTime;
   }
 }
 

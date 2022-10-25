@@ -91,7 +91,7 @@ class SpellCheckerManager {
 
     addCheckerPath(checkerPath) {
         // Load the given path via require.
-        let checker = require(checkerPath);
+        let checker = require(/* webpackIgnore: true */checkerPath);
 
         // If this a ES6 module, then we need to construct it. We require
         // the coders to export it as `default` since we don't have another
