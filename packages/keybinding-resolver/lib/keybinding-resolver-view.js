@@ -207,36 +207,18 @@ export default class KeyBindingResolverView {
   }
 
   extractBundledKeymap (bundledKeymapPath) {
-    const metadata = require(path.join(atom.getLoadSettings().resourcePath, 'package.json'))
-    const bundledKeymaps = metadata ? metadata._atomKeymaps : {}
-    const keymapName = path.basename(bundledKeymapPath)
+    // FIXME: bongnv - find a better way to extract bundled keymaps
+    const bundledKeymap = require(`../../../keymaps/${keymapName}.json`);
     const extractedKeymapPath = path.join(require('temp').mkdirSync('atom-bundled-keymap-'), keymapName)
     fs.writeFileSync(
       extractedKeymapPath,
-      JSON.stringify(bundledKeymaps[keymapName] || {}, null, 2)
-    )
-    return extractedKeymapPath
-  }
-
-  extractBundledPackageKeymap (keymapRelativePath) {
-    const packageName = keymapRelativePath.split(path.sep)[1]
-    const keymapName = path.basename(keymapRelativePath)
-    const metadata = atom.packages.packagesCache[packageName] || {}
-    const keymaps = metadata.keymaps || {}
-    const extractedKeymapPath = path.join(require('temp').mkdirSync('atom-bundled-keymap-'), keymapName)
-    fs.writeFileSync(
-      extractedKeymapPath,
-      JSON.stringify(keymaps[keymapRelativePath] || {}, null, 2)
+      JSON.stringify(bundledKeymap || {}, null, 2)
     )
     return extractedKeymapPath
   }
 
   openKeybindingFile (keymapPath) {
-    if (this.isInAsarArchive(keymapPath)) {
-      keymapPath = this.extractBundledKeymap(keymapPath)
-    } else if (keymapPath.startsWith('core:node_modules')) {
-      keymapPath = this.extractBundledPackageKeymap(keymapPath.replace('core:', ''))
-    } else if (keymapPath.startsWith('core:')) {
+    if (keymapPath.startsWith('core:')) {
       keymapPath = this.extractBundledKeymap(keymapPath.replace('core:', ''))
     }
 
