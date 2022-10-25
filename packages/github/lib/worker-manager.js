@@ -141,8 +141,8 @@ export class Worker {
   }
 
   getLoadUrl(operationCountLimit) {
-    const htmlPath = path.join(getPackageRoot(), 'lib', 'renderer.html');
-    const rendererJsPath = path.join(getPackageRoot(), 'lib', 'worker.js');
+    const htmlPath = path.resolve(__dirname, require('./renderer.html?raw'));
+    const rendererJsPath = path.resolve(__dirname, require('./worker.js?raw'));
     const qs = querystring.stringify({
       js: rendererJsPath,
       managerWebContentsId: this.getWebContentsId(),

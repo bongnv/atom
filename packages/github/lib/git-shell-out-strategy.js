@@ -15,7 +15,7 @@ import GitTempDir from './git-temp-dir';
 import AsyncQueue from './async-queue';
 import {incrementCounter} from './reporter-proxy';
 import {
-  getDugitePath, getSharedModulePath, getAtomHelperPath,
+  getDugitePath, getAtomHelperPath,
   extractCoAuthorsAndRawCommitMessage, fileExists, isFileExecutable, isFileSymlink, isBinary,
   normalizeGitHelperPath, toNativePathSep, toGitPathSep, LINE_ENDING_REGEX, CO_AUTHOR_REGEX,
 } from './helpers';
@@ -158,7 +158,6 @@ export default class GitShellOutStrategy {
         await gitTempDir.ensure();
         args.unshift('-c', `gpg.program=${gitTempDir.getGpgWrapperSh()}`);
       }
-
       if (useGitPromptServer) {
         gitPromptServer = new GitPromptServer(gitTempDir);
         await gitPromptServer.start(this.prompt);
@@ -171,7 +170,7 @@ export default class GitShellOutStrategy {
 
         env.ATOM_GITHUB_WORKDIR_PATH = this.workingDir;
         env.ATOM_GITHUB_DUGITE_PATH = getDugitePath();
-        env.ATOM_GITHUB_KEYTAR_STRATEGY_PATH = getSharedModulePath('keytar-strategy');
+        env.ATOM_GITHUB_KEYTAR_STRATEGY_PATH = path.resolve(__dirname, require('./shared/keytar-strategy.js?raw'));
 
         // "ssh" won't respect SSH_ASKPASS unless:
         // (a) it's running without a tty

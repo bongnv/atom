@@ -2,7 +2,6 @@ import util from 'util';
 import {Environment, Network, RecordSource, Store} from 'relay-runtime';
 import moment from 'moment';
 
-const LODASH_ISEQUAL = 'lodash.isequal';
 let isEqual = null;
 
 const relayEnvironmentPerURL = new Map();
@@ -60,7 +59,7 @@ function createFetchQuery(url) {
         if (isEqual === null) {
           // Lazily require lodash.isequal so we can keep it as a dev dependency.
           // Require indirectly to trick electron-link into not following this.
-          isEqual = require(LODASH_ISEQUAL);
+          isEqual = require('lodash.isequal');
         }
 
         return isEqual(expectation.variables, variables);

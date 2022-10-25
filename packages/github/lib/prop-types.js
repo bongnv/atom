@@ -175,17 +175,13 @@ export const UserStorePropType = PropTypes.shape({
 // Require item classes lazily to prevent circular imports
 let lazyItemConstructors = null;
 function createItemTypePropType(required) {
-  return function(props, propName, componentName) {
+  return function (props, propName, componentName) {
     if (lazyItemConstructors === null) {
       lazyItemConstructors = new Set();
-      for (const itemPath of [
-        './items/changed-file-item',
-        './items/commit-preview-item',
-        './items/commit-detail-item',
-        './items/issueish-detail-item',
-      ]) {
-        lazyItemConstructors.add(require(itemPath).default);
-      }
+      lazyItemConstructors.add(require('./items/changed-file-item').default);
+      lazyItemConstructors.add(require('./items/commit-preview-item').default);
+      lazyItemConstructors.add(require('./items/commit-detail-item').default);
+      lazyItemConstructors.add(require('./items/issueish-detail-item').default);
     }
 
     if (props[propName] === undefined || props[propName] === null) {

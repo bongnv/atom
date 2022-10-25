@@ -478,8 +478,7 @@ export default class RootController extends React.Component {
   async installReactDevTools() {
     // Prevent electron-link from attempting to descend into electron-devtools-installer, which is not available
     // when we're bundled in Atom.
-    const devToolsName = 'electron-devtools-installer';
-    const devTools = require(devToolsName);
+    const devTools = require('electron-devtools-installer');
 
     await Promise.all([
       this.installExtension(devTools.REACT_DEVELOPER_TOOLS.id),
@@ -491,11 +490,8 @@ export default class RootController extends React.Component {
   }
 
   async installExtension(id) {
-    const devToolsName = 'electron-devtools-installer';
-    const devTools = require(devToolsName);
-
-    const crossUnzipName = 'cross-unzip';
-    const unzip = require(crossUnzipName);
+    const devTools = require('electron-devtools-installer');
+    const unzip = require('cross-unzip');
 
     const url =
       'https://clients2.google.com/service/update2/crx?' +
