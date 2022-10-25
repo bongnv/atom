@@ -52,6 +52,7 @@ const commonConfig = {
     library: {
       type: 'commonjs2',
     },
+    assetModuleFilename: '[hash][ext]',
   },
   plugins: [
     new webpack.DefinePlugin({

@@ -1,10 +1,11 @@
 const fs = require('fs-plus')
-const {Task} = require('atom')
+const {Task} = require('atom');
+const path = require('path');
 
 module.exports = {
   startTask (callback, metricsReporter) {
     const results = []
-    const taskPath = require.resolve('./load-paths-handler')
+    const taskPath = path.resolve(__dirname, require('./load-paths-handler?raw'));
     const followSymlinks = atom.config.get('core.followSymlinks')
     let ignoredNames = atom.config.get('fuzzy-finder.ignoredNames') || []
     ignoredNames = ignoredNames.concat(atom.config.get('core.ignoredNames') || [])
