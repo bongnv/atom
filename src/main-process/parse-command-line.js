@@ -176,6 +176,5 @@ module.exports = function parseCommandLine(processArgs) {
     profileStartup,
     clearWindowState,
     addToLastWindow,
-    env: process.env,
   };
 };

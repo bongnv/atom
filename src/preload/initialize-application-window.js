@@ -15,15 +15,9 @@ global.atom = new AtomEnvironment({
 
 // Like sands through the hourglass, so are the days of our lives.
 module.exports = function () {
-  const { updateProcessEnv } = require('./update-process-env');
   const getWindowLoadSettings = require('./get-window-load-settings');
   const { ipcRenderer } = require('electron');
   const { devMode } = getWindowLoadSettings();
-
-  // Make React faster
-  if (!devMode && process.env.NODE_ENV == null) {
-    process.env.NODE_ENV = 'production';
-  }
 
   global.atom.initialize({
     window,
@@ -39,7 +33,5 @@ module.exports = function () {
       setTimeout(() => document.querySelector('atom-workspace').focus(), 0);
     };
     window.addEventListener('focus', windowFocused);
-
-    ipcRenderer.on('environment', (event, env) => updateProcessEnv(env));
   });
 };

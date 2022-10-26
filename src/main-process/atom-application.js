@@ -19,7 +19,6 @@ const { promisify } = require('util');
 const { EventEmitter } = require('events');
 
 const atomConfig = require('../shared/config');
-const { getEnvFromShell } = require('./get-env-from-shell');
 const AtomWindow = require('./atom-window');
 const ApplicationMenu = require('./application-menu');
 const AtomProtocolHandler = require('./atom-protocol-handler');
@@ -138,8 +137,6 @@ ipcMain.handle('isDefaultProtocolClient', (_, { protocol, path, args }) => {
 ipcMain.handle('setAsDefaultProtocolClient', (_, { protocol, path, args }) => {
   return app.setAsDefaultProtocolClient(protocol, path, args);
 });
-
-ipcMain.handle('getEnvFromShell', getEnvFromShell);
 
 // The application's singleton class.
 //
@@ -310,7 +307,6 @@ module.exports = class AtomApplication extends EventEmitter {
       clearWindowState,
       addToLastWindow,
       preserveFocus,
-      env,
     } = options;
 
     if (!preserveFocus) {
@@ -331,11 +327,10 @@ module.exports = class AtomApplication extends EventEmitter {
         profileStartup,
         clearWindowState,
         addToLastWindow,
-        env,
       });
     } else if (urlsToOpen && urlsToOpen.length > 0) {
       return Promise.all(
-        urlsToOpen.map((urlToOpen) => this.openUrl({ urlToOpen, devMode, env }))
+        urlsToOpen.map((urlToOpen) => this.openUrl({ urlToOpen, devMode }))
       );
     } else {
       // Always open an editor window if this is the first instance of Atom.
@@ -347,7 +342,6 @@ module.exports = class AtomApplication extends EventEmitter {
         profileStartup,
         clearWindowState,
         addToLastWindow,
-        env,
       });
     }
   }
@@ -1089,7 +1083,6 @@ module.exports = class AtomApplication extends EventEmitter {
     window,
     clearWindowState,
     addToLastWindow,
-    env,
   } = {}) {
     return this.openPaths({
       pathsToOpen: [pathToOpen],
@@ -1100,7 +1093,6 @@ module.exports = class AtomApplication extends EventEmitter {
       window,
       clearWindowState,
       addToLastWindow,
-      env,
     });
   }
 
@@ -1127,9 +1119,7 @@ module.exports = class AtomApplication extends EventEmitter {
     window,
     clearWindowState,
     addToLastWindow,
-    env,
   } = {}) {
-    if (!env) env = process.env;
     if (!pathsToOpen) pathsToOpen = [];
     if (!foldersToOpen) foldersToOpen = [];
 
@@ -1214,7 +1204,6 @@ module.exports = class AtomApplication extends EventEmitter {
       } else {
         openedWindow.focus();
       }
-      openedWindow.replaceEnvironment(env);
     } else {
       if (!windowDimensions)
         windowDimensions = this.getDimensionsForNewWindow();
@@ -1226,7 +1215,6 @@ module.exports = class AtomApplication extends EventEmitter {
         windowDimensions,
         profileStartup,
         clearWindowState,
-        env,
       });
       this.addWindow(openedWindow);
       openedWindow.focus();

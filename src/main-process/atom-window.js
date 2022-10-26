@@ -99,7 +99,10 @@ module.exports = class AtomWindow extends EventEmitter {
 
     this.handleEvents();
 
-    this.loadSettings = Object.assign({}, settings);
+    this.loadSettings = Object.assign(
+      {},
+      settings,
+    );
     this.loadSettings.appVersion = app.getVersion();
     this.loadSettings.appName = getAppName();
     this.loadSettings.atomHome = process.env.ATOM_HOME;
@@ -137,8 +140,6 @@ module.exports = class AtomWindow extends EventEmitter {
         this.loadSettings.shellLoadTime = Date.now() - global.shellStartTime;
       }
     }
-
-    if (!this.loadSettings.env) this.env = this.loadSettings.env;
 
     this.browserWindow.on('window:loaded', () => {
       this.disableZoom();
@@ -319,22 +320,6 @@ module.exports = class AtomWindow extends EventEmitter {
 
     this.projectRoots = Array.from(roots);
     this.projectRoots.sort();
-  }
-
-  replaceEnvironment(env) {
-    const {
-      NODE_ENV,
-      NODE_PATH,
-      ATOM_HOME,
-      ATOM_DISABLE_SHELLING_OUT_FOR_ENVIRONMENT,
-    } = env;
-
-    this.browserWindow.webContents.send('environment', {
-      NODE_ENV,
-      NODE_PATH,
-      ATOM_HOME,
-      ATOM_DISABLE_SHELLING_OUT_FOR_ENVIRONMENT,
-    });
   }
 
   sendMessage(message, detail) {

@@ -16,7 +16,6 @@ const getReleaseChannel = require('../shared/get-release-channel');
 const WindowEventHandler = require('./window-event-handler');
 const StateStore = require('./state-store');
 const registerDefaultCommands = require('./register-default-commands');
-const { updateProcessEnv } = require('./update-process-env');
 const DeserializerManager = require('./deserializer-manager');
 const ViewRegistry = require('./view-registry');
 const NotificationManager = require('./notification-manager');
@@ -63,7 +62,6 @@ class AtomEnvironment {
 
     // Public: A {Clipboard} instance
     this.clipboard = params.clipboard;
-    this.updateProcessEnv = updateProcessEnv;
     this.enablePersistence = params.enablePersistence;
     this.applicationDelegate = params.applicationDelegate;
 
@@ -490,19 +488,6 @@ class AtomEnvironment {
     return this.emitter.on('did-fail-assertion', callback);
   }
 
-  // Extended: Invoke the given callback as soon as the shell environment is
-  // loaded (or immediately if it was already loaded).
-  //
-  // * `callback` {Function} to be called whenever there is an unhandled error
-  whenShellEnvironmentLoaded(callback) {
-    if (this.shellEnvironmentLoaded) {
-      callback();
-      return new Disposable();
-    } else {
-      return this.emitter.once('loaded-shell-environment', callback);
-    }
-  }
-
   /*
   Section: Atom Details
   */
@@ -853,8 +838,6 @@ class AtomEnvironment {
 
     this.unloading = false;
 
-    const updateProcessEnvPromise = this.updateProcessEnvAndTriggerHooks();
-
     const loadStatePromise = this.loadState().then(async (state) => {
       this.windowDimensions = state && state.windowDimensions;
       if (!this.getLoadSettings().headless) {
@@ -1014,7 +997,6 @@ class AtomEnvironment {
     const output = await Promise.all([
       loadStatePromise,
       loadHistoryPromise,
-      updateProcessEnvPromise,
     ]);
 
     StartupTime.addMarker('window:environment:start-editor-window:end');
@@ -1126,13 +1108,6 @@ class AtomEnvironment {
     if (styleElement.textContent.indexOf('scrollbar') >= 0) {
       TextEditor.didUpdateScrollbarStyles();
     }
-  }
-
-  async updateProcessEnvAndTriggerHooks() {
-    await this.updateProcessEnv(this.getLoadSettings().env);
-    this.shellEnvironmentLoaded = true;
-    this.emitter.emit('loaded-shell-environment');
-    this.packages.triggerActivationHook('core:loaded-shell-environment');
   }
 
   /*
@@ -1633,7 +1608,7 @@ or use Pane::saveItemAs for programmatic saving.`);
       } of fileLocationsToOpen) {
         fileOpenPromises.push(
           this.workspace &&
-            this.workspace.open(pathToOpen, { initialLine, initialColumn })
+          this.workspace.open(pathToOpen, { initialLine, initialColumn })
         );
       }
       await Promise.all(fileOpenPromises);
@@ -1696,7 +1671,7 @@ module.exports = AtomEnvironment;
 /* eslint-disable */
 
 // Preserve this deprecation until 2.0. Sorry. Should have removed Q sooner.
-Promise.prototype.done = function(callback) {
+Promise.prototype.done = function (callback) {
   deprecate('Atom now uses ES6 Promises instead of Q. Call promise.then instead of promise.done')
   return this.then(callback)
 }

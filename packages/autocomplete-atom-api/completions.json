@@ -433,14 +433,6 @@
       "description": "Toggle the full screen state of the current window. ",
       "descriptionMoreURL": "https://atom.io/docs/api/latest/AtomEnvironment#instance-toggleFullScreen",
       "type": "method"
-    },
-    {
-      "name": "whenShellEnvironmentLoaded",
-      "text": null,
-      "snippet": "whenShellEnvironmentLoaded(${1:callback})",
-      "description": "Invoke the given callback as soon as the shell environment is\nloaded (or immediately if it was already loaded).",
-      "descriptionMoreURL": "https://atom.io/docs/api/latest/AtomEnvironment#instance-whenShellEnvironmentLoaded",
-      "type": "method"
     }
   ],
   "BufferedNodeProcess": [
