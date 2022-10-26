@@ -1,3 +1,6 @@
+import initializeWindow from './initialize-window';
+import './initialize-window-functions';
+
 window.onload = function () {
   const { atomAPI } = window;
   atomAPI.addTimeMarker('window:onload:start');
@@ -5,7 +8,7 @@ window.onload = function () {
     if (atomAPI.config().profileStartup) {
       console.profile('startup');
       atomAPI.addTimeMarker('window:initialize:start');
-      atomAPI.initializeWindow().then(function () {
+      initializeWindow().then(function () {
         atomAPI.sendWindowCommand('window:loaded');
         atomAPI.setLoadTime();
         atomAPI.addTimeMarker('window:initialize:end');
@@ -16,7 +19,7 @@ window.onload = function () {
       });
     } else {
       atomAPI.addTimeMarker('window:initialize:start');
-      atomAPI.initializeWindow().then(() => {
+      initializeWindow().then(() => {
         atomAPI.sendWindowCommand('window:loaded');
         atomAPI.setLoadTime();
         atomAPI.addTimeMarker('window:initialize:end');

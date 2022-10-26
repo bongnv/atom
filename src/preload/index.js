@@ -11,9 +11,10 @@ if (startupMarkers) {
 StartupTime.addMarker('window:start', Date.now());
 
 require('../install-global-atom');
+require('./electron-shims');
 
 const getWindowLoadSettings = require('./get-window-load-settings');
-const initializeWindow = require('./initialize-application-window');
+const initializePreload = require('./initialize-application-window');
 
 function setLoadTime() {
   if (global.atom) {
@@ -41,11 +42,12 @@ process.on('unhandledRejection', function (error, promise) {
 global.atomAPI = {
   handleSetupError,
   setLoadTime,
-  initializeWindow,
+  initializePreload,
   addTimeMarker: (label) => StartupTime.addMarker(label),
   config: () => ({
     profileStartup: getWindowLoadSettings().profileStartup,
   }),
   sendWindowCommand: (command) =>
     electron.ipcRenderer.send('window-command', command),
+  getViews: () => global.atom.views,
 };

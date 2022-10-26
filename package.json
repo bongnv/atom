@@ -264,6 +264,7 @@
     "test": "node script/test.js",
     "start": "NODE_ENV=development DEV_APM_ROOT=\"./apm/node_modules/atom-package-manager\" electron-forge start --enable-logging -- --dev",
     "lint": "eslint --fix --ext .js,.ts src/ packages/",
+    "lint:src": "eslint --fix --ext .js,.ts src/",
     "package": "electron-forge package",
     "prettier": "prettier --write .",
     "make": "electron-forge make"

@@ -153,7 +153,7 @@ class RecoveryFile {
 }
 
 async function tryStatFile(path) {
-  return new Promise((resolve, reject) =>
+  return new Promise((resolve) =>
     fs.stat(path, (error, result) => resolve(error == null && result))
   );
 }

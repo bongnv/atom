@@ -5,10 +5,10 @@
 // fn - A {Function} to measure the duration of.
 //
 // Returns the value returned by the given function.
-window.measure = function (description, fn) {
-  let start = Date.now();
-  let value = fn();
-  let result = Date.now() - start;
+window.measure = function (description: string, fn: () => void) {
+  const start = Date.now();
+  const value = fn();
+  const result = Date.now() - start;
   console.log(description, result);
   return value;
 };
@@ -20,11 +20,13 @@ window.measure = function (description, fn) {
 // fn - A {Function} to profile.
 //
 // Returns the value returned by the given function.
-window.profile = function (description, fn) {
+window.profile = function (description: string, fn: () => void) {
   window.measure(description, function () {
     console.profile(description);
-    let value = fn();
+    const value = fn();
     console.profileEnd(description);
     return value;
   });
 };
+
+export default {};

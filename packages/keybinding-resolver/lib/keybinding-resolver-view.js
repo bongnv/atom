@@ -201,15 +201,10 @@ export default class KeyBindingResolverView {
     }
   }
 
-  isInAsarArchive (pathToCheck) {
-    const {resourcePath} = atom.getLoadSettings()
-    return pathToCheck.startsWith(`${resourcePath}${path.sep}`) && path.extname(resourcePath) === '.asar'
-  }
-
-  extractBundledKeymap (bundledKeymapPath) {
+  extractBundledKeymap (keymapName) {
     // FIXME: bongnv - find a better way to extract bundled keymaps
     const bundledKeymap = require(`../../../keymaps/${keymapName}.json`);
-    const extractedKeymapPath = path.join(require('temp').mkdirSync('atom-bundled-keymap-'), keymapName)
+    const extractedKeymapPath = path.join(require('temp').mkdirSync('atom-bundled-keymap-'), `${keymapName}.json`);
     fs.writeFileSync(
       extractedKeymapPath,
       JSON.stringify(bundledKeymap || {}, null, 2)

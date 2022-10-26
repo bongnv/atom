@@ -1,5 +1,3 @@
-const etch = require('etch');
-
 const AtomEnvironment = require('./atom-environment');
 const ApplicationDelegate = require('./application-delegate');
 const Clipboard = require('./clipboard');
@@ -15,16 +13,12 @@ global.atom = new AtomEnvironment({
   enablePersistence: true,
 });
 
-etch.setScheduler(global.atom.views);
-
 // Like sands through the hourglass, so are the days of our lives.
 module.exports = function () {
   const { updateProcessEnv } = require('./update-process-env');
-  require('./window');
   const getWindowLoadSettings = require('./get-window-load-settings');
   const { ipcRenderer } = require('electron');
   const { devMode } = getWindowLoadSettings();
-  require('./electron-shims');
 
   // Make React faster
   if (!devMode && process.env.NODE_ENV == null) {
