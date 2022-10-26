@@ -211,7 +211,9 @@ module.exports = class BufferedProcess {
 
         try {
           process.kill(pid);
-        } catch (error) {}
+        } catch (error) {
+          // ignore the error
+        }
       }
 
       this.killProcess();

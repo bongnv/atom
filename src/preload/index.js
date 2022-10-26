@@ -14,7 +14,6 @@ require('../install-global-atom');
 require('./electron-shims');
 
 const getWindowLoadSettings = require('./get-window-load-settings');
-const initializePreload = require('./initialize-application-window');
 
 function setLoadTime() {
   if (global.atom) {
@@ -39,10 +38,36 @@ process.on('unhandledRejection', function (error, promise) {
   );
 });
 
+function initializeAtomEnv() {
+  const AtomEnvironment = require('./atom-environment');
+  const ApplicationDelegate = require('./application-delegate');
+  const Clipboard = require('./clipboard');
+  const TextEditor = require('./text-editor');
+
+  const clipboard = new Clipboard();
+  TextEditor.setClipboard(clipboard);
+  TextEditor.viewForItem = (item) => atom.views.getView(item);
+
+  const atom = new AtomEnvironment({
+    clipboard,
+    applicationDelegate: new ApplicationDelegate(),
+    enablePersistence: true,
+  });
+
+  global.atom = atom;
+
+  return atom.initialize({
+    window,
+    document,
+    configDirPath: process.env.ATOM_HOME,
+    env: process.env,
+  });
+}
+
 global.atomAPI = {
   handleSetupError,
   setLoadTime,
-  initializePreload,
+  initializeAtomEnv,
   addTimeMarker: (label) => StartupTime.addMarker(label),
   config: () => ({
     profileStartup: getWindowLoadSettings().profileStartup,
@@ -50,4 +75,5 @@ global.atomAPI = {
   sendWindowCommand: (command) =>
     electron.ipcRenderer.send('window-command', command),
   getViews: () => global.atom.views,
+  startEditorWindow: () => global.atom.startEditorWindow(),
 };

@@ -994,10 +994,7 @@ class AtomEnvironment {
       this.reopenProjectMenuManager.update();
     });
 
-    const output = await Promise.all([
-      loadStatePromise,
-      loadHistoryPromise,
-    ]);
+    const output = await Promise.all([loadStatePromise, loadHistoryPromise]);
 
     StartupTime.addMarker('window:environment:start-editor-window:end');
 
@@ -1608,7 +1605,7 @@ or use Pane::saveItemAs for programmatic saving.`);
       } of fileLocationsToOpen) {
         fileOpenPromises.push(
           this.workspace &&
-          this.workspace.open(pathToOpen, { initialLine, initialColumn })
+            this.workspace.open(pathToOpen, { initialLine, initialColumn })
         );
       }
       await Promise.all(fileOpenPromises);

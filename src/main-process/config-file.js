@@ -64,7 +64,7 @@ module.exports = class ConfigFile {
     });
   }
 
-  async watch(callback) {
+  async watch() {
     if (!fs.existsSync(this.path)) {
       fs.writeFileSync(this.path, JSON.stringify({}), { flag: 'wx' });
     }

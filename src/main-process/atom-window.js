@@ -99,10 +99,7 @@ module.exports = class AtomWindow extends EventEmitter {
 
     this.handleEvents();
 
-    this.loadSettings = Object.assign(
-      {},
-      settings,
-    );
+    this.loadSettings = Object.assign({}, settings);
     this.loadSettings.appVersion = app.getVersion();
     this.loadSettings.appName = getAppName();
     this.loadSettings.atomHome = process.env.ATOM_HOME;
