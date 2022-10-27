@@ -1,4 +1,5 @@
 require('../install-global-atom');
+const url = require('url');
 
 const { userAgent } = process.env;
 const [taskPath] = process.argv.slice(2);
@@ -85,4 +86,5 @@ const setupDeprecations = function () {
 setupGlobals();
 handleEvents();
 setupDeprecations();
-const handler = require(/* webpackIgnore: true */ taskPath);
+// TODO: bongnv - find a better way to handle url.fileURLToPath conversion
+const handler = require(/* webpackIgnore: true */ url.fileURLToPath(taskPath));

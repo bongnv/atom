@@ -1,5 +1,6 @@
 import path from 'path';
 import querystring from 'querystring';
+import url from 'url';
 
 import {remote, ipcRenderer as ipc} from 'electron';
 const {BrowserWindow} = remote;
@@ -141,15 +142,16 @@ export class Worker {
   }
 
   getLoadUrl(operationCountLimit) {
-    const htmlPath = path.resolve(__dirname, require('./renderer.html?raw'));
-    const rendererJsPath = path.resolve(__dirname, require('./worker.js?raw'));
+    // TODO: bongnv - find a better way to handle url.fileURLToPath conversion
+    const htmlPath = require('./renderer.html?raw');
+    const rendererJsPath = require('./worker.js?raw');
     const qs = querystring.stringify({
-      js: rendererJsPath,
+      js: url.fileURLToPath(rendererJsPath),
       managerWebContentsId: this.getWebContentsId(),
       operationCountLimit,
       channelName: Worker.channelName,
     });
-    return `file://${htmlPath}?${qs}`;
+    return `${htmlPath}?${qs}`;
   }
 
   getWebContentsId() {

@@ -170,7 +170,7 @@ export default class GitShellOutStrategy {
 
         env.ATOM_GITHUB_WORKDIR_PATH = this.workingDir;
         env.ATOM_GITHUB_DUGITE_PATH = getDugitePath();
-        env.ATOM_GITHUB_KEYTAR_STRATEGY_PATH = path.resolve(__dirname, require('./shared/keytar-strategy.js?raw'));
+        env.ATOM_GITHUB_KEYTAR_STRATEGY_PATH = require('./shared/keytar-strategy.js?raw');
 
         // "ssh" won't respect SSH_ASKPASS unless:
         // (a) it's running without a tty

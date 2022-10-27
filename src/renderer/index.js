@@ -12,6 +12,7 @@ StartupTime.addMarker('window:start', Date.now());
 
 require('../install-global-atom');
 require('./electron-shims');
+require('./window');
 
 const getWindowLoadSettings = require('./get-window-load-settings');
 
@@ -38,7 +39,7 @@ process.on('unhandledRejection', function (error, promise) {
   );
 });
 
-function initializeAtomEnv() {
+function initializeWindow() {
   const AtomEnvironment = require('./atom-environment');
   const ApplicationDelegate = require('./application-delegate');
   const Clipboard = require('./clipboard');
@@ -54,25 +55,44 @@ function initializeAtomEnv() {
   });
 
   global.atom = atom;
+  require('etch').setScheduler(atom.views);
 
-  return atom.initialize({
+  atom.initialize({
     window,
     document,
     configDirPath: process.env.ATOM_HOME,
     env: process.env,
   });
+
+  return atom.startEditorWindow();
 }
 
-global.atomAPI = {
-  handleSetupError,
-  setLoadTime,
-  initializeAtomEnv,
-  addTimeMarker: (label) => StartupTime.addMarker(label),
-  config: () => ({
-    profileStartup: getWindowLoadSettings().profileStartup,
-  }),
-  sendWindowCommand: (command) =>
-    electron.ipcRenderer.send('window-command', command),
-  getViews: () => global.atom.views,
-  startEditorWindow: () => global.atom.startEditorWindow(),
+window.onload = function () {
+  const { atomAPI } = window;
+  StartupTime.addMarker('window:onload:start');
+  try {
+    if (getWindowLoadSettings().profileStartup) {
+      console.profile('startup');
+      StartupTime.addMarker('window:initialize:start');
+      initializeWindow().then(function () {
+        electron.ipcRenderer.send('window-command', 'window:loaded');
+        setLoadTime();
+        StartupTime.addMarker('window:initialize:end');
+        console.profileEnd('startup');
+        console.log(
+          'Switch to the Profiles tab to view the created startup profile'
+        );
+      });
+    } else {
+      StartupTime.addMarker('window:initialize:start');
+      initializeWindow().then(() => {
+        electron.ipcRenderer.send('window-command', 'window:loaded');
+        setLoadTime();
+        StartupTime.addMarker('window:initialize:end');
+      });
+    }
+  } catch (error) {
+    handleSetupError(error);
+  }
+  StartupTime.addMarker('window:onload:end');
 };

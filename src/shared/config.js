@@ -1,6 +1,5 @@
 const config = {
-  preloadWebpackEntry: PRELOAD_WEBPACK_ENTRY,
-  taskWebpackDir: TASK_WEBPACK_DIR,
+  taskEntry: TASK_WEBPACK_ENTRY,
   rootDir: ROOT_DIR,
   windowEntry: WINDOW_WEBPACK_ENTRY,
 };

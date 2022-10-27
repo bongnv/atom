@@ -2206,7 +2206,7 @@ module.exports = class Workspace extends Model {
         }
 
         const task = Task.once(
-          path.join(atomConfig.taskWebpackDir, 'replace-handler.js'),
+          require('../task/replace-handler.coffee?raw'),
           outOfProcessPaths,
           regex.source,
           flags,

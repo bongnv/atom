@@ -19,9 +19,7 @@ class DirectorySearch {
       leadingContextLineCount: options.leadingContextLineCount,
       trailingContextLineCount: options.trailingContextLineCount,
     };
-    this.task = new Task(
-      path.join(atomConfig.taskWebpackDir, 'scan-handler.js')
-    );
+    this.task = new Task(require('../task/scan-handler.coffee?raw'));
     this.task.on('scan:result-found', options.didMatch);
     this.task.on('scan:file-error', options.didError);
     this.task.on('scan:paths-searched', options.didSearchPaths);

@@ -2,7 +2,6 @@ _ = require 'underscore-plus'
 ChildProcess = require 'child_process'
 {Emitter} = require 'event-kit'
 Grim = require 'grim'
-path = require 'path'
 
 atomConfig = require '../shared/config'
 
@@ -70,7 +69,7 @@ class Task
     @emitter = new Emitter
 
     env = Object.assign({}, process.env, {userAgent: navigator.userAgent})
-    @childProcess = ChildProcess.fork path.join(atomConfig.taskWebpackDir, 'task-bootstrap.js'), [taskPath], {env, silent: true}
+    @childProcess = ChildProcess.fork atomConfig.taskEntry, [taskPath], {env, silent: true}
 
     @on "task:log", -> console.log(arguments...)
     @on "task:warn", -> console.warn(arguments...)
