@@ -36,17 +36,6 @@ const LocationSuffixRegExp = /(:\d+)(:\d+)?$/;
 // incompatible way.
 const APPLICATION_STATE_VERSION = '1';
 
-const getDefaultPath = () => {
-  const editor = atom.workspace.getActiveTextEditor();
-  if (!editor || !editor.getPath()) {
-    return;
-  }
-  const paths = atom.project.getPaths();
-  if (paths) {
-    return paths[0];
-  }
-};
-
 const getSocketSecretPath = (atomVersion) => {
   const { username } = os.userInfo();
   const atomHome = path.resolve(process.env.ATOM_HOME);
@@ -522,21 +511,6 @@ module.exports = class AtomApplication extends EventEmitter {
           return;
         }
         this.openPaths({ pathsToOpen: paths });
-      });
-
-      this.on('application:open-file', () => {
-        this.promptForPathToOpen(
-          'file',
-          createOpenSettings({ sameWindow: true }),
-          getDefaultPath()
-        );
-      });
-      this.on('application:open-folder', () => {
-        this.promptForPathToOpen(
-          'folder',
-          createOpenSettings({ sameWindow: true }),
-          getDefaultPath()
-        );
       });
 
       this.on('application:bring-all-windows-to-front', () =>
