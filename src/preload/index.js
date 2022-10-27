@@ -51,7 +51,6 @@ function initializeAtomEnv() {
   const atom = new AtomEnvironment({
     clipboard,
     applicationDelegate: new ApplicationDelegate(),
-    enablePersistence: true,
   });
 
   global.atom = atom;

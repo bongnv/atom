@@ -188,7 +188,6 @@ module.exports = class Workspace extends Model {
       this.didChangeActivePaneItemOnPaneContainer.bind(this);
     this.didActivatePaneContainer = this.didActivatePaneContainer.bind(this);
 
-    this.enablePersistence = params.enablePersistence;
     this.packageManager = params.packageManager;
     this.config = params.config;
     this.project = params.project;
@@ -654,7 +653,7 @@ module.exports = class Workspace extends Model {
     for (const paneContainer of this.getPaneContainers()) {
       paneContainer.observePanes((pane) => {
         pane.onDidAddItem(({ item }) => {
-          if (typeof item.getURI === 'function' && this.enablePersistence) {
+          if (typeof item.getURI === 'function') {
             const uri = item.getURI();
             if (uri) {
               const location = paneContainer.getLocation();
@@ -1165,7 +1164,7 @@ module.exports = class Workspace extends Model {
           pane = options.pane;
         } else {
           let location = options.location;
-          if (!location && !options.split && uri && this.enablePersistence) {
+          if (!location && !options.split && uri) {
             location = await this.itemLocationStore.load(uri);
           }
           if (!location && typeof item.getDefaultLocation === 'function') {

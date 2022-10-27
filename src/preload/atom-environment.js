@@ -62,7 +62,6 @@ class AtomEnvironment {
 
     // Public: A {Clipboard} instance
     this.clipboard = params.clipboard;
-    this.enablePersistence = params.enablePersistence;
     this.applicationDelegate = params.applicationDelegate;
 
     this.nextProxyRequestId = 0;
@@ -87,12 +86,10 @@ class AtomEnvironment {
     // Public: A {Config} instance
     this.config = new Config({
       saveCallback: (settings) => {
-        if (this.enablePersistence) {
-          this.applicationDelegate.setUserSettings(
-            settings,
-            this.config.getUserConfigPath()
-          );
-        }
+        this.applicationDelegate.setUserSettings(
+          settings,
+          this.config.getUserConfigPath()
+        );
       },
     });
     this.config.setSchema(null, {
@@ -188,7 +185,6 @@ class AtomEnvironment {
       assert: this.assert.bind(this),
       textEditorRegistry: this.textEditors,
       styleManager: this.styles,
-      enablePersistence: this.enablePersistence,
     });
 
     this.themes.workspace = this.workspace;
@@ -242,8 +238,7 @@ class AtomEnvironment {
     };
 
     this.config.initialize({
-      mainSource:
-        this.enablePersistence && path.join(this.configDirPath, 'config.json'),
+      mainSource: path.join(this.configDirPath, 'config.json'),
       projectHomeSchema: ConfigSchema.projectHome,
     });
     this.config.resetUserSettings(userSettings);
@@ -1345,7 +1340,7 @@ or use Pane::saveItemAs for programmatic saving.`);
   }
 
   async saveState(options, storageKey) {
-    if (this.enablePersistence && this.project) {
+    if (this.project) {
       const state = this.serialize(options);
       if (!storageKey)
         storageKey = this.getStateKey(this.project && this.project.getPaths());
@@ -1358,16 +1353,12 @@ or use Pane::saveItemAs for programmatic saving.`);
   }
 
   loadState(stateKey) {
-    if (this.enablePersistence) {
-      if (!stateKey)
-        stateKey = this.getStateKey(this.getLoadSettings().initialProjectRoots);
-      if (stateKey) {
-        return this.stateStore.load(stateKey);
-      } else {
-        return this.applicationDelegate.getTemporaryWindowState();
-      }
+    if (!stateKey)
+      stateKey = this.getStateKey(this.getLoadSettings().initialProjectRoots);
+    if (stateKey) {
+      return this.stateStore.load(stateKey);
     } else {
-      return Promise.resolve(null);
+      return this.applicationDelegate.getTemporaryWindowState();
     }
   }
 
