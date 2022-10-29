@@ -52,6 +52,7 @@ function initializeWindow() {
   const atom = new AtomEnvironment({
     clipboard,
     applicationDelegate: new ApplicationDelegate(),
+    nodeAPI: window.nodeAPI,
   });
 
   global.atom = atom;

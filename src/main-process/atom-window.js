@@ -10,10 +10,10 @@ const path = require('path');
 const { EventEmitter } = require('events');
 
 const StartupTime = require('../shared/startup-time');
-const atomConfig = require('../shared/path-config');
+const pathConfig = require('../shared/path-config');
 
 // FIXME: bongnv - fix icon path
-const ICON_PATH = path.resolve(atomConfig.rootDir, 'resources', 'atom.png');
+const ICON_PATH = path.resolve(pathConfig.rootDir, 'resources', 'atom.png');
 
 let includeShellLoadTime = true;
 let nextId = 0;
@@ -65,6 +65,8 @@ module.exports = class AtomWindow extends EventEmitter {
         // The default of contextIsolation is changed to true so we'll have to set it to false.
         // See https://github.com/electron/electron/issues/23506 for more information
         contextIsolation: false,
+
+        preload: pathConfig.preloadEntry,
       },
       simpleFullscreen: this.getSimpleFullscreen(),
     };
@@ -151,7 +153,7 @@ module.exports = class AtomWindow extends EventEmitter {
       this.browserWindow.webContents.send('did-leave-full-screen');
     });
 
-    this.browserWindow.loadFile(atomConfig.windowEntry);
+    this.browserWindow.loadFile(pathConfig.windowEntry);
 
     this.browserWindow.showSaveDialog = this.showSaveDialog.bind(this);
 

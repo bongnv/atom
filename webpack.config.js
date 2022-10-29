@@ -59,7 +59,8 @@ const commonConfig = {
     new webpack.DefinePlugin({
       TASK_WEBPACK_ENTRY: `require('path').resolve(__dirname, '../task/main.js')`,
       ROOT_DIR: `require('path').resolve(__dirname, '../..')`,
-      WINDOW_WEBPACK_ENTRY: `require('path').resolve(__dirname, '../renderer/index.html')`
+      WINDOW_WEBPACK_ENTRY: `require('path').resolve(__dirname, '../renderer/index.html')`,
+      PRELOAD_WEBPACK_ENTRY: `require('path').resolve(__dirname, '../preload/main.js')`,
     }),
   ],
   optimization: {
@@ -89,6 +90,17 @@ module.exports = [
     },
     output: {
       path: path.join(webpackDir, 'task'),
+    },
+  }),
+  // preload
+  merge(commonConfig, {
+    entry: './src/preload/main.js',
+    target: 'electron-preload',
+    externalsPresets: {
+      electronPreload: true,
+    },
+    output: {
+      path: path.join(webpackDir, 'preload'),
     },
   }),
   // renderer
@@ -146,6 +158,6 @@ module.exports = [
           { from: "static" },
         ],
       }),
-    ]
+    ],
   }),
 ];

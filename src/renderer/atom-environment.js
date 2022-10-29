@@ -1,12 +1,10 @@
 const crypto = require('crypto');
 const path = require('path');
 const os = require('os');
-const util = require('util');
 const TextBuffer = require('text-buffer');
 const _ = require('underscore-plus');
 const { deprecate } = require('grim');
 const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
-const fs = require('fs-plus');
 
 const StartupTime = require('../shared/startup-time');
 const getReleaseChannel = require('../shared/get-release-channel');
@@ -43,8 +41,6 @@ const Dock = require('./dock');
 const TextEditor = require('./text-editor');
 const TextEditorRegistry = require('./text-editor-registry');
 
-const stat = util.promisify(fs.stat);
-
 // Essential: Atom global for dealing with packages, themes, menus, and the window.
 //
 // An instance of this class is always available as the `atom` global.
@@ -54,6 +50,8 @@ class AtomEnvironment {
   */
 
   constructor(params = {}) {
+    this.nodeAPI = nodeAPI;
+
     // Public: A {Clipboard} instance
     this.clipboard = params.clipboard;
     this.applicationDelegate = params.applicationDelegate;
@@ -909,7 +907,7 @@ class AtomEnvironment {
       );
       this.packages.activate();
       this.keymaps.loadUserKeymap();
-      this.requireUserInitScript();
+      await this.requireUserInitScript();
 
       this.menu.update();
 
@@ -1386,11 +1384,11 @@ or use Pane::saveItemAs for programmatic saving.`);
     return path.join(this.getConfigDirPath(), 'init.js');
   }
 
-  requireUserInitScript() {
+  async requireUserInitScript() {
     const userInitScriptPath = this.getUserInitScriptPath();
     if (userInitScriptPath) {
       try {
-        if (fs.isFileSync(userInitScriptPath))
+        if (await this.nodeAPI.fs.isFile(userInitScriptPath))
           require(/* webpackIgnore: true */ userInitScriptPath);
       } catch (error) {
         this.notifications.addError(
@@ -1448,7 +1446,7 @@ or use Pane::saveItemAs for programmatic saving.`);
     const locationStats = await Promise.all(
       locations.map(async (location) => {
         const stats = location.pathToOpen
-          ? await stat(location.pathToOpen).catch(() => null)
+          ? await this.nodeAPI.fs.stat(location.pathToOpen).catch(() => null)
           : null;
         return { location, stats };
       })
