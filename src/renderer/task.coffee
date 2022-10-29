@@ -3,7 +3,7 @@ ChildProcess = require 'child_process'
 {Emitter} = require 'event-kit'
 Grim = require 'grim'
 
-atomConfig = require '../shared/config'
+atomConfig = require '../shared/path-config'
 
 # Extended: Run a node script in a separate process.
 #

@@ -10,7 +10,7 @@ const path = require('path');
 const { EventEmitter } = require('events');
 
 const StartupTime = require('../shared/startup-time');
-const atomConfig = require('../shared/config');
+const atomConfig = require('../shared/path-config');
 
 // FIXME: bongnv - fix icon path
 const ICON_PATH = path.resolve(atomConfig.rootDir, 'resources', 'atom.png');
@@ -141,10 +141,6 @@ module.exports = class AtomWindow extends EventEmitter {
       this.disableZoom();
       this.emit('window:loaded');
       this.resolveLoadedPromise();
-    });
-
-    this.browserWindow.on('window:locations-opened', () => {
-      this.emit('window:locations-opened');
     });
 
     this.browserWindow.on('enter-full-screen', () => {

@@ -2,7 +2,7 @@ const { protocol } = require('electron');
 const fs = require('fs-plus');
 const path = require('path');
 
-const atomConfig = require('../shared/config');
+const atomConfig = require('../shared/path-config');
 
 // Handles requests with 'atom' protocol.
 //

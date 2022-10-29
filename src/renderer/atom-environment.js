@@ -1,15 +1,13 @@
 const crypto = require('crypto');
 const path = require('path');
+const os = require('os');
 const util = require('util');
-const { ipcRenderer } = require('electron');
 const TextBuffer = require('text-buffer');
 const _ = require('underscore-plus');
 const { deprecate } = require('grim');
 const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
 const fs = require('fs-plus');
-const { mapSourcePosition } = require('@atom/source-map-support');
 
-const ConfigSchema = require('../shared/config-schema');
 const StartupTime = require('../shared/startup-time');
 const getReleaseChannel = require('../shared/get-release-channel');
 
@@ -19,7 +17,7 @@ const registerDefaultCommands = require('./register-default-commands');
 const DeserializerManager = require('./deserializer-manager');
 const ViewRegistry = require('./view-registry');
 const NotificationManager = require('./notification-manager');
-const Config = require('./config');
+const Config = require('../shared/config');
 const KeymapManager = require('./keymap-extensions');
 const TooltipManager = require('./tooltip-manager');
 const CommandRegistry = require('./command-registry');
@@ -47,8 +45,6 @@ const TextEditorRegistry = require('./text-editor-registry');
 
 const stat = util.promisify(fs.stat);
 
-let nextId = 0;
-
 // Essential: Atom global for dealing with packages, themes, menus, and the window.
 //
 // An instance of this class is always available as the `atom` global.
@@ -58,8 +54,6 @@ class AtomEnvironment {
   */
 
   constructor(params = {}) {
-    this.id = params.id != null ? params.id : nextId++;
-
     // Public: A {Clipboard} instance
     this.clipboard = params.clipboard;
     this.applicationDelegate = params.applicationDelegate;
@@ -84,18 +78,7 @@ class AtomEnvironment {
     this.stateStore = new StateStore('AtomEnvironments', 1);
 
     // Public: A {Config} instance
-    this.config = new Config({
-      saveCallback: (settings) => {
-        this.applicationDelegate.setUserSettings(
-          settings,
-          this.config.getUserConfigPath()
-        );
-      },
-    });
-    this.config.setSchema(null, {
-      type: 'object',
-      properties: _.clone(ConfigSchema),
-    });
+    this.config = new Config();
 
     // Public: A {KeymapManager} instance
     this.keymaps = new KeymapManager({
@@ -230,16 +213,15 @@ class AtomEnvironment {
     const { devMode, userSettings, projectSpecification } =
       this.getLoadSettings();
 
-    ConfigSchema.projectHome = {
-      type: 'string',
-      default: path.join(fs.getHomeDirectory(), 'github'),
-      description:
-        'The directory where projects are assumed to be located. Packages created using the Package Generator will be stored here by default.',
-    };
-
     this.config.initialize({
+      saveCallback: (settings) => {
+        this.applicationDelegate.setUserSettings(
+          settings,
+          this.config.getUserConfigPath()
+        );
+      },
       mainSource: path.join(this.configDirPath, 'config.json'),
-      projectHomeSchema: ConfigSchema.projectHome,
+      homeDir: os.homedir(),
     });
     this.config.resetUserSettings(userSettings);
 
@@ -376,43 +358,6 @@ class AtomEnvironment {
       })
     );
     if (this.config.get('core.autoHideMenuBar')) this.setAutoHideMenuBar(true);
-  }
-
-  async reset() {
-    this.deserializers.clear();
-    this.registerDefaultDeserializers();
-
-    this.config.clear();
-    this.config.setSchema(null, {
-      type: 'object',
-      properties: _.clone(ConfigSchema),
-    });
-
-    this.keymaps.clear();
-    this.keymaps.loadBundledKeymaps();
-
-    this.commands.clear();
-    this.registerDefaultCommands();
-
-    this.styles.restoreSnapshot(this.initialStyleElements);
-
-    this.menu.clear();
-
-    this.clipboard.reset();
-
-    this.notifications.clear();
-
-    this.contextMenu.clear();
-
-    await this.packages.reset();
-    this.workspace.reset(this.packages);
-    this.registerDefaultOpeners();
-    this.project.reset(this.packages);
-    this.workspace.initialize();
-    this.grammars.clear();
-    this.textEditors.clear();
-    this.views.clear();
-    this.pathsWithWaitSessions.clear();
   }
 
   destroy() {
@@ -1046,11 +991,6 @@ class AtomEnvironment {
   installUncaughtErrorHandler() {
     this.previousWindowErrorHandler = this.window.onerror;
     this.window.onerror = (message, url, line, column, originalError) => {
-      const mapping = mapSourcePosition({ source: url, line, column });
-      line = mapping.line;
-      column = mapping.column;
-      if (url === '<embedded>') url = mapping.source;
-
       const eventObject = { message, url, line, column, originalError };
 
       let openDevTools = true;
@@ -1631,8 +1571,6 @@ or use Pane::saveItemAs for programmatic saving.`);
 
       this.notifications.addWarning(message, { description });
     }
-
-    ipcRenderer.send('window-command', 'window:locations-opened');
   }
 
   resolveProxy(url) {
@@ -1655,13 +1593,3 @@ or use Pane::saveItemAs for programmatic saving.`);
 AtomEnvironment.version = 1;
 AtomEnvironment.prototype.saveStateDebounceInterval = 1000;
 module.exports = AtomEnvironment;
-
-/* eslint-disable */
-
-// Preserve this deprecation until 2.0. Sorry. Should have removed Q sooner.
-Promise.prototype.done = function (callback) {
-  deprecate('Atom now uses ES6 Promises instead of Q. Call promise.then instead of promise.done')
-  return this.then(callback)
-}
-
-/* eslint-enable */

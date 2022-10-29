@@ -1,6 +1,6 @@
 const path = require('path');
 
-const atomConfig = require('../shared/config');
+const atomConfig = require('../shared/path-config');
 const Task = require('./task');
 
 // Searches local files for lines matching a specified regex. Implements `.then()`

@@ -18,12 +18,12 @@ const url = require('url');
 const { promisify } = require('util');
 const { EventEmitter } = require('events');
 
-const atomConfig = require('../shared/config');
+const atomConfig = require('../shared/path-config');
+const Config = require('../shared/config');
 const AtomWindow = require('./atom-window');
 const ApplicationMenu = require('./application-menu');
 const AtomProtocolHandler = require('./atom-protocol-handler');
 const StorageFolder = require('./storage-folder');
-const Config = require('./config');
 const ConfigFile = require('./config-file');
 const FileRecoveryService = require('./file-recovery-service');
 const StartupTime = require('../shared/startup-time');
@@ -192,8 +192,8 @@ module.exports = class AtomApplication extends EventEmitter {
 
     this.initializeAtomHome(process.env.ATOM_HOME);
 
-    this.config = Config.getConfig();
-    this.configFile = this.config.configFile;
+    this.config = new Config();
+    this.configFile = ConfigFile.at(path.join(process.env.ATOM_HOME, 'config.json'));
 
     this.fileRecoveryService = new FileRecoveryService(
       path.join(process.env.ATOM_HOME, 'recovery')
@@ -211,6 +211,20 @@ module.exports = class AtomApplication extends EventEmitter {
   // perform during their construction, adding an initialize method that you call here.
   async initialize(options) {
     StartupTime.addMarker('main-process:atom-application:initialize:start');
+
+    this.config.initialize({
+      saveCallback: (settings) => {
+        if (!this.quitting) {
+          return this.configFile.update(settings);
+        }
+      },
+      mainSource: path.join(process.env.ATOM_HOME, 'config.json'),
+      homeDir: os.homedir(),
+    });
+
+    this.configFile.onDidChange((settings) => {
+      this.config.resetUserSettings(settings);
+    });
 
     global.atomApplication = this;
 
@@ -1249,8 +1263,7 @@ module.exports = class AtomApplication extends EventEmitter {
     } catch (error) {
       if (error.code !== 'ESRCH') {
         console.log(
-          `Killing process ${pid} failed: ${
-            error.code != null ? error.code : error.message
+          `Killing process ${pid} failed: ${error.code != null ? error.code : error.message
           }`
         );
       }

@@ -4,7 +4,7 @@ const { Emitter } = require('event-kit');
 const fs = require('fs-plus');
 const ServiceHub = require('service-hub');
 
-const atomConfig = require('../shared/config');
+const atomConfig = require('../shared/path-config');
 const Package = require('./package');
 const ThemePackage = require('./theme-package');
 const packageJSON = require('../../package.json');

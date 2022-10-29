@@ -15,7 +15,6 @@
   "electronVersion": "12.2.3",
   "dependencies": {
     "@atom/fuzzy-native": "^1.2.1",
-    "@atom/source-map-support": "^0.3.4",
     "about": "file:packages/about",
     "archive-view": "file:packages/archive-view",
     "async": "3.2.0",

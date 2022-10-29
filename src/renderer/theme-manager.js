@@ -5,7 +5,7 @@ const { File } = require('pathwatcher');
 const fs = require('fs-plus');
 
 const LessCompileCache = require('../less-compile-cache');
-const atomConfig = require('../shared/config');
+const atomConfig = require('../shared/path-config');
 
 // Extended: Handles loading and activating available themes.
 //
