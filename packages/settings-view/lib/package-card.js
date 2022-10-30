@@ -709,11 +709,6 @@ export default class PackageCard {
     this.refs.updateButton.classList.add('icon-git-commit');
   }
 
-  displayAvailableUpdate(newVersion) {
-    this.newVersion = newVersion;
-    this.updateInterfaceState();
-  }
-
   getDeprecationMessage(newVersion) {
     const info = this.getDeprecatedPackageMetadata();
     if (!info || !info.hasDeprecations) {

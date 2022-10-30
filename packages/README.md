@@ -95,7 +95,6 @@ see the table below for the location of every core Atom package.
 | **tabs**                        | [`atom/tabs`][tabs]                                              |                                                     |
 | **timecop**                     | [`atom/timecop`][timecop]                                        | [#18272](https://github.com/atom/atom/issues/18272) |
 | **tree-view**                   | [`atom/tree-view`][tree-view]                                    |                                                     |
-| **update-package-dependencies** | [`./update-package-dependencies`](./update-package-dependencies) | [#18284](https://github.com/atom/atom/issues/18284) |
 | **welcome**                     | [`./welcome`](./welcome)                                         | [#18285](https://github.com/atom/atom/issues/18285) |
 | **whitespace**                  | [`atom/whitespace`][whitespace]                                  |                                                     |
 | **wrap-guide**                  | [`atom/wrap-guide`][wrap-guide]                                  | [#18286](https://github.com/atom/atom/issues/18286) |

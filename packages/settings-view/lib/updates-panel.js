@@ -19,7 +19,6 @@ export default class UpdatesPanel {
     etch.initialize(this);
 
     this.refs.updateAllButton.style.display = 'none';
-    this.checkForUpdates();
 
     this.disposables.add(
       atom.commands.add(this.element, {
@@ -100,9 +99,7 @@ export default class UpdatesPanel {
                 <button
                   ref="checkButton"
                   className="update-all-button btn"
-                  onclick={() => {
-                    this.checkForUpdates(true);
-                  }}
+                  onclick={() => {/* FIXME: bongnv */}}
                 >
                   Check for Updates
                 </button>
@@ -165,60 +162,11 @@ export default class UpdatesPanel {
       };
     }
 
-    if (opts && opts.updates) {
-      this.availableUpdates = opts.updates;
-      this.addUpdateViews();
-    } else {
-      this.availableUpdates = [];
-      this.clearPackageCards();
-      this.checkForUpdates();
-    }
+    this.availableUpdates = [];
+    this.clearPackageCards();
 
     if (this.packageManager.getVersionPinnedPackages().length === 0) {
       this.refs.versionPinnedPackagesMessage.style.display = 'none';
-    }
-  }
-
-  // Check for updates and display them
-  async checkForUpdates(clearCache) {
-    this.refs.noUpdatesMessage.style.display = 'none';
-    this.refs.updateAllButton.disabled = true;
-    this.refs.checkButton.disabled = true;
-    this.refs.checkingMessage.style.display = '';
-
-    try {
-      this.availableUpdates = await this.packageManager.getOutdated(clearCache);
-      this.refs.checkButton.disabled = false;
-      this.addUpdateViews();
-    } catch (error) {
-      this.refs.checkButton.disabled = false;
-      this.refs.checkingMessage.style.display = 'none';
-      this.refs.updateErrors.appendChild(
-        new ErrorView(this.packageManager, error).element
-      );
-    }
-  }
-
-  addUpdateViews() {
-    if (this.availableUpdates.length > 0) {
-      this.refs.updateAllButton.style.display = '';
-      this.refs.updateAllButton.disabled = false;
-    }
-    this.refs.checkingMessage.style.display = 'none';
-    this.clearPackageCards();
-    if (this.availableUpdates.length === 0) {
-      this.refs.noUpdatesMessage.style.display = '';
-    }
-
-    for (const pack of this.availableUpdates) {
-      const packageCard = new PackageCard(
-        pack,
-        this.settingsView,
-        this.packageManager,
-        { back: 'Updates' }
-      );
-      this.refs.updatesContainer.appendChild(packageCard.element);
-      this.packageCards.push(packageCard);
     }
   }
 

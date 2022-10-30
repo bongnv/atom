@@ -327,13 +327,6 @@ const configSchema = ({ homeDir } = {}) => {
           type: 'boolean',
           default: true,
         },
-        useProxySettingsWhenCallingApm: {
-          title: 'Use Proxy Settings When Calling APM',
-          description:
-            'Use detected proxy settings when calling the `apm` command-line tool.',
-          type: 'boolean',
-          default: true,
-        },
         allowPendingPaneItems: {
           description:
             'Allow items to be previewed without adding them to a pane permanently, such as when single clicking files in the tree view.',

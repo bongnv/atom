@@ -757,7 +757,7 @@ module.exports = class Package {
         .join(', ');
       console.warn(dedent`
         Failed to require the main module of '${this.name}' because it requires one or more incompatible native modules (${nativeModuleNames}).
-        Run \`apm rebuild\` in the package directory and restart Atom to resolve.\
+        Run \`electron-rebuild\` in the package directory and restart Atom to resolve.\
       `);
     } else {
       const mainModulePath = this.getMainModulePath();
@@ -1087,59 +1087,11 @@ module.exports = class Package {
     return this.compatible;
   }
 
-  // Extended: Rebuild native modules in this package's dependencies for the
-  // current version of Atom.
-  //
-  // Returns a {Promise} that resolves with an object containing `code`,
-  // `stdout`, and `stderr` properties based on the results of running
-  // `apm rebuild` on the package.
-  rebuild() {
-    return new Promise((resolve) =>
-      this.runRebuildProcess((result) => {
-        if (result.code === 0) {
-          global.localStorage.removeItem(
-            this.getBuildFailureOutputStorageKey()
-          );
-        } else {
-          this.compatible = false;
-          global.localStorage.setItem(
-            this.getBuildFailureOutputStorageKey(),
-            result.stderr
-          );
-        }
-        global.localStorage.setItem(
-          this.getIncompatibleNativeModulesStorageKey(),
-          '[]'
-        );
-        resolve(result);
-      })
-    );
-  }
-
   // Extended: If a previous rebuild failed, get the contents of stderr.
   //
   // Returns a {String} or null if no previous build failure occurred.
   getBuildFailureOutput() {
     return global.localStorage.getItem(this.getBuildFailureOutputStorageKey());
-  }
-
-  runRebuildProcess(done) {
-    let stderr = '';
-    let stdout = '';
-    return new BufferedProcess({
-      command: this.packageManager.getApmPath(),
-      args: ['rebuild', '--no-color'],
-      options: { cwd: this.path },
-      stderr(output) {
-        stderr += output;
-      },
-      stdout(output) {
-        stdout += output;
-      },
-      exit(code) {
-        done({ code, stdout, stderr });
-      },
-    });
   }
 
   getBuildFailureOutputStorageKey() {

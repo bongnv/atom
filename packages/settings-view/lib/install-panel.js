@@ -78,8 +78,6 @@ export default class InstallPanel {
         },
       })
     );
-
-    this.loadFeaturedPackages();
   }
 
   destroy() {
@@ -182,7 +180,6 @@ export default class InstallPanel {
       this.refs.searchEditor.setPlaceholderText('Search themes');
       this.refs.publishedToText.textContent = 'Themes are published to ';
       this.atomIoURL = 'https://atom.io/themes';
-      this.loadFeaturedPackages(true);
     } else if (searchType === 'package') {
       this.searchType = 'packages';
       this.refs.searchPackagesButton.classList.add('selected');
@@ -190,7 +187,6 @@ export default class InstallPanel {
       this.refs.searchEditor.setPlaceholderText('Search packages');
       this.refs.publishedToText.textContent = 'Packages are published to ';
       this.atomIoURL = 'https://atom.io/packages';
-      this.loadFeaturedPackages();
     }
   }
 
@@ -312,55 +308,6 @@ export default class InstallPanel {
 
   filterPackages(packages, themes) {
     return packages.filter(({ theme }) => (themes ? theme : !theme));
-  }
-
-  // Load and display the featured packages that are available to install.
-  loadFeaturedPackages(loadThemes) {
-    if (loadThemes == null) {
-      loadThemes = false;
-    }
-    this.refs.featuredContainer.innerHTML = '';
-
-    if (loadThemes) {
-      this.refs.installHeading.textContent = 'Install Themes';
-      this.refs.featuredHeading.textContent = 'Featured Themes';
-      this.refs.loadingMessage.textContent = 'Loading featured themes\u2026';
-    } else {
-      this.refs.installHeading.textContent = 'Install Packages';
-      this.refs.featuredHeading.textContent = 'Featured Packages';
-      this.refs.loadingMessage.textContent = 'Loading featured packages\u2026';
-    }
-
-    this.refs.loadingMessage.style.display = '';
-
-    const handle = (error) => {
-      this.refs.loadingMessage.style.display = 'none';
-      this.refs.featuredErrors.appendChild(
-        new ErrorView(this.packageManager, error).element
-      );
-    };
-
-    if (loadThemes) {
-      this.client.featuredThemes((error, themes) => {
-        if (error) {
-          handle(error);
-        } else {
-          this.refs.loadingMessage.style.display = 'none';
-          this.refs.featuredHeading.textContent = 'Featured Themes';
-          this.addPackageViews(this.refs.featuredContainer, themes);
-        }
-      });
-    } else {
-      this.client.featuredPackages((error, packages) => {
-        if (error) {
-          handle(error);
-        } else {
-          this.refs.loadingMessage.style.display = 'none';
-          this.refs.featuredHeading.textContent = 'Featured Packages';
-          this.addPackageViews(this.refs.featuredContainer, packages);
-        }
-      });
-    }
   }
 
   didClickOpenAtomIo(event) {

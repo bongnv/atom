@@ -1591,11 +1591,6 @@
     "hasDeprecations": true,
     "latestHasDeprecations": false
   },
-  "update-package-dependencies": {
-    "version": "<=0.6.0",
-    "hasDeprecations": true,
-    "latestHasDeprecations": false
-  },
   "update-packages": {
     "hasAlternative": true,
     "alternative": "core"

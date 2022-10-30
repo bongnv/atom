@@ -102,17 +102,6 @@ module.exports = {
     statusView = null;
   },
 
-  consumeStatusBar(statusBar) {
-    if (packageManager == null) packageManager = new PackageManager();
-    packageManager.getOutdated().then((updates) => {
-      if (packageManager) {
-        const PackageUpdatesStatusView = require('./package-updates-status-view');
-        statusView = new PackageUpdatesStatusView();
-        statusView.initialize(statusBar, packageManager, updates);
-      }
-    });
-  },
-
   consumeSnippets(snippets) {
     if (typeof snippets.getUnparsedSnippets === 'function') {
       SnippetsProvider.getSnippets =

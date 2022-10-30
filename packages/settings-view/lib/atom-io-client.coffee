@@ -33,38 +33,6 @@ class AtomIoClient
     else
       @request(packagePath, callback)
 
-  featuredPackages: (callback) ->
-    # TODO clean up caching copypasta
-    data = @fetchFromCache 'packages/featured'
-    if data
-      callback(null, data)
-    else
-      @getFeatured(false, callback)
-
-  featuredThemes: (callback) ->
-    # TODO clean up caching copypasta
-    data = @fetchFromCache 'themes/featured'
-    if data
-      callback(null, data)
-    else
-      @getFeatured(true, callback)
-
-  getFeatured: (loadThemes, callback) ->
-    # apm already does this, might as well use it instead of request i guess? The
-    # downside is that I need to repeat caching logic here.
-    @packageManager.getFeatured(loadThemes)
-      .then (packages) =>
-        # copypasta from below
-        key = if loadThemes then 'themes/featured' else 'packages/featured'
-        cached =
-          data: packages
-          createdOn: Date.now()
-        localStorage.setItem(@cacheKeyForPath(key), JSON.stringify(cached))
-        # end copypasta
-        callback(null, packages)
-      .catch (error) ->
-        callback(error, null)
-
   request: (path, callback) ->
     options = {
       url: "#{@baseURL}#{path}"

@@ -173,34 +173,6 @@ module.exports = class PackageManager {
   Section: Package system data
   */
 
-  // Public: Get the path to the apm command.
-  //
-  // Uses the value of the `core.apmPath` config setting if it exists.
-  //
-  // Return a {String} file path to apm.
-  getApmPath() {
-    const configPath = atom.config.get('core.apmPath');
-    if (configPath || this.apmPath) {
-      return configPath || this.apmPath;
-    }
-
-    const commandName = process.platform === 'win32' ? 'apm.cmd' : 'apm';
-    const apmRoot =
-      process.env.DEV_APM_ROOT ||
-      path.join(process.resourcesPath, 'app', 'apm');
-    this.apmPath = path.join(apmRoot, 'bin', commandName);
-    if (!fs.isFileSync(this.apmPath)) {
-      this.apmPath = path.join(
-        apmRoot,
-        'node_modules',
-        'atom-package-manager',
-        'bin',
-        commandName
-      );
-    }
-    return this.apmPath;
-  }
-
   // Public: Get the paths being used to look for packages.
   //
   // Returns an {Array} of {String} directory paths.

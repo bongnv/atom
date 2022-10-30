@@ -114,7 +114,7 @@ class PackageGeneratorView {
 
   initPackage (packagePath, callback) {
     const command = ['init'].concat(this.getInitOptions(packagePath))
-    this.runCommand(atom.packages.getApmPath(), command, callback)
+    this.runCommand('npm', command, callback)
   }
 
   linkPackage (packagePath, callback) {
@@ -122,7 +122,7 @@ class PackageGeneratorView {
     if (atom.config.get('package-generator.createInDevMode')) args.push('--dev')
     args.push(packagePath.toString())
 
-    this.runCommand(atom.packages.getApmPath(), args, callback)
+    this.runCommand('npm', args, callback)
   }
 
   isStoredInDotAtom (packagePath) {

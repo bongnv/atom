@@ -31,16 +31,13 @@ module.exports = class CommandInstaller {
 
     this.installAtomCommand(true, (error, atomCommandName) => {
       if (error) return showErrorDialog(error);
-      this.installApmCommand(true, (error, apmCommandName) => {
-        if (error) return showErrorDialog(error);
-        this.applicationDelegate.confirm(
-          {
-            message: 'Commands installed.',
-            detail: `The shell commands \`${atomCommandName}\` and \`${apmCommandName}\` are installed.`,
-          },
-          () => {}
-        );
-      });
+      this.applicationDelegate.confirm(
+        {
+          message: 'Commands installed.',
+          detail: `The shell commands \`${atomCommandName}\` and \`${apmCommandName}\` are installed.`,
+        },
+        () => {}
+      );
     });
   }
 
@@ -67,21 +64,6 @@ module.exports = class CommandInstaller {
     );
   }
 
-  installApmCommand(askForPrivilege, callback) {
-    this.installCommand(
-      path.join(
-        this.getResourcesDirectory(),
-        'app',
-        'apm',
-        'node_modules',
-        '.bin',
-        'apm'
-      ),
-      this.getCommandNameForChannel('apm'),
-      askForPrivilege,
-      callback
-    );
-  }
 
   installCommand(commandPath, commandName, askForPrivilege, callback) {
     if (process.platform !== 'darwin') return callback();

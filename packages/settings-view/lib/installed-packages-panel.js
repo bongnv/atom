@@ -322,14 +322,6 @@ export default class InstalledPackagesPanel extends CollapsibleSectionPanel {
   }
 
   loadPackages() {
-    const packagesWithUpdates = {};
-    this.packageManager.getOutdated().then((packages) => {
-      for (let { name, latestVersion } of packages) {
-        packagesWithUpdates[name] = latestVersion;
-      }
-      this.displayPackageUpdates(packagesWithUpdates);
-    });
-
     this.packageManager
       .getInstalled()
       .then((packages) => {
@@ -357,24 +349,12 @@ export default class InstalledPackagesPanel extends CollapsibleSectionPanel {
         // TODO show empty mesage per section
 
         this.updateSectionCounts();
-        this.displayPackageUpdates(packagesWithUpdates);
 
         this.matchPackages();
       })
       .catch((error) => {
         console.error(error.message, error.stack);
       });
-  }
-
-  displayPackageUpdates(packagesWithUpdates) {
-    for (const packageType of ['dev', 'core', 'user', 'git', 'deprecated']) {
-      for (const packageCard of this.itemViews[packageType].getViews()) {
-        const newVersion = packagesWithUpdates[packageCard.pack.name];
-        if (newVersion) {
-          packageCard.displayAvailableUpdate(newVersion);
-        }
-      }
-    }
   }
 
   createPackageCard(pack) {

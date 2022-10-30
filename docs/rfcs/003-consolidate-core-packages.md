@@ -175,7 +175,6 @@ Using this criteria, all 91 packages have been evaluated and categorized to dete
 | **[styleguide]**                  | 12          | 2        | 0                   | 4/12/18      |
 | **[tabs]**                        | 66          | 7        | 0                   | 5/13/18      |
 | **[timecop]**                     | 5           | 0        | 0                   | 11/4/17      |
-| **[update-package-dependencies]** | 0           | 0        | 0                   | 12/10/17     |
 | **[welcome]**                     | 0           | 0        | 0                   | 11/21/17     |
 | **[whitespace]**                  | 31          | 6        | 0                   | 5/30/18      |
 | **[wrap-guide]**                  | 3           | 4        | 0                   | 11/27/17     |
@@ -339,7 +338,6 @@ One alternative approach would be to break this core Atom functionality out of p
 [tabs]: https://github.com/atom/tabs
 [timecop]: https://github.com/atom/timecop
 [tree-view]: https://github.com/atom/tree-view
-[update-package-dependencies]: https://github.com/atom/update-package-dependencies
 [welcome]: https://github.com/atom/welcome
 [whitespace]: https://github.com/atom/whitespace
 [wrap-guide]: https://github.com/atom/wrap-guide
