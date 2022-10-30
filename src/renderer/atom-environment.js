@@ -1,6 +1,3 @@
-const crypto = require('crypto');
-const path = require('path');
-const os = require('os');
 const TextBuffer = require('text-buffer');
 const _ = require('underscore-plus');
 const { deprecate } = require('grim');
@@ -8,6 +5,7 @@ const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
 
 const StartupTime = require('../shared/startup-time');
 const getReleaseChannel = require('../shared/get-release-channel');
+const Config = require('../shared/config');
 
 const WindowEventHandler = require('./window-event-handler');
 const StateStore = require('./state-store');
@@ -15,7 +13,6 @@ const registerDefaultCommands = require('./register-default-commands');
 const DeserializerManager = require('./deserializer-manager');
 const ViewRegistry = require('./view-registry');
 const NotificationManager = require('./notification-manager');
-const Config = require('../shared/config');
 const KeymapManager = require('./keymap-extensions');
 const TooltipManager = require('./tooltip-manager');
 const CommandRegistry = require('./command-registry');
@@ -50,7 +47,7 @@ class AtomEnvironment {
   */
 
   constructor(params = {}) {
-    this.nodeAPI = nodeAPI;
+    this.nodeAPI = params.nodeAPI;
 
     // Public: A {Clipboard} instance
     this.clipboard = params.clipboard;
@@ -218,8 +215,8 @@ class AtomEnvironment {
           this.config.getUserConfigPath()
         );
       },
-      mainSource: path.join(this.configDirPath, 'config.json'),
-      homeDir: os.homedir(),
+      mainSource: this.nodeAPI.path.join(this.configDirPath, 'config.json'),
+      homeDir: this.nodeAPI.userHomeDir,
     });
     this.config.resetUserSettings(userSettings);
 
@@ -1270,13 +1267,6 @@ class AtomEnvironment {
     return this.deserialize(state);
   }
 
-  showSaveDialogSync(options = {}) {
-    deprecate(`atom.showSaveDialogSync is deprecated and will be removed soon.
-Please, implement ::saveAs and ::getSaveDialogOptions instead for pane items
-or use Pane::saveItemAs for programmatic saving.`);
-    return this.applicationDelegate.showSaveDialog(options);
-  }
-
   async saveState(options, storageKey) {
     if (this.project) {
       const state = this.serialize(options);
@@ -1365,7 +1355,8 @@ or use Pane::saveItemAs for programmatic saving.`);
 
   getStateKey(paths) {
     if (paths && paths.length > 0) {
-      const sha1 = crypto
+      const sha1 = this.nodeAPI
+        .crypto
         .createHash('sha1')
         .update(paths.slice().sort().join('\n'))
         .digest('hex');
@@ -1375,13 +1366,14 @@ or use Pane::saveItemAs for programmatic saving.`);
     }
   }
 
+  // Public: getConfigDirPath returns the directory path that contains
+  // configurations.
   getConfigDirPath() {
-    if (!this.configDirPath) this.configDirPath = process.env.ATOM_HOME;
     return this.configDirPath;
   }
 
   getUserInitScriptPath() {
-    return path.join(this.getConfigDirPath(), 'init.js');
+    return this.nodeAPI.path.join(this.getConfigDirPath(), 'init.js');
   }
 
   async requireUserInitScript() {

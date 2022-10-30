@@ -1,4 +1,7 @@
 const fs = require('fs').promises;
+const crypto = require('crypto');
+const path = require('path');
+const os = require('os');
 
 global.nodeAPI = {
   fs: {
@@ -15,4 +18,11 @@ global.nodeAPI = {
       }
     },
   },
+  crypto: {
+    createHash: crypto.createHash,
+  },
+  path: {
+    join: path.join,
+  },
+  userHomeDir: os.homedir(),
 };
