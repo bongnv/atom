@@ -71,6 +71,7 @@ const commonConfig = {
 module.exports = [
   // main
   merge(commonConfig, {
+    name: 'main',
     entry: './src/main-process/main.js',
     target: 'electron-main',
     externalsPresets: {
@@ -80,9 +81,11 @@ module.exports = [
       filename: 'index.js',
       path: path.join(webpackDir, 'main'),
     },
+    dependencies: ['preload', 'renderer', 'task'],
   }),
   // tasks
   merge(commonConfig, {
+    name: 'task',
     entry: './src/task/task-bootstrap.js',
     target: 'electron-preload',
     externalsPresets: {
@@ -94,6 +97,7 @@ module.exports = [
   }),
   // preload
   merge(commonConfig, {
+    name: 'preload',
     entry: './src/preload/main.js',
     target: 'electron-preload',
     externalsPresets: {
@@ -105,6 +109,7 @@ module.exports = [
   }),
   // renderer
   merge(commonConfig, {
+    name: 'renderer',
     entry: './src/renderer/index.js',
     target: 'electron-renderer',
     externalsPresets: {

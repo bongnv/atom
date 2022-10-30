@@ -84,7 +84,7 @@ export default class RootController extends React.Component {
     super(props, context);
     autobind(
       this,
-      'installReactDevTools', 'clearGithubToken',
+      'clearGithubToken',
       'showWaterfallDiagnostics', 'showCacheDiagnostics',
       'destroyFilePatchPaneItems', 'destroyEmptyFilePatchPaneItems',
       'quietlySelectItem', 'viewUnstagedChangesForCurrentFile',
@@ -144,7 +144,6 @@ export default class RootController extends React.Component {
     return (
       <Fragment>
         <Commands registry={this.props.commands} target="atom-workspace">
-          {devMode && <Command command="github:install-react-dev-tools" callback={this.installReactDevTools} />}
           <Command command="github:toggle-commit-preview" callback={this.toggleCommitPreviewItem} />
           <Command command="github:logout" callback={this.clearGithubToken} />
           <Command command="github:show-waterfall-diagnostics" callback={this.showWaterfallDiagnostics} />
@@ -473,48 +472,6 @@ export default class RootController extends React.Component {
         dock.show();
       }
     }
-  }
-
-  async installReactDevTools() {
-    // Prevent electron-link from attempting to descend into electron-devtools-installer, which is not available
-    // when we're bundled in Atom.
-    const devTools = require('electron-devtools-installer');
-
-    await Promise.all([
-      this.installExtension(devTools.REACT_DEVELOPER_TOOLS.id),
-      // relay developer tools extension id
-      this.installExtension('ncedobpgnmkhcmnnkcimnobpfepidadl'),
-    ]);
-
-    this.props.notificationManager.addSuccess('🌈 Reload your window to start using the React/Relay dev tools!');
-  }
-
-  async installExtension(id) {
-    const devTools = require('electron-devtools-installer');
-    const unzip = require('cross-unzip');
-
-    const url =
-      'https://clients2.google.com/service/update2/crx?' +
-      `response=redirect&x=id%3D${id}%26uc&prodversion=32`;
-    const extensionFolder = path.resolve(remote.app.getPath('userData'), `extensions/${id}`);
-    const extensionFile = `${extensionFolder}.crx`;
-    await fs.ensureDir(path.dirname(extensionFile));
-    const response = await fetch(url, {method: 'GET'});
-    const body = Buffer.from(await response.arrayBuffer());
-    await fs.writeFile(extensionFile, body);
-
-    await new Promise((resolve, reject) => {
-      unzip(extensionFile, extensionFolder, async err => {
-        if (err && !await fs.exists(path.join(extensionFolder, 'manifest.json'))) {
-          reject(err);
-        }
-
-        resolve();
-      });
-    });
-
-    await fs.ensureDir(extensionFolder, 0o755);
-    await devTools.default(id);
   }
 
   componentWillUnmount() {

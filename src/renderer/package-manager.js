@@ -199,7 +199,8 @@ module.exports = class PackageManager {
       return packagePath;
     }
 
-    packagePath = path.join(atomConfig.rootDir, 'node_modules', name);
+    packagePath = path.join(atomConfig.rootDir, 'packages', name);
+    // FIXME: bongnv - should resolve from inmemory packages
     if (this.hasAtomEngine(packagePath)) {
       return packagePath;
     }
@@ -405,17 +406,8 @@ module.exports = class PackageManager {
         isLocal: true,
         metadata: packagesContext(packagePath),
       });
+      packagesByName.add(packageName);
     });
-
-    for (const packageName in this.packageDependencies) {
-      if (!packagesByName.has(packageName)) {
-        packages.push({
-          name: packageName,
-          path: path.join(atomConfig.rootDir, 'node_modules', packageName),
-          isBundled: true,
-        });
-      }
-    }
 
     return packages.sort((a, b) => a.name.localeCompare(b.name));
   }
