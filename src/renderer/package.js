@@ -28,16 +28,16 @@ module.exports = class Package {
     this.deserializerManager = params.deserializerManager;
     this.viewRegistry = params.viewRegistry;
     this.emitter = new Emitter();
-
-    this.mainModule = null;
     this.path = params.path;
     this.metadata = params.metadata;
     this.bundledPackage = params.bundledPackage;
-    this.isLocal = params.isLocal;
-    this.name =
-      (this.metadata && this.metadata.name) ||
-      params.name ||
-      path.basename(this.path);
+    this.name = params.name;
+
+    this.mainModulePath = this.metadata.main
+    ? path.join(this.path, this.metadata.main)
+    : null;
+    this.mainModule = null;
+
     this.reset();
   }
 
@@ -105,7 +105,7 @@ module.exports = class Package {
         this.configSchemaRegisteredOnLoad =
           this.registerConfigSchemaFromMetadata();
         this.settingsPromise = this.loadSettings();
-        if (this.shouldRequireMainModuleOnLoad() && this.mainModule == null) {
+        if (this.shouldRequireMainModuleOnLoad() && !this.mainModule) {
           this.requireMainModule();
         }
       } catch (error) {
@@ -760,7 +760,7 @@ module.exports = class Package {
         Run \`electron-rebuild\` in the package directory and restart Atom to resolve.\
       `);
     } else {
-      const mainModulePath = this.getMainModulePath();
+      const mainModulePath = this.mainModulePath;
       if (mainModulePath) {
         this.mainModuleRequired = true;
 
@@ -769,7 +769,7 @@ module.exports = class Package {
         const previousDeserializerCount =
           this.deserializerManager.getDeserializerCount();
 
-        if (this.isLocal) {
+        if (this.bundledPackage) {
           this.mainModule = require(`../../packages/${this.name}/lib/main`);
         } else {
           this.mainModule = requireModule(mainModulePath);
@@ -793,25 +793,6 @@ module.exports = class Package {
         return this.mainModule;
       }
     }
-  }
-
-  getMainModulePath() {
-    if (this.resolvedMainModulePath) return this.mainModulePath;
-    this.resolvedMainModulePath = true;
-
-    const mainModulePath = this.isLocal
-      ? path.join(this.path, 'lib/main')
-      : this.metadata.main
-      ? path.join(this.path, this.metadata.main)
-      : path.join(this.path, 'index');
-    this.mainModulePath = fs.resolveExtension(mainModulePath, [
-      '',
-      '.js',
-      '.ts',
-      '.coffee',
-    ]);
-
-    return this.mainModulePath;
   }
 
   activationShouldBeDeferred() {
@@ -1075,7 +1056,7 @@ module.exports = class Package {
   // Returns a {Boolean}, true if compatible, false if incompatible.
   isCompatible() {
     if (this.compatible == null) {
-      if (this.getMainModulePath()) {
+      if (this.mainModulePath) {
         this.incompatibleModules = this.getIncompatibleNativeModules();
         this.compatible =
           this.incompatibleModules.length === 0 &&

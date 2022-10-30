@@ -61,16 +61,10 @@ module.exports = class PackageManager {
     this.registerPackageActivator(this, ['atom', 'textmate']);
   }
 
-  initialize(params) {
-    this.devMode = params.devMode;
-    // FIXME: bongnv - fix this
-    if (params.configDirPath != null) {
-      if (this.devMode) {
-        this.packageDirPaths.push(
-          path.join(params.configDirPath, 'dev', 'packages')
-        );
-      }
-      this.packageDirPaths.push(path.join(params.configDirPath, 'packages'));
+  initialize({ configDirPath, devMode } = {}) {
+    this.devMode = devMode;
+    if (configDirPath != null) {
+      this.packageDirPaths.push(path.join(configDirPath, 'packages'));
     }
   }
 
@@ -403,7 +397,6 @@ module.exports = class PackageManager {
         name: packageName,
         path: path.join(atomConfig.rootDir, 'packages', packageName),
         isBundled: true,
-        isLocal: true,
         metadata: packagesContext(packagePath),
       });
       packagesByName.add(packageName);
@@ -429,7 +422,7 @@ module.exports = class PackageManager {
   }
 
   hasAtomEngine(packagePath) {
-    const metadata = this.loadPackageMetadata(packagePath, true);
+    const metadata = this.loadPackageMetadataByPath(packagePath, true);
     return (
       metadata != null &&
       metadata.engines != null &&
@@ -527,20 +520,14 @@ module.exports = class PackageManager {
     this.emitter.emit('did-load-initial-packages');
   }
 
-  loadPackage(nameOrPath) {
-    if (path.basename(nameOrPath)[0].match(/^\./)) {
-      // primarily to skip .git folder
-      return null;
-    }
-
-    const pack = this.getLoadedPackage(nameOrPath);
+  loadPackage(name) {
+    const pack = this.getLoadedPackage(name);
     if (pack) {
       return pack;
     }
 
-    const packagePath = this.resolvePackagePath(nameOrPath);
+    const packagePath = this.resolvePackagePath(name);
     if (packagePath) {
-      const name = path.basename(nameOrPath);
       return this.loadAvailablePackage({
         name,
         path: packagePath,
@@ -560,11 +547,6 @@ module.exports = class PackageManager {
       return null;
     }
 
-    const loadedPackage = this.getLoadedPackage(availablePackage.name);
-    if (loadedPackage != null) {
-      return loadedPackage;
-    }
-
     let metadata;
     try {
       metadata = this.loadPackageMetadata(availablePackage) || {};
@@ -575,10 +557,9 @@ module.exports = class PackageManager {
 
     const options = {
       path: availablePackage.path,
-      name: availablePackage.name,
+      name: metadata.name || availablePackage.name,
       metadata,
       bundledPackage: availablePackage.isBundled,
-      isLocal: availablePackage.isLocal,
       packageManager: this,
       config: this.config,
       styleManager: this.styleManager,
@@ -663,34 +644,35 @@ module.exports = class PackageManager {
   }
 
   // Activate a single package by name
-  activatePackage(name) {
+  async activatePackage(name) {
     let pack = this.getActivePackage(name);
     if (pack) {
-      return Promise.resolve(pack);
+      return pack;
     }
 
     pack = this.loadPackage(name);
     if (!pack) {
-      return Promise.reject(new Error(`Failed to load package '${name}'`));
+      throw new Error(`Failed to load package '${name}'`);
     }
 
     this.activatingPackages[pack.name] = pack;
-    const activationPromise = pack.activate().then(() => {
-      if (this.activatingPackages[pack.name] != null) {
-        delete this.activatingPackages[pack.name];
-        this.activePackages[pack.name] = pack;
-        this.emitter.emit('did-activate-package', pack);
-      }
-      return pack;
-    });
 
+    const activatePromise = pack.activate();
     if (this.deferredActivationHooks == null) {
       this.triggeredActivationHooks.forEach((hook) =>
         this.activationHookEmitter.emit(hook)
       );
     }
 
-    return activationPromise;
+    await activatePromise;
+
+    if (this.activatingPackages[pack.name] != null) {
+      delete this.activatingPackages[pack.name];
+      this.activePackages[pack.name] = pack;
+      this.emitter.emit('did-activate-package', pack);
+    }
+
+    return pack;
   }
 
   triggerDeferredActivationHooks() {
@@ -796,7 +778,7 @@ module.exports = class PackageManager {
     return Promise.all([symlinkPromise, dirPromise]).then((values) => {
       const [isSymLink, isDir] = values;
       if (!isSymLink && isDir) {
-        return fs.remove(directory, function () {});
+        return fs.remove(directory, function () { });
       }
     });
   }
@@ -813,34 +795,24 @@ module.exports = class PackageManager {
   }
 
   isBundledPackagePath(packagePath) {
-    if (
-      this.devMode &&
-      !atomConfig.rootDir.startsWith(`${process.resourcesPath}${path.sep}`)
-    ) {
-      return false;
-    }
-
-    if (this.resourcePathWithTrailingSlash == null) {
-      this.resourcePathWithTrailingSlash = `${atomConfig.rootDir}${path.sep}`;
-    }
-
     return (
       packagePath != null &&
-      packagePath.startsWith(this.resourcePathWithTrailingSlash)
+      packagePath.startsWith(atomConfig.rootDir)
     );
   }
 
-  loadPackageMetadata(packagePathOrAvailablePackage, ignoreErrors = false) {
-    let packageName, packagePath, metadata;
-    if (typeof packagePathOrAvailablePackage === 'object') {
-      const availablePackage = packagePathOrAvailablePackage;
-      packageName = availablePackage.name;
-      packagePath = availablePackage.path;
-      metadata = availablePackage.metadata;
-    } else {
-      packagePath = packagePathOrAvailablePackage;
-      packageName = path.basename(packagePath);
-    }
+  loadPackageMetadataByPath(packagePath, ignoreErrors = false) {
+    const name = path.basename(packagePath);
+    return this.loadPackageMetadata({
+      path: packagePath,
+      name,
+    }, ignoreErrors);
+  }
+
+  loadPackageMetadata(availablePackage, ignoreErrors = false) {
+    const packageName = availablePackage.name;
+    const packagePath = availablePackage.path;
+    let metadata = availablePackage.metadata;
 
     try {
       if (!metadata) {
