@@ -35,9 +35,7 @@ module.exports = class ThemePackage extends Package {
 
   activate() {
     if (this.activationPromise == null) {
-      this.activationPromise = new Promise((resolve, reject) => {
-        this.resolveActivationPromise = resolve;
-        this.rejectActivationPromise = reject;
+      this.activationPromise = new Promise((resolve) => {
         this.measure('activateTime', () => {
           try {
             this.loadStylesheets();
@@ -48,6 +46,7 @@ module.exports = class ThemePackage extends Package {
               error
             );
           }
+          resolve();
         });
       });
     }

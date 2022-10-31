@@ -34,8 +34,8 @@ module.exports = class Package {
     this.name = params.name;
 
     this.mainModulePath = this.metadata.main
-    ? path.join(this.path, this.metadata.main)
-    : null;
+      ? path.join(this.path, this.metadata.main)
+      : null;
     this.mainModule = null;
 
     this.reset();
@@ -122,7 +122,7 @@ module.exports = class Package {
       this.metadata.configSchema ||
       this.activationShouldBeDeferred() ||
       localStorage.getItem(this.getCanDeferMainModuleRequireStorageKey()) ===
-        'true'
+      'true'
     );
   }
 
@@ -165,21 +165,21 @@ module.exports = class Package {
     if (!this.grammarsPromise) this.grammarsPromise = this.loadGrammars();
     if (!this.activationPromise) {
       this.activationPromise = new Promise((resolve) => {
-        this.resolveActivationPromise = resolve;
         this.measure('activateTime', () => {
           try {
             this.activateResources();
             if (this.activationShouldBeDeferred()) {
-              return this.subscribeToDeferredActivation();
+              this.subscribeToDeferredActivation();
             } else {
-              return this.activateNow();
+              this.activateNow();
             }
           } catch (error) {
-            return this.handleError(
+            this.handleError(
               `Failed to activate the ${this.name} package`,
               error
             );
           }
+          resolve();
         });
       });
     }
@@ -220,9 +220,6 @@ module.exports = class Package {
     } catch (error) {
       this.handleError(`Failed to activate the ${this.name} package`, error);
     }
-
-    if (typeof this.resolveActivationPromise === 'function')
-      this.resolveActivationPromise();
   }
 
   registerConfigSchemaFromMetadata() {
@@ -672,7 +669,6 @@ module.exports = class Package {
 
   async deactivate() {
     this.activationPromise = null;
-    this.resolveActivationPromise = null;
     if (this.activationCommandSubscriptions)
       this.activationCommandSubscriptions.dispose();
     if (this.activationHookSubscriptions)
@@ -777,9 +773,9 @@ module.exports = class Package {
 
         if (
           this.viewRegistry.getViewProviderCount() ===
-            previousViewProviderCount &&
+          previousViewProviderCount &&
           this.deserializerManager.getDeserializerCount() ===
-            previousDeserializerCount
+          previousDeserializerCount
         ) {
           localStorage.setItem(
             this.getCanDeferMainModuleRequireStorageKey(),
@@ -846,7 +842,7 @@ module.exports = class Package {
           // The real command will be registered on package activation
           try {
             this.activationCommandSubscriptions.add(
-              this.commandRegistry.add(selector, command, function () {})
+              this.commandRegistry.add(selector, command, function () { })
             );
           } catch (error) {
             if (error.code === 'EBADSELECTOR') {
@@ -1144,9 +1140,8 @@ module.exports = class Package {
 
     let detail, location, stack;
     if (error.filename && error.location && error instanceof SyntaxError) {
-      location = `${error.filename}:${error.location.first_line + 1}:${
-        error.location.first_column + 1
-      }`;
+      location = `${error.filename}:${error.location.first_line + 1}:${error.location.first_column + 1
+        }`;
       detail = `${error.message} in ${location}`;
       stack = 'SyntaxError: ' + error.message + '\n' + 'at ' + location;
     } else if (
