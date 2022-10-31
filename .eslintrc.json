@@ -4,16 +4,14 @@
     "eslint:recommended",
     "plugin:prettier/recommended"
   ],
-  "plugins": [
-    "prettier"
-  ],
   "env": {
     "browser": true,
     "es6": true,
     "node": true
   },
-  "parser": "babel-eslint",
+  "parser": "@babel/eslint-parser",
   "parserOptions": {
+    "requireConfigFile": false,
     "ecmaVersion": 8,
     "ecmaFeatures": {
       "jsx": true
@@ -23,7 +21,7 @@
     "atom": true,
     "ROOT_DIR": "readonly",
     "PRELOAD_WEBPACK_ENTRY": "readonly",
-    "TASK_WEBPACK_DIR": "readonly",
+    "TASK_WEBPACK_ENTRY": "readonly",
     "WINDOW_WEBPACK_ENTRY": "readonly"
   },
   "rules": {

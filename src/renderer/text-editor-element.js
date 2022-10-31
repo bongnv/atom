@@ -1,6 +1,4 @@
 const { Emitter, Range } = require('atom');
-const Grim = require('grim');
-const dedent = require('dedent');
 
 const TextEditorComponent = require('./text-editor-component');
 
@@ -339,12 +337,17 @@ class TextEditorElement extends HTMLElement {
   getFirstVisibleScreenColumn() {
     return this.getModel().getFirstVisibleScreenColumn();
   }
-
-  static createTextEditorElement() {
-    return document.createElement('atom-text-editor');
-  }
 }
 
-window.customElements.define('atom-text-editor', TextEditorElement);
+function registerTextEditorElement() {
+  window.customElements.define('atom-text-editor', TextEditorElement);
+}
 
-module.exports = TextEditorElement;
+function createTextEditorElement() {
+  return document.createElement('atom-text-editor');
+}
+
+module.exports = {
+  registerTextEditorElement,
+  createTextEditorElement,
+};

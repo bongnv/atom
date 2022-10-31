@@ -69,7 +69,6 @@ function initializeWindow() {
 }
 
 window.onload = function () {
-  const { atomAPI } = window;
   StartupTime.addMarker('window:onload:start');
   try {
     if (getWindowLoadSettings().profileStartup) {

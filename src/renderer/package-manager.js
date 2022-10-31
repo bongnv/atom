@@ -7,7 +7,6 @@ const ServiceHub = require('service-hub');
 const atomConfig = require('../shared/path-config');
 const Package = require('./package');
 const ThemePackage = require('./theme-package');
-const packageJSON = require('../../package.json');
 
 let normalizePackageData = null;
 
@@ -528,7 +527,7 @@ module.exports = class PackageManager {
       });
     }
 
-    console.warn(`Could not resolve '${nameOrPath}' to a package path`);
+    console.warn(`Could not resolve '${name}' to a package path`);
     return null;
   }
 
@@ -771,7 +770,7 @@ module.exports = class PackageManager {
     return Promise.all([symlinkPromise, dirPromise]).then((values) => {
       const [isSymLink, isDir] = values;
       if (!isSymLink && isDir) {
-        return fs.remove(directory, function () { });
+        return fs.remove(directory, function () {});
       }
     });
   }
@@ -788,18 +787,18 @@ module.exports = class PackageManager {
   }
 
   isBundledPackagePath(packagePath) {
-    return (
-      packagePath != null &&
-      packagePath.startsWith(atomConfig.rootDir)
-    );
+    return packagePath != null && packagePath.startsWith(atomConfig.rootDir);
   }
 
   loadPackageMetadataByPath(packagePath, ignoreErrors = false) {
     const name = path.basename(packagePath);
-    return this.loadPackageMetadata({
-      path: packagePath,
-      name,
-    }, ignoreErrors);
+    return this.loadPackageMetadata(
+      {
+        path: packagePath,
+        name,
+      },
+      ignoreErrors
+    );
   }
 
   loadPackageMetadata(availablePackage, ignoreErrors = false) {

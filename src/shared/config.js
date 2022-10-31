@@ -901,10 +901,10 @@ class Config {
     try {
       endTransaction =
         (fn) =>
-          (...args) => {
-            this.endTransaction();
-            return fn(...args);
-          };
+        (...args) => {
+          this.endTransaction();
+          return fn(...args);
+        };
       const result = callback();
       return new Promise((resolve, reject) => {
         return result

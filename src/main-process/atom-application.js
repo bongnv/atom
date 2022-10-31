@@ -193,7 +193,9 @@ module.exports = class AtomApplication extends EventEmitter {
     this.initializeAtomHome(process.env.ATOM_HOME);
 
     this.config = new Config();
-    this.configFile = ConfigFile.at(path.join(process.env.ATOM_HOME, 'config.json'));
+    this.configFile = ConfigFile.at(
+      path.join(process.env.ATOM_HOME, 'config.json')
+    );
 
     this.fileRecoveryService = new FileRecoveryService(
       path.join(process.env.ATOM_HOME, 'recovery')
@@ -1263,7 +1265,8 @@ module.exports = class AtomApplication extends EventEmitter {
     } catch (error) {
       if (error.code !== 'ESRCH') {
         console.log(
-          `Killing process ${pid} failed: ${error.code != null ? error.code : error.message
+          `Killing process ${pid} failed: ${
+            error.code != null ? error.code : error.message
           }`
         );
       }

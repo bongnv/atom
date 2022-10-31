@@ -34,7 +34,7 @@ module.exports = class CommandInstaller {
       this.applicationDelegate.confirm(
         {
           message: 'Commands installed.',
-          detail: `The shell commands \`${atomCommandName}\` and \`${apmCommandName}\` are installed.`,
+          detail: `The shell commands \`${atomCommandName}\` is installed.`,
         },
         () => {}
       );
@@ -63,7 +63,6 @@ module.exports = class CommandInstaller {
       callback
     );
   }
-
 
   installCommand(commandPath, commandName, askForPrivilege, callback) {
     if (process.platform !== 'darwin') return callback();

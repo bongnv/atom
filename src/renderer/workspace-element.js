@@ -431,12 +431,15 @@ function isTab(element) {
   return false;
 }
 
-window.customElements.define('atom-workspace', WorkspaceElement);
+function registerWorkspaceElement() {
+  window.customElements.define('atom-workspace', WorkspaceElement);
+}
 
 function createWorkspaceElement() {
   return document.createElement('atom-workspace');
 }
 
 module.exports = {
+  registerWorkspaceElement,
   createWorkspaceElement,
 };

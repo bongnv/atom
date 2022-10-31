@@ -139,12 +139,15 @@ class StylesElement extends HTMLElement {
   }
 }
 
-window.customElements.define('atom-styles', StylesElement);
+function registerStylesElement() {
+  window.customElements.define('atom-styles', StylesElement);
+}
 
 function createStylesElement() {
   return document.createElement('atom-styles');
 }
 
 module.exports = {
+  registerStylesElement,
   createStylesElement,
 };

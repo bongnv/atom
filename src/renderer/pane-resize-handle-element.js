@@ -106,15 +106,18 @@ class PaneResizeHandleElement extends HTMLElement {
   }
 }
 
-window.customElements.define(
-  'atom-pane-resize-handle',
-  PaneResizeHandleElement
-);
+function registerPainResizeHandleElement() {
+  window.customElements.define(
+    'atom-pane-resize-handle',
+    PaneResizeHandleElement
+  );
+}
 
 function createPaneResizeHandleElement() {
   return document.createElement('atom-pane-resize-handle');
 }
 
 module.exports = {
+  registerPainResizeHandleElement,
   createPaneResizeHandleElement,
 };

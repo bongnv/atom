@@ -115,12 +115,15 @@ class PaneAxisElement extends HTMLElement {
   }
 }
 
-window.customElements.define('atom-pane-axis', PaneAxisElement);
+function registerPaneAxisElement() {
+  window.customElements.define('atom-pane-axis', PaneAxisElement);
+}
 
 function createPaneAxisElement() {
   return document.createElement('atom-pane-axis');
 }
 
 module.exports = {
+  registerPaneAxisElement,
   createPaneAxisElement,
 };

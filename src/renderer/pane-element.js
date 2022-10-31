@@ -221,8 +221,11 @@ function createPaneElement() {
   return document.createElement('atom-pane');
 }
 
-window.customElements.define('atom-pane', PaneElement);
+function registerPaneElement() {
+  window.customElements.define('atom-pane', PaneElement);
+}
 
 module.exports = {
+  registerPaneElement,
   createPaneElement,
 };

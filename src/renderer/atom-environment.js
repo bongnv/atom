@@ -1,6 +1,5 @@
 const TextBuffer = require('text-buffer');
 const _ = require('underscore-plus');
-const { deprecate } = require('grim');
 const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
 
 const StartupTime = require('../shared/startup-time');
@@ -37,6 +36,15 @@ const Pane = require('./pane');
 const Dock = require('./dock');
 const TextEditor = require('./text-editor');
 const TextEditorRegistry = require('./text-editor-registry');
+const { registerWorkspaceElement } = require('./workspace-element');
+const { registerTextEditorElement } = require('./text-editor-element');
+const { registerPaneAxisElement } = require('./pane-axis-element');
+const { registerStylesElement } = require('./styles-element');
+const { registerPaneContainerElement } = require('./pane-container-element');
+const {
+  registerPainResizeHandleElement,
+} = require('./pane-resize-handle-element');
+const { registerPaneElement } = require('./pane-element');
 
 // Essential: Atom global for dealing with packages, themes, menus, and the window.
 //
@@ -174,6 +182,7 @@ class AtomEnvironment {
     this.registerDefaultCommands();
     this.registerDefaultOpeners();
     this.registerDefaultDeserializers();
+    this._registerCustomElements();
 
     this.windowEventHandler = new WindowEventHandler({
       atomEnvironment: this,
@@ -196,11 +205,6 @@ class AtomEnvironment {
   }
 
   initialize(params = {}) {
-    // This will force TextEditorElement to register the custom element, so that
-    // using `document.createElement('atom-text-editor')` works if it's called
-    // before opening a buffer.
-    require('./text-editor-element');
-
     this.window = params.window;
     this.document = params.document;
     this.configDirPath = params.configDirPath;
@@ -1352,8 +1356,7 @@ class AtomEnvironment {
 
   getStateKey(paths) {
     if (paths && paths.length > 0) {
-      const sha1 = this.nodeAPI
-        .crypto
+      const sha1 = this.nodeAPI.crypto
         .createHash('sha1')
         .update(paths.slice().sort().join('\n'))
         .digest('hex');
@@ -1574,6 +1577,17 @@ class AtomEnvironment {
 
       return this.applicationDelegate.resolveProxy(requestId, url);
     });
+  }
+
+  // _registerCustomElements registers all custom elements used in Atom.
+  _registerCustomElements() {
+    registerWorkspaceElement();
+    registerTextEditorElement();
+    registerPaneAxisElement();
+    registerStylesElement();
+    registerPaneContainerElement();
+    registerPainResizeHandleElement();
+    registerPaneElement();
   }
 }
 

@@ -4,7 +4,6 @@ const fs = require('fs-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
 const dedent = require('dedent');
 
-const BufferedProcess = require('../buffered-process');
 const { requireModule } = require('../module-utils');
 
 // Extended: Loads and activates a package's main module and resources such as
@@ -122,7 +121,7 @@ module.exports = class Package {
       this.metadata.configSchema ||
       this.activationShouldBeDeferred() ||
       localStorage.getItem(this.getCanDeferMainModuleRequireStorageKey()) ===
-      'true'
+        'true'
     );
   }
 
@@ -773,9 +772,9 @@ module.exports = class Package {
 
         if (
           this.viewRegistry.getViewProviderCount() ===
-          previousViewProviderCount &&
+            previousViewProviderCount &&
           this.deserializerManager.getDeserializerCount() ===
-          previousDeserializerCount
+            previousDeserializerCount
         ) {
           localStorage.setItem(
             this.getCanDeferMainModuleRequireStorageKey(),
@@ -842,7 +841,7 @@ module.exports = class Package {
           // The real command will be registered on package activation
           try {
             this.activationCommandSubscriptions.add(
-              this.commandRegistry.add(selector, command, function () { })
+              this.commandRegistry.add(selector, command, function () {})
             );
           } catch (error) {
             if (error.code === 'EBADSELECTOR') {
@@ -1140,8 +1139,9 @@ module.exports = class Package {
 
     let detail, location, stack;
     if (error.filename && error.location && error instanceof SyntaxError) {
-      location = `${error.filename}:${error.location.first_line + 1}:${error.location.first_column + 1
-        }`;
+      location = `${error.filename}:${error.location.first_line + 1}:${
+        error.location.first_column + 1
+      }`;
       detail = `${error.message} in ${location}`;
       stack = 'SyntaxError: ' + error.message + '\n' + 'at ' + location;
     } else if (

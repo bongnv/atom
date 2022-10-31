@@ -43,12 +43,15 @@ class PaneContainerElement extends HTMLElement {
   }
 }
 
-window.customElements.define('atom-pane-container', PaneContainerElement);
+function registerPaneContainerElement() {
+  window.customElements.define('atom-pane-container', PaneContainerElement);
+}
 
 function createPaneContainerElement() {
   return document.createElement('atom-pane-container');
 }
 
 module.exports = {
+  registerPaneContainerElement,
   createPaneContainerElement,
 };

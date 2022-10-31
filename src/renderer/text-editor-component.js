@@ -9,8 +9,6 @@ const { isPairedCharacter } = require('./text-utils');
 const clipboard = electron.clipboard;
 const $ = etch.dom;
 
-let TextEditorElement;
-
 const DEFAULT_ROWS_PER_TILE = 6;
 const NORMAL_WIDTH_CHARACTER = 'x';
 const DOUBLE_WIDTH_CHARACTER = '我';
@@ -61,9 +59,7 @@ module.exports = class TextEditorComponent {
     if (props.element) {
       this.element = props.element;
     } else {
-      if (!TextEditorElement)
-        TextEditorElement = require('./text-editor-element');
-      this.element = TextEditorElement.createTextEditorElement();
+      this.element = createTextEditorElement();
     }
     this.element.initialize(this);
     this.virtualNode = $('atom-text-editor');
@@ -82,7 +78,7 @@ module.exports = class TextEditorComponent {
     this.didCompositionUpdate = this.didCompositionUpdate.bind(this);
     this.didCompositionEnd = this.didCompositionEnd.bind(this);
 
-    this.updatedSynchronously = this.props.updatedSynchronously;
+    this.updatedSynchronously = false;
     this.didScrollDummyScrollbar = this.didScrollDummyScrollbar.bind(this);
     this.didMouseDownOnContent = this.didMouseDownOnContent.bind(this);
     this.debouncedResumeCursorBlinking = debounce(
@@ -5192,4 +5188,8 @@ function ceilToPhysicalPixelBoundary(virtualPixelPosition) {
     Math.ceil(virtualPixelPosition / virtualPixelsPerPhysicalPixel) *
     virtualPixelsPerPhysicalPixel
   );
+}
+
+function createTextEditorElement() {
+  return document.createElement('atom-text-editor');
 }

@@ -622,7 +622,7 @@ const configSchema = ({ homeDir } = {}) => {
       default: true,
       description: 'Enable pasting on middle mouse button click',
     };
-  };
+  }
 
   if (homeDir) {
     configSchema.projectHome = {

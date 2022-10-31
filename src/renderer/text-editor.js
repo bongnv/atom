@@ -17,7 +17,6 @@ const ScopeDescriptor = require('../shared/scope-descriptor');
 
 const GutterContainer = require('./gutter-container');
 let TextEditorComponent = null;
-let TextEditorElement = null;
 const {
   isDoubleWidthCharacter,
   isHalfWidthCharacter,
@@ -5254,11 +5253,8 @@ module.exports = class TextEditor {
     if (!this.component) {
       if (!TextEditorComponent)
         TextEditorComponent = require('./text-editor-component');
-      if (!TextEditorElement)
-        TextEditorElement = require('./text-editor-element');
       this.component = new TextEditorComponent({
         model: this,
-        updatedSynchronously: TextEditorElement.prototype.updatedSynchronously,
         initialScrollTopRow: this.initialScrollTopRow,
         initialScrollLeftColumn: this.initialScrollLeftColumn,
       });
