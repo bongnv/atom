@@ -117,35 +117,3 @@ module.exports =
       latestVersion = latestAtomData.name
       upToDate = installedVersion? and semver.gte(installedVersion, latestVersion)
       {upToDate, latestVersion, installedVersion}
-
-  getPackageVersion: (packageName) ->
-    pack = atom.packages.getLoadedPackage(packageName)
-    pack?.metadata.version
-
-  getPackageVersionShippedWithAtom: (packageName) ->
-    # eslint no-undef: false
-    __non_webpack_require__(path.join(atom.getLoadSettings().resourcePath, 'package.json')).packageDependencies[packageName]
-
-  getLatestPackageData: (packageName) ->
-    githubHeaders = new Headers({
-      accept: 'application/vnd.github.v3+json',
-      contentType: "application/json"
-    })
-    fetch "https://atom.io/api/packages/#{packageName}", {headers: githubHeaders}
-      .then (r) -> if r.ok then r.json() else Promise.reject r.statusCode
-
-  checkPackageUpToDate: (packageName) ->
-    @getLatestPackageData(packageName).then (latestPackageData) =>
-      installedVersion = @getPackageVersion(packageName)
-      upToDate = installedVersion? and semver.gte(installedVersion, latestPackageData.releases.latest)
-      latestVersion = latestPackageData.releases.latest
-      versionShippedWithAtom = @getPackageVersionShippedWithAtom(packageName)
-
-      if isCore = versionShippedWithAtom?
-        # A core package is out of date if the version which is being used
-        # is lower than the version which normally ships with the version
-        # of Atom which is running. This will happen when there's a locally
-        # installed version of the package with a lower version than Atom's.
-        upToDate = installedVersion? and semver.gte(installedVersion, versionShippedWithAtom)
-
-      {isCore, upToDate, latestVersion, installedVersion, versionShippedWithAtom}

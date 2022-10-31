@@ -180,45 +180,15 @@ class NotificationElement
       promises = []
       promises.push @issue.findSimilarIssues()
       promises.push UserUtilities.checkAtomUpToDate()
-      promises.push UserUtilities.checkPackageUpToDate(packageName) if packageName?
 
       Promise.all(promises).then (allData) =>
-        [issues, atomCheck, packageCheck] = allData
+        [issues, atomCheck] = allData
 
         if issues?.open or issues?.closed
           issue = issues.open or issues.closed
           issueButton.setAttribute('href', issue.html_url)
           issueButton.textContent = "View Issue"
           fatalNotification.innerHTML += " This issue has already been reported."
-        else if packageCheck? and not packageCheck.upToDate and not packageCheck.isCore
-          issueButton.setAttribute('href', '#')
-          issueButton.textContent = "Check for package updates"
-          issueButton.addEventListener 'click', (e) ->
-            e.preventDefault()
-            command = 'settings-view:check-for-package-updates'
-            atom.commands.dispatch(atom.views.getView(atom.workspace), command)
-
-          fatalNotification.innerHTML += """
-            <code>#{packageName}</code> is out of date: #{packageCheck.installedVersion} installed;
-            #{packageCheck.latestVersion} latest.
-            Upgrading to the latest version may fix this issue.
-          """
-        else if packageCheck? and not packageCheck.upToDate and packageCheck.isCore
-          issueButton.remove()
-
-          fatalNotification.innerHTML += """
-            <br><br>
-            Locally installed core Atom package <code>#{packageName}</code> is out of date: #{packageCheck.installedVersion} installed locally;
-            #{packageCheck.versionShippedWithAtom} included with the version of Atom you're running.
-            Removing the locally installed version may fix this issue.
-          """
-
-          packagePath = atom.packages.getLoadedPackage(packageName)?.path
-          if fs.isSymbolicLinkSync(packagePath)
-            fatalNotification.innerHTML += """
-            <br><br>
-            Use: <code>apm unlink #{packagePath}</code>
-          """
         else if atomCheck? and not atomCheck.upToDate
           issueButton.remove()
 

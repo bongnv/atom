@@ -45,10 +45,7 @@ module.exports = class PackageManager {
     this.packageDirPaths = [];
     this.deferredActivationHooks = [];
     this.triggeredActivationHooks = new Set();
-    this.packageDependencies =
-      packageJSON.packageDependencies != null
-        ? packageJSON.packageDependencies
-        : {};
+    this.bundledPackages = new Set();
     this.initialPackagesLoaded = false;
     this.initialPackagesActivated = false;
     this.loadedPackages = {};
@@ -85,10 +82,7 @@ module.exports = class PackageManager {
     await this.deactivatePackages();
     this.loadedPackages = {};
     this.packageStates = {};
-    this.packageDependencies =
-      packageJSON.packageDependencies != null
-        ? packageJSON.packageDependencies
-        : {};
+    this.bundledPackage.clear();
     this.triggeredActivationHooks.clear();
     this.activatePromise = null;
   }
@@ -208,7 +202,7 @@ module.exports = class PackageManager {
   //
   // Returns a {Boolean}.
   isBundledPackage(name) {
-    return !!this.getPackageDependencies()[name];
+    return this.bundledPackages.has(name);
   }
 
   /*
@@ -393,13 +387,16 @@ module.exports = class PackageManager {
       const packageName = packagePath.match(
         /^\.\/([\w\d-]*)\/package\.json$/
       )[1];
-      packages.push({
-        name: packageName,
-        path: path.join(atomConfig.rootDir, 'packages', packageName),
-        isBundled: true,
-        metadata: packagesContext(packagePath),
-      });
-      packagesByName.add(packageName);
+      this.bundledPackages.add(packageName);
+      if (!packagesByName.has(packageName)) {
+        packages.push({
+          name: packageName,
+          path: path.join(atomConfig.rootDir, 'packages', packageName),
+          isBundled: true,
+          metadata: packagesContext(packagePath),
+        });
+        packagesByName.add(packageName);
+      }
     });
 
     return packages.sort((a, b) => a.name.localeCompare(b.name));
@@ -415,10 +412,6 @@ module.exports = class PackageManager {
 
   setPackageState(name, state) {
     this.packageStates[name] = state;
-  }
-
-  getPackageDependencies() {
-    return this.packageDependencies;
   }
 
   hasAtomEngine(packagePath) {
