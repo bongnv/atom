@@ -47,7 +47,6 @@ function initializeWindow() {
 
   const clipboard = new Clipboard();
   TextEditor.setClipboard(clipboard);
-  TextEditor.viewForItem = (item) => atom.views.getView(item);
 
   const atom = new AtomEnvironment({
     clipboard,

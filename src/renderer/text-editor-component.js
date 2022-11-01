@@ -5088,7 +5088,8 @@ function debounce(fn, wait) {
 }
 
 function viewForItem(item) {
-  return item.element || item;
+  // TODO: bongnv - shouldn't use global variable here.
+  return atom.views.getView(item);
 }
 
 class NodePool {

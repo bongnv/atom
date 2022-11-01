@@ -56,7 +56,6 @@ export default class MultiFilePatchView extends React.Component {
     keymaps: PropTypes.object.isRequired,
     tooltips: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
-    pullRequest: PropTypes.object,
 
     // Callbacks
     selectedRowsChanged: PropTypes.func,
@@ -81,7 +80,8 @@ export default class MultiFilePatchView extends React.Component {
 
     // for navigating the PR changed files tab
     onOpenFilesTab: PropTypes.func,
-    initChangedFilePath: PropTypes.string, initChangedFilePosition: PropTypes.number,
+    initChangedFilePath: PropTypes.string,
+    initChangedFilePosition: PropTypes.number,
 
     // for opening the reviews dock item
     endpoint: EndpointPropType,

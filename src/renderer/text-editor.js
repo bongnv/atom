@@ -83,10 +83,6 @@ module.exports = class TextEditor {
     return TextEditorComponent.didUpdateScrollbarStyles();
   }
 
-  static viewForItem(item) {
-    return item.element || item;
-  }
-
   static deserialize(state, atomEnvironment) {
     if (state.version !== SERIALIZATION_VERSION) return null;
 
