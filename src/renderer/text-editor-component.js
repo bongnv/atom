@@ -3,7 +3,6 @@ const { Point, Range } = require('text-buffer');
 const LineTopIndex = require('line-top-index');
 const electron = require('electron');
 
-const TextEditor = require('./text-editor');
 const { isPairedCharacter } = require('./text-utils');
 
 const clipboard = electron.clipboard;
@@ -47,20 +46,8 @@ module.exports = class TextEditorComponent {
 
   constructor(props) {
     this.props = props;
-
-    if (!props.model) {
-      props.model = new TextEditor({
-        mini: props.mini,
-        readOnly: props.readOnly,
-      });
-    }
     this.props.model.component = this;
-
-    if (props.element) {
-      this.element = props.element;
-    } else {
-      this.element = createTextEditorElement();
-    }
+    this.element = props.element;
     this.element.initialize(this);
     this.virtualNode = $('atom-text-editor');
     this.virtualNode.domNode = this.element;
@@ -320,7 +307,7 @@ module.exports = class TextEditorComponent {
       blockDecorationMeasurementArea.appendChild(document.createElement('div'));
       this.blockDecorationsToMeasure.forEach((decoration) => {
         const { item } = decoration.getProperties();
-        const decorationElement = TextEditor.viewForItem(item);
+        const decorationElement = viewForItem(item);
         if (document.contains(decorationElement)) {
           const parentElement = decorationElement.parentElement;
 
@@ -356,7 +343,7 @@ module.exports = class TextEditorComponent {
 
       this.blockDecorationsToMeasure.forEach((decoration) => {
         const { item } = decoration.getProperties();
-        const decorationElement = TextEditor.viewForItem(item);
+        const decorationElement = viewForItem(item);
         const { previousSibling, nextSibling } = decorationElement;
         const height =
           nextSibling.getBoundingClientRect().top -
@@ -1241,7 +1228,7 @@ module.exports = class TextEditorComponent {
 
   addOverlayDecorationToRender(decoration, marker) {
     const { class: className, item, position, avoidOverflow } = decoration;
-    const element = TextEditor.viewForItem(item);
+    const element = viewForItem(item);
     const screenPosition =
       position === 'tail'
         ? marker.getTailScreenPosition()
@@ -1277,7 +1264,7 @@ module.exports = class TextEditorComponent {
     decorations.push({
       className:
         'decoration' + (decoration.class ? ' ' + decoration.class : ''),
-      element: TextEditor.viewForItem(decoration.item),
+      element: viewForItem(decoration.item),
       top,
       height,
     });
@@ -2858,7 +2845,7 @@ module.exports = class TextEditorComponent {
   addBlockDecoration(decoration, subscribeToChanges = true) {
     const marker = decoration.getMarker();
     const { item, position } = decoration.getProperties();
-    const element = TextEditor.viewForItem(item);
+    const element = viewForItem(item);
 
     if (marker.isValid()) {
       const row = marker.getHeadScreenPosition().row;
@@ -4407,7 +4394,7 @@ class LinesTileComponent {
         const decoration = blockDecorations[i];
         if (decoration.position !== 'after') {
           blockDecorationElementsBeforeOldScreenLine.push(
-            TextEditor.viewForItem(decoration.item)
+            viewForItem(decoration.item)
           );
         }
       }
@@ -4445,7 +4432,7 @@ class LinesTileComponent {
           if (newDecorations && newDecorations.includes(oldDecoration))
             continue;
 
-          const element = TextEditor.viewForItem(oldDecoration.item);
+          const element = viewForItem(oldDecoration.item);
           if (element.parentElement !== this.element) continue;
 
           element.remove();
@@ -4463,7 +4450,7 @@ class LinesTileComponent {
 
         for (let i = 0; i < newDecorations.length; i++) {
           const newDecoration = newDecorations[i];
-          const element = TextEditor.viewForItem(newDecoration.item);
+          const element = viewForItem(newDecoration.item);
 
           if (oldDecorations && oldDecorations.includes(newDecoration)) {
             if (newDecoration.position === 'after') {
@@ -5100,6 +5087,10 @@ function debounce(fn, wait) {
   };
 }
 
+function viewForItem(item) {
+  return item.element || item;
+}
+
 class NodePool {
   constructor() {
     this.elementsByType = {};
@@ -5188,8 +5179,4 @@ function ceilToPhysicalPixelBoundary(virtualPixelPosition) {
     Math.ceil(virtualPixelPosition / virtualPixelsPerPhysicalPixel) *
     virtualPixelsPerPhysicalPixel
   );
-}
-
-function createTextEditorElement() {
-  return document.createElement('atom-text-editor');
 }

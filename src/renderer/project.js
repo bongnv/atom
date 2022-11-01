@@ -135,7 +135,7 @@ module.exports = class Project extends Model {
       // TextBuffers backed by files that have been deleted from being saved.
       bufferState.mustExist = bufferState.digestWhenLastPersisted !== false;
 
-      return TextBuffer.deserialize(bufferState).catch((_) => {
+      return TextBuffer.deserialize(bufferState).catch(() => {
         this.retiredBufferIDs.add(bufferState.id);
         this.retiredBufferPaths.add(bufferState.filePath);
         return null;

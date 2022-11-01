@@ -16,7 +16,7 @@ const TextMateLanguageMode = require('./text-mate-language-mode');
 const ScopeDescriptor = require('../shared/scope-descriptor');
 
 const GutterContainer = require('./gutter-container');
-let TextEditorComponent = null;
+const TextEditorComponent = require('./text-editor-component');
 const {
   isDoubleWidthCharacter,
   isHalfWidthCharacter,
@@ -76,16 +76,10 @@ module.exports = class TextEditor {
   }
 
   static didUpdateStyles() {
-    if (TextEditorComponent == null) {
-      TextEditorComponent = require('./text-editor-component');
-    }
     return TextEditorComponent.didUpdateStyles();
   }
 
   static didUpdateScrollbarStyles() {
-    if (TextEditorComponent == null) {
-      TextEditorComponent = require('./text-editor-component');
-    }
     return TextEditorComponent.didUpdateScrollbarStyles();
   }
 
@@ -5251,9 +5245,8 @@ module.exports = class TextEditor {
   // Get the Element for the editor.
   getElement() {
     if (!this.component) {
-      if (!TextEditorComponent)
-        TextEditorComponent = require('./text-editor-component');
       this.component = new TextEditorComponent({
+        element: document.createElement('atom-text-editor'),
         model: this,
         initialScrollTopRow: this.initialScrollTopRow,
         initialScrollLeftColumn: this.initialScrollLeftColumn,

@@ -166,7 +166,7 @@ class NativeWatcher {
 
 // Private: Implement a native watcher by translating events from an NSFW watcher.
 class NSFWNativeWatcher extends NativeWatcher {
-  async doStart(rootPath, eventCallback, errorCallback) {
+  async doStart() {
     const handler = (events) => {
       this.onEvents(
         events.map((event) => {
@@ -256,7 +256,7 @@ class PathWatcher {
   // * `watchedPath` {String} containing the absolute path to the root of the watched filesystem tree.
   // * `options` See {watchPath} for options.
   //
-  constructor(nativeWatcherRegistry, watchedPath, options) {
+  constructor(nativeWatcherRegistry, watchedPath) {
     this.watchedPath = watchedPath;
     this.nativeWatcherRegistry = nativeWatcherRegistry;
 

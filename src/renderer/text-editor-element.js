@@ -1,5 +1,6 @@
 const { Emitter, Range } = require('atom');
 
+const TextEditor = require('./text-editor');
 const TextEditorComponent = require('./text-editor-component');
 
 class TextEditorElement extends HTMLElement {
@@ -267,11 +268,19 @@ class TextEditorElement extends HTMLElement {
 
   getComponent() {
     if (!this.component) {
+      const mini = this.hasAttribute('mini');
+      const readOnly = this.hasAttribute('readonly');
+      const model = new TextEditor({
+        mini,
+        readOnly,
+      });
+
       this.component = new TextEditorComponent({
         element: this,
-        mini: this.hasAttribute('mini'),
+        mini,
+        model,
         updatedSynchronously: this.updatedSynchronously,
-        readOnly: this.hasAttribute('readonly'),
+        readOnly,
       });
       this.updateModelFromAttributes();
     }
