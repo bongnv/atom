@@ -44,7 +44,7 @@ module.exports = class PackageManager {
     this.packageDirPaths = [];
     this.deferredActivationHooks = [];
     this.triggeredActivationHooks = new Set();
-    this.bundledPackages = new Set();
+    this.bundledPackages = {};
     this.initialPackagesLoaded = false;
     this.initialPackagesActivated = false;
     this.loadedPackages = {};
@@ -62,6 +62,18 @@ module.exports = class PackageManager {
     if (configDirPath != null) {
       this.packageDirPaths.push(path.join(configDirPath, 'packages'));
     }
+
+    const packagesContext = require.context(
+      '../../packages',
+      true,
+      /^\.\/[\w\d-]*\/package\.json$/
+    );
+    packagesContext.keys().forEach((packagePath) => {
+      const packageName = packagePath.match(
+        /^\.\/([\w\d-]*)\/package\.json$/
+      )[1];
+      this.bundledPackages[packageName] = packagesContext(packagePath);
+    });
   }
 
   setContextMenuManager(contextMenuManager) {
@@ -177,19 +189,13 @@ module.exports = class PackageManager {
   //
   // Return a {String} folder path or undefined if it could not be resolved.
   resolvePackagePath(name) {
-    if (fs.isDirectorySync(name)) {
-      return name;
-    }
-
     let packagePath = fs.resolve(...this.packageDirPaths, name);
     if (fs.isDirectorySync(packagePath)) {
       return packagePath;
     }
 
-    packagePath = path.join(atomConfig.rootDir, 'packages', name);
-    // FIXME: bongnv - should resolve from inmemory packages
-    if (this.hasAtomEngine(packagePath)) {
-      return packagePath;
+    if (this.bundledPackages[name]) {
+      return path.join(atomConfig.rootDir, 'packages', name);
     }
 
     return null;
@@ -377,26 +383,19 @@ module.exports = class PackageManager {
       }
     }
 
-    const packagesContext = require.context(
-      '../../packages',
-      true,
-      /^\.\/[\w\d-]*\/package\.json$/
-    );
-    packagesContext.keys().forEach((packagePath) => {
-      const packageName = packagePath.match(
-        /^\.\/([\w\d-]*)\/package\.json$/
-      )[1];
-      this.bundledPackages.add(packageName);
+    for (const [packageName, metadata] of Object.entries(
+      this.bundledPackages
+    )) {
       if (!packagesByName.has(packageName)) {
         packages.push({
           name: packageName,
           path: path.join(atomConfig.rootDir, 'packages', packageName),
           isBundled: true,
-          metadata: packagesContext(packagePath),
+          metadata,
         });
         packagesByName.add(packageName);
       }
-    });
+    }
 
     return packages.sort((a, b) => a.name.localeCompare(b.name));
   }
@@ -411,15 +410,6 @@ module.exports = class PackageManager {
 
   setPackageState(name, state) {
     this.packageStates[name] = state;
-  }
-
-  hasAtomEngine(packagePath) {
-    const metadata = this.loadPackageMetadataByPath(packagePath, true);
-    return (
-      metadata != null &&
-      metadata.engines != null &&
-      metadata.engines.atom != null
-    );
   }
 
   unobserveDisabledPackages() {
@@ -788,17 +778,6 @@ module.exports = class PackageManager {
 
   isBundledPackagePath(packagePath) {
     return packagePath != null && packagePath.startsWith(atomConfig.rootDir);
-  }
-
-  loadPackageMetadataByPath(packagePath, ignoreErrors = false) {
-    const name = path.basename(packagePath);
-    return this.loadPackageMetadata(
-      {
-        path: packagePath,
-        name,
-      },
-      ignoreErrors
-    );
   }
 
   loadPackageMetadata(availablePackage, ignoreErrors = false) {
