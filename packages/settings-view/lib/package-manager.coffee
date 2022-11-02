@@ -28,9 +28,10 @@ class PackageManager
     schema? and (schema.type isnt 'any')
 
   # FIXME: bongnv - implement a different approach to load packages
+  # find a way to differentiate core and installed
   loadInstalled: (callback) ->
     callback(null, {
-      core: [],
+      core: atom.packages.getAvailablePackageMetadata(),
       dev: [],
       user: [],
       deprecated: [],

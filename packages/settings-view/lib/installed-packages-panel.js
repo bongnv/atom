@@ -291,9 +291,7 @@ export default class InstalledPackagesPanel extends CollapsibleSectionPanel {
   filterPackages(packages) {
     packages.dev = packages.dev.filter(({ theme }) => !theme);
     packages.user = packages.user.filter(({ theme }) => !theme);
-    packages.deprecated = packages.user.filter(({ name, version }) =>
-      atom.packages.isDeprecatedPackage(name, version)
-    );
+    packages.deprecated = []; // TODO: bongnv - remove this
     packages.core = packages.core.filter(({ theme }) => !theme);
     packages.git = (packages.git || []).filter(({ theme }) => !theme);
 

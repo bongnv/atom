@@ -207,7 +207,7 @@ module.exports = class PackageManager {
   //
   // Returns a {Boolean}.
   isBundledPackage(name) {
-    return this.bundledPackages.has(name);
+    return !!this.bundledPackages[name];
   }
 
   /*
@@ -348,6 +348,8 @@ module.exports = class PackageManager {
     return packages;
   }
 
+  // getAvailablePackages returns a sorted list of available packages.
+  // It only contains basic information: name, path, isBundled
   getAvailablePackages() {
     const packages = [];
     const packagesByName = new Set();
@@ -383,15 +385,12 @@ module.exports = class PackageManager {
       }
     }
 
-    for (const [packageName, metadata] of Object.entries(
-      this.bundledPackages
-    )) {
+    for (const packageName of Object.keys(this.bundledPackages)) {
       if (!packagesByName.has(packageName)) {
         packages.push({
           name: packageName,
           path: path.join(atomConfig.rootDir, 'packages', packageName),
           isBundled: true,
-          metadata,
         });
         packagesByName.add(packageName);
       }
@@ -539,7 +538,7 @@ module.exports = class PackageManager {
 
     const options = {
       path: availablePackage.path,
-      name: metadata.name || availablePackage.name,
+      name: metadata.name,
       metadata,
       bundledPackage: availablePackage.isBundled,
       packageManager: this,
@@ -760,7 +759,7 @@ module.exports = class PackageManager {
     return Promise.all([symlinkPromise, dirPromise]).then((values) => {
       const [isSymLink, isDir] = values;
       if (!isSymLink && isDir) {
-        return fs.remove(directory, function () {});
+        return fs.remove(directory, function () { });
       }
     });
   }
@@ -783,21 +782,20 @@ module.exports = class PackageManager {
   loadPackageMetadata(availablePackage, ignoreErrors = false) {
     const packageName = availablePackage.name;
     const packagePath = availablePackage.path;
-    let metadata = availablePackage.metadata;
+    let metadata;
 
     try {
-      if (!metadata) {
+      if (availablePackage.isBundled) {
+        metadata = this.bundledPackages[packageName];
+      } else {
         const metadataPath = path.join(packagePath, 'package.json');
-        metadata = JSON.parse(fs.readFileSync(metadataPath));
+        metadata = JSON.parse(fs.readFileSync(metadataPath));  
       }
       this.normalizePackageMetadata(metadata);
     } catch (error) {
       if (!ignoreErrors) {
         throw error;
       }
-    }
-
-    if (metadata == null) {
       metadata = {};
     }
 

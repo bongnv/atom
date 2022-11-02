@@ -125,9 +125,8 @@ module.exports = {
   showDeprecatedNotification(packages) {
     localStorage.setItem('hasSeenDeprecatedNotification', true);
 
-    const deprecatedPackages = packages.user.filter(({ name, version }) =>
-      atom.packages.isDeprecatedPackage(name, version)
-    );
+    // TODO: bongnv - remove this logic
+    const deprecatedPackages = [];
     if (!deprecatedPackages.length) return;
 
     let were = 'were';

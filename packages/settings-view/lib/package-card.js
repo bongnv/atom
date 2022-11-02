@@ -841,9 +841,9 @@ export default class PackageCard {
     return atom.packages.isPackageDisabled(this.pack.name);
   }
 
+  // TODO: bongnv - remove this logic
   isDeprecated(version) {
-    const packVersion = version != null ? version : this.pack.version;
-    return atom.packages.isDeprecatedPackage(this.pack.name, packVersion);
+    return false;
   }
 
   getDeprecatedPackageMetadata() {
