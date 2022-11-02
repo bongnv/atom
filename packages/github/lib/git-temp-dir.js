@@ -1,15 +1,16 @@
 import os from 'os';
+import url from 'url';
 import path from 'path';
 import fs from 'fs-extra';
 import {getPackageRoot, getTempDir} from './helpers';
 
 export const BIN_SCRIPTS = {
-  getCredentialHelperJs: 'git-credential-atom.js',
-  getCredentialHelperSh: 'git-credential-atom.sh',
-  getAskPassJs: 'git-askpass-atom.js',
-  getAskPassSh: 'git-askpass-atom.sh',
-  getSshWrapperSh: 'linux-ssh-wrapper.sh',
-  getGpgWrapperSh: 'gpg-wrapper.sh',
+  getCredentialHelperJs: url.fileURLToPath(require('../bin/git-credential-atom.js?raw')),
+  getCredentialHelperSh: url.fileURLToPath(require('../bin/git-credential-atom.sh?raw')),
+  getAskPassJs: url.fileURLToPath(require('../bin/git-askpass-atom.js?raw')),
+  getAskPassSh: url.fileURLToPath(require('../bin/git-askpass-atom.sh?raw')),
+  getSshWrapperSh: url.fileURLToPath(require('../bin/linux-ssh-wrapper.sh?raw')),
+  getGpgWrapperSh: url.fileURLToPath(require('../bin/gpg-wrapper.sh?raw')),
 };
 
 export default class GitTempDir {
@@ -31,7 +32,7 @@ export default class GitTempDir {
     await Promise.all(
       Object.values(BIN_SCRIPTS).map(async filename => {
         await fs.copy(
-          path.resolve(getPackageRoot(), 'bin', filename),
+          filename,
           path.join(this.root, filename),
         );
 
