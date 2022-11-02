@@ -171,6 +171,7 @@ class AtomEnvironment {
       assert: this.assert.bind(this),
       textEditorRegistry: this.textEditors,
       styleManager: this.styles,
+      nodeAPI: this.nodeAPI,
     });
 
     this.themes.workspace = this.workspace;

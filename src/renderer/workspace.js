@@ -1,8 +1,6 @@
 const _ = require('underscore-plus');
 const url = require('url');
-const path = require('path');
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
-const fs = require('fs-plus');
 const { Directory } = require('pathwatcher');
 const Grim = require('grim');
 
@@ -177,6 +175,8 @@ const ALL_LOCATIONS = ['center', 'left', 'right', 'bottom'];
 module.exports = class Workspace extends Model {
   constructor(params) {
     super(...arguments);
+
+    this.nodeAPI = params.nodeAPI;
 
     this.updateWindowTitle = this.updateWindowTitle.bind(this);
     this.updateDocumentEdited = this.updateDocumentEdited.bind(this);
@@ -699,7 +699,7 @@ module.exports = class Workspace extends Model {
         (projectPath) =>
           itemPath === projectPath ||
           (itemPath != null
-            ? itemPath.startsWith(projectPath + path.sep)
+            ? itemPath.startsWith(projectPath + this.nodeAPI.path.sep)
             : undefined)
       );
     }
@@ -707,10 +707,10 @@ module.exports = class Workspace extends Model {
       itemTitle = 'untitled';
     }
     if (projectPath == null) {
-      projectPath = itemPath ? path.dirname(itemPath) : projectPaths[0];
+      projectPath = itemPath ? this.nodeAPI.path.dirname(itemPath) : projectPaths[0];
     }
     if (projectPath != null) {
-      projectPath = fs.tildify(projectPath);
+      projectPath = this.nodeAPI.fs.tildify(projectPath);
     }
 
     const titleParts = [];
@@ -1299,7 +1299,7 @@ module.exports = class Workspace extends Model {
 
   // Open Atom's license in the active pane.
   openLicense() {
-    return this.open(path.join(process.resourcesPath, 'LICENSE.md'));
+    return this.open(this.nodeAPI.path.join(process.resourcesPath, 'LICENSE.md'));
   }
 
   // Synchronously open the given URI in the active pane. **Only use this method
@@ -1404,7 +1404,8 @@ module.exports = class Workspace extends Model {
 
     if (filePath != null) {
       try {
-        fs.closeSync(fs.openSync(filePath, 'r'));
+        const fh = await this.nodeAPI.fs.open(filePath, 'r');
+        await fh.close();
       } catch (error) {
         // allow ENOENT errors to create an editor for paths that dont exist
         if (error.code !== 'ENOENT') {
@@ -1413,7 +1414,7 @@ module.exports = class Workspace extends Model {
       }
     }
 
-    const fileSize = fs.getSizeSync(filePath);
+    const fileSize = await this.nodeAPI.fs.getSize(filePath);
 
     if (fileSize >= this.config.get('core.warnOnLargeFileLimit') * 1048576) {
       // 40MB by default
