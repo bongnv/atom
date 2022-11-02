@@ -18,7 +18,6 @@ export default class InstallPanel {
     this.settingsView = settingsView;
     this.packageManager = packageManager;
     this.disposables = new CompositeDisposable();
-    this.client = this.packageManager.getClient();
     this.atomIoURL = 'https://atom.io/packages';
 
     etch.initialize(this);
@@ -267,7 +266,8 @@ export default class InstallPanel {
     options[this.searchType] = true;
 
     try {
-      const packages = (await this.client.search(query, options)) || [];
+      // TODO: bongnv - search for packages in github?
+      const packages = [];
       this.refs.resultsContainer.innerHTML = '';
       this.refs.searchMessage.style.display = 'none';
       if (packages.length === 0) {

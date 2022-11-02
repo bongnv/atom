@@ -20,7 +20,6 @@ export default class PackageCard {
     // ::validate method, or add a method here. At the moment I think all cases
     // of malformed package metadata are handled here and in ::content but belt
     // and suspenders, you know
-    this.client = this.packageManager.getClient();
     this.type = this.pack.theme ? 'theme' : 'package';
     this.name = this.pack.name;
     this.onSettingsView = options.onSettingsView;
@@ -456,41 +455,26 @@ export default class PackageCard {
   }
 
   loadCachedMetadata() {
-    this.client.avatar(
-      ownerFromRepository(this.pack.repository),
-      (err, avatarPath) => {
-        if (!err && avatarPath) {
-          this.refs.avatar.src = `file://${avatarPath}`;
-        }
-      }
-    );
+    // TODO: bongnv - find a way to load package data & avatar
+    // this.refs.avatar.src = undefined;
+    const data = {};
 
-    this.client.package(this.pack.name, (err, data) => {
-      // We don't need to actually handle the error here, we can just skip
-      // showing the download count if there's a problem.
-      if (!err) {
-        if (data == null) {
-          data = {};
-        }
-
-        if (
-          this.pack.apmInstallSource &&
-          this.pack.apmInstallSource.type === 'git'
-        ) {
-          this.refs.downloadIcon.classList.remove('icon-cloud-download');
-          this.refs.downloadIcon.classList.add('icon-git-branch');
-          this.refs.downloadCount.textContent =
-            this.pack.apmInstallSource.sha.substr(0, 8);
-        } else {
-          this.refs.stargazerCount.textContent = data.stargazers_count
-            ? data.stargazers_count.toLocaleString()
-            : '';
-          this.refs.downloadCount.textContent = data.downloads
-            ? data.downloads.toLocaleString()
-            : '';
-        }
-      }
-    });
+    if (
+      this.pack.apmInstallSource &&
+      this.pack.apmInstallSource.type === 'git'
+    ) {
+      this.refs.downloadIcon.classList.remove('icon-cloud-download');
+      this.refs.downloadIcon.classList.add('icon-git-branch');
+      this.refs.downloadCount.textContent =
+        this.pack.apmInstallSource.sha.substr(0, 8);
+    } else {
+      this.refs.stargazerCount.textContent = data.stargazers_count
+        ? data.stargazers_count.toLocaleString()
+        : '';
+      this.refs.downloadCount.textContent = data.downloads
+        ? data.downloads.toLocaleString()
+        : '';
+    }
   }
 
   updateInterfaceState() {

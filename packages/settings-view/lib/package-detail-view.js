@@ -222,23 +222,9 @@ export default class PackageDetailView {
 
   fetchPackage() {
     this.showLoadingMessage();
-    this.packageManager
-      .getClient()
-      .package(this.pack.name, (err, packageData) => {
-        if (err || !packageData || !packageData.name) {
-          this.hideLoadingMessage();
-          this.showErrorMessage();
-        } else {
-          this.pack = packageData;
-          // TODO: this should match Package.loadMetadata from core, but this is
-          // an acceptable hacky workaround
-          this.pack.metadata = _.extend(
-            this.pack.metadata != null ? this.pack.metadata : {},
-            this.pack
-          );
-          this.completeInitialization();
-        }
-      });
+    // TODO: bongnv - load package detail
+    this.pack.metadata = {};
+    this.completeInitialization();
   }
 
   showLoadingMessage() {
