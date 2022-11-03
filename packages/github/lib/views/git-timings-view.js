@@ -1,7 +1,6 @@
 import {TextBuffer} from 'atom';
 import {Emitter, CompositeDisposable} from 'event-kit';
-import {remote} from 'electron';
-const {dialog} = remote;
+import {dialog} from '@electron/remote';
 import React from 'react';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';

@@ -466,7 +466,7 @@ class TabBarView
       @tabScrolling = value
 
   browserWindowForId: (id) ->
-    BrowserWindow ?= require('electron').remote.BrowserWindow
+    BrowserWindow ?= require('@electron/remote').BrowserWindow
 
     BrowserWindow.fromId id
 

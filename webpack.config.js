@@ -137,7 +137,7 @@ module.exports = [
                   '@babel/preset-env',
                   {
                     targets: {
-                      electron: "12",
+                      electron: "13",
                     },
                     modules: "commonjs",
                   },

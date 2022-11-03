@@ -9,7 +9,7 @@ function isSupported() {
 }
 
 function isDefaultProtocolClient() {
-  return require('electron').remote.app.isDefaultProtocolClient(
+  return require('@electron/remote').app.isDefaultProtocolClient(
     'atom',
     process.execPath,
     ['--uri-handler', '--']
@@ -21,7 +21,7 @@ function setAsDefaultProtocolClient() {
   // hacks to make it work on Linux; see https://github.com/electron/electron/issues/6440
   return (
     isSupported() &&
-    require('electron').remote.app.setAsDefaultProtocolClient(
+    require('@electron/remote').app.setAsDefaultProtocolClient(
       'atom',
       process.execPath,
       ['--uri-handler', '--']

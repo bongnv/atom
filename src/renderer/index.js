@@ -1,6 +1,7 @@
 const startTime = Date.now();
 const electron = require('electron');
-const startupMarkers = electron.remote.getCurrentWindow().startupMarkers;
+const remote = require('@electron/remote');
+const startupMarkers = remote.getCurrentWindow().startupMarkers;
 const StartupTime = require('../shared/startup-time');
 
 if (startupMarkers) {
@@ -11,7 +12,6 @@ if (startupMarkers) {
 StartupTime.addMarker('window:start', Date.now());
 
 require('../install-global-atom');
-require('./electron-shims');
 require('./window');
 
 const getWindowLoadSettings = require('./get-window-load-settings');
@@ -23,7 +23,7 @@ function setLoadTime() {
 }
 
 function handleSetupError(error) {
-  const currentWindow = electron.remote.getCurrentWindow();
+  const currentWindow = remote.getCurrentWindow();
   currentWindow.setSize(800, 600);
   currentWindow.center();
   currentWindow.show();

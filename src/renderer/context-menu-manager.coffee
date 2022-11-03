@@ -2,7 +2,7 @@ path = require 'path'
 fs = require 'fs-plus'
 {calculateSpecificity, validateSelector} = require 'clear-cut'
 {Disposable} = require 'event-kit'
-{remote} = require 'electron'
+remote = require '@electron/remote'
 _ = require 'underscore-plus'
 
 MenuHelpers = require './menu-helpers'

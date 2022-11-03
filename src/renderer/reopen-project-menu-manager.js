@@ -70,7 +70,7 @@ module.exports = class ReopenProjectMenuManager {
   async applyWindowsJumpListRemovals() {
     if (process.platform !== 'win32') return;
     if (this.app === undefined) {
-      this.app = require('electron').remote.app;
+      this.app = require('@electron/remote').app;
     }
 
     const removed = this.app
@@ -91,7 +91,7 @@ module.exports = class ReopenProjectMenuManager {
   updateWindowsJumpList() {
     if (process.platform !== 'win32') return;
     if (this.app === undefined) {
-      this.app = require('electron').remote.app;
+      this.app = require('@electron/remote').app;
     }
 
     this.app.setJumpList([

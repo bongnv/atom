@@ -1,4 +1,4 @@
-const { remote } = require('electron');
+const remote = require('@electron/remote');
 const atomConfig = require('../shared/path-config');
 
 let windowLoadSettings = null;

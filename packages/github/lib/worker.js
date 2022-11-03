@@ -1,6 +1,8 @@
 const qs = require('querystring');
 
-const {remote, ipcRenderer: ipc} = require('electron');
+const {ipcRenderer: ipc} = require('electron');
+const remote = require('@electron/remote');
+
 const {GitProcess} = require('dugite');
 
 

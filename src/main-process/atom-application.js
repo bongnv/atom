@@ -214,6 +214,7 @@ module.exports = class AtomApplication extends EventEmitter {
   async initialize(options) {
     StartupTime.addMarker('main-process:atom-application:initialize:start');
 
+    require('@electron/remote/main').initialize();
     this.config.initialize({
       saveCallback: (settings) => {
         if (!this.quitting) {

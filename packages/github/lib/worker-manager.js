@@ -2,7 +2,8 @@ import path from 'path';
 import querystring from 'querystring';
 import url from 'url';
 
-import {remote, ipcRenderer as ipc} from 'electron';
+import {ipcRenderer as ipc} from 'electron';
+import * as remote from '@electron/remote';
 const {BrowserWindow} = remote;
 import {Emitter, Disposable, CompositeDisposable} from 'event-kit';
 
