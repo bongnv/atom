@@ -495,7 +495,7 @@ module.exports = class AtomApplication extends EventEmitter {
     );
     this.on('application:inspect', ({ x, y, atomWindow }) => {
       if (!atomWindow) atomWindow = this.focusedWindow();
-      if (atomWindow) atomWindow.browserWindow.inspectElement(x, y);
+      if (atomWindow) atomWindow.browserWindow.inspectElement(Math.round(x), Math.round(y));
     });
 
     this.on('application:open-documentation', () =>
