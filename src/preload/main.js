@@ -30,6 +30,7 @@ global.nodeAPI = {
         throw err;
       }
     },
+    readFile: fs.readFile,
     resolveName: async (loadPaths, name) => {
       for (const loadPath of loadPaths) {
         const candidatePath = path.join(loadPath, name);
@@ -38,7 +39,7 @@ global.nodeAPI = {
           return candidatePath;
         } catch (err) {
           if (err.code === 'ENOENT') {
-            continue
+            continue;
           }
           console.warn(`Failed to check ${candidatePath}`, err);
         }
@@ -47,14 +48,24 @@ global.nodeAPI = {
       return undefined;
     },
     tildify: (pathToTildify) => {
-      if (process.platform === 'win32') { return pathToTildify; }
+      if (process.platform === 'win32') {
+        return pathToTildify;
+      }
 
       const normalized = path.normalize(pathToTildify);
 
-      if (normalized === userHomeDir) { return '~'; }
-      if (!normalized.startsWith(path.join(userHomeDir, path.sep))) { return pathToTildify; }
+      if (normalized === userHomeDir) {
+        return '~';
+      }
+      if (!normalized.startsWith(path.join(userHomeDir, path.sep))) {
+        return pathToTildify;
+      }
 
-      return path.join('~', path.sep, normalized.substring(userHomeDir.length + 1));
+      return path.join(
+        '~',
+        path.sep,
+        normalized.substring(userHomeDir.length + 1)
+      );
     },
     open: fs.open,
     getSize: async (filePath) => {

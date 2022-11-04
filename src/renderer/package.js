@@ -14,6 +14,7 @@ module.exports = class Package {
   */
 
   constructor(params) {
+    this.nodeAPI = params.nodeAPI;
     this.config = params.config;
     this.packageManager = params.packageManager;
     this.styleManager = params.styleManager;
@@ -76,6 +77,13 @@ module.exports = class Package {
     return value;
   }
 
+  async measureAsync(key, fn) {
+    const startTime = window.performance.now();
+    const value = await fn();
+    this[key] = Math.round(window.performance.now() - startTime);
+    return value;
+  }
+
   getType() {
     return 'atom';
   }
@@ -92,11 +100,11 @@ module.exports = class Package {
     });
   }
 
-  load() {
-    this.measure('loadTime', () => {
+  async load() {
+    await this.measureAsync('loadTime', async () => {
       try {
-        this.loadKeymaps();
-        this.loadMenus();
+        await this.loadKeymaps();
+        await this.loadMenus();
         this.loadStylesheets();
         this.registerDeserializerMethods();
         this.activateCoreStartupServices();
@@ -111,7 +119,6 @@ module.exports = class Package {
         this.handleError(`Failed to load the ${this.name} package`, error);
       }
     });
-    return this;
   }
 
   shouldRequireMainModuleOnLoad() {
@@ -431,18 +438,22 @@ module.exports = class Package {
     if (!this.mainActivated) this.activateNow();
   }
 
-  loadKeymaps() {
-    this.keymaps = this.getKeymapPaths().map((keymapPath) => [
-      keymapPath,
-      JSON.parse(fs.readFileSync(keymapPath)) || {},
-    ]);
+  async loadKeymaps() {
+    this.keymaps = await Promise.all(
+      this.getKeymapPaths().map(async (keymapPath) => [
+        keymapPath,
+        JSON.parse(await this.nodeAPI.fs.readFile(keymapPath)) || {},
+      ])
+    );
   }
 
-  loadMenus() {
-    this.menus = this.getMenuPaths().map((menuPath) => [
-      menuPath,
-      JSON.parse(fs.readFileSync(menuPath)) || {},
-    ]);
+  async loadMenus() {
+    this.menus = await Promise.all(
+      this.getMenuPaths().map(async (menuPath) => [
+        menuPath,
+        JSON.parse(await this.nodeAPI.fs.readFileSync(menuPath)) || {},
+      ])
+    );
   }
 
   getKeymapPaths() {

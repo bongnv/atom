@@ -37,6 +37,7 @@ module.exports = class PackageManager {
       deserializerManager: this.deserializerManager,
       viewRegistry: this.viewRegistry,
       uriHandlerRegistry: this.uriHandlerRegistry,
+      nodeAPI: this.nodeAPI,
     } = params);
 
     this.emitter = new Emitter();
@@ -219,8 +220,8 @@ module.exports = class PackageManager {
   // * `name` - The {String} package name.
   //
   // Returns the {Package} that was enabled or null if it isn't loaded.
-  enablePackage(name) {
-    const pack = this.loadPackage(name);
+  async enablePackage(name) {
+    const pack = await this.loadPackage(name);
     if (pack != null) {
       pack.enable();
     }
@@ -232,8 +233,8 @@ module.exports = class PackageManager {
   // * `name` - The {String} package name.
   //
   // Returns the {Package} that was disabled or null if it isn't loaded.
-  disablePackage(name) {
-    const pack = this.loadPackage(name);
+  async disablePackage(name) {
+    const pack = await this.loadPackage(name);
     if (!this.isPackageDisabled(name) && pack != null) {
       pack.disable();
     }
@@ -488,21 +489,20 @@ module.exports = class PackageManager {
     );
   }
 
-  loadPackages() {
+  async loadPackages() {
     const disabledPackageNames = new Set(
       this.config.get('core.disabledPackages')
     );
-    this.config.transact(() => {
+    await this.config.transactAsync(async () => {
       for (const pack of this.getAvailablePackages()) {
-        this.loadAvailablePackage(pack, disabledPackageNames);
+        await this.loadAvailablePackage(pack, disabledPackageNames);
       }
     });
     this.initialPackagesLoaded = true;
     this.emitter.emit('did-load-initial-packages');
-    return Promise.resolve();
   }
 
-  loadPackage(name) {
+  async loadPackage(name) {
     const pack = this.getLoadedPackage(name);
     if (pack) {
       return pack;
@@ -510,7 +510,7 @@ module.exports = class PackageManager {
 
     const packagePath = this.resolvePackagePath(name);
     if (packagePath) {
-      return this.loadAvailablePackage({
+      return await this.loadAvailablePackage({
         name,
         path: packagePath,
         isBundled: this.isBundledPackagePath(packagePath),
@@ -521,7 +521,7 @@ module.exports = class PackageManager {
     return null;
   }
 
-  loadAvailablePackage(availablePackage, disabledPackageNames) {
+  async loadAvailablePackage(availablePackage, disabledPackageNames) {
     if (
       disabledPackageNames != null &&
       disabledPackageNames.has(availablePackage.name)
@@ -554,12 +554,13 @@ module.exports = class PackageManager {
       contextMenuManager: this.contextMenuManager,
       deserializerManager: this.deserializerManager,
       viewRegistry: this.viewRegistry,
+      nodeAPI: this.nodeAPI,
     };
 
     const pack = metadata.theme
       ? new ThemePackage(options)
       : new Package(options);
-    pack.load();
+    await pack.load();
     this.loadedPackages[pack.name] = pack;
     this.emitter.emit('did-load-package', pack);
     return pack;
@@ -632,7 +633,7 @@ module.exports = class PackageManager {
       return pack;
     }
 
-    pack = this.loadPackage(name);
+    pack = await this.loadPackage(name);
     if (!pack) {
       throw new Error(`Failed to load package '${name}'`);
     }
@@ -760,7 +761,7 @@ module.exports = class PackageManager {
     return Promise.all([symlinkPromise, dirPromise]).then((values) => {
       const [isSymLink, isDir] = values;
       if (!isSymLink && isDir) {
-        return fs.remove(directory, function () { });
+        return fs.remove(directory, function () {});
       }
     });
   }
@@ -790,7 +791,7 @@ module.exports = class PackageManager {
         metadata = this.bundledPackages[packageName];
       } else {
         const metadataPath = path.join(packagePath, 'package.json');
-        metadata = JSON.parse(fs.readFileSync(metadataPath));  
+        metadata = JSON.parse(fs.readFileSync(metadataPath));
       }
       this.normalizePackageMetadata(metadata);
     } catch (error) {
