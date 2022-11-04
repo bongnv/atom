@@ -17,7 +17,7 @@ const WORD_REGEX = /\w/;
 
 class TreeSitterLanguageMode {
   static _patchSyntaxNode() {
-    if (!Object.prototype.hasOwnProperty.call(Parser.SyntaxNode, 'range')) {
+    if (!('range' in Parser.SyntaxNode.prototype)) {
       Object.defineProperty(Parser.SyntaxNode.prototype, 'range', {
         get() {
           return rangeForNode(this);

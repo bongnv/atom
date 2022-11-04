@@ -16,7 +16,7 @@ class DirectorySearch {
       leadingContextLineCount: options.leadingContextLineCount,
       trailingContextLineCount: options.trailingContextLineCount,
     };
-    this.task = new Task(require('../task/scan-handler.coffee?raw'));
+    this.task = new Task(require('../task/scan-handler.js?raw'));
     this.task.on('scan:result-found', options.didMatch);
     this.task.on('scan:file-error', options.didError);
     this.task.on('scan:paths-searched', options.didSearchPaths);

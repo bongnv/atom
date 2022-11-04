@@ -2210,7 +2210,7 @@ module.exports = class Workspace extends Model {
         }
 
         const task = Task.once(
-          require('../task/replace-handler.coffee?raw'),
+          require('../task/replace-handler.js?raw'),
           outOfProcessPaths,
           regex.source,
           flags,
