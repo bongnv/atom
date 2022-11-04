@@ -163,7 +163,7 @@ class SpellCheckerManager {
                     ]);
                     const removeRange = new multirange.MultiRange([]);
                     for (range of results.incorrect) {
-                        removeRange.appendRange(range.start, range.end);
+                        removeRange.append([[range.start, range.end]]);
                     }
                     invertedCorrect.subtract(removeRange);
 
@@ -172,7 +172,7 @@ class SpellCheckerManager {
                     correct.append(invertedCorrect);
                 } else if (results.correct) {
                     for (range of results.correct) {
-                        correct.appendRange(range.start, range.end);
+                        correct.append([[range.start, range.end]]);
                     }
                 }
 
@@ -181,7 +181,7 @@ class SpellCheckerManager {
                     incorrects.push(newIncorrect);
 
                     for (range of results.incorrect) {
-                        newIncorrect.appendRange(range.start, range.end);
+                        newIncorrect.append([[range.start, range.end]]);
                     }
                 }
             }
@@ -258,10 +258,11 @@ class SpellCheckerManager {
                         // use of the number ranges is inclusive.
                         const lineRange = new multirange.MultiRange(
                             []
-                        ).appendRange(lineBeginIndex, lineEndIndex);
+                        ).append([[lineBeginIndex, lineEndIndex]]);
                         const rangeRange = new multirange.MultiRange(
                             []
-                        ).appendRange(range[0], range[1]);
+                        ).append([[range[0], range[1]]]);
+
                         lineRange.intersect(rangeRange);
 
                         // The range we have here includes whitespace between two concurrent
