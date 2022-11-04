@@ -8,10 +8,10 @@ import globby from 'globby';
 import childProcess from 'child_process';
 import electronLink from 'electron-link';
 
-import {transpile} from './helpers';
+import { transpile } from './helpers';
 
-describe('snapshot generation', function() {
-  it('successfully preprocesses and snapshots the package', async function() {
+describe('snapshot generation', function () {
+  it('successfully preprocesses and snapshots the package', async function () {
     this.timeout(60000);
 
     const baseDirPath = path.resolve(__dirname, '..');
@@ -20,28 +20,65 @@ describe('snapshot generation', function() {
     const snapshotBlobPath = path.join(workDir, 'snapshot-blob.bin');
     const coreModules = new Set(['electron', 'atom']);
 
-    const sourceFiles = await globby(['lib/**/*.js'], {cwd: baseDirPath});
+    const sourceFiles = await globby(['lib/**/*.js'], { cwd: baseDirPath });
     await transpile(...sourceFiles);
 
     await fs.copyFile(
       path.resolve(__dirname, '../package.json'),
-      path.resolve(__dirname, 'output/transpiled/package.json'),
+      path.resolve(__dirname, 'output/transpiled/package.json')
     );
 
-    const {snapshotScript} = await electronLink({
+    const { snapshotScript } = await electronLink({
       baseDirPath,
       mainPath: path.join(__dirname, 'output/transpiled/lib/index.js'),
       cachePath: path.join(__dirname, 'output/snapshot-cache'),
-      shouldExcludeModule: ({requiringModulePath, requiredModulePath}) => {
-        const requiredModuleRelativePath = path.relative(baseDirPath, requiredModulePath);
+      shouldExcludeModule: ({ requiringModulePath, requiredModulePath }) => {
+        const requiredModuleRelativePath = path.relative(
+          baseDirPath,
+          requiredModulePath
+        );
 
-        if (requiredModulePath.endsWith('.node')) { return true; }
-        if (coreModules.has(requiredModulePath)) { return true; }
-        if (requiredModuleRelativePath.startsWith(path.join('node_modules/dugite'))) { return true; }
-        if (requiredModuleRelativePath.endsWith(path.join('node_modules/temp/lib/temp.js'))) { return true; }
-        if (requiredModuleRelativePath.endsWith(path.join('node_modules/graceful-fs/graceful-fs.js'))) { return true; }
-        if (requiredModuleRelativePath.endsWith(path.join('node_modules/fs-extra/lib/index.js'))) { return true; }
-        if (requiredModuleRelativePath.endsWith(path.join('node_modules/superstring/index.js'))) { return true; }
+        if (requiredModulePath.endsWith('.node')) {
+          return true;
+        }
+        if (coreModules.has(requiredModulePath)) {
+          return true;
+        }
+        if (
+          requiredModuleRelativePath.startsWith(
+            path.join('node_modules/dugite')
+          )
+        ) {
+          return true;
+        }
+        if (
+          requiredModuleRelativePath.endsWith(
+            path.join('node_modules/temp/lib/temp.js')
+          )
+        ) {
+          return true;
+        }
+        if (
+          requiredModuleRelativePath.endsWith(
+            path.join('node_modules/graceful-fs/graceful-fs.js')
+          )
+        ) {
+          return true;
+        }
+        if (
+          requiredModuleRelativePath.endsWith(
+            path.join('node_modules/fs-extra/lib/index.js')
+          )
+        ) {
+          return true;
+        }
+        if (
+          requiredModuleRelativePath.endsWith(
+            path.join('node_modules/superstring/index.js')
+          )
+        ) {
+          return true;
+        }
 
         return false;
       },
@@ -49,11 +86,17 @@ describe('snapshot generation', function() {
 
     await fs.writeFile(snapshotScriptPath, snapshotScript, 'utf8');
 
-    vm.runInNewContext(snapshotScript, undefined, {filename: snapshotScriptPath, displayErrors: true});
+    vm.runInNewContext(snapshotScript, undefined, {
+      filename: snapshotScriptPath,
+      displayErrors: true,
+    });
 
     childProcess.execFileSync(
-      path.join(__dirname, '../node_modules/electron-mksnapshot/bin/mksnapshot'),
-      ['--no-use_ic', snapshotScriptPath, '--startup_blob', snapshotBlobPath],
+      path.join(
+        __dirname,
+        '../node_modules/electron-mksnapshot/bin/mksnapshot'
+      ),
+      ['--no-use_ic', snapshotScriptPath, '--startup_blob', snapshotBlobPath]
     );
   });
 });

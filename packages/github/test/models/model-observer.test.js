@@ -1,4 +1,4 @@
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 import ModelObserver from '../../lib/models/model-observer';
 
 class Model {
@@ -12,38 +12,47 @@ class Model {
   }
 
   fetchA() {
-    return new Promise(res => res(this.a));
+    return new Promise((res) => res(this.a));
   }
 
   fetchB() {
-    return new Promise(res => res(this.b));
+    return new Promise((res) => res(this.b));
   }
 
-  onDidUpdate(cb) { return this.emitter.on('did-update', cb); }
-  didUpdate(cb) { return this.emitter.emit('did-update'); }
-  destroy() { this.emitter.dispose(); }
+  onDidUpdate(cb) {
+    return this.emitter.on('did-update', cb);
+  }
+  didUpdate(cb) {
+    return this.emitter.emit('did-update');
+  }
+  destroy() {
+    this.emitter.dispose();
+  }
 }
 
-describe('ModelObserver', function() {
+describe('ModelObserver', function () {
   let model1, model2, observer, fetchDataStub, didUpdateStub;
 
-  beforeEach(function() {
+  beforeEach(function () {
     model1 = new Model('a', 'b');
     model2 = new Model('A', 'B');
     didUpdateStub = sinon.stub();
-    fetchDataStub = sinon.spy(async model => ({a: await model.fetchA(), b: await model.fetchB()}));
+    fetchDataStub = sinon.spy(async (model) => ({
+      a: await model.fetchA(),
+      b: await model.fetchB(),
+    }));
     observer = new ModelObserver({
       fetchData: fetchDataStub,
       didUpdate: didUpdateStub,
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     model1.destroy();
     model2.destroy();
   });
 
-  it('fetches data asynchronously when the active model is set', async function() {
+  it('fetches data asynchronously when the active model is set', async function () {
     observer.setActiveModel(model1);
     assert.equal(didUpdateStub.callCount, 1);
     assert.equal(observer.getActiveModel(), model1);
@@ -55,7 +64,7 @@ describe('ModelObserver', function() {
     assert.equal(model1.fetchB.callCount, 1);
     assert.equal(didUpdateStub.callCount, 2);
     assert.isTrue(didUpdateStub.getCall(1).calledWith(model1));
-    assert.deepEqual(observer.getActiveModelData(), {a: 'a', b: 'b'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'a', b: 'b' });
 
     observer.setActiveModel(model2);
     assert.equal(observer.getActiveModel(), model2);
@@ -67,7 +76,7 @@ describe('ModelObserver', function() {
     assert.equal(model2.fetchA.callCount, 1);
     assert.equal(model2.fetchB.callCount, 1);
     assert.equal(didUpdateStub.callCount, 4);
-    assert.deepEqual(observer.getActiveModelData(), {a: 'A', b: 'B'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'A', b: 'B' });
 
     observer.setActiveModel(null);
     assert.isNull(observer.getActiveModel());
@@ -76,13 +85,13 @@ describe('ModelObserver', function() {
     assert.isTrue(didUpdateStub.getCall(4).calledWith(null));
   });
 
-  it('fetches data asynchronously when the model is updated', async function() {
+  it('fetches data asynchronously when the model is updated', async function () {
     observer.setActiveModel(model1);
     await observer.lastFetchDataPromise;
     assert.equal(model1.fetchA.callCount, 1);
     assert.equal(model1.fetchB.callCount, 1);
     assert.equal(didUpdateStub.callCount, 2);
-    assert.deepEqual(observer.getActiveModelData(), {a: 'a', b: 'b'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'a', b: 'b' });
 
     model1.a = 'Ayy';
     model1.b = 'Bee';
@@ -92,16 +101,16 @@ describe('ModelObserver', function() {
     assert.equal(model1.fetchA.callCount, 2);
     assert.equal(model1.fetchB.callCount, 2);
     assert.equal(didUpdateStub.callCount, 3);
-    assert.deepEqual(observer.getActiveModelData(), {a: 'Ayy', b: 'Bee'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'Ayy', b: 'Bee' });
   });
 
-  it('enqueues a fetch if the model changes during a fetch', async function() {
+  it('enqueues a fetch if the model changes during a fetch', async function () {
     observer.setActiveModel(model1);
     await observer.lastFetchDataPromise;
     assert.equal(model1.fetchA.callCount, 1);
     assert.equal(model1.fetchB.callCount, 1);
     assert.equal(didUpdateStub.callCount, 2);
-    assert.deepEqual(observer.getActiveModelData(), {a: 'a', b: 'b'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'a', b: 'b' });
 
     fetchDataStub.resetHistory();
     didUpdateStub.resetHistory();
@@ -125,13 +134,13 @@ describe('ModelObserver', function() {
     assert.equal(didUpdateStub.callCount, 2);
   });
 
-  it('enqueues at most one pending fetch', async function() {
+  it('enqueues at most one pending fetch', async function () {
     observer.setActiveModel(model1);
     await observer.lastFetchDataPromise;
     assert.equal(model1.fetchA.callCount, 1);
     assert.equal(model1.fetchB.callCount, 1);
     assert.equal(didUpdateStub.callCount, 2);
-    assert.deepEqual(observer.getActiveModelData(), {a: 'a', b: 'b'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'a', b: 'b' });
 
     fetchDataStub.resetHistory();
     didUpdateStub.resetHistory();
@@ -159,13 +168,13 @@ describe('ModelObserver', function() {
     assert.equal(fetchDataStub.callCount, 2);
   });
 
-  it('clears any pending update and fetches immediately when the active model is set', async function() {
+  it('clears any pending update and fetches immediately when the active model is set', async function () {
     observer.setActiveModel(model1);
     await observer.lastFetchDataPromise;
     assert.equal(model1.fetchA.callCount, 1);
     assert.equal(model1.fetchB.callCount, 1);
     assert.equal(didUpdateStub.callCount, 2);
-    assert.deepEqual(observer.getActiveModelData(), {a: 'a', b: 'b'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'a', b: 'b' });
 
     fetchDataStub.resetHistory();
     didUpdateStub.resetHistory();
@@ -187,6 +196,6 @@ describe('ModelObserver', function() {
     await observer.lastFetchDataPromise;
     // The previously pending fetch does not occur
     assert.equal(fetchDataStub.callCount, 2);
-    assert.deepEqual(observer.getActiveModelData(), {a: 'A', b: 'B'});
+    assert.deepEqual(observer.getActiveModelData(), { a: 'A', b: 'B' });
   });
 });

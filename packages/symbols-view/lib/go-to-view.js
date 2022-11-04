@@ -45,11 +45,13 @@ export default class GoToView extends SymbolsView {
       return;
     }
 
-    this.findTag(editor).then(async matches => {
+    this.findTag(editor).then(async (matches) => {
       let tags = [];
       for (let match of Array.from(matches)) {
         let position = this.getTagLine(match);
-        if (!position) { continue; }
+        if (!position) {
+          continue;
+        }
         match.name = path.basename(match.file);
         tags.push(match);
       }
@@ -57,7 +59,7 @@ export default class GoToView extends SymbolsView {
       if (tags.length === 1) {
         this.openTag(tags[0]);
       } else if (tags.length > 0) {
-        await this.selectListView.update({items: tags});
+        await this.selectListView.update({ items: tags });
         this.attach();
       }
     });

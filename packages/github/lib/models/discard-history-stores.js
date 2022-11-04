@@ -34,15 +34,20 @@ export class PartialFileDiscardHistory {
     const history = this.getHistoryForPath(filePath);
     history.push(snapshots);
     if (history.length >= this.maxHistoryLength) {
-      this.setHistoryForPath(filePath, history.slice(Math.ceil(this.maxHistoryLength / 2)));
+      this.setHistoryForPath(
+        filePath,
+        history.slice(Math.ceil(this.maxHistoryLength / 2))
+      );
     }
   }
 
   getLastSnapshotsForPath(filePath) {
     const history = this.getHistoryForPath(filePath);
     const snapshots = history[history.length - 1];
-    if (!snapshots) { return null; }
-    return {filePath, ...snapshots};
+    if (!snapshots) {
+      return null;
+    }
+    return { filePath, ...snapshots };
   }
 
   clearHistoryForPath(filePath) {
@@ -79,8 +84,8 @@ export class WholeFileDiscardHistory {
   getLastSnapshots() {
     const history = this.getHistory();
     const snapshotsByPath = history[history.length - 1] || {};
-    return Object.keys(snapshotsByPath).map(p => {
-      return {filePath: p, ...snapshotsByPath[p]};
+    return Object.keys(snapshotsByPath).map((p) => {
+      return { filePath: p, ...snapshotsByPath[p] };
     });
   }
 

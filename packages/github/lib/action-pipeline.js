@@ -12,29 +12,36 @@ export class ActionPipeline {
 
   run(fn, repository, ...args) {
     const pipelineFn = this.middleware
-      .map(middleware => middleware.fn)
-      .reduceRight((acc, nextFn) => partial(nextFn, acc, repository, ...args), partial(fn, ...args));
+      .map((middleware) => middleware.fn)
+      .reduceRight(
+        (acc, nextFn) => partial(nextFn, acc, repository, ...args),
+        partial(fn, ...args)
+      );
     return pipelineFn(...args);
   }
 
   addMiddleware(name, fn) {
     if (!name) {
-      throw new Error('Middleware must be registered with a unique middleware name');
+      throw new Error(
+        'Middleware must be registered with a unique middleware name'
+      );
     }
 
-    if (this.middleware.find(middleware => middleware.name === name)) {
-      throw new Error(`A middleware with the name ${name} is already registered`);
+    if (this.middleware.find((middleware) => middleware.name === name)) {
+      throw new Error(
+        `A middleware with the name ${name} is already registered`
+      );
     }
 
-    this.middleware.push({name, fn});
+    this.middleware.push({ name, fn });
   }
 }
 
 export default class ActionPipelineManager {
-  constructor({actionNames} = {actionNames: []}) {
+  constructor({ actionNames } = { actionNames: [] }) {
     this.pipelines = new Map();
     this.actionKeys = {};
-    actionNames.forEach(actionName => {
+    actionNames.forEach((actionName) => {
       const actionKey = Symbol(actionName);
       this.actionKeys[actionName] = actionKey;
       this.pipelines.set(actionKey, new ActionPipeline(actionKey));
@@ -50,7 +57,6 @@ export default class ActionPipelineManager {
     }
   }
 }
-
 
 class NullActionPipeline extends ActionPipeline {
   run(fn, repository, ...args) {

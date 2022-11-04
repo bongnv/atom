@@ -11,17 +11,20 @@ export default class ObserveModel extends React.Component {
     fetchData: PropTypes.func.isRequired,
     fetchParams: PropTypes.arrayOf(PropTypes.any),
     children: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
     fetchParams: [],
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
 
-    this.state = {data: null};
-    this.modelObserver = new ModelObserver({fetchData: this.fetchData, didUpdate: this.didUpdate});
+    this.state = { data: null };
+    this.modelObserver = new ModelObserver({
+      fetchData: this.fetchData,
+      didUpdate: this.didUpdate,
+    });
   }
 
   componentDidMount() {
@@ -33,22 +36,24 @@ export default class ObserveModel extends React.Component {
     this.modelObserver.setActiveModel(this.props.model);
 
     if (
-      !this.modelObserver.hasPendingUpdate() &&
-      prevProps.fetchParams.length !== this.props.fetchParams.length ||
-      prevProps.fetchParams.some((prevParam, i) => prevParam !== this.props.fetchParams[i])
+      (!this.modelObserver.hasPendingUpdate() &&
+        prevProps.fetchParams.length !== this.props.fetchParams.length) ||
+      prevProps.fetchParams.some(
+        (prevParam, i) => prevParam !== this.props.fetchParams[i]
+      )
     ) {
       this.modelObserver.refreshModelData();
     }
   }
 
-  fetchData = model => this.props.fetchData(model, ...this.props.fetchParams);
+  fetchData = (model) => this.props.fetchData(model, ...this.props.fetchParams);
 
   didUpdate = () => {
     if (this.mounted) {
       const data = this.modelObserver.getActiveModelData();
-      this.setState({data});
+      this.setState({ data });
     }
-  }
+  };
 
   render() {
     return this.props.children(this.state.data);

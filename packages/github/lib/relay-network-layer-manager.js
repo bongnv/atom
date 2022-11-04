@@ -1,5 +1,5 @@
 import util from 'util';
-import {Environment, Network, RecordSource, Store} from 'relay-runtime';
+import { Environment, Network, RecordSource, Store } from 'relay-runtime';
 import moment from 'moment';
 
 let isEqual = null;
@@ -17,12 +17,15 @@ function logRatelimitApi(headers) {
   const resetsIn = moment.unix(parseInt(resets, 10)).from();
 
   // eslint-disable-next-line no-console
-  console.debug(`GitHub API Rate Limiting Info: ${remaining}/${total} requests left — resets ${resetsIn}`);
+  console.debug(
+    `GitHub API Rate Limiting Info: ${remaining}/${total} requests left — resets ${resetsIn}`
+  );
 }
 
 export function expectRelayQuery(operationPattern, response) {
   let resolve, reject;
-  const handler = typeof response === 'function' ? response : () => ({data: response});
+  const handler =
+    typeof response === 'function' ? response : () => ({ data: response });
 
   const promise = new Promise((resolve0, reject0) => {
     resolve = resolve0;
@@ -40,7 +43,7 @@ export function expectRelayQuery(operationPattern, response) {
 
   const disable = () => responsesByQuery.delete(operationPattern.name);
 
-  return {promise, resolve, reject, disable};
+  return { promise, resolve, reject, disable };
 }
 
 export function clearRelayExpectations() {
@@ -53,9 +56,14 @@ export function clearRelayExpectations() {
 
 function createFetchQuery(url) {
   if (atom.inSpecMode()) {
-    return function specFetchQuery(operation, variables, _cacheConfig, _uploadables) {
+    return function specFetchQuery(
+      operation,
+      variables,
+      _cacheConfig,
+      _uploadables
+    ) {
       const expectations = responsesByQuery.get(operation.name) || [];
-      const match = expectations.find(expectation => {
+      const match = expectations.find((expectation) => {
         if (isEqual === null) {
           // Lazily require lodash.isequal so we can keep it as a dev dependency.
           // Require indirectly to trick electron-link into not following this.
@@ -68,8 +76,10 @@ function createFetchQuery(url) {
       if (!match) {
         // eslint-disable-next-line no-console
         console.log(
-          `GraphQL query ${operation.name} was:\n  ${operation.text.replace(/\n/g, '\n  ')}\n` +
-          util.inspect(variables),
+          `GraphQL query ${operation.name} was:\n  ${operation.text.replace(
+            /\n/g,
+            '\n  '
+          )}\n` + util.inspect(variables)
         );
 
         const e = new Error(`Unexpected GraphQL query: ${operation.name}`);
@@ -84,21 +94,31 @@ function createFetchQuery(url) {
       if (match.trace) {
         // eslint-disable-next-line no-console
         console.log(`[Relay] query "${operation.name}":\n${operation.text}`);
-        responsePromise.then(result => {
-          // eslint-disable-next-line no-console
-          console.log(`[Relay] response "${operation.name}":`, result);
-        }, err => {
-          // eslint-disable-next-line no-console
-          console.error(`[Relay] error "${operation.name}":\n${err.stack || err}`);
-          throw err;
-        });
+        responsePromise.then(
+          (result) => {
+            // eslint-disable-next-line no-console
+            console.log(`[Relay] response "${operation.name}":`, result);
+          },
+          (err) => {
+            // eslint-disable-next-line no-console
+            console.error(
+              `[Relay] error "${operation.name}":\n${err.stack || err}`
+            );
+            throw err;
+          }
+        );
       }
 
       return responsePromise;
     };
   }
 
-  return async function fetchQuery(operation, variables, _cacheConfig, _uploadables) {
+  return async function fetchQuery(
+    operation,
+    variables,
+    _cacheConfig,
+    _uploadables
+  ) {
     const currentToken = tokenPerURL.get(url);
 
     let response;
@@ -107,8 +127,8 @@ function createFetchQuery(url) {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
-          'Authorization': `bearer ${currentToken}`,
-          'Accept': 'application/vnd.github.antiope-preview+json',
+          Authorization: `bearer ${currentToken}`,
+          Accept: 'application/vnd.github.antiope-preview+json',
         },
         body: JSON.stringify({
           query: operation.text,
@@ -125,10 +145,14 @@ function createFetchQuery(url) {
 
     try {
       atom && atom.inDevMode() && logRatelimitApi(response.headers);
-    } catch (_e) { /* do nothing */ }
+    } catch (_e) {
+      /* do nothing */
+    }
 
     if (response.status !== 200) {
-      const e = new Error(`GraphQL API endpoint at ${url} returned ${response.status}`);
+      const e = new Error(
+        `GraphQL API endpoint at ${url} returned ${response.status}`
+      );
       e.response = response;
       e.responseText = await response.text();
       e.rawStack = e.stack;
@@ -138,7 +162,9 @@ function createFetchQuery(url) {
     const payload = await response.json();
 
     if (payload && payload.errors && payload.errors.length > 0) {
-      const e = new Error(`GraphQL API endpoint at ${url} returned an error for query ${operation.name}.`);
+      const e = new Error(
+        `GraphQL API endpoint at ${url} returned an error for query ${operation.name}.`
+      );
       e.response = response;
       e.errors = payload.errors;
       e.rawStack = e.stack;
@@ -152,19 +178,21 @@ function createFetchQuery(url) {
 export default class RelayNetworkLayerManager {
   static getEnvironmentForHost(endpoint, token) {
     const url = endpoint.getGraphQLRoot();
-    let {environment, network} = relayEnvironmentPerURL.get(url) || {};
+    let { environment, network } = relayEnvironmentPerURL.get(url) || {};
     tokenPerURL.set(url, token);
     if (!environment) {
       if (!token) {
-        throw new Error(`You must authenticate to ${endpoint.getHost()} first.`);
+        throw new Error(
+          `You must authenticate to ${endpoint.getHost()} first.`
+        );
       }
 
       const source = new RecordSource();
       const store = new Store(source);
       network = Network.create(this.getFetchQuery(endpoint, token));
-      environment = new Environment({network, store});
+      environment = new Environment({ network, store });
 
-      relayEnvironmentPerURL.set(url, {environment, network});
+      relayEnvironmentPerURL.set(url, { environment, network });
     }
     return environment;
   }

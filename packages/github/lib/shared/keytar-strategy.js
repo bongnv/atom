@@ -6,13 +6,17 @@
     "functions": "never"
   }] */
 
-const {execFile} = require('child_process');
+const { execFile } = require('child_process');
 const fs = require('fs');
 
 if (typeof atom === 'undefined') {
   global.atom = {
-    inSpecMode() { return !!process.env.ATOM_GITHUB_SPEC_MODE; },
-    inDevMode() { return false; }
+    inSpecMode() {
+      return !!process.env.ATOM_GITHUB_SPEC_MODE;
+    },
+    inDevMode() {
+      return false;
+    }
   };
 }
 
@@ -51,7 +55,10 @@ class KeytarStrategy {
   }
 
   async getPassword(service, account) {
-    const password = await this.constructor.keytar.getPassword(service, account);
+    const password = await this.constructor.keytar.getPassword(
+      service,
+      account
+    );
     return password !== null ? password : UNAUTHENTICATED;
   }
 
@@ -71,7 +78,14 @@ class SecurityBinaryStrategy {
 
   async getPassword(service, account) {
     try {
-      const password = await this.exec(['find-generic-password', '-s', service, '-a', account, '-w']);
+      const password = await this.exec([
+        'find-generic-password',
+        '-s',
+        service,
+        '-a',
+        account,
+        '-w'
+      ]);
       return password.trim() || UNAUTHENTICATED;
     } catch (err) {
       return UNAUTHENTICATED;
@@ -79,17 +93,28 @@ class SecurityBinaryStrategy {
   }
 
   replacePassword(service, account, newPassword) {
-    return this.exec(['add-generic-password', '-s', service, '-a', account, '-w', newPassword, '-U']);
+    return this.exec([
+      'add-generic-password',
+      '-s',
+      service,
+      '-a',
+      account,
+      '-w',
+      newPassword,
+      '-U'
+    ]);
   }
 
   deletePassword(service, account) {
     return this.exec(['delete-generic-password', '-s', service, '-a', account]);
   }
 
-  exec(securityArgs, {binary} = {binary: 'security'}) {
+  exec(securityArgs, { binary } = { binary: 'security' }) {
     return new Promise((resolve, reject) => {
       execFile(binary, securityArgs, (error, stdout) => {
-        if (error) { return reject(error); }
+        if (error) {
+          return reject(error);
+        }
         return resolve(stdout);
       });
     });
@@ -106,7 +131,7 @@ class InMemoryStrategy {
       // eslint-disable-next-line no-console
       console.warn(
         'Using an InMemoryStrategy strategy for storing tokens. ' +
-        'The tokens will only be stored for the current window.'
+          'The tokens will only be stored for the current window.'
       );
     }
     this.passwordsByService = new Map();
@@ -148,9 +173,9 @@ class FileStrategy {
       // eslint-disable-next-line no-console
       console.warn(
         'Using a FileStrategy strategy for storing tokens. ' +
-        'The tokens will be stored %cin the clear%c in a file at %s. ' +
-        "You probably shouldn't use real credentials while this strategy is in use. " +
-        'Unset ATOM_GITHUB_KEYTAR_FILE_STRATEGY to disable it.',
+          'The tokens will be stored %cin the clear%c in a file at %s. ' +
+          "You probably shouldn't use real credentials while this strategy is in use. " +
+          'Unset ATOM_GITHUB_KEYTAR_FILE_STRATEGY to disable it.',
         'color: red; font-weight: bold; font-style: italic',
         'color: black; font-weight: normal; font-style: normal',
         this.filePath
@@ -172,7 +197,7 @@ class FileStrategy {
   }
 
   replacePassword(service, account, password) {
-    return this.modify(payload => {
+    return this.modify((payload) => {
       let forService = payload[service];
       if (forService === undefined) {
         forService = {};
@@ -183,7 +208,7 @@ class FileStrategy {
   }
 
   deletePassword(service, account) {
-    return this.modify(payload => {
+    return this.modify((payload) => {
       const forService = payload[service];
       if (forService === undefined) {
         return;
@@ -211,7 +236,7 @@ class FileStrategy {
 
   save(payload) {
     return new Promise((resolve, reject) => {
-      fs.writeFile(this.filePath, JSON.stringify(payload), 'utf8', err => {
+      fs.writeFile(this.filePath, JSON.stringify(payload), 'utf8', (err) => {
         if (err) {
           reject(err);
         } else {
@@ -228,7 +253,12 @@ class FileStrategy {
   }
 }
 
-const strategies = [FileStrategy, KeytarStrategy, SecurityBinaryStrategy, InMemoryStrategy];
+const strategies = [
+  FileStrategy,
+  KeytarStrategy,
+  SecurityBinaryStrategy,
+  InMemoryStrategy
+];
 let ValidStrategy = null;
 
 async function createStrategy() {
@@ -245,7 +275,9 @@ async function createStrategy() {
     }
   }
   if (!ValidStrategy) {
-    throw new Error('None of the listed keytar strategies returned true for `isValid`');
+    throw new Error(
+      'None of the listed keytar strategies returned true for `isValid`'
+    );
   }
   return new ValidStrategy();
 }

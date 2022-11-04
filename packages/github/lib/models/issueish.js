@@ -1,11 +1,11 @@
-import {URL} from 'url';
+import { URL } from 'url';
 import moment from 'moment';
 
 import {
   buildStatusFromStatusContext,
   buildStatusFromCheckResult,
 } from './build-status';
-import {GHOST_USER} from '../helpers';
+import { GHOST_USER } from '../helpers';
 
 export default class Issueish {
   constructor(data) {
@@ -95,7 +95,7 @@ export default class Issueish {
       neutral: 0,
     };
 
-    for (const {classSuffix} of buildStatuses) {
+    for (const { classSuffix } of buildStatuses) {
       counts[classSuffix]++;
     }
 

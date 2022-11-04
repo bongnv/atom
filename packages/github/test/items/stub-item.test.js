@@ -1,4 +1,4 @@
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
 import StubItem from '../../lib/items/stub-item';
 
@@ -7,14 +7,28 @@ class RealItem {
     this.emitter = new Emitter();
   }
 
-  getTitle() { return 'real-title'; }
-  getIconName() { return 'real-icon-name'; }
-  getOne() { return 1; }
-  getElement() { return 'real-element'; }
+  getTitle() {
+    return 'real-title';
+  }
+  getIconName() {
+    return 'real-icon-name';
+  }
+  getOne() {
+    return 1;
+  }
+  getElement() {
+    return 'real-element';
+  }
 
-  onDidChangeTitle(cb) { return this.emitter.on('did-change-title', cb); }
-  onDidChangeIcon(cb) { return this.emitter.on('did-change-icon', cb); }
-  onDidDestroy(cb) { return this.emitter.on('did-destroy', cb); }
+  onDidChangeTitle(cb) {
+    return this.emitter.on('did-change-title', cb);
+  }
+  onDidChangeIcon(cb) {
+    return this.emitter.on('did-change-icon', cb);
+  }
+  onDidDestroy(cb) {
+    return this.emitter.on('did-destroy', cb);
+  }
 
   destroy() {
     this.emitter.emit('did-destroy');
@@ -22,53 +36,53 @@ class RealItem {
   }
 }
 
-describe('StubItem', function() {
+describe('StubItem', function () {
   let stub;
 
-  beforeEach(function() {
+  beforeEach(function () {
     stub = StubItem.create('name', {
       title: 'stub-title',
       iconName: 'stub-icon-name',
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     stub.destroy();
   });
 
-  describe('#setRealItem', function() {
+  describe('#setRealItem', function () {
     let realItem;
 
-    beforeEach(function() {
+    beforeEach(function () {
       realItem = new RealItem();
     });
 
-    afterEach(function() {
+    afterEach(function () {
       realItem.destroy();
     });
 
-    it('sets the real item', function() {
+    it('sets the real item', function () {
       assert.isNull(stub.getRealItem());
       stub.setRealItem(realItem);
       assert.equal(stub.getRealItem(), realItem);
     });
 
-    it('emits a title change immediately', function() {
+    it('emits a title change immediately', function () {
       const cb = sinon.stub();
       stub.onDidChangeTitle(cb);
       stub.setRealItem(realItem);
       assert.equal(cb.callCount, 1);
     });
 
-    it('emits an icon change immediately', function() {
+    it('emits an icon change immediately', function () {
       const cb = sinon.stub();
       stub.onDidChangeIcon(cb);
       stub.setRealItem(realItem);
       assert.equal(cb.callCount, 1);
     });
 
-    describe('method forwarding', function() {
-      it('forwards getTitle and getIconName', function() {
+    describe('method forwarding', function () {
+      it('forwards getTitle and getIconName', function () {
         assert.equal(stub.getTitle(), 'stub-title');
         assert.equal(stub.getIconName(), 'stub-icon-name');
         stub.setRealItem(realItem);
@@ -76,23 +90,23 @@ describe('StubItem', function() {
         assert.equal(stub.getIconName(), 'real-icon-name');
       });
 
-      it('forwards random methods', function() {
+      it('forwards random methods', function () {
         stub.setRealItem(realItem);
         assert.equal(stub.getOne(), 1);
       });
 
-      it('does not forward getElement', function() {
+      it('does not forward getElement', function () {
         stub.setRealItem(realItem);
         assert.notEqual(stub.getElement(), realItem.getElement());
       });
 
-      it('allows getting the stub', function() {
+      it('allows getting the stub', function () {
         assert.equal(stub._getStub().getTitle(), stub.getTitle());
       });
     });
 
-    describe('event forwarding', function() {
-      it('forwards onDidChangeTitle, onDidChangeIcon, and onDidDestroy', function() {
+    describe('event forwarding', function () {
+      it('forwards onDidChangeTitle, onDidChangeIcon, and onDidDestroy', function () {
         const didChangeTitle = sinon.stub();
         const didChangeIcon = sinon.stub();
         const didDestroy = sinon.stub();

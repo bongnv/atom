@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {graphql, createFragmentContainer} from 'react-relay';
+import { graphql, createFragmentContainer } from 'react-relay';
 
 import EnableableOperation from '../models/enableable-operation';
-import {GitError} from '../git-shell-out-strategy';
-import {RemoteSetPropType, BranchSetPropType} from '../prop-types';
-import {incrementCounter} from '../reporter-proxy';
+import { GitError } from '../git-shell-out-strategy';
+import { RemoteSetPropType, BranchSetPropType } from '../prop-types';
+import { incrementCounter } from '../reporter-proxy';
 
 class CheckoutState {
   constructor(name) {
@@ -57,7 +57,7 @@ export class BarePullRequestCheckoutController extends React.Component {
     remotes: RemoteSetPropType.isRequired,
 
     children: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -66,12 +66,12 @@ export class BarePullRequestCheckoutController extends React.Component {
       checkoutInProgress: false,
     };
 
-    this.checkoutOp = new EnableableOperation(
-      () => this.checkout().catch(e => {
+    this.checkoutOp = new EnableableOperation(() =>
+      this.checkout().catch((e) => {
         if (!(e instanceof GitError)) {
           throw e;
         }
-      }),
+      })
     );
     this.checkoutOp.toggleState(this, 'checkoutInProgress');
   }
@@ -81,10 +81,13 @@ export class BarePullRequestCheckoutController extends React.Component {
   }
 
   nextCheckoutOp() {
-    const {repository, pullRequest} = this.props;
+    const { repository, pullRequest } = this.props;
 
     if (this.props.isAbsent) {
-      return this.checkoutOp.disable(checkoutStates.HIDDEN, 'No repository found');
+      return this.checkoutOp.disable(
+        checkoutStates.HIDDEN,
+        'No repository found'
+      );
     }
 
     if (this.props.isLoading) {
@@ -92,25 +95,40 @@ export class BarePullRequestCheckoutController extends React.Component {
     }
 
     if (!this.props.isPresent) {
-      return this.checkoutOp.disable(checkoutStates.DISABLED, 'No repository found');
+      return this.checkoutOp.disable(
+        checkoutStates.DISABLED,
+        'No repository found'
+      );
     }
 
     if (this.props.isMerging) {
-      return this.checkoutOp.disable(checkoutStates.DISABLED, 'Merge in progress');
+      return this.checkoutOp.disable(
+        checkoutStates.DISABLED,
+        'Merge in progress'
+      );
     }
 
     if (this.props.isRebasing) {
-      return this.checkoutOp.disable(checkoutStates.DISABLED, 'Rebase in progress');
+      return this.checkoutOp.disable(
+        checkoutStates.DISABLED,
+        'Rebase in progress'
+      );
     }
 
     if (this.state.checkoutInProgress) {
-      return this.checkoutOp.disable(checkoutStates.DISABLED, 'Checking out...');
+      return this.checkoutOp.disable(
+        checkoutStates.DISABLED,
+        'Checking out...'
+      );
     }
 
     // determine if pullRequest.headRepository is null
     // this can happen if a repository has been deleted.
     if (!pullRequest.headRepository) {
-      return this.checkoutOp.disable(checkoutStates.DISABLED, 'Pull request head repository does not exist');
+      return this.checkoutOp.disable(
+        checkoutStates.DISABLED,
+        'Pull request head repository does not exist'
+      );
     }
 
     // Determine if we already have this PR checked out.
@@ -138,8 +156,8 @@ export class BarePullRequestCheckoutController extends React.Component {
   }
 
   async checkout() {
-    const {pullRequest} = this.props;
-    const {headRepository} = pullRequest;
+    const { pullRequest } = this.props;
+    const { headRepository } = pullRequest;
 
     const fullHeadRef = `refs/heads/${pullRequest.headRefName}`;
 
@@ -149,7 +167,10 @@ export class BarePullRequestCheckoutController extends React.Component {
     // If the local repository already has the head repository specified as a remote, that remote will be used, so
     // that any related configuration is picked up for the fetch. Otherwise, the head repository fetch URL is used
     // directly.
-    const headRemotes = this.props.remotes.matchingGitHubRepository(headRepository.owner.login, headRepository.name);
+    const headRemotes = this.props.remotes.matchingGitHubRepository(
+      headRepository.owner.login,
+      headRepository.name
+    );
     if (headRemotes.length > 0) {
       sourceRemoteName = headRemotes[0].getName();
     } else {
@@ -160,20 +181,29 @@ export class BarePullRequestCheckoutController extends React.Component {
 
       // This will throw if a remote with this name already exists (and points somewhere else, or we would have found
       // it above). ¯\_(ツ)_/¯
-      const remote = await this.props.localRepository.addRemote(headRepository.owner.login, url);
+      const remote = await this.props.localRepository.addRemote(
+        headRepository.owner.login,
+        url
+      );
       sourceRemoteName = remote.getName();
     }
 
     // Identify an existing local ref that already corresponds to the pull request, if one exists. Otherwise, generate
     // a new local ref name.
-    const pullTargets = this.props.branches.getPullTargets(sourceRemoteName, fullHeadRef);
+    const pullTargets = this.props.branches.getPullTargets(
+      sourceRemoteName,
+      fullHeadRef
+    );
     if (pullTargets.length > 0) {
       localRefName = pullTargets[0].getName();
 
       // Check out the existing local ref.
       await this.props.localRepository.checkout(localRefName);
       try {
-        await this.props.localRepository.pull(fullHeadRef, {remoteName: sourceRemoteName, ffOnly: true});
+        await this.props.localRepository.pull(fullHeadRef, {
+          remoteName: sourceRemoteName,
+          ffOnly: true,
+        });
       } finally {
         incrementCounter('checkout-pr');
       }
@@ -181,13 +211,19 @@ export class BarePullRequestCheckoutController extends React.Component {
       return;
     }
 
-    await this.props.localRepository.fetch(fullHeadRef, {remoteName: sourceRemoteName});
+    await this.props.localRepository.fetch(fullHeadRef, {
+      remoteName: sourceRemoteName,
+    });
 
     // Check out the local ref and set it up to track the head ref.
     await this.props.localRepository.checkout(
       `pr-${pullRequest.number}/${headRepository.owner.login}/${pullRequest.headRefName}`,
-      {createNew: true, track: true, startPoint: `refs/remotes/${sourceRemoteName}/${pullRequest.headRefName}`,
-      });
+      {
+        createNew: true,
+        track: true,
+        startPoint: `refs/remotes/${sourceRemoteName}/${pullRequest.headRefName}`,
+      }
+    );
 
     incrementCounter('checkout-pr');
   }

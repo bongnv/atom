@@ -1,5 +1,5 @@
-import {FragmentSpec, QuerySpec} from './spec';
-import {makeDefaultGetterName} from './names';
+import { FragmentSpec, QuerySpec } from './spec';
+import { makeDefaultGetterName } from './names';
 
 // Private symbol used to identify what fields within a Builder have been populated (by a default setter or an
 // explicit setter call). Using this instead of "undefined" lets us actually have "null" or "undefined" values
@@ -8,7 +8,6 @@ const UNSET = Symbol('unset');
 
 // Superclass for Builders that are expected to adhere to the fields requested by a GraphQL fragment.
 export class SpecBuilder {
-
   // Compatibility with deferred-resolution builders.
   static resolve() {
     return this;
@@ -19,13 +18,13 @@ export class SpecBuilder {
       /* eslint-disable-next-line no-console */
       console.error(
         `No parsed query fragments given to \`${this.builderName}.onFragmentQuery()\`.\n` +
-        "Make sure you're passing a compiled Relay query (__generated__/*.graphql.js module)" +
-        ' to the builder construction function.',
+          "Make sure you're passing a compiled Relay query (__generated__/*.graphql.js module)" +
+          ' to the builder construction function.'
       );
       throw new Error(`No parsed queries given to ${this.builderName}`);
     }
 
-    return new this(typeNameSet => new FragmentSpec(nodes, typeNameSet));
+    return new this((typeNameSet) => new FragmentSpec(nodes, typeNameSet));
   }
 
   static onFullQuery(query) {
@@ -33,7 +32,7 @@ export class SpecBuilder {
       /* eslint-disable-next-line no-console */
       console.error(
         `No parsed GraphQL queries given to \`${this.builderName}.onFullQuery()\`.\n` +
-        "Make sure you're passing GraphQL query text to the builder construction function.",
+          "Make sure you're passing GraphQL query text to the builder construction function."
       );
       throw new Error(`No parsed queries given to ${this.builderName}`);
     }
@@ -43,7 +42,8 @@ export class SpecBuilder {
     for (const definition of query.definitions) {
       if (
         definition.kind === 'OperationDefinition' &&
-        (definition.operation === 'query' || definition.operation === 'mutation')
+        (definition.operation === 'query' ||
+          definition.operation === 'mutation')
       ) {
         rootQuery = definition;
       } else if (definition.kind === 'FragmentDefinition') {
@@ -55,7 +55,9 @@ export class SpecBuilder {
       throw new Error('Parsed query contained no root query');
     }
 
-    return new this(typeNameSet => new QuerySpec(rootQuery, typeNameSet, fragmentsByName));
+    return new this(
+      (typeNameSet) => new QuerySpec(rootQuery, typeNameSet, fragmentsByName)
+    );
   }
 
   // Construct a SpecBuilder that builds an instance corresponding to a single GraphQL schema type, including only
@@ -67,7 +69,10 @@ export class SpecBuilder {
     this.knownLinkedFieldNames = new Set(this.spec.getRequestedLinkedFields());
 
     this.fields = {};
-    for (const fieldName of [...this.knownScalarFieldNames, ...this.knownLinkedFieldNames]) {
+    for (const fieldName of [
+      ...this.knownScalarFieldNames,
+      ...this.knownLinkedFieldNames,
+    ]) {
       this.fields[fieldName] = UNSET;
     }
   }
@@ -79,11 +84,13 @@ export class SpecBuilder {
       /* eslint-disable-next-line no-console */
       console.error(
         `Unselected scalar field name ${fieldName} in ${this.builderName}\n` +
-        `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
-        'It may also be present, but as a linked field, in which case the builder definitions should be updated.\n' +
-        'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.',
+          `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
+          'It may also be present, but as a linked field, in which case the builder definitions should be updated.\n' +
+          'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.'
       );
-      throw new Error(`Unselected field name ${fieldName} in ${this.builderName}`);
+      throw new Error(
+        `Unselected field name ${fieldName} in ${this.builderName}`
+      );
     }
     this.fields[fieldName] = value;
     return this;
@@ -96,11 +103,13 @@ export class SpecBuilder {
       /* eslint-disable-next-line no-console */
       console.error(
         `Unselected scalar field name ${fieldName} in ${this.builderName}\n` +
-        `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
-        'It may also be present, but as a linked field, in which case the builder definitions should be updated.\n' +
-        'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.',
+          `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
+          'It may also be present, but as a linked field, in which case the builder definitions should be updated.\n' +
+          'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.'
       );
-      throw new Error(`Unselected field name ${fieldName} in ${this.builderName}`);
+      throw new Error(
+        `Unselected field name ${fieldName} in ${this.builderName}`
+      );
     }
 
     if (this.fields[fieldName] === UNSET) {
@@ -119,11 +128,13 @@ export class SpecBuilder {
       /* eslint-disable-next-line no-console */
       console.error(
         `Unrecognized linked field name ${fieldName} in ${this.builderName}.\n` +
-        `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
-        'It may also be present, but as a scalar field, in which case the builder definitions should be updated.\n' +
-        'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.',
+          `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
+          'It may also be present, but as a scalar field, in which case the builder definitions should be updated.\n' +
+          'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.'
       );
-      throw new Error(`Unrecognized field name ${fieldName} in ${this.builderName}`);
+      throw new Error(
+        `Unrecognized field name ${fieldName} in ${this.builderName}`
+      );
     }
 
     const Resolved = Builder.resolve();
@@ -142,11 +153,13 @@ export class SpecBuilder {
       /* eslint-disable-next-line no-console */
       console.error(
         `Unrecognized linked field name ${fieldName} in ${this.builderName}.\n` +
-        `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
-        'It may also be present, but as a scalar field, in which case the builder definitions should be updated.\n' +
-        'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.',
+          `"${fieldName}" may not be included in the GraphQL fragments you passed to this builder.\n` +
+          'It may also be present, but as a scalar field, in which case the builder definitions should be updated.\n' +
+          'Otherwise, try re-running "npm run relay" to regenerate the compiled GraphQL modules.'
       );
-      throw new Error(`Unrecognized field name ${fieldName} in ${this.builderName}`);
+      throw new Error(
+        `Unrecognized field name ${fieldName} in ${this.builderName}`
+      );
     }
 
     if (this.fields[fieldName] === UNSET) {
@@ -165,14 +178,19 @@ export class SpecBuilder {
   // Explicitly set a field to `null` and prevent it from being populated with a default value. This will fail if the
   // named field is not selected by the current fragment.
   nullField(fieldName) {
-    if (!this.knownScalarFieldNames.has(fieldName) && !this.knownLinkedFieldNames.has(fieldName)) {
+    if (
+      !this.knownScalarFieldNames.has(fieldName) &&
+      !this.knownLinkedFieldNames.has(fieldName)
+    ) {
       /* eslint-disable-next-line no-console */
       console.error(
         `Unrecognized field name ${fieldName} in ${this.builderName}.\n` +
-        `"${fieldName}" may not be included in the GraphQL fragments you provided to this builder.\n` +
-        'Try re-running "npm run relay" to regenerate the compiled GraphQL modules.',
+          `"${fieldName}" may not be included in the GraphQL fragments you provided to this builder.\n` +
+          'Try re-running "npm run relay" to regenerate the compiled GraphQL modules.'
       );
-      throw new Error(`Unrecognized field name ${fieldName} in ${this.builderName}`);
+      throw new Error(
+        `Unrecognized field name ${fieldName} in ${this.builderName}`
+      );
     }
 
     this.fields[fieldName] = null;
@@ -190,7 +208,10 @@ export class SpecBuilder {
     const populators = {};
     for (const fieldName of fieldNames) {
       const defaultGetterName = makeDefaultGetterName(fieldName);
-      if (this.fields[fieldName] === UNSET && typeof this[defaultGetterName] !== 'function') {
+      if (
+        this.fields[fieldName] === UNSET &&
+        typeof this[defaultGetterName] !== 'function'
+      ) {
         missingFieldNames.push(fieldName);
         continue;
       }
@@ -211,10 +232,16 @@ export class SpecBuilder {
     if (missingFieldNames.length > 0) {
       /* eslint-disable-next-line no-console */
       console.error(
-        `Missing required fields ${missingFieldNames.join(', ')} in builder ${this.builderName}.\n` +
-        'Either give these fields a "default" in the builder or call their setters explicitly before calling "build()".',
+        `Missing required fields ${missingFieldNames.join(', ')} in builder ${
+          this.builderName
+        }.\n` +
+          'Either give these fields a "default" in the builder or call their setters explicitly before calling "build()".'
       );
-      throw new Error(`Missing required fields ${missingFieldNames.join(', ')} in builder ${this.builderName}`);
+      throw new Error(
+        `Missing required fields ${missingFieldNames.join(', ')} in builder ${
+          this.builderName
+        }`
+      );
     }
 
     for (const fieldName of fieldNames) {
@@ -242,7 +269,9 @@ export class DeferredSpecBuilder {
     if (this.Class === undefined) {
       this.Class = require(this.modulePath)[this.className];
       if (!this.Class) {
-        throw new Error(`No class ${this.className} exported from ${this.modulePath}.`);
+        throw new Error(
+          `No class ${this.className} exported from ${this.modulePath}.`
+        );
       }
     }
     return this.Class;

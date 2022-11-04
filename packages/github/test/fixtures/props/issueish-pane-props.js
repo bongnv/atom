@@ -2,9 +2,9 @@ import GithubLoginModel from '../../../lib/models/github-login-model';
 import WorkdirContextPool from '../../../lib/models/workdir-context-pool';
 import BranchSet from '../../../lib/models/branch-set';
 import RemoteSet from '../../../lib/models/remote-set';
-import {getEndpoint} from '../../../lib/models/endpoint';
+import { getEndpoint } from '../../../lib/models/endpoint';
 import RefHolder from '../../../lib/models/ref-holder';
-import {InMemoryStrategy} from '../../../lib/shared/keytar-strategy';
+import { InMemoryStrategy } from '../../../lib/shared/keytar-strategy';
 import EnableableOperation from '../../../lib/models/enableable-operation';
 import IssueishDetailItem from '../../../lib/items/issueish-detail-item';
 
@@ -61,8 +61,12 @@ export function issueishDetailControllerProps(opts, overrides = {}) {
       owner: {
         login: o.ownerLogin,
       },
-      pullRequest: o.omitPullRequestData ? null : pullRequestDetailViewProps(opts, o.pullRequestOverrides).pullRequest,
-      issue: o.omitIssueData ? null : issueDetailViewProps(opts, o.issueOverrides).issue,
+      pullRequest: o.omitPullRequestData
+        ? null
+        : pullRequestDetailViewProps(opts, o.pullRequestOverrides).pullRequest,
+      issue: o.omitIssueData
+        ? null
+        : issueDetailViewProps(opts, o.issueOverrides).issue,
     },
     issueishNumber: o.issueishNumber,
 
@@ -98,7 +102,8 @@ export function pullRequestDetailViewProps(opts, overrides = {}) {
     pullRequestBaseRef: 'master',
     includeAuthor: true,
     pullRequestAuthorLogin: 'author',
-    pullRequestAuthorAvatarURL: 'https://avatars3.githubusercontent.com/u/000?v=4',
+    pullRequestAuthorAvatarURL:
+      'https://avatars3.githubusercontent.com/u/000?v=4',
     issueishNumber: 1,
     pullRequestState: 'OPEN',
     pullRequestHeadRef: 'aw/feature',
@@ -114,7 +119,7 @@ export function pullRequestDetailViewProps(opts, overrides = {}) {
     ...opts,
   };
 
-  const buildReaction = reaction => {
+  const buildReaction = (reaction) => {
     return {
       content: reaction.content,
       users: {
@@ -229,7 +234,7 @@ export function issueDetailViewProps(opts, overrides = {}) {
     ...opts,
   };
 
-  const buildReaction = reaction => {
+  const buildReaction = (reaction) => {
     return {
       content: reaction.content,
       users: {

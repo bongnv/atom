@@ -1,7 +1,7 @@
 import util from 'util';
 
-import {nullBranch} from './branch';
-import {pushAtKey} from '../helpers';
+import { nullBranch } from './branch';
+import { pushAtKey } from '../helpers';
 
 // Store and index a set of Branches in a repository.
 export default class BranchSet {
@@ -36,7 +36,7 @@ export default class BranchSet {
   }
 
   getNames() {
-    return this.all.map(branch => branch.getName());
+    return this.all.map((branch) => branch.getName());
   }
 
   // Return the HEAD branch, or `nullBranch` if HEAD is not a branch. This can happen if HEAD is unborn (the repository

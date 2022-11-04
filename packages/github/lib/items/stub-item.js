@@ -1,4 +1,4 @@
-import {Emitter, CompositeDisposable} from 'event-kit';
+import { Emitter, CompositeDisposable } from 'event-kit';
 
 let key = 0;
 export default class StubItem {
@@ -44,7 +44,7 @@ export default class StubItem {
     this.element = document.createElement('div');
     this.element.classList.add(`github-StubItem-${name}`);
     this.realItem = null;
-    this.realItemPromise = new Promise(res => {
+    this.realItemPromise = new Promise((res) => {
       this.resolveRealItemPromise = res;
     });
   }
@@ -62,18 +62,28 @@ export default class StubItem {
     this.emitter.emit('did-change-icon');
 
     if (item.onDidChangeTitle) {
-      this.subscriptions.add(item.onDidChangeTitle((...args) => this.emitter.emit('did-change-title', ...args)));
+      this.subscriptions.add(
+        item.onDidChangeTitle((...args) =>
+          this.emitter.emit('did-change-title', ...args)
+        )
+      );
     }
 
     if (item.onDidChangeIcon) {
-      this.subscriptions.add(item.onDidChangeIcon((...args) => this.emitter.emit('did-change-icon', ...args)));
+      this.subscriptions.add(
+        item.onDidChangeIcon((...args) =>
+          this.emitter.emit('did-change-icon', ...args)
+        )
+      );
     }
 
     if (item.onDidDestroy) {
-      this.subscriptions.add(item.onDidDestroy((...args) => {
-        this.realItem = null;
-        this.emitter.emit('did-destroy', ...args);
-      }));
+      this.subscriptions.add(
+        item.onDidDestroy((...args) => {
+          this.realItem = null;
+          this.emitter.emit('did-destroy', ...args);
+        })
+      );
     }
   }
 

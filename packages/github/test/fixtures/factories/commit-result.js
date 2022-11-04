@@ -33,16 +33,16 @@ export function createCommitResult(opts = {}) {
     author: {
       name: o.authorName,
       avatarUrl: o.authorAvatarURL,
-      user: o.authorHasUser ? {login: o.authorLogin} : null,
+      user: o.authorHasUser ? { login: o.authorLogin } : null,
     },
     committer: {
       name: o.committerName,
       avatarUrl: o.committerAvatarURL,
-      user: o.committerHasUser ? {login: o.committerLogin} : null,
+      user: o.committerHasUser ? { login: o.committerLogin } : null,
     },
     authoredByCommitter: o.authoredByCommitter,
     oid: o.oid,
     message: o.message,
     messageHeadlineHTML: o.messageHeadlineHTML,
-  }
+  };
 }

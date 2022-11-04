@@ -1,4 +1,4 @@
-import {Emitter, Disposable} from 'event-kit';
+import { Emitter, Disposable } from 'event-kit';
 
 export const PUSH = {
   getter(o) {
@@ -28,7 +28,10 @@ export default class OperationStateObserver {
 
     this.lastStates = new Map();
     for (const operation of this.operations) {
-      this.lastStates.set(operation, operation.getter(this.repository.getOperationStates()));
+      this.lastStates.set(
+        operation,
+        operation.getter(this.repository.getOperationStates())
+      );
     }
 
     this.sub = this.repository.onDidUpdate(this.handleUpdate.bind(this));
@@ -60,6 +63,8 @@ export default class OperationStateObserver {
 }
 
 export const nullOperationStateObserver = {
-  onDidComplete() { return new Disposable(); },
+  onDidComplete() {
+    return new Disposable();
+  },
   dispose() {},
 };

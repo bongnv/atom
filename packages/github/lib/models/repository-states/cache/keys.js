@@ -55,9 +55,10 @@ export const Keys = {
   stagedChanges: new CacheKey('staged-changes'),
 
   filePatch: {
-    _optKey: ({staged}) => (staged ? 's' : 'u'),
+    _optKey: ({ staged }) => (staged ? 's' : 'u'),
 
-    oneWith: (fileName, options) => { // <-- Keys.filePatch
+    oneWith: (fileName, options) => {
+      // <-- Keys.filePatch
       const optKey = Keys.filePatch._optKey(options);
       const baseCommit = options.baseCommit || 'head';
 
@@ -81,25 +82,36 @@ export const Keys = {
       const keys = [];
       for (let i = 0; i < fileNames.length; i++) {
         for (let j = 0; j < opts.length; j++) {
-          keys.push(new GroupKey(`file-patch:opt-${Keys.filePatch._optKey(opts[j])}:path-${fileNames[i]}`));
+          keys.push(
+            new GroupKey(
+              `file-patch:opt-${Keys.filePatch._optKey(opts[j])}:path-${
+                fileNames[i]
+              }`
+            )
+          );
         }
       }
       return keys;
     },
 
-    eachNonHeadWithFiles: fileNames => {
-      return fileNames.map(fileName => new GroupKey(`file-patch:base-nonhead:path-${fileName}`));
+    eachNonHeadWithFiles: (fileNames) => {
+      return fileNames.map(
+        (fileName) => new GroupKey(`file-patch:base-nonhead:path-${fileName}`)
+      );
     },
 
     allAgainstNonHead: new GroupKey('file-patch:base-nonhead'),
 
-    eachWithOpts: (...opts) => opts.map(opt => new GroupKey(`file-patch:opt-${Keys.filePatch._optKey(opt)}`)),
+    eachWithOpts: (...opts) =>
+      opts.map(
+        (opt) => new GroupKey(`file-patch:opt-${Keys.filePatch._optKey(opt)}`)
+      ),
 
     all: new GroupKey('file-patch'),
   },
 
   index: {
-    oneWith: fileName => new CacheKey(`index:${fileName}`, ['index']),
+    oneWith: (fileName) => new CacheKey(`index:${fileName}`, ['index']),
 
     all: new GroupKey('index'),
   },
@@ -117,35 +129,38 @@ export const Keys = {
   remotes: new CacheKey('remotes'),
 
   config: {
-    _optKey: options => (options.local ? 'l' : ''),
+    _optKey: (options) => (options.local ? 'l' : ''),
 
     oneWith: (setting, options) => {
       const optKey = Keys.config._optKey(options);
-      return new CacheKey(`config:${optKey}:${setting}`, ['config', `config:${optKey}`]);
+      return new CacheKey(`config:${optKey}:${setting}`, [
+        'config',
+        `config:${optKey}`,
+      ]);
     },
 
-    eachWithSetting: setting => [
-      Keys.config.oneWith(setting, {local: true}),
-      Keys.config.oneWith(setting, {local: false}),
+    eachWithSetting: (setting) => [
+      Keys.config.oneWith(setting, { local: true }),
+      Keys.config.oneWith(setting, { local: false }),
     ],
 
     all: new GroupKey('config'),
   },
 
   blob: {
-    oneWith: sha => new CacheKey(`blob:${sha}`, ['blob']),
+    oneWith: (sha) => new CacheKey(`blob:${sha}`, ['blob']),
   },
 
   // Common collections of keys and patterns for use with invalidate().
 
-  workdirOperationKeys: fileNames => [
+  workdirOperationKeys: (fileNames) => [
     Keys.statusBundle,
-    ...Keys.filePatch.eachWithFileOpts(fileNames, [{staged: false}]),
+    ...Keys.filePatch.eachWithFileOpts(fileNames, [{ staged: false }]),
   ],
 
-  cacheOperationKeys: fileNames => [
+  cacheOperationKeys: (fileNames) => [
     ...Keys.workdirOperationKeys(fileNames),
-    ...Keys.filePatch.eachWithFileOpts(fileNames, [{staged: true}]),
+    ...Keys.filePatch.eachWithFileOpts(fileNames, [{ staged: true }]),
     ...fileNames.map(Keys.index.oneWith),
     Keys.stagedChanges,
   ],
@@ -153,7 +168,7 @@ export const Keys = {
   headOperationKeys: () => [
     Keys.headDescription,
     Keys.branches,
-    ...Keys.filePatch.eachWithOpts({staged: true}),
+    ...Keys.filePatch.eachWithOpts({ staged: true }),
     Keys.filePatch.allAgainstNonHead,
     Keys.stagedChanges,
     Keys.lastCommit,

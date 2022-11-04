@@ -1,8 +1,8 @@
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
-import {nullFile} from './file';
-import Patch, {COLLAPSED} from './patch';
-import {toGitPathSep} from '../../helpers';
+import { nullFile } from './file';
+import Patch, { COLLAPSED } from './patch';
+import { toGitPathSep } from '../../helpers';
 
 export default class FilePatch {
   static createNull() {
@@ -10,7 +10,11 @@ export default class FilePatch {
   }
 
   static createHiddenFilePatch(oldFile, newFile, marker, renderStatus, showFn) {
-    return new this(oldFile, newFile, Patch.createHiddenPatch(marker, renderStatus, showFn));
+    return new this(
+      oldFile,
+      newFile,
+      Patch.createHiddenPatch(marker, renderStatus, showFn)
+    );
   }
 
   constructor(oldFile, newFile, patch, rawPatches) {
@@ -23,7 +27,11 @@ export default class FilePatch {
   }
 
   isPresent() {
-    return this.oldFile.isPresent() || this.newFile.isPresent() || this.patch.isPresent();
+    return (
+      this.oldFile.isPresent() ||
+      this.newFile.isPresent() ||
+      this.patch.isPresent()
+    );
   }
 
   getRenderStatus() {
@@ -99,12 +107,16 @@ export default class FilePatch {
       return false;
     }
 
-    return this.oldFile.isExecutable() && !this.newFile.isExecutable() ||
-      !this.oldFile.isExecutable() && this.newFile.isExecutable();
+    return (
+      (this.oldFile.isExecutable() && !this.newFile.isExecutable()) ||
+      (!this.oldFile.isExecutable() && this.newFile.isExecutable())
+    );
   }
 
   hasSymlink() {
-    return Boolean(this.getOldFile().getSymlink() || this.getNewFile().getSymlink());
+    return Boolean(
+      this.getOldFile().getSymlink() || this.getNewFile().getSymlink()
+    );
   }
 
   hasTypechange() {
@@ -112,8 +124,10 @@ export default class FilePatch {
       return false;
     }
 
-    return this.oldFile.isSymlink() && !this.newFile.isSymlink() ||
-      !this.oldFile.isSymlink() && this.newFile.isSymlink();
+    return (
+      (this.oldFile.isSymlink() && !this.newFile.isSymlink()) ||
+      (!this.oldFile.isSymlink() && this.newFile.isSymlink())
+    );
   }
 
   getPath() {
@@ -132,7 +146,7 @@ export default class FilePatch {
     return this.patch.updateMarkers(map);
   }
 
-  triggerCollapseIn(patchBuffer, {before, after}) {
+  triggerCollapseIn(patchBuffer, { before, after }) {
     if (!this.patch.getRenderStatus().isVisible()) {
       return false;
     }
@@ -141,7 +155,8 @@ export default class FilePatch {
     const oldRange = oldPatch.getRange().copy();
     const insertionPosition = oldRange.start;
     const exclude = new Set([...before, ...after]);
-    const {patchBuffer: subPatchBuffer, markerMap} = patchBuffer.extractPatchBuffer(oldRange, {exclude});
+    const { patchBuffer: subPatchBuffer, markerMap } =
+      patchBuffer.extractPatchBuffer(oldRange, { exclude });
     oldPatch.destroyMarkers();
     oldPatch.updateMarkers(markerMap);
 
@@ -153,24 +168,26 @@ export default class FilePatch {
     const patchMarker = patchBuffer.markPosition(
       Patch.layerName,
       insertionPosition,
-      {invalidate: 'never', exclusive: true},
+      { invalidate: 'never', exclusive: true }
     );
     this.patch = Patch.createHiddenPatch(patchMarker, COLLAPSED, () => {
-      return {patch: oldPatch, patchBuffer: subPatchBuffer};
+      return { patch: oldPatch, patchBuffer: subPatchBuffer };
     });
 
     this.didChangeRenderStatus();
     return true;
   }
 
-  triggerExpandIn(patchBuffer, {before, after}) {
+  triggerExpandIn(patchBuffer, { before, after }) {
     if (this.patch.getRenderStatus().isVisible()) {
       return false;
     }
 
-    const {patch: nextPatch, patchBuffer: subPatchBuffer} = this.patch.show();
+    const { patch: nextPatch, patchBuffer: subPatchBuffer } = this.patch.show();
     const atStart = this.patch.getInsertionPoint().isEqual([0, 0]);
-    const atEnd = this.patch.getInsertionPoint().isEqual(patchBuffer.getBuffer().getEndPosition());
+    const atEnd = this.patch
+      .getInsertionPoint()
+      .isEqual(patchBuffer.getBuffer().getEndPosition());
     const willHaveContent = !subPatchBuffer.getBuffer().isEmpty();
 
     // The expanding patch's insertion point is just after the unmarked newline that separates adjacent visible
@@ -211,7 +228,9 @@ export default class FilePatch {
       .createInserterAt(this.patch.getInsertionPoint())
       .keepBefore(before)
       .keepAfter(after)
-      .insertPatchBuffer(subPatchBuffer, {callback: map => nextPatch.updateMarkers(map)})
+      .insertPatchBuffer(subPatchBuffer, {
+        callback: (map) => nextPatch.updateMarkers(map),
+      })
       .insert(!atEnd ? '\n' : '')
       .apply();
 
@@ -233,7 +252,7 @@ export default class FilePatch {
     return new this.constructor(
       opts.oldFile !== undefined ? opts.oldFile : this.oldFile,
       opts.newFile !== undefined ? opts.newFile : this.newFile,
-      opts.patch !== undefined ? opts.patch : this.patch,
+      opts.patch !== undefined ? opts.patch : this.patch
     );
   }
 
@@ -250,7 +269,9 @@ export default class FilePatch {
     if (this.getStatus() === 'deleted') {
       if (
         this.patch.getChangedLineCount() === selectedLineSet.size &&
-        Array.from(selectedLineSet, row => this.patch.containsRow(row)).every(Boolean)
+        Array.from(selectedLineSet, (row) => this.patch.containsRow(row)).every(
+          Boolean
+        )
       ) {
         // Whole file deletion staged.
         newFile = nullFile;
@@ -263,20 +284,24 @@ export default class FilePatch {
     const patch = this.patch.buildStagePatchForLines(
       originalBuffer,
       nextPatchBuffer,
-      selectedLineSet,
+      selectedLineSet
     );
-    return this.clone({newFile, patch});
+    return this.clone({ newFile, patch });
   }
 
   buildUnstagePatchForLines(originalBuffer, nextPatchBuffer, selectedLineSet) {
-    const nonNullFile = this.getNewFile().isPresent() ? this.getNewFile() : this.getOldFile();
+    const nonNullFile = this.getNewFile().isPresent()
+      ? this.getNewFile()
+      : this.getOldFile();
     let oldFile = this.getNewFile();
     let newFile = nonNullFile;
 
     if (this.getStatus() === 'added') {
       if (
         selectedLineSet.size === this.patch.getChangedLineCount() &&
-        Array.from(selectedLineSet, row => this.patch.containsRow(row)).every(Boolean)
+        Array.from(selectedLineSet, (row) => this.patch.containsRow(row)).every(
+          Boolean
+        )
       ) {
         // Ensure that newFile is null if the patch is an addition because we're deleting the entire file from the
         // index. If a symlink was deleted and replaced by a non-symlink file, we don't want the symlink entry to muck
@@ -287,7 +312,9 @@ export default class FilePatch {
     } else if (this.getStatus() === 'deleted') {
       if (
         selectedLineSet.size === this.patch.getChangedLineCount() &&
-        Array.from(selectedLineSet, row => this.patch.containsRow(row)).every(Boolean)
+        Array.from(selectedLineSet, (row) => this.patch.containsRow(row)).every(
+          Boolean
+        )
       ) {
         oldFile = nullFile;
         newFile = nonNullFile;
@@ -297,9 +324,9 @@ export default class FilePatch {
     const patch = this.patch.buildUnstagePatchForLines(
       originalBuffer,
       nextPatchBuffer,
-      selectedLineSet,
+      selectedLineSet
     );
-    return this.clone({oldFile, newFile, patch});
+    return this.clone({ oldFile, newFile, patch });
   }
 
   toStringIn(buffer) {
@@ -310,21 +337,34 @@ export default class FilePatch {
     if (this.hasTypechange()) {
       const left = this.clone({
         newFile: nullFile,
-        patch: this.getOldSymlink() ? this.getPatch().clone({status: 'deleted'}) : this.getPatch(),
+        patch: this.getOldSymlink()
+          ? this.getPatch().clone({ status: 'deleted' })
+          : this.getPatch(),
       });
 
       const right = this.clone({
         oldFile: nullFile,
-        patch: this.getNewSymlink() ? this.getPatch().clone({status: 'added'}) : this.getPatch(),
+        patch: this.getNewSymlink()
+          ? this.getPatch().clone({ status: 'added' })
+          : this.getPatch(),
       });
 
       return left.toStringIn(buffer) + right.toStringIn(buffer);
     } else if (this.getStatus() === 'added' && this.getNewFile().isSymlink()) {
       const symlinkPath = this.getNewSymlink();
-      return this.getHeaderString() + `@@ -0,0 +1 @@\n+${symlinkPath}\n\\ No newline at end of file\n`;
-    } else if (this.getStatus() === 'deleted' && this.getOldFile().isSymlink()) {
+      return (
+        this.getHeaderString() +
+        `@@ -0,0 +1 @@\n+${symlinkPath}\n\\ No newline at end of file\n`
+      );
+    } else if (
+      this.getStatus() === 'deleted' &&
+      this.getOldFile().isSymlink()
+    ) {
       const symlinkPath = this.getOldSymlink();
-      return this.getHeaderString() + `@@ -1 +0,0 @@\n-${symlinkPath}\n\\ No newline at end of file\n`;
+      return (
+        this.getHeaderString() +
+        `@@ -1 +0,0 @@\n-${symlinkPath}\n\\ No newline at end of file\n`
+      );
     } else {
       return this.getHeaderString() + this.getPatch().toStringIn(buffer);
     }
@@ -353,7 +393,7 @@ export default class FilePatch {
     }
     inspectString += '\n';
 
-    inspectString += this.patch.inspect({indent: options.indent + 2});
+    inspectString += this.patch.inspect({ indent: options.indent + 2 });
 
     inspectString += `${indentation})\n`;
     return inspectString;
@@ -362,7 +402,9 @@ export default class FilePatch {
   getHeaderString() {
     const fromPath = this.getOldPath() || this.getNewPath();
     const toPath = this.getNewPath() || this.getOldPath();
-    let header = `diff --git a/${toGitPathSep(fromPath)} b/${toGitPathSep(toPath)}`;
+    let header = `diff --git a/${toGitPathSep(fromPath)} b/${toGitPathSep(
+      toPath
+    )}`;
     header += '\n';
     if (this.getStatus() === 'added') {
       header += `new file mode ${this.getNewMode()}`;
@@ -371,9 +413,13 @@ export default class FilePatch {
       header += `deleted file mode ${this.getOldMode()}`;
       header += '\n';
     }
-    header += this.getOldPath() ? `--- a/${toGitPathSep(this.getOldPath())}` : '--- /dev/null';
+    header += this.getOldPath()
+      ? `--- a/${toGitPathSep(this.getOldPath())}`
+      : '--- /dev/null';
     header += '\n';
-    header += this.getNewPath() ? `+++ b/${toGitPathSep(this.getNewPath())}` : '+++ /dev/null';
+    header += this.getNewPath()
+      ? `+++ b/${toGitPathSep(this.getNewPath())}`
+      : '+++ /dev/null';
     header += '\n';
     return header;
   }

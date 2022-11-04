@@ -27,19 +27,27 @@ export default class Search {
 
   getWebURL(remote) {
     if (!remote.isGithubRepo()) {
-      throw new Error(`Attempt to generate web URL for non-GitHub remote ${remote.getName()}`);
+      throw new Error(
+        `Attempt to generate web URL for non-GitHub remote ${remote.getName()}`
+      );
     }
 
-    return `https://${remote.getDomain()}/search?q=${encodeURIComponent(this.createQuery())}`;
+    return `https://${remote.getDomain()}/search?q=${encodeURIComponent(
+      this.createQuery()
+    )}`;
   }
 
   static inRemote(remote, name, query, attrs = {}) {
     if (!remote.isGithubRepo()) {
-      return new this(name, '', {...attrs, [NULL]: true});
+      return new this(name, '', { ...attrs, [NULL]: true });
     }
 
-    return new this(name, `repo:${remote.getOwner()}/${remote.getRepo()} ${query.trim()}`, attrs);
+    return new this(
+      name,
+      `repo:${remote.getOwner()}/${remote.getRepo()} ${query.trim()}`,
+      attrs
+    );
   }
 }
 
-export const nullSearch = new Search('', '', {[NULL]: true});
+export const nullSearch = new Search('', '', { [NULL]: true });

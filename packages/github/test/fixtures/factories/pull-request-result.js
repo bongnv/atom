@@ -4,9 +4,9 @@ function createCommitResult(attrs = {}) {
   return {
     commit: {
       status: {
-        contexts: [ {state: 'PASSED'} ]
-      }
-    }
+        contexts: [{ state: 'PASSED' }],
+      },
+    },
   };
 }
 
@@ -22,10 +22,10 @@ export function createStatusContextResult(attrs = {}) {
     creatorAvatarUrl: 'https://avatars3.githubusercontent.com/u/000?v=1',
     ...idGen.embed(),
     ...attrs,
-  }
+  };
 
   if (!o.targetUrl) {
-    o.targetUrl = `https://ci.provider.com/builds/${o.id}`
+    o.targetUrl = `https://ci.provider.com/builds/${o.id}`;
   }
 
   return {
@@ -37,8 +37,8 @@ export function createStatusContextResult(attrs = {}) {
     creator: {
       avatarUrl: o.creatorAvatarUrl,
       login: o.creatorLogin,
-    }
-  }
+    },
+  };
 }
 
 export function createPrStatusesResult(attrs = {}) {
@@ -56,14 +56,14 @@ export function createPrStatusesResult(attrs = {}) {
   };
 
   if (o.summaryState && !o.states) {
-    o.states = [{state: o.summaryState, ...idGen.embed()}];
+    o.states = [{ state: o.summaryState, ...idGen.embed() }];
   }
 
   if (o.states) {
-    o.states = o.states.map(state => {
+    o.states = o.states.map((state) => {
       return typeof state === 'string'
-        ? {state: state, ...idGen.embed()}
-        : state
+        ? { state: state, ...idGen.embed() }
+        : state;
     });
   }
 
@@ -81,8 +81,8 @@ export function createPrStatusesResult(attrs = {}) {
   }
 
   const recentCommits = o.includeEdges
-    ? {edges: [{node: {id: idGen.generate('node'), commit}}]}
-    : {nodes: [{commit, id: idGen.generate('node')}]};
+    ? { edges: [{ node: { id: idGen.generate('node'), commit } }] }
+    : { nodes: [{ commit, id: idGen.generate('node') }] };
 
   return {
     __typename: 'PullRequest',
@@ -94,7 +94,7 @@ export function createPrStatusesResult(attrs = {}) {
       __typename: 'User',
       login: 'me',
       avatarUrl: 'https://avatars3.githubusercontent.com/u/000?v=4',
-      id: 'user0'
+      id: 'user0',
     },
     createdAt: '2018-06-12T14:50:08Z',
     headRefName: o.headRefName,
@@ -104,7 +104,7 @@ export function createPrStatusesResult(attrs = {}) {
     },
 
     recentCommits,
-  }
+  };
 }
 
 export function createPullRequestResult(attrs = {}) {
@@ -122,14 +122,14 @@ export function createPullRequestResult(attrs = {}) {
   };
 
   if (o.summaryState && !o.states) {
-    o.states = [{state: o.summaryState, ...idGen.embed()}];
+    o.states = [{ state: o.summaryState, ...idGen.embed() }];
   }
 
   if (o.states) {
-    o.states = o.states.map(state => {
+    o.states = o.states.map((state) => {
       return typeof state === 'string'
-        ? {state: state, ...idGen.embed()}
-        : state
+        ? { state: state, ...idGen.embed() }
+        : state;
     });
   }
 
@@ -147,8 +147,8 @@ export function createPullRequestResult(attrs = {}) {
   }
 
   const commits = o.includeEdges
-    ? {edges: [{node: {id: idGen.generate('node'), commit}}]}
-    : {nodes: [{commit, id: idGen.generate('node')}]};
+    ? { edges: [{ node: { id: idGen.generate('node'), commit } }] }
+    : { nodes: [{ commit, id: idGen.generate('node') }] };
 
   return {
     __typename: 'PullRequest',
@@ -160,7 +160,7 @@ export function createPullRequestResult(attrs = {}) {
       __typename: 'User',
       login: 'me',
       avatarUrl: 'https://avatars3.githubusercontent.com/u/000?v=4',
-      id: 'user0'
+      id: 'user0',
     },
     createdAt: '2018-06-12T14:50:08Z',
     headRefName: o.headRefName,
@@ -170,15 +170,15 @@ export function createPullRequestResult(attrs = {}) {
     },
 
     commits,
-  }
+  };
 }
 
 export function createPullRequestsResult(...attrs) {
   const idGen = IDGenerator.fromOpts({});
   const embed = idGen.embed();
 
-  return attrs.map(attr => {
-    return createPullRequestResult({...attr, ...embed});
+  return attrs.map((attr) => {
+    return createPullRequestResult({ ...attr, ...embed });
   });
 }
 
@@ -214,7 +214,7 @@ export function createPullRequestDetailResult(attrs = {}) {
     title: o.title,
     number: o.number,
     countedCommits: {
-      totalCount: o.commitCount
+      totalCount: o.commitCount,
     },
     changedFiles: o.changedFileCount,
     state: o.state,
@@ -230,9 +230,11 @@ export function createPullRequestDetailResult(attrs = {}) {
     url: `https://github.com/owner/repo/pull/${o.number}`,
     reactionGroups: [],
     recentCommits: {
-      edges: [{
-        node: {commit, id: 'node0'}
-      }],
+      edges: [
+        {
+          node: { commit, id: 'node0' },
+        },
+      ],
     },
     timeline: {
       pageInfo: {
@@ -265,6 +267,6 @@ export function createPullRequestDetailResult(attrs = {}) {
         login: o.baseRepositoryLogin,
       },
       id: idGen.generate('repository'),
-    }
+    },
   };
 }

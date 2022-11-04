@@ -1,34 +1,36 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {Disposable} from 'event-kit';
+import { Disposable } from 'event-kit';
 
-import {RefHolderPropType} from '../prop-types';
-import {createItem} from '../helpers';
+import { RefHolderPropType } from '../prop-types';
+import { createItem } from '../helpers';
 
 const VERBATIM_OPTION_PROPS = [
-  'title', 'html', 'placement', 'trigger', 'keyBindingCommand', 'keyBindingTarget',
+  'title',
+  'html',
+  'placement',
+  'trigger',
+  'keyBindingCommand',
+  'keyBindingTarget',
 ];
 
 const OPTION_PROPS = [
   ...VERBATIM_OPTION_PROPS,
-  'tooltips', 'className', 'showDelay', 'hideDelay',
+  'tooltips',
+  'className',
+  'showDelay',
+  'hideDelay',
 ];
 
 export default class Tooltip extends React.Component {
   static propTypes = {
     manager: PropTypes.object.isRequired,
     target: RefHolderPropType.isRequired,
-    title: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-    ]),
+    title: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     html: PropTypes.bool,
     className: PropTypes.string,
-    placement: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-    ]),
+    placement: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     trigger: PropTypes.oneOf(['hover', 'click', 'focus', 'manual']),
     showDelay: PropTypes.number,
     hideDelay: PropTypes.number,
@@ -37,11 +39,11 @@ export default class Tooltip extends React.Component {
     children: PropTypes.element,
     itemHolder: RefHolderPropType,
     tooltipHolder: RefHolderPropType,
-  }
+  };
 
   static defaultProps = {
     getItemComponent: () => {},
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -64,10 +66,7 @@ export default class Tooltip extends React.Component {
 
   render() {
     if (this.props.children !== undefined) {
-      return ReactDOM.createPortal(
-        this.props.children,
-        this.domNode,
-      );
+      return ReactDOM.createPortal(this.props.children, this.domNode);
     } else {
       return null;
     }
@@ -95,14 +94,16 @@ export default class Tooltip extends React.Component {
   }
 
   shouldRecreateTooltip() {
-    return OPTION_PROPS.some(key => this.lastTooltipProps[key] !== this.props[key]);
+    return OPTION_PROPS.some(
+      (key) => this.lastTooltipProps[key] !== this.props[key]
+    );
   }
 
   setupTooltip() {
     this.lastTooltipProps = this.getTooltipProps();
 
     const options = {};
-    VERBATIM_OPTION_PROPS.forEach(key => {
+    VERBATIM_OPTION_PROPS.forEach((key) => {
       if (this.props[key] !== undefined) {
         options[key] = this.props[key];
       }
@@ -110,21 +111,32 @@ export default class Tooltip extends React.Component {
     if (this.props.className !== undefined) {
       options.class = this.props.className;
     }
-    if (this.props.showDelay !== undefined || this.props.hideDelay !== undefined) {
-      const delayDefaults = (this.props.trigger === 'hover' || this.props.trigger === undefined)
-        && {show: 1000, hide: 100}
-        || {show: 0, hide: 0};
+    if (
+      this.props.showDelay !== undefined ||
+      this.props.hideDelay !== undefined
+    ) {
+      const delayDefaults = ((this.props.trigger === 'hover' ||
+        this.props.trigger === undefined) && { show: 1000, hide: 100 }) || {
+        show: 0,
+        hide: 0,
+      };
 
       options.delay = {
-        show: this.props.showDelay !== undefined ? this.props.showDelay : delayDefaults.show,
-        hide: this.props.hideDelay !== undefined ? this.props.hideDelay : delayDefaults.hide,
+        show:
+          this.props.showDelay !== undefined
+            ? this.props.showDelay
+            : delayDefaults.show,
+        hide:
+          this.props.hideDelay !== undefined
+            ? this.props.hideDelay
+            : delayDefaults.hide,
       };
     }
     if (this.props.children !== undefined) {
       options.item = createItem(this.domNode, this.props.itemHolder);
     }
 
-    this.refSub = this.props.target.observe(t => {
+    this.refSub = this.props.target.observe((t) => {
       this.tipSub.dispose();
       this.tipSub = this.props.manager.add(t, options);
       const h = this.props.tooltipHolder;

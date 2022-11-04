@@ -1,10 +1,10 @@
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
-import {getTempDir} from '../../lib/helpers';
-import {cloneRepository} from '../helpers';
+import { getTempDir } from '../../lib/helpers';
+import { cloneRepository } from '../helpers';
 import GithubPackage from '../../lib/github-package';
 import GithubLoginModel from '../../lib/models/github-login-model';
-import {InMemoryStrategy} from '../../lib/shared/keytar-strategy';
+import { InMemoryStrategy } from '../../lib/shared/keytar-strategy';
 import metadata from '../../package.json';
 
 /**
@@ -56,12 +56,12 @@ export async function setup(options = {}) {
   await opts.initAtomEnv(atomEnv);
 
   const projectDirs = await Promise.all(
-    opts.initialRoots.map(fixture => {
+    opts.initialRoots.map((fixture) => {
       return cloneRepository(fixture);
-    }),
+    })
   );
 
-  atomEnv.project.setPaths(projectDirs, {mustExist: true, exact: true});
+  atomEnv.project.setPaths(projectDirs, { mustExist: true, exact: true });
 
   const loginModel = new GithubLoginModel(InMemoryStrategy);
 
@@ -121,7 +121,12 @@ export async function setup(options = {}) {
   await githubPackage.activate(opts.state);
 
   await Promise.all(
-    projectDirs.map(projectDir => githubPackage.getContextPool().getContext(projectDir).getObserverStartedPromise()),
+    projectDirs.map((projectDir) =>
+      githubPackage
+        .getContextPool()
+        .getContext(projectDir)
+        .getObserverStartedPromise()
+    )
   );
 
   return {

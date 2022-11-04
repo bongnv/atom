@@ -36,15 +36,15 @@ const scopesByFenceName = {
   typescript: 'source.ts',
   xml: 'text.xml',
   yaml: 'source.yaml',
-  yml: 'source.yaml'
-}
+  yml: 'source.yaml',
+};
 
 module.exports = {
-  scopeForFenceName (fenceName) {
-    fenceName = fenceName.toLowerCase()
+  scopeForFenceName(fenceName) {
+    fenceName = fenceName.toLowerCase();
 
     return scopesByFenceName.hasOwnProperty(fenceName)
       ? scopesByFenceName[fenceName]
-      : `source.${fenceName}`
-  }
-}
+      : `source.${fenceName}`;
+  },
+};

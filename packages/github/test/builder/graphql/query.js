@@ -1,10 +1,10 @@
-import {parse, Source} from 'graphql';
+import { parse, Source } from 'graphql';
 
-import {createSpecBuilderClass} from './base';
+import { createSpecBuilderClass } from './base';
 
-import {RepositoryBuilder} from './repository';
-import {PullRequestBuilder} from './pr';
-import {UserBuilder} from './user';
+import { RepositoryBuilder } from './repository';
+import { PullRequestBuilder } from './pr';
+import { UserBuilder } from './user';
 
 import {
   AddPullRequestReviewPayloadBuilder,
@@ -21,7 +21,9 @@ import {
 } from './mutations';
 
 class SearchResultItemBuilder {
-  static resolve() { return this; }
+  static resolve() {
+    return this;
+  }
 
   constructor(...args) {
     this.args = args;
@@ -39,28 +41,39 @@ class SearchResultItemBuilder {
   }
 }
 
-const SearchResultBuilder = createSpecBuilderClass('SearchResultItemConnection', {
-  issueCount: {default: 0},
-  nodes: {linked: SearchResultItemBuilder, plural: true, singularName: 'node'},
-});
+const SearchResultBuilder = createSpecBuilderClass(
+  'SearchResultItemConnection',
+  {
+    issueCount: { default: 0 },
+    nodes: {
+      linked: SearchResultItemBuilder,
+      plural: true,
+      singularName: 'node',
+    },
+  }
+);
 
 const QueryBuilder = createSpecBuilderClass('Query', {
-  repository: {linked: RepositoryBuilder, nullable: true},
-  search: {linked: SearchResultBuilder},
-  viewer: {linked: UserBuilder},
+  repository: { linked: RepositoryBuilder, nullable: true },
+  search: { linked: SearchResultBuilder },
+  viewer: { linked: UserBuilder },
 
   // Mutations
-  addPullRequestReview: {linked: AddPullRequestReviewPayloadBuilder},
-  submitPullRequestReview: {linked: SubmitPullRequestReviewPayloadBuilder},
-  updatePullRequestReview: {linked: UpdatePullRequestReviewPayloadBuilder},
-  deletePullRequestReview: {linked: DeletePullRequestReviewPayloadBuilder},
-  addPullRequestReviewComment: {linked: AddPullRequestReviewCommentPayloadBuilder},
-  updatePullRequestReviewComment: {linked: UpdatePullRequestReviewCommentPayloadBuilder},
-  resolveReviewThread: {linked: ResolveReviewThreadPayloadBuilder},
-  unresolveReviewThread: {linked: UnresolveReviewThreadPayloadBuilder},
-  addReaction: {linked: AddReactionPayloadBuilder},
-  removeReaction: {linked: RemoveReactionPayloadBuilder},
-  createRepository: {linked: CreateRepositoryPayloadBuilder},
+  addPullRequestReview: { linked: AddPullRequestReviewPayloadBuilder },
+  submitPullRequestReview: { linked: SubmitPullRequestReviewPayloadBuilder },
+  updatePullRequestReview: { linked: UpdatePullRequestReviewPayloadBuilder },
+  deletePullRequestReview: { linked: DeletePullRequestReviewPayloadBuilder },
+  addPullRequestReviewComment: {
+    linked: AddPullRequestReviewCommentPayloadBuilder,
+  },
+  updatePullRequestReviewComment: {
+    linked: UpdatePullRequestReviewCommentPayloadBuilder,
+  },
+  resolveReviewThread: { linked: ResolveReviewThreadPayloadBuilder },
+  unresolveReviewThread: { linked: UnresolveReviewThreadPayloadBuilder },
+  addReaction: { linked: AddReactionPayloadBuilder },
+  removeReaction: { linked: RemoveReactionPayloadBuilder },
+  createRepository: { linked: CreateRepositoryPayloadBuilder },
 });
 
 export function queryBuilder(...nodes) {
@@ -80,7 +93,7 @@ class RelayResponseBuilder extends QueryBuilder {
   }
 
   addError(string) {
-    this._errors.push({message: string});
+    this._errors.push({ message: string });
     return this;
   }
 
@@ -92,7 +105,7 @@ class RelayResponseBuilder extends QueryBuilder {
       throw error;
     }
 
-    return {data: super.build()};
+    return { data: super.build() };
   }
 }
 

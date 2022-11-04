@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import {commitMutation, graphql} from 'react-relay';
+import { commitMutation, graphql } from 'react-relay';
 
 const mutation = graphql`
   mutation createRepositoryMutation($input: CreateRepositoryInput!) {
@@ -13,7 +13,7 @@ const mutation = graphql`
   }
 `;
 
-export default (environment, {name, ownerID, visibility}) => {
+export default (environment, { name, ownerID, visibility }) => {
   const variables = {
     input: {
       name,
@@ -23,14 +23,11 @@ export default (environment, {name, ownerID, visibility}) => {
   };
 
   return new Promise((resolve, reject) => {
-    commitMutation(
-      environment,
-      {
-        mutation,
-        variables,
-        onCompleted: resolve,
-        onError: reject,
-      },
-    );
+    commitMutation(environment, {
+      mutation,
+      variables,
+      onCompleted: resolve,
+      onError: reject,
+    });
   });
 };

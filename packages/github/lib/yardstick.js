@@ -20,9 +20,12 @@ class DurationSet {
 
     if (atom.config.get('github.performanceToConsole')) {
       // eslint-disable-next-line no-console
-      console.log('%cbegin %c%s:begin',
+      console.log(
+        '%cbegin %c%s:begin',
         'font-weight: bold',
-        'font-weight: normal; font-style: italic; color: blue', this.name);
+        'font-weight: normal; font-style: italic; color: blue',
+        this.name
+      );
     }
 
     if (atom.config.get('github.performanceToProfile')) {
@@ -36,14 +39,19 @@ class DurationSet {
 
     if (atom.config.get('github.performanceToConsole')) {
       // eslint-disable-next-line no-console
-      console.log('%cmark %c%s:%s %c%dms',
+      console.log(
+        '%cmark %c%s:%s %c%dms',
         'font-weight: bold',
-        'font-weight: normal; font-style: italic; color: blue', this.name, eventName,
-        'font-style: normal; color: black', duration);
+        'font-weight: normal; font-style: italic; color: blue',
+        this.name,
+        eventName,
+        'font-style: normal; color: black',
+        duration
+      );
     }
 
     if (atom.config.get('github.performanceToDirectory') !== '') {
-      this.marks.push({eventName, duration});
+      this.marks.push({ eventName, duration });
     }
 
     this.markCount++;
@@ -78,7 +86,7 @@ let totalMarkCount = 0;
 const activeSets = new Map();
 
 function shouldCapture(seriesName, eventName) {
-  const anyActive = ['Console', 'Directory', 'Profile'].some(kind => {
+  const anyActive = ['Console', 'Directory', 'Profile'].some((kind) => {
     const value = atom.config.get(`github.performanceTo${kind}`);
     return value !== '' && value !== false;
   });
@@ -103,17 +111,21 @@ const yardstick = {
     const fileName = path.join(destDir, `performance-${Date.now()}.json`);
 
     await new Promise((resolve, reject) => {
-      fs.ensureDir(destDir, err => (err ? reject(err) : resolve()));
+      fs.ensureDir(destDir, (err) => (err ? reject(err) : resolve()));
     });
 
-    const payload = JSON.stringify(durationSets.map(set => set.serialize()));
-    await fs.writeFile(fileName, payload, {encoding: 'utf8'});
+    const payload = JSON.stringify(durationSets.map((set) => set.serialize()));
+    await fs.writeFile(fileName, payload, { encoding: 'utf8' });
 
     if (atom.config.get('github.performanceToConsole')) {
       // eslint-disable-next-line no-console
-      console.log('%csaved %c%d series to %s',
+      console.log(
+        '%csaved %c%d series to %s',
         'font-weight: bold',
-        'font-weight: normal; color: black', durationSets.length, fileName);
+        'font-weight: normal; color: black',
+        durationSets.length,
+        fileName
+      );
     }
 
     durationSets = [];

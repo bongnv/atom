@@ -1,4 +1,4 @@
-import {deleteMarkerIn} from './marker-tools';
+import { deleteMarkerIn } from './marker-tools';
 
 export default class Banner {
   constructor(editor, marker, description, originalText) {
@@ -17,7 +17,7 @@ export default class Banner {
   }
 
   isModified() {
-    const chomp = line => line.replace(/\r?\n$/, '');
+    const chomp = (line) => line.replace(/\r?\n$/, '');
 
     const text = this.editor.getTextInBufferRange(this.marker.getBufferRange());
     return chomp(text) !== chomp(this.originalText);

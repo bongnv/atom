@@ -1,10 +1,10 @@
 import fs from 'fs-extra';
 import path from 'path';
 
-import GitTempDir, {BIN_SCRIPTS} from '../lib/git-temp-dir';
+import GitTempDir, { BIN_SCRIPTS } from '../lib/git-temp-dir';
 
-describe('GitTempDir', function() {
-  it('ensures that a temporary directory is populated', async function() {
+describe('GitTempDir', function () {
+  it('ensures that a temporary directory is populated', async function () {
     const tempDir = new GitTempDir();
     await tempDir.ensure();
 
@@ -15,7 +15,9 @@ describe('GitTempDir', function() {
       assert.isTrue(stat.isFile());
       if (script.endsWith('.sh') && process.platform !== 'win32') {
         // eslint-disable-next-line no-bitwise
-        assert.isTrue((stat.mode & fs.constants.S_IXUSR) === fs.constants.S_IXUSR);
+        assert.isTrue(
+          (stat.mode & fs.constants.S_IXUSR) === fs.constants.S_IXUSR
+        );
       }
     }
 
@@ -23,7 +25,7 @@ describe('GitTempDir', function() {
     assert.strictEqual(root, tempDir.getRootPath());
   });
 
-  it('generates getters for script paths', async function() {
+  it('generates getters for script paths', async function () {
     const tempDir = new GitTempDir();
     await tempDir.ensure();
 
@@ -31,25 +33,37 @@ describe('GitTempDir', function() {
     assert.isTrue(scriptPath.startsWith(tempDir.getRootPath()));
     assert.isTrue(scriptPath.endsWith('git-credential-atom.js'));
 
-    assert.strictEqual(tempDir.getCredentialHelperJs(), tempDir.getScriptPath('git-credential-atom.js'));
-    assert.strictEqual(tempDir.getCredentialHelperSh(), tempDir.getScriptPath('git-credential-atom.sh'));
-    assert.strictEqual(tempDir.getAskPassJs(), tempDir.getScriptPath('git-askpass-atom.js'));
+    assert.strictEqual(
+      tempDir.getCredentialHelperJs(),
+      tempDir.getScriptPath('git-credential-atom.js')
+    );
+    assert.strictEqual(
+      tempDir.getCredentialHelperSh(),
+      tempDir.getScriptPath('git-credential-atom.sh')
+    );
+    assert.strictEqual(
+      tempDir.getAskPassJs(),
+      tempDir.getScriptPath('git-askpass-atom.js')
+    );
   });
 
-  it('fails when the temp dir is not yet created', function() {
+  it('fails when the temp dir is not yet created', function () {
     const tempDir = new GitTempDir();
     assert.throws(() => tempDir.getAskPassJs(), /uninitialized GitTempDir/);
   });
 
   if (process.platform === 'win32') {
-    it('generates options to create a TCP socket on an unbound port', async function() {
+    it('generates options to create a TCP socket on an unbound port', async function () {
       const tempDir = new GitTempDir();
       await tempDir.ensure();
 
-      assert.deepEqual(tempDir.getSocketOptions(), {port: 0, host: 'localhost'});
+      assert.deepEqual(tempDir.getSocketOptions(), {
+        port: 0,
+        host: 'localhost',
+      });
     });
   } else {
-    it('generates a socket path within the directory', async function() {
+    it('generates a socket path within the directory', async function () {
       const tempDir = new GitTempDir();
       await tempDir.ensure();
 
@@ -58,7 +72,7 @@ describe('GitTempDir', function() {
     });
   }
 
-  it('deletes the directory on dispose', async function() {
+  it('deletes the directory on dispose', async function () {
     const tempDir = new GitTempDir();
     await tempDir.ensure();
 

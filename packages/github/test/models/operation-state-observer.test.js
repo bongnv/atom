@@ -1,19 +1,24 @@
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 
-import {setUpLocalAndRemoteRepositories} from '../helpers';
+import { setUpLocalAndRemoteRepositories } from '../helpers';
 import Repository from '../../lib/models/repository';
 import getRepoPipelineManager from '../../lib/get-repo-pipeline-manager';
-import OperationStateObserver, {PUSH, FETCH} from '../../lib/models/operation-state-observer';
+import OperationStateObserver, {
+  PUSH,
+  FETCH,
+} from '../../lib/models/operation-state-observer';
 
-describe('OperationStateObserver', function() {
+describe('OperationStateObserver', function () {
   let atomEnv, repository, observer, subs, handler;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
 
     handler = sinon.stub();
 
-    const {localRepoPath} = await setUpLocalAndRemoteRepositories('multiple-commits');
+    const { localRepoPath } = await setUpLocalAndRemoteRepositories(
+      'multiple-commits'
+    );
     repository = new Repository(localRepoPath, null, {
       pipelineManager: getRepoPipelineManager({
         confirm: () => true,
@@ -26,13 +31,13 @@ describe('OperationStateObserver', function() {
     subs = new CompositeDisposable();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     observer && observer.dispose();
     subs.dispose();
     atomEnv.destroy();
   });
 
-  it('triggers an update event when the observed repository completes an operation', async function() {
+  it('triggers an update event when the observed repository completes an operation', async function () {
     observer = new OperationStateObserver(repository, PUSH);
     subs.add(observer.onDidComplete(handler));
 
@@ -42,7 +47,7 @@ describe('OperationStateObserver', function() {
     assert.isTrue(handler.called);
   });
 
-  it('does not trigger an update event when the observed repository is unchanged', async function() {
+  it('does not trigger an update event when the observed repository is unchanged', async function () {
     observer = new OperationStateObserver(repository, FETCH);
     subs.add(observer.onDidComplete(handler));
 
@@ -50,7 +55,7 @@ describe('OperationStateObserver', function() {
     assert.isFalse(handler.called);
   });
 
-  it('subscribes to multiple events', async function() {
+  it('subscribes to multiple events', async function () {
     observer = new OperationStateObserver(repository, FETCH, PUSH);
     subs.add(observer.onDidComplete(handler));
 

@@ -1,14 +1,19 @@
 import crypto from 'crypto';
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
-import {UNAUTHENTICATED, INSUFFICIENT, UNAUTHORIZED, createStrategy} from '../shared/keytar-strategy';
+import {
+  UNAUTHENTICATED,
+  INSUFFICIENT,
+  UNAUTHORIZED,
+  createStrategy,
+} from '../shared/keytar-strategy';
 
 let instance = null;
 
 export default class GithubLoginModel {
   // Be sure that we're requesting at least this many scopes on the token we grant through github.atom.io or we'll
   // give everyone a really frustrating experience ;-)
-  static REQUIRED_SCOPES = ['repo', 'read:org', 'user:email']
+  static REQUIRED_SCOPES = ['repo', 'read:org', 'user:email'];
 
   static get() {
     if (!instance) {
@@ -114,7 +119,7 @@ export default class GithubLoginModel {
     try {
       response = await fetch(host, {
         method: 'HEAD',
-        headers: {Authorization: `bearer ${token}`},
+        headers: { Authorization: `bearer ${token}` },
       });
     } catch (e) {
       e.network = true;
@@ -126,7 +131,9 @@ export default class GithubLoginModel {
     }
 
     if (response.status !== 200) {
-      const e = new Error(`Unable to check token for OAuth scopes against ${host}`);
+      const e = new Error(
+        `Unable to check token for OAuth scopes against ${host}`
+      );
       e.response = response;
       e.responseText = await response.text();
       throw e;

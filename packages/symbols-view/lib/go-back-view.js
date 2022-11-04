@@ -15,7 +15,9 @@ export default class GoBackView extends SymbolsView {
       }
     };
 
-    const previousEditor = atom.workspace.getTextEditors().find(e => e.id === previousTag.editorId);
+    const previousEditor = atom.workspace
+      .getTextEditors()
+      .find((e) => e.id === previousTag.editorId);
 
     if (previousEditor) {
       const pane = atom.workspace.paneForItem(previousEditor);

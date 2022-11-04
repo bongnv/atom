@@ -7,15 +7,15 @@ import transpiler from '@atom/babel7-transpiler';
 import React from 'react';
 import ReactDom from 'react-dom';
 import sinon from 'sinon';
-import {Directory} from 'atom';
-import {Emitter, CompositeDisposable, Disposable} from 'event-kit';
+import { Directory } from 'atom';
+import { Emitter, CompositeDisposable, Disposable } from 'event-kit';
 
 import Repository from '../lib/models/repository';
 import GitShellOutStrategy from '../lib/git-shell-out-strategy';
 import WorkerManager from '../lib/worker-manager';
 import ContextMenuInterceptor from '../lib/context-menu-interceptor';
 import getRepoPipelineManager from '../lib/get-repo-pipeline-manager';
-import {clearRelayExpectations} from '../lib/relay-network-layer-manager';
+import { clearRelayExpectations } from '../lib/relay-network-layer-manager';
 import FileSystemChangeObserver from '../lib/models/file-system-change-observer';
 
 assert.autocrlfEqual = (actual, expected, ...args) => {
@@ -43,7 +43,10 @@ export async function cloneRepository(repoName = 'three-files') {
   if (!cachedClonedRepos[repoName]) {
     const cachedPath = temp.mkdirSync('git-fixture-cache-');
     const git = new GitShellOutStrategy(cachedPath);
-    await git.clone(path.join(__dirname, 'fixtures', `repo-${repoName}`, 'dot-git'), {noLocal: true});
+    await git.clone(
+      path.join(__dirname, 'fixtures', `repo-${repoName}`, 'dot-git'),
+      { noLocal: true }
+    );
     await git.exec(['config', '--local', 'core.autocrlf', 'false']);
     await git.exec(['config', '--local', 'commit.gpgsign', 'false']);
     await git.exec(['config', '--local', 'user.email', FAKE_USER.email]);
@@ -75,8 +78,10 @@ export async function initRepository() {
   return fs.realpath(workingDirPath);
 }
 
-export async function setUpLocalAndRemoteRepositories(repoName = 'multiple-commits', options = {}) {
-
+export async function setUpLocalAndRemoteRepositories(
+  repoName = 'multiple-commits',
+  options = {}
+) {
   if (typeof repoName === 'object') {
     options = repoName;
     repoName = 'multiple-commits';
@@ -88,25 +93,27 @@ export async function setUpLocalAndRemoteRepositories(repoName = 'multiple-commi
   // create remote bare repo with all commits
   const remoteRepoPath = temp.mkdirSync('git-remote-fixture-');
   const remoteGit = new GitShellOutStrategy(remoteRepoPath);
-  await remoteGit.clone(baseRepoPath, {noLocal: true, bare: true});
+  await remoteGit.clone(baseRepoPath, { noLocal: true, bare: true });
 
   // create local repo with one fewer commit
-  if (options.remoteAhead) { await baseGit.exec(['reset', 'HEAD~']); }
+  if (options.remoteAhead) {
+    await baseGit.exec(['reset', 'HEAD~']);
+  }
   const localRepoPath = temp.mkdirSync('git-local-fixture-');
   const localGit = new GitShellOutStrategy(localRepoPath);
-  await localGit.clone(baseRepoPath, {noLocal: true});
+  await localGit.clone(baseRepoPath, { noLocal: true });
   await localGit.exec(['remote', 'set-url', 'origin', remoteRepoPath]);
   await localGit.exec(['config', '--local', 'commit.gpgsign', 'false']);
   await localGit.exec(['config', '--local', 'user.email', FAKE_USER.email]);
   await localGit.exec(['config', '--local', 'user.name', FAKE_USER.name]);
   await localGit.exec(['config', '--local', 'pull.rebase', false]);
-  return {baseRepoPath, remoteRepoPath, localRepoPath};
+  return { baseRepoPath, remoteRepoPath, localRepoPath };
 }
 
 export async function getHeadCommitOnRemote(remotePath) {
   const workingDirPath = temp.mkdirSync('git-fixture-');
   const git = new GitShellOutStrategy(workingDirPath);
-  await git.clone(remotePath, {noLocal: true});
+  await git.clone(remotePath, { noLocal: true });
   return git.getHeadCommit();
 }
 
@@ -123,19 +130,24 @@ export async function buildRepository(workingDirPath, options) {
 
 export function buildRepositoryWithPipeline(workingDirPath, options) {
   const pipelineManager = getRepoPipelineManager(options);
-  return buildRepository(workingDirPath, {pipelineManager});
+  return buildRepository(workingDirPath, { pipelineManager });
 }
 
 // Custom assertions
 
 export function assertDeepPropertyVals(actual, expected) {
   function extractObjectSubset(actualValue, expectedValue) {
-    if (actualValue !== Object(actualValue)) { return actualValue; }
+    if (actualValue !== Object(actualValue)) {
+      return actualValue;
+    }
 
     const actualSubset = Array.isArray(actualValue) ? [] : {};
     for (const key of Object.keys(expectedValue)) {
       if (actualValue.hasOwnProperty(key)) {
-        actualSubset[key] = extractObjectSubset(actualValue[key], expectedValue[key]);
+        actualSubset[key] = extractObjectSubset(
+          actualValue[key],
+          expectedValue[key]
+        );
       }
     }
 
@@ -147,7 +159,7 @@ export function assertDeepPropertyVals(actual, expected) {
 
 export function assertEqualSets(a, b) {
   assert.equal(a.size, b.size, 'Sets are a different size');
-  a.forEach(item => assert(b.has(item), 'Sets have different elements'));
+  a.forEach((item) => assert(b.has(item), 'Sets have different elements'));
 }
 
 export function assertEqualSortedArraysByKey(arr1, arr2, key) {
@@ -163,7 +175,7 @@ class PatchBufferAssertions {
     this.buffer = buffer;
   }
 
-  hunk(hunkIndex, {startRow, endRow, header, regions}) {
+  hunk(hunkIndex, { startRow, endRow, header, regions }) {
     const hunk = this.patch.getHunks()[hunkIndex];
     assert.isDefined(hunk);
 
@@ -200,7 +212,9 @@ export function assertInFilePatch(filePatch, buffer) {
 
 export function assertMarkerRanges(markerLayer, ...expectedRanges) {
   const bufferLayer = markerLayer.bufferMarkerLayer || markerLayer;
-  const actualRanges = bufferLayer.getMarkers().map(m => m.getRange().serialize());
+  const actualRanges = bufferLayer
+    .getMarkers()
+    .map((m) => m.getRange().serialize());
   assert.deepEqual(actualRanges, expectedRanges);
 }
 
@@ -211,11 +225,13 @@ export function createRenderer() {
   let node = document.createElement('div');
   // ref function should be reference equal over renders to avoid React
   // calling the "old" one with `null` and the "new" one with the instance
-  const setTopLevelRef = c => { instance = c; };
+  const setTopLevelRef = (c) => {
+    instance = c;
+  };
   const renderer = {
     render(appWithoutRef) {
       lastInstance = instance;
-      const app = React.cloneElement(appWithoutRef, {ref: setTopLevelRef});
+      const app = React.cloneElement(appWithoutRef, { ref: setTopLevelRef });
       ReactDom.render(app, node);
     },
 
@@ -258,7 +274,7 @@ export function isProcessAlive(pid) {
 
 class UnwatchedDirectory extends Directory {
   onDidChangeFiles(callback) {
-    return {dispose: () => {}};
+    return { dispose: () => {} };
   }
 }
 
@@ -269,7 +285,10 @@ export async function disableFilesystemWatchers(atomEnv) {
     },
   });
 
-  await until('directoryProvider is available', () => atomEnv.project.directoryProviders.length > 0);
+  await until(
+    'directoryProvider is available',
+    () => atomEnv.project.directoryProviders.length > 0
+  );
 }
 
 const packageRoot = path.resolve(__dirname, '..');
@@ -277,17 +296,29 @@ const transpiledRoot = path.resolve(__dirname, 'output/transpiled/');
 
 export function transpile(...relPaths) {
   return Promise.all(
-    relPaths.map(async relPath => {
+    relPaths.map(async (relPath) => {
       const untranspiledPath = path.resolve(__dirname, '..', relPath);
-      const transpiledPath = path.join(transpiledRoot, path.relative(packageRoot, untranspiledPath));
+      const transpiledPath = path.join(
+        transpiledRoot,
+        path.relative(packageRoot, untranspiledPath)
+      );
 
-      const untranspiledSource = await fs.readFile(untranspiledPath, {encoding: 'utf8'});
-      const transpiledSource = transpiler.transpile(untranspiledSource, untranspiledPath, {}, {}).code;
+      const untranspiledSource = await fs.readFile(untranspiledPath, {
+        encoding: 'utf8',
+      });
+      const transpiledSource = transpiler.transpile(
+        untranspiledSource,
+        untranspiledPath,
+        {},
+        {}
+      ).code;
 
       await fs.mkdirs(path.dirname(transpiledPath));
-      await fs.writeFile(transpiledPath, transpiledSource, {encoding: 'utf8'});
+      await fs.writeFile(transpiledPath, transpiledSource, {
+        encoding: 'utf8',
+      });
       return transpiledPath;
-    }),
+    })
   );
 }
 
@@ -322,11 +353,17 @@ export function deferSetState(instance) {
     instance.__deferOriginalSetState = instance.setState;
   }
   let resolve, resolveStarted, resolveCompleted;
-  const started = new Promise(r => { resolveStarted = r; });
-  const completed = new Promise(r => { resolveCompleted = r; });
-  const resolved = new Promise(r => { resolve = r; });
+  const started = new Promise((r) => {
+    resolveStarted = r;
+  });
+  const completed = new Promise((r) => {
+    resolveCompleted = r;
+  });
+  const resolved = new Promise((r) => {
+    resolve = r;
+  });
 
-  const stub = function(updater, callback) {
+  const stub = function (updater, callback) {
     resolveStarted();
     resolved.then(() => {
       instance.__deferOriginalSetState(updater, () => {
@@ -339,17 +376,17 @@ export function deferSetState(instance) {
   };
   instance.setState = stub;
 
-  return {resolve, started, completed};
+  return { resolve, started, completed };
 }
 
 // eslint-disable-next-line jasmine/no-global-setup
-beforeEach(function() {
+beforeEach(function () {
   global.sinon = sinon.createSandbox();
 });
 
 // eslint-disable-next-line jasmine/no-global-setup
-afterEach(function() {
-  activeRenderers.forEach(r => r.unmount());
+afterEach(function () {
+  activeRenderers.forEach((r) => r.unmount());
   activeRenderers = [];
 
   ContextMenuInterceptor.dispose();
@@ -392,15 +429,17 @@ export class ManualStateObserver {
   }
 }
 
-
 // File system event helpers
 let observedEvents, eventCallback;
 
-export async function wireUpObserver(fixtureName = 'multi-commits-files', existingWorkdir = null) {
+export async function wireUpObserver(
+  fixtureName = 'multi-commits-files',
+  existingWorkdir = null
+) {
   observedEvents = [];
   eventCallback = () => {};
 
-  const workdir = existingWorkdir || await cloneRepository(fixtureName);
+  const workdir = existingWorkdir || (await cloneRepository(fixtureName));
   const repository = new Repository(workdir);
   await repository.getLoadPromise();
 
@@ -410,31 +449,32 @@ export async function wireUpObserver(fixtureName = 'multi-commits-files', existi
     new Disposable(async () => {
       await observer.destroy();
       repository.destroy();
-    }),
+    })
   );
 
-  subscriptions.add(observer.onDidChange(events => {
-    observedEvents.push(...events);
-    eventCallback();
-  }));
+  subscriptions.add(
+    observer.onDidChange((events) => {
+      observedEvents.push(...events);
+      eventCallback();
+    })
+  );
 
-  return {repository, observer, subscriptions};
+  return { repository, observer, subscriptions };
 }
 
 export function expectEvents(repository, ...suffixes) {
   const pending = new Set(suffixes);
   return new Promise((resolve, reject) => {
     eventCallback = () => {
-      const matchingPaths = observedEvents
-        .filter(event => {
-          for (const suffix of pending) {
-            if (event.path.endsWith(suffix)) {
-              pending.delete(suffix);
-              return true;
-            }
+      const matchingPaths = observedEvents.filter((event) => {
+        for (const suffix of pending) {
+          if (event.path.endsWith(suffix)) {
+            pending.delete(suffix);
+            return true;
           }
-          return false;
-        });
+        }
+        return false;
+      });
 
       if (matchingPaths.length > 0) {
         repository.observeFilesystemChange(matchingPaths);
@@ -462,10 +502,12 @@ export function expectEvents(repository, ...suffixes) {
 //
 // Adding an opener that creates fake items prevents it from doing this and keeps the URIs unchanged.
 export function registerGitHubOpener(atomEnv) {
-  atomEnv.workspace.addOpener(uri => {
+  atomEnv.workspace.addOpener((uri) => {
     if (uri.startsWith('atom-github://')) {
       return {
-        getURI() { return uri; },
+        getURI() {
+          return uri;
+        },
 
         getElement() {
           if (!this.element) {

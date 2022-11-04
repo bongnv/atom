@@ -1,4 +1,4 @@
-import {autobind} from './helpers';
+import { autobind } from './helpers';
 
 const refreshMapPerUniqueId = new WeakMap();
 

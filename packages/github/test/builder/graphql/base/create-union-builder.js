@@ -1,7 +1,9 @@
 const UNSET = Symbol('unset');
 
 class UnionBuilder {
-  static resolve() { return this; }
+  static resolve() {
+    return this;
+  }
 
   constructor(...args) {
     this.args = args;
@@ -23,7 +25,7 @@ export function createUnionBuilderClass(typeName, alternativeSpec) {
   Builder.prototype.defaultAlternative = alternativeSpec.default;
 
   function installAlternativeMethod(methodName, BuilderClass) {
-    Builder.prototype[methodName] = function(block = () => {}) {
+    Builder.prototype[methodName] = function (block = () => {}) {
       const Resolved = BuilderClass.resolve();
       const b = new Resolved(...this.args);
       block(b);

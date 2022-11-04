@@ -451,7 +451,7 @@ module.exports = class Package {
     this.menus = await Promise.all(
       this.getMenuPaths().map(async (menuPath) => [
         menuPath,
-        JSON.parse(await this.nodeAPI.fs.readFileSync(menuPath)) || {},
+        JSON.parse(await this.nodeAPI.fs.readFile(menuPath)) || {},
       ])
     );
   }

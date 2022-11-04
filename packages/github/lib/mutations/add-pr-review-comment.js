@@ -1,13 +1,15 @@
 /* istanbul ignore file */
 
-import {commitMutation, graphql} from 'react-relay';
-import {ConnectionHandler} from 'relay-runtime';
+import { commitMutation, graphql } from 'react-relay';
+import { ConnectionHandler } from 'relay-runtime';
 import moment from 'moment';
 
-import {renderMarkdown} from '../helpers';
+import { renderMarkdown } from '../helpers';
 
 const mutation = graphql`
-  mutation addPrReviewCommentMutation($input: AddPullRequestReviewCommentInput!) {
+  mutation addPrReviewCommentMutation(
+    $input: AddPullRequestReviewCommentInput!
+  ) {
     addPullRequestReviewComment(input: $input) {
       commentEdge {
         node {
@@ -36,7 +38,10 @@ const mutation = graphql`
 
 let placeholderID = 0;
 
-export default (environment, {body, inReplyTo, reviewID, threadID, viewerID, path, position}) => {
+export default (
+  environment,
+  { body, inReplyTo, reviewID, threadID, viewerID, path, position }
+) => {
   const variables = {
     input: {
       body,
@@ -45,12 +50,16 @@ export default (environment, {body, inReplyTo, reviewID, threadID, viewerID, pat
     },
   };
 
-  const configs = [{
-    type: 'RANGE_ADD',
-    parentID: threadID,
-    connectionInfo: [{key: 'ReviewCommentsAccumulator_comments', rangeBehavior: 'append'}],
-    edgeName: 'commentEdge',
-  }];
+  const configs = [
+    {
+      type: 'RANGE_ADD',
+      parentID: threadID,
+      connectionInfo: [
+        { key: 'ReviewCommentsAccumulator_comments', rangeBehavior: 'append' },
+      ],
+      edgeName: 'commentEdge',
+    },
+  ];
 
   function optimisticUpdater(store) {
     const reviewThread = store.get(threadID);
@@ -79,28 +88,36 @@ export default (environment, {body, inReplyTo, reviewID, threadID, viewerID, pat
     if (viewerID) {
       author = store.get(viewerID);
     } else {
-      author = store.create(`add-pr-review-comment:author:${placeholderID++}`, 'User');
+      author = store.create(
+        `add-pr-review-comment:author:${placeholderID++}`,
+        'User'
+      );
       author.setValue('...', 'login');
       author.setValue('atom://github/img/avatar.svg', 'avatarUrl');
     }
     comment.setLinkedRecord(author, 'author');
 
-    const comments = ConnectionHandler.getConnection(reviewThread, 'ReviewCommentsAccumulator_comments');
-    const edge = ConnectionHandler.createEdge(store, comments, comment, 'PullRequestReviewCommentEdge');
+    const comments = ConnectionHandler.getConnection(
+      reviewThread,
+      'ReviewCommentsAccumulator_comments'
+    );
+    const edge = ConnectionHandler.createEdge(
+      store,
+      comments,
+      comment,
+      'PullRequestReviewCommentEdge'
+    );
     ConnectionHandler.insertEdgeAfter(comments, edge);
   }
 
   return new Promise((resolve, reject) => {
-    commitMutation(
-      environment,
-      {
-        mutation,
-        variables,
-        configs,
-        optimisticUpdater,
-        onCompleted: resolve,
-        onError: reject,
-      },
-    );
+    commitMutation(environment, {
+      mutation,
+      variables,
+      configs,
+      optimisticUpdater,
+      onCompleted: resolve,
+      onError: reject,
+    });
   });
 };

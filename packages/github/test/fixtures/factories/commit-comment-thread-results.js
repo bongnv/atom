@@ -32,7 +32,7 @@ export function createCommitComment(opts = {}) {
       id: idGen.generate('user'),
       login: o.authorLogin,
       avatarUrl: o.authorAvatarUrl,
-    }
+    };
   }
 
   return comment;
@@ -54,13 +54,13 @@ export function createCommitCommentThread(opts = {}) {
       oid: o.commitOid,
     },
     comments: {
-      edges: o.commitCommentOpts.map(eachOpts => {
+      edges: o.commitCommentOpts.map((eachOpts) => {
         return {
           node: createCommitComment({
             ...idGen.embed(),
             ...eachOpts,
           }),
-        }
+        };
       }),
     },
   };

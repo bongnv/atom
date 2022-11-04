@@ -1,4 +1,4 @@
-import {Range} from 'atom';
+import { Range } from 'atom';
 
 class Region {
   constructor(marker) {
@@ -42,7 +42,7 @@ class Region {
     let currentRow = this.getRange().start.row;
     let nextStartRow = currentRow;
 
-    const finishRowRange = isGap => {
+    const finishRowRange = (isGap) => {
       if (isGap && !includeGaps) {
         nextStartRow = currentRow;
         return;
@@ -53,7 +53,10 @@ class Region {
       }
 
       intersections.push({
-        intersection: Range.fromObject([[nextStartRow, 0], [currentRow - 1, Infinity]]),
+        intersection: Range.fromObject([
+          [nextStartRow, 0],
+          [currentRow - 1, Infinity],
+        ]),
         gap: isGap,
       });
 
@@ -103,7 +106,10 @@ class Region {
   }
 
   when(callbacks) {
-    const callback = callbacks[this.constructor.name.toLowerCase()] || callbacks.default || (() => undefined);
+    const callback =
+      callbacks[this.constructor.name.toLowerCase()] ||
+      callbacks.default ||
+      (() => undefined);
     return callback();
   }
 
@@ -117,8 +123,11 @@ class Region {
 
   toStringIn(buffer) {
     const raw = buffer.getTextInRange(this.getRange());
-    return this.constructor.origin + raw.replace(/\r?\n/g, '$&' + this.constructor.origin) +
-      buffer.lineEndingForRow(this.getRange().end.row);
+    return (
+      this.constructor.origin +
+      raw.replace(/\r?\n/g, '$&' + this.constructor.origin) +
+      buffer.lineEndingForRow(this.getRange().end.row)
+    );
   }
 
   /*

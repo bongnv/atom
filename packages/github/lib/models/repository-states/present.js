@@ -1,23 +1,23 @@
 import path from 'path';
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 import fs from 'fs-extra';
 
 import State from './state';
-import {Keys} from './cache/keys';
+import { Keys } from './cache/keys';
 
-import {LargeRepoError} from '../../git-shell-out-strategy';
-import {FOCUS} from '../workspace-change-observer';
-import {buildFilePatch, buildMultiFilePatch} from '../patch';
+import { LargeRepoError } from '../../git-shell-out-strategy';
+import { FOCUS } from '../workspace-change-observer';
+import { buildFilePatch, buildMultiFilePatch } from '../patch';
 import DiscardHistory from '../discard-history';
-import Branch, {nullBranch} from '../branch';
+import Branch, { nullBranch } from '../branch';
 import Author from '../author';
 import BranchSet from '../branch-set';
 import Remote from '../remote';
 import RemoteSet from '../remote-set';
 import Commit from '../commit';
 import OperationStates from '../operation-states';
-import {addEvent} from '../../reporter-proxy';
-import {filePathEndsWith} from '../../helpers';
+import { addEvent } from '../../reporter-proxy';
+import { filePathEndsWith } from '../../helpers';
 
 /**
  * State used when the working directory contains a valid git repository and can be interacted with. Performs
@@ -35,10 +35,12 @@ export default class Present extends State {
       this.expandBlobToFile.bind(this),
       this.mergeFile.bind(this),
       this.workdir(),
-      {maxHistoryLength: 60},
+      { maxHistoryLength: 60 }
     );
 
-    this.operationStates = new OperationStates({didUpdate: this.didUpdate.bind(this)});
+    this.operationStates = new OperationStates({
+      didUpdate: this.didUpdate.bind(this),
+    });
 
     this.commitMessage = '';
     this.commitMessageTemplate = null;
@@ -50,7 +52,7 @@ export default class Present extends State {
     }
   }
 
-  setCommitMessage(message, {suppressUpdate} = {suppressUpdate: false}) {
+  setCommitMessage(message, { suppressUpdate } = { suppressUpdate: false }) {
     this.commitMessage = message;
     if (!suppressUpdate) {
       this.didUpdate();
@@ -103,7 +105,7 @@ export default class Present extends State {
     return true;
   }
 
-  acceptInvalidation(spec, {globally} = {}) {
+  acceptInvalidation(spec, { globally } = {}) {
     this.cache.invalidate(spec());
     this.didUpdate();
     if (globally) {
@@ -112,20 +114,21 @@ export default class Present extends State {
   }
 
   invalidateCacheAfterFilesystemChange(events) {
-    const paths = events.map(e => e.special || e.path);
+    const paths = events.map((e) => e.special || e.path);
     const keys = new Set();
     for (let i = 0; i < paths.length; i++) {
       const fullPath = paths[i];
 
       if (fullPath === FOCUS) {
         keys.add(Keys.statusBundle);
-        for (const k of Keys.filePatch.eachWithOpts({staged: false})) {
+        for (const k of Keys.filePatch.eachWithOpts({ staged: false })) {
           keys.add(k);
         }
         continue;
       }
 
-      const includes = (...segments) => fullPath.includes(path.join(...segments));
+      const includes = (...segments) =>
+        fullPath.includes(path.join(...segments));
 
       if (filePathEndsWith(fullPath, '.git', 'index')) {
         keys.add(Keys.stagedChanges);
@@ -170,7 +173,10 @@ export default class Present extends State {
 
       // File change within the working directory
       const relativePath = path.relative(this.workdir(), fullPath);
-      for (const key of Keys.filePatch.eachWithFileOpts([relativePath], [{staged: false}])) {
+      for (const key of Keys.filePatch.eachWithFileOpts(
+        [relativePath],
+        [{ staged: false }]
+      )) {
         keys.add(key);
       }
       keys.add(Keys.statusBundle);
@@ -234,14 +240,14 @@ export default class Present extends State {
   }
 
   init() {
-    return super.init().catch(e => {
+    return super.init().catch((e) => {
       e.stdErr = 'This directory already contains a git repository';
       return Promise.reject(e);
     });
   }
 
   clone() {
-    return super.clone().catch(e => {
+    return super.clone().catch((e) => {
       e.stdErr = 'This directory already contains a git repository';
       return Promise.reject(e);
     });
@@ -254,35 +260,35 @@ export default class Present extends State {
   stageFiles(paths) {
     return this.invalidate(
       () => Keys.cacheOperationKeys(paths),
-      () => this.git().stageFiles(paths),
+      () => this.git().stageFiles(paths)
     );
   }
 
   unstageFiles(paths) {
     return this.invalidate(
       () => Keys.cacheOperationKeys(paths),
-      () => this.git().unstageFiles(paths),
+      () => this.git().unstageFiles(paths)
     );
   }
 
   stageFilesFromParentCommit(paths) {
     return this.invalidate(
       () => Keys.cacheOperationKeys(paths),
-      () => this.git().unstageFiles(paths, 'HEAD~'),
+      () => this.git().unstageFiles(paths, 'HEAD~')
     );
   }
 
   stageFileModeChange(filePath, fileMode) {
     return this.invalidate(
       () => Keys.cacheOperationKeys([filePath]),
-      () => this.git().stageFileModeChange(filePath, fileMode),
+      () => this.git().stageFileModeChange(filePath, fileMode)
     );
   }
 
   stageFileSymlinkChange(filePath) {
     return this.invalidate(
       () => Keys.cacheOperationKeys([filePath]),
-      () => this.git().stageFileSymlinkChange(filePath),
+      () => this.git().stageFileSymlinkChange(filePath)
     );
   }
 
@@ -291,8 +297,8 @@ export default class Present extends State {
       () => Keys.cacheOperationKeys(Array.from(multiFilePatch.getPathSet())),
       () => {
         const patchStr = multiFilePatch.toString();
-        return this.git().applyPatch(patchStr, {index: true});
-      },
+        return this.git().applyPatch(patchStr, { index: true });
+      }
     );
   }
 
@@ -302,7 +308,7 @@ export default class Present extends State {
       () => {
         const patchStr = multiFilePatch.toString();
         return this.git().applyPatch(patchStr);
-      },
+      }
     );
   }
 
@@ -312,29 +318,44 @@ export default class Present extends State {
     return this.invalidate(
       Keys.headOperationKeys,
       // eslint-disable-next-line no-shadow
-      () => this.executePipelineAction('COMMIT', async (message, options = {}) => {
-        const coAuthors = options.coAuthors;
-        const opts = !coAuthors ? options : {
-          ...options,
-          coAuthors: coAuthors.map(author => {
-            return {email: author.getEmail(), name: author.getFullName()};
-          }),
-        };
+      () =>
+        this.executePipelineAction(
+          'COMMIT',
+          async (message, options = {}) => {
+            const coAuthors = options.coAuthors;
+            const opts = !coAuthors
+              ? options
+              : {
+                  ...options,
+                  coAuthors: coAuthors.map((author) => {
+                    return {
+                      email: author.getEmail(),
+                      name: author.getFullName(),
+                    };
+                  }),
+                };
 
-        await this.git().commit(message, opts);
+            await this.git().commit(message, opts);
 
-        // Collect commit metadata metrics
-        // note: in GitShellOutStrategy we have counters for all git commands, including `commit`, but here we have
-        //       access to additional metadata (unstaged file count) so it makes sense to collect commit events here
-        const {unstagedFiles, mergeConflictFiles} = await this.getStatusesForChangedFiles();
-        const unstagedCount = Object.keys({...unstagedFiles, ...mergeConflictFiles}).length;
-        addEvent('commit', {
-          package: 'github',
-          partial: unstagedCount > 0,
-          amend: !!options.amend,
-          coAuthorCount: coAuthors ? coAuthors.length : 0,
-        });
-      }, message, options),
+            // Collect commit metadata metrics
+            // note: in GitShellOutStrategy we have counters for all git commands, including `commit`, but here we have
+            //       access to additional metadata (unstaged file count) so it makes sense to collect commit events here
+            const { unstagedFiles, mergeConflictFiles } =
+              await this.getStatusesForChangedFiles();
+            const unstagedCount = Object.keys({
+              ...unstagedFiles,
+              ...mergeConflictFiles,
+            }).length;
+            addEvent('commit', {
+              package: 'github',
+              partial: unstagedCount > 0,
+              amend: !!options.amend,
+              coAuthorCount: coAuthors ? coAuthors.length : 0,
+            });
+          },
+          message,
+          options
+        )
     );
   }
 
@@ -342,12 +363,8 @@ export default class Present extends State {
 
   merge(branchName) {
     return this.invalidate(
-      () => [
-        ...Keys.headOperationKeys(),
-        Keys.index.all,
-        Keys.headDescription,
-      ],
-      () => this.git().merge(branchName),
+      () => [...Keys.headOperationKeys(), Keys.index.all, Keys.headDescription],
+      () => this.git().merge(branchName)
     );
   }
 
@@ -362,7 +379,7 @@ export default class Present extends State {
       async () => {
         await this.git().abortMerge();
         this.setCommitMessage(this.commitMessageTemplate || '');
-      },
+      }
     );
   }
 
@@ -371,7 +388,12 @@ export default class Present extends State {
   }
 
   mergeFile(oursPath, commonBasePath, theirsPath, resultPath) {
-    return this.git().mergeFile(oursPath, commonBasePath, theirsPath, resultPath);
+    return this.git().mergeFile(
+      oursPath,
+      commonBasePath,
+      theirsPath,
+      resultPath
+    );
   }
 
   writeMergeConflictToIndex(filePath, commonBaseSha, oursSha, theirsSha) {
@@ -379,10 +401,19 @@ export default class Present extends State {
       () => [
         Keys.statusBundle,
         Keys.stagedChanges,
-        ...Keys.filePatch.eachWithFileOpts([filePath], [{staged: false}, {staged: true}]),
+        ...Keys.filePatch.eachWithFileOpts(
+          [filePath],
+          [{ staged: false }, { staged: true }]
+        ),
         Keys.index.oneWith(filePath),
       ],
-      () => this.git().writeMergeConflictToIndex(filePath, commonBaseSha, oursSha, theirsSha),
+      () =>
+        this.git().writeMergeConflictToIndex(
+          filePath,
+          commonBaseSha,
+          oursSha,
+          theirsSha
+        )
     );
   }
 
@@ -397,15 +428,21 @@ export default class Present extends State {
         Keys.authors,
         Keys.statusBundle,
         Keys.index.all,
-        ...Keys.filePatch.eachWithOpts({staged: true}),
+        ...Keys.filePatch.eachWithOpts({ staged: true }),
         Keys.filePatch.allAgainstNonHead,
         Keys.headDescription,
         Keys.branches,
       ],
       // eslint-disable-next-line no-shadow
-      () => this.executePipelineAction('CHECKOUT', (revision, options) => {
-        return this.git().checkout(revision, options);
-      }, revision, options),
+      () =>
+        this.executePipelineAction(
+          'CHECKOUT',
+          (revision, options) => {
+            return this.git().checkout(revision, options);
+          },
+          revision,
+          options
+        )
     );
   }
 
@@ -414,11 +451,11 @@ export default class Present extends State {
       () => [
         Keys.statusBundle,
         Keys.stagedChanges,
-        ...paths.map(fileName => Keys.index.oneWith(fileName)),
-        ...Keys.filePatch.eachWithFileOpts(paths, [{staged: true}]),
+        ...paths.map((fileName) => Keys.index.oneWith(fileName)),
+        ...Keys.filePatch.eachWithFileOpts(paths, [{ staged: true }]),
         ...Keys.filePatch.eachNonHeadWithFiles(paths),
       ],
-      () => this.git().checkoutFiles(paths, revision),
+      () => this.git().checkoutFiles(paths, revision)
     );
   }
 
@@ -433,13 +470,13 @@ export default class Present extends State {
         Keys.authors,
         Keys.statusBundle,
         Keys.index.all,
-        ...Keys.filePatch.eachWithOpts({staged: true}),
+        ...Keys.filePatch.eachWithOpts({ staged: true }),
         Keys.headDescription,
       ],
       async () => {
         try {
           await this.git().reset('soft', 'HEAD~');
-          addEvent('undo-last-commit', {package: 'github'});
+          addEvent('undo-last-commit', { package: 'github' });
         } catch (e) {
           if (/unknown revision/.test(e.stdErr)) {
             // Initial commit
@@ -448,7 +485,7 @@ export default class Present extends State {
             throw e;
           }
         }
-      },
+      }
     );
   }
 
@@ -456,22 +493,24 @@ export default class Present extends State {
 
   fetch(branchName, options = {}) {
     return this.invalidate(
-      () => [
-        Keys.statusBundle,
-        Keys.headDescription,
-      ],
+      () => [Keys.statusBundle, Keys.headDescription],
       // eslint-disable-next-line no-shadow
-      () => this.executePipelineAction('FETCH', async branchName => {
-        let finalRemoteName = options.remoteName;
-        if (!finalRemoteName) {
-          const remote = await this.getRemoteForBranch(branchName);
-          if (!remote.isPresent()) {
-            return null;
-          }
-          finalRemoteName = remote.getName();
-        }
-        return this.git().fetch(finalRemoteName, branchName);
-      }, branchName),
+      () =>
+        this.executePipelineAction(
+          'FETCH',
+          async (branchName) => {
+            let finalRemoteName = options.remoteName;
+            if (!finalRemoteName) {
+              const remote = await this.getRemoteForBranch(branchName);
+              if (!remote.isPresent()) {
+                return null;
+              }
+              finalRemoteName = remote.getName();
+            }
+            return this.git().fetch(finalRemoteName, branchName);
+          },
+          branchName
+        )
     );
   }
 
@@ -484,40 +523,55 @@ export default class Present extends State {
         Keys.branches,
       ],
       // eslint-disable-next-line no-shadow
-      () => this.executePipelineAction('PULL', async branchName => {
-        let finalRemoteName = options.remoteName;
-        if (!finalRemoteName) {
-          const remote = await this.getRemoteForBranch(branchName);
-          if (!remote.isPresent()) {
-            return null;
-          }
-          finalRemoteName = remote.getName();
-        }
-        return this.git().pull(finalRemoteName, branchName, options);
-      }, branchName),
+      () =>
+        this.executePipelineAction(
+          'PULL',
+          async (branchName) => {
+            let finalRemoteName = options.remoteName;
+            if (!finalRemoteName) {
+              const remote = await this.getRemoteForBranch(branchName);
+              if (!remote.isPresent()) {
+                return null;
+              }
+              finalRemoteName = remote.getName();
+            }
+            return this.git().pull(finalRemoteName, branchName, options);
+          },
+          branchName
+        )
     );
   }
 
   push(branchName, options = {}) {
     return this.invalidate(
       () => {
-        const keys = [
-          Keys.statusBundle,
-          Keys.headDescription,
-        ];
+        const keys = [Keys.statusBundle, Keys.headDescription];
 
         if (options.setUpstream) {
           keys.push(Keys.branches);
-          keys.push(...Keys.config.eachWithSetting(`branch.${branchName}.remote`));
+          keys.push(
+            ...Keys.config.eachWithSetting(`branch.${branchName}.remote`)
+          );
         }
 
         return keys;
       },
       // eslint-disable-next-line no-shadow
-      () => this.executePipelineAction('PUSH', async (branchName, options) => {
-        const remote = options.remote || await this.getRemoteForBranch(branchName);
-        return this.git().push(remote.getNameOr('origin'), branchName, options);
-      }, branchName, options),
+      () =>
+        this.executePipelineAction(
+          'PUSH',
+          async (branchName, options) => {
+            const remote =
+              options.remote || (await this.getRemoteForBranch(branchName));
+            return this.git().push(
+              remote.getNameOr('origin'),
+              branchName,
+              options
+            );
+          },
+          branchName,
+          options
+        )
     );
   }
 
@@ -527,14 +581,14 @@ export default class Present extends State {
     return this.invalidate(
       () => Keys.config.eachWithSetting(setting),
       () => this.git().setConfig(setting, value, options),
-      {globally: options.global},
+      { globally: options.global }
     );
   }
 
   unsetConfig(setting) {
     return this.invalidate(
       () => Keys.config.eachWithSetting(setting),
-      () => this.git().unsetConfig(setting),
+      () => this.git().unsetConfig(setting)
     );
   }
 
@@ -559,12 +613,17 @@ export default class Present extends State {
     this.discardHistory.updateHistory(history);
   }
 
-  async storeBeforeAndAfterBlobs(filePaths, isSafe, destructiveAction, partialDiscardFilePath = null) {
+  async storeBeforeAndAfterBlobs(
+    filePaths,
+    isSafe,
+    destructiveAction,
+    partialDiscardFilePath = null
+  ) {
     const snapshots = await this.discardHistory.storeBeforeAndAfterBlobs(
       filePaths,
       isSafe,
       destructiveAction,
-      partialDiscardFilePath,
+      partialDiscardFilePath
     );
     /* istanbul ignore else */
     if (snapshots) {
@@ -574,11 +633,16 @@ export default class Present extends State {
   }
 
   restoreLastDiscardInTempFiles(isSafe, partialDiscardFilePath = null) {
-    return this.discardHistory.restoreLastDiscardInTempFiles(isSafe, partialDiscardFilePath);
+    return this.discardHistory.restoreLastDiscardInTempFiles(
+      isSafe,
+      partialDiscardFilePath
+    );
   }
 
   async popDiscardHistory(partialDiscardFilePath = null) {
-    const removed = await this.discardHistory.popHistory(partialDiscardFilePath);
+    const removed = await this.discardHistory.popHistory(
+      partialDiscardFilePath
+    );
     if (removed) {
       await this.saveDiscardHistory();
     }
@@ -593,18 +657,24 @@ export default class Present extends State {
     return this.invalidate(
       () => [
         Keys.statusBundle,
-        ...paths.map(filePath => Keys.filePatch.oneWith(filePath, {staged: false})),
+        ...paths.map((filePath) =>
+          Keys.filePatch.oneWith(filePath, { staged: false })
+        ),
         ...Keys.filePatch.eachNonHeadWithFiles(paths),
       ],
       async () => {
         const untrackedFiles = await this.git().getUntrackedFiles();
-        const [filesToRemove, filesToCheckout] = partition(paths, f => untrackedFiles.includes(f));
+        const [filesToRemove, filesToCheckout] = partition(paths, (f) =>
+          untrackedFiles.includes(f)
+        );
         await this.git().checkoutFiles(filesToCheckout);
-        await Promise.all(filesToRemove.map(filePath => {
-          const absPath = path.join(this.workdir(), filePath);
-          return fs.remove(absPath);
-        }));
-      },
+        await Promise.all(
+          filesToRemove.map((filePath) => {
+            const absPath = path.join(this.workdir(), filePath);
+            return fs.remove(absPath);
+          })
+        );
+      }
     );
   }
 
@@ -635,7 +705,12 @@ export default class Present extends State {
     });
   }
 
-  async formatChangedFiles({changedEntries, untrackedEntries, renamedEntries, unmergedEntries}) {
+  async formatChangedFiles({
+    changedEntries,
+    untrackedEntries,
+    renamedEntries,
+    unmergedEntries,
+  }) {
     const statusMap = {
       A: 'added',
       M: 'modified',
@@ -648,7 +723,7 @@ export default class Present extends State {
     const unstagedFiles = {};
     const mergeConflictFiles = {};
 
-    changedEntries.forEach(entry => {
+    changedEntries.forEach((entry) => {
       if (entry.stagedStatus) {
         stagedFiles[entry.filePath] = statusMap[entry.stagedStatus];
       }
@@ -657,11 +732,11 @@ export default class Present extends State {
       }
     });
 
-    untrackedEntries.forEach(entry => {
+    untrackedEntries.forEach((entry) => {
       unstagedFiles[entry.filePath] = statusMap.A;
     });
 
-    renamedEntries.forEach(entry => {
+    renamedEntries.forEach((entry) => {
       if (entry.stagedStatus === 'R') {
         stagedFiles[entry.filePath] = statusMap.A;
         stagedFiles[entry.origFilePath] = statusMap.D;
@@ -681,12 +756,18 @@ export default class Present extends State {
     let statusToHead;
 
     for (let i = 0; i < unmergedEntries.length; i++) {
-      const {stagedStatus, unstagedStatus, filePath} = unmergedEntries[i];
-      if (stagedStatus === 'U' || unstagedStatus === 'U' || (stagedStatus === 'A' && unstagedStatus === 'A')) {
+      const { stagedStatus, unstagedStatus, filePath } = unmergedEntries[i];
+      if (
+        stagedStatus === 'U' ||
+        unstagedStatus === 'U' ||
+        (stagedStatus === 'A' && unstagedStatus === 'A')
+      ) {
         // Skipping this check here because we only run a single `await`
         // and we only run it in the main, synchronous body of the for loop.
         // eslint-disable-next-line no-await-in-loop
-        if (!statusToHead) { statusToHead = await this.git().diffFileStatus({target: 'HEAD'}); }
+        if (!statusToHead) {
+          statusToHead = await this.git().diffFileStatus({ target: 'HEAD' });
+        }
         mergeConflictFiles[filePath] = {
           ours: statusMap[stagedStatus],
           theirs: statusMap[unstagedStatus],
@@ -695,12 +776,13 @@ export default class Present extends State {
       }
     }
 
-    return {stagedFiles, unstagedFiles, mergeConflictFiles};
+    return { stagedFiles, unstagedFiles, mergeConflictFiles };
   }
 
   async getStatusesForChangedFiles() {
-    const {stagedFiles, unstagedFiles, mergeConflictFiles} = await this.getStatusBundle();
-    return {stagedFiles, unstagedFiles, mergeConflictFiles};
+    const { stagedFiles, unstagedFiles, mergeConflictFiles } =
+      await this.getStatusBundle();
+    return { stagedFiles, unstagedFiles, mergeConflictFiles };
   }
 
   getFilePatchForPath(filePath, options) {
@@ -713,20 +795,30 @@ export default class Present extends State {
       ...options,
     };
 
-    return this.cache.getOrSet(Keys.filePatch.oneWith(filePath, {staged: opts.staged}), async () => {
-      const diffs = await this.git().getDiffsForFilePath(filePath, {staged: opts.staged});
-      const payload = opts.before();
-      const patch = buildFilePatch(diffs, opts.builder);
-      if (opts.patchBuffer !== null) { patch.adoptBuffer(opts.patchBuffer); }
-      opts.after(patch, payload);
-      return patch;
-    });
+    return this.cache.getOrSet(
+      Keys.filePatch.oneWith(filePath, { staged: opts.staged }),
+      async () => {
+        const diffs = await this.git().getDiffsForFilePath(filePath, {
+          staged: opts.staged,
+        });
+        const payload = opts.before();
+        const patch = buildFilePatch(diffs, opts.builder);
+        if (opts.patchBuffer !== null) {
+          patch.adoptBuffer(opts.patchBuffer);
+        }
+        opts.after(patch, payload);
+        return patch;
+      }
+    );
   }
 
   getDiffsForFilePath(filePath, baseCommit) {
-    return this.cache.getOrSet(Keys.filePatch.oneWith(filePath, {baseCommit}), () => {
-      return this.git().getDiffsForFilePath(filePath, {baseCommit});
-    });
+    return this.cache.getOrSet(
+      Keys.filePatch.oneWith(filePath, { baseCommit }),
+      () => {
+        return this.git().getDiffsForFilePath(filePath, { baseCommit });
+      }
+    );
   }
 
   getStagedChangesPatch(options) {
@@ -742,7 +834,9 @@ export default class Present extends State {
       const diffs = await this.git().getStagedChangesPatch();
       const payload = opts.before();
       const patch = buildMultiFilePatch(diffs, opts.builder);
-      if (opts.patchBuffer !== null) { patch.adoptBuffer(opts.patchBuffer); }
+      if (opts.patchBuffer !== null) {
+        patch.adoptBuffer(opts.patchBuffer);
+      }
       opts.after(patch, payload);
       return patch;
     });
@@ -759,13 +853,19 @@ export default class Present extends State {
   getLastCommit() {
     return this.cache.getOrSet(Keys.lastCommit, async () => {
       const headCommit = await this.git().getHeadCommit();
-      return headCommit.unbornRef ? Commit.createUnborn() : new Commit(headCommit);
+      return headCommit.unbornRef
+        ? Commit.createUnborn()
+        : new Commit(headCommit);
     });
   }
 
   getCommit(sha) {
     return this.cache.getOrSet(Keys.blob.oneWith(sha), async () => {
-      const [rawCommit] = await this.git().getCommits({max: 1, ref: sha, includePatch: true});
+      const [rawCommit] = await this.git().getCommits({
+        max: 1,
+        ref: sha,
+        includePatch: true,
+      });
       const commit = new Commit(rawCommit);
       return commit;
     });
@@ -773,8 +873,8 @@ export default class Present extends State {
 
   getRecentCommits(options) {
     return this.cache.getOrSet(Keys.recentCommits, async () => {
-      const commits = await this.git().getCommits({ref: 'HEAD', ...options});
-      return commits.map(commit => new Commit(commit));
+      const commits = await this.git().getCommits({ ref: 'HEAD', ...options });
+      return commits.map((commit) => new Commit(commit));
     });
   }
 
@@ -790,7 +890,7 @@ export default class Present extends State {
       showRemote: true,
       pattern: upstream.getShortRef(),
     });
-    return contained.some(ref => ref.length > 0);
+    return contained.some((ref) => ref.length > 0);
   }
 
   // Author information
@@ -801,7 +901,9 @@ export default class Present extends State {
     // This means that we are constantly re-fetching data. If performance becomes a concern we can optimize
     return this.cache.getOrSet(Keys.authors, async () => {
       const authorMap = await this.git().getAuthors(options);
-      return Object.keys(authorMap).map(email => new Author(email, authorMap[email]));
+      return Object.keys(authorMap).map(
+        (email) => new Author(email, authorMap[email])
+      );
     });
   }
 
@@ -816,10 +918,10 @@ export default class Present extends State {
         if (payload.upstream) {
           upstream = payload.upstream.remoteName
             ? Branch.createRemoteTracking(
-              payload.upstream.trackingRef,
-              payload.upstream.remoteName,
-              payload.upstream.remoteRef,
-            )
+                payload.upstream.trackingRef,
+                payload.upstream.remoteName,
+                payload.upstream.remoteRef
+              )
             : new Branch(payload.upstream.trackingRef);
         }
 
@@ -827,14 +929,18 @@ export default class Present extends State {
         if (payload.push) {
           push = payload.push.remoteName
             ? Branch.createRemoteTracking(
-              payload.push.trackingRef,
-              payload.push.remoteName,
-              payload.push.remoteRef,
-            )
+                payload.push.trackingRef,
+                payload.push.remoteName,
+                payload.push.remoteRef
+              )
             : new Branch(payload.push.trackingRef);
         }
 
-        branches.add(new Branch(payload.name, upstream, push, payload.head, {sha: payload.sha}));
+        branches.add(
+          new Branch(payload.name, upstream, push, payload.head, {
+            sha: payload.sha,
+          })
+        );
       }
       return branches;
     });
@@ -862,7 +968,7 @@ export default class Present extends State {
     return this.cache.getOrSet(Keys.remotes, async () => {
       const remotesInfo = await this.git().getRemotes();
       return new RemoteSet(
-        remotesInfo.map(({name, url}) => new Remote(name, url)),
+        remotesInfo.map(({ name, url }) => new Remote(name, url))
       );
     });
   }
@@ -875,10 +981,16 @@ export default class Present extends State {
         Keys.remotes,
       ],
       // eslint-disable-next-line no-shadow
-      () => this.executePipelineAction('ADDREMOTE', async (name, url) => {
-        await this.git().addRemote(name, url);
-        return new Remote(name, url);
-      }, name, url),
+      () =>
+        this.executePipelineAction(
+          'ADDREMOTE',
+          async (name, url) => {
+            await this.git().addRemote(name, url);
+            return new Remote(name, url);
+          },
+          name,
+          url
+        )
     );
   }
 
@@ -892,9 +1004,9 @@ export default class Present extends State {
     return bundle.branch.aheadBehind.behind;
   }
 
-  getConfig(option, {local} = {local: false}) {
-    return this.cache.getOrSet(Keys.config.oneWith(option, {local}), () => {
-      return this.git().getConfig(option, {local});
+  getConfig(option, { local } = { local: false }) {
+    return this.cache.getOrSet(Keys.config.oneWith(option, { local }), () => {
+      return this.git().getConfig(option, { local });
     });
   }
 
@@ -937,14 +1049,14 @@ export default class Present extends State {
 
   invalidate(spec, body, options = {}) {
     return body().then(
-      result => {
+      (result) => {
         this.acceptInvalidation(spec, options);
         return result;
       },
-      err => {
+      (err) => {
         this.acceptInvalidation(spec, options);
         return Promise.reject(err);
-      },
+      }
     );
   }
 }
@@ -954,7 +1066,7 @@ State.register(Present);
 function partition(array, predicate) {
   const matches = [];
   const nonmatches = [];
-  array.forEach(item => {
+  array.forEach((item) => {
     if (predicate(item)) {
       matches.push(item);
     } else {

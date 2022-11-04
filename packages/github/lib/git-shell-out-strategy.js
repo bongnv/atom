@@ -5,19 +5,28 @@ import fs from 'fs-extra';
 import util from 'util';
 import * as remote from '@electron/remote';
 
-import {CompositeDisposable} from 'event-kit';
-import {GitProcess} from 'dugite';
-import {parse as parseDiff} from 'what-the-diff';
-import {parse as parseStatus} from 'what-the-status';
+import { CompositeDisposable } from 'event-kit';
+import { GitProcess } from 'dugite';
+import { parse as parseDiff } from 'what-the-diff';
+import { parse as parseStatus } from 'what-the-status';
 
 import GitPromptServer from './git-prompt-server';
 import GitTempDir from './git-temp-dir';
 import AsyncQueue from './async-queue';
-import {incrementCounter} from './reporter-proxy';
+import { incrementCounter } from './reporter-proxy';
 import {
-  getDugitePath, getAtomHelperPath,
-  extractCoAuthorsAndRawCommitMessage, fileExists, isFileExecutable, isFileSymlink, isBinary,
-  normalizeGitHelperPath, toNativePathSep, toGitPathSep, LINE_ENDING_REGEX, CO_AUTHOR_REGEX,
+  getDugitePath,
+  getAtomHelperPath,
+  extractCoAuthorsAndRawCommitMessage,
+  fileExists,
+  isFileExecutable,
+  isFileSymlink,
+  isBinary,
+  normalizeGitHelperPath,
+  toNativePathSep,
+  toGitPathSep,
+  LINE_ENDING_REGEX,
+  CO_AUTHOR_REGEX,
 } from './helpers';
 import GitTimingsView from './views/git-timings-view';
 import File from './models/patch/file';
@@ -46,10 +55,22 @@ export class LargeRepoError extends Error {
 }
 
 // ignored for the purposes of usage metrics tracking because they're noisy
-const IGNORED_GIT_COMMANDS = ['cat-file', 'config', 'diff', 'for-each-ref', 'log', 'rev-parse', 'status'];
+const IGNORED_GIT_COMMANDS = [
+  'cat-file',
+  'config',
+  'diff',
+  'for-each-ref',
+  'log',
+  'rev-parse',
+  'status',
+];
 
 const DISABLE_COLOR_FLAGS = [
-  'branch', 'diff', 'showBranch', 'status', 'ui',
+  'branch',
+  'diff',
+  'showBranch',
+  'status',
+  'ui',
 ].reduce((acc, type) => {
   acc.unshift('-c', `color.${type}=false`);
   return acc;
@@ -73,7 +94,7 @@ export default class GitShellOutStrategy {
     useGpgWrapper: false,
     useGpgAtomPrompt: false,
     writeOperation: false,
-  }
+  };
 
   constructor(workingDir, options = {}) {
     this.workingDir = workingDir;
@@ -81,10 +102,10 @@ export default class GitShellOutStrategy {
       this.commandQueue = options.queue;
     } else {
       const parallelism = options.parallelism || Math.max(3, os.cpus().length);
-      this.commandQueue = new AsyncQueue({parallelism});
+      this.commandQueue = new AsyncQueue({ parallelism });
     }
 
-    this.prompt = options.prompt || (query => Promise.reject());
+    this.prompt = options.prompt || ((query) => Promise.reject());
     this.workerManager = options.workerManager;
 
     if (headless === null) {
@@ -105,10 +126,18 @@ export default class GitShellOutStrategy {
   // Execute a command and read the output using the embedded Git environment
   async exec(args, options = GitShellOutStrategy.defaultExecArgs) {
     /* eslint-disable no-console,no-control-regex */
-    const {stdin, useGitPromptServer, useGpgWrapper, useGpgAtomPrompt, writeOperation} = options;
+    const {
+      stdin,
+      useGitPromptServer,
+      useGpgWrapper,
+      useGpgAtomPrompt,
+      writeOperation,
+    } = options;
     const commandName = args[0];
     const subscriptions = new CompositeDisposable();
-    const diagnosticsEnabled = process.env.ATOM_GITHUB_GIT_DIAGNOSTICS || atom.config.get('github.gitDiagnostics');
+    const diagnosticsEnabled =
+      process.env.ATOM_GITHUB_GIT_DIAGNOSTICS ||
+      atom.config.get('github.gitDiagnostics');
 
     const formattedArgs = `git ${args.join(' ')} in ${this.workingDir}`;
     const timingMarker = GitTimingsView.generateMarker(`git ${args.join(' ')}`);
@@ -118,7 +147,7 @@ export default class GitShellOutStrategy {
 
     if (execPathPromise === null) {
       // Attempt to collect the --exec-path from a native git installation.
-      execPathPromise = new Promise(resolve => {
+      execPathPromise = new Promise((resolve) => {
         childProcess.exec('git --exec-path', (error, stdout) => {
           /* istanbul ignore if */
           if (error) {
@@ -133,226 +162,262 @@ export default class GitShellOutStrategy {
     }
     const execPath = await execPathPromise;
 
-    return this.commandQueue.push(async () => {
-      timingMarker.mark('prepare');
-      let gitPromptServer;
+    return this.commandQueue.push(
+      async () => {
+        timingMarker.mark('prepare');
+        let gitPromptServer;
 
-      const pathParts = [];
-      if (process.env.PATH) {
-        pathParts.push(process.env.PATH);
-      }
-      if (execPath) {
-        pathParts.push(execPath);
-      }
-
-      const env = {
-        ...process.env,
-        GIT_TERMINAL_PROMPT: '0',
-        GIT_OPTIONAL_LOCKS: '0',
-        PATH: pathParts.join(path.delimiter),
-      };
-
-      const gitTempDir = new GitTempDir();
-
-      if (useGpgWrapper) {
-        await gitTempDir.ensure();
-        args.unshift('-c', `gpg.program=${gitTempDir.getGpgWrapperSh()}`);
-      }
-      if (useGitPromptServer) {
-        gitPromptServer = new GitPromptServer(gitTempDir);
-        await gitPromptServer.start(this.prompt);
-
-        env.ATOM_GITHUB_TMP = gitTempDir.getRootPath();
-        env.ATOM_GITHUB_ASKPASS_PATH = normalizeGitHelperPath(gitTempDir.getAskPassJs());
-        env.ATOM_GITHUB_CREDENTIAL_PATH = normalizeGitHelperPath(gitTempDir.getCredentialHelperJs());
-        env.ATOM_GITHUB_ELECTRON_PATH = normalizeGitHelperPath(getAtomHelperPath());
-        env.ATOM_GITHUB_SOCK_ADDR = gitPromptServer.getAddress();
-
-        env.ATOM_GITHUB_WORKDIR_PATH = this.workingDir;
-        env.ATOM_GITHUB_DUGITE_PATH = getDugitePath();
-        env.ATOM_GITHUB_KEYTAR_STRATEGY_PATH = require('./shared/keytar-strategy.js?raw');
-
-        // "ssh" won't respect SSH_ASKPASS unless:
-        // (a) it's running without a tty
-        // (b) DISPLAY is set to something nonempty
-        // But, on a Mac, DISPLAY is unset. Ensure that it is so our SSH_ASKPASS is respected.
-        if (!process.env.DISPLAY || process.env.DISPLAY.length === 0) {
-          env.DISPLAY = 'atom-github-placeholder';
+        const pathParts = [];
+        if (process.env.PATH) {
+          pathParts.push(process.env.PATH);
+        }
+        if (execPath) {
+          pathParts.push(execPath);
         }
 
-        env.ATOM_GITHUB_ORIGINAL_PATH = process.env.PATH || '';
-        env.ATOM_GITHUB_ORIGINAL_GIT_ASKPASS = process.env.GIT_ASKPASS || '';
-        env.ATOM_GITHUB_ORIGINAL_SSH_ASKPASS = process.env.SSH_ASKPASS || '';
-        env.ATOM_GITHUB_ORIGINAL_GIT_SSH_COMMAND = process.env.GIT_SSH_COMMAND || '';
-        env.ATOM_GITHUB_SPEC_MODE = atom.inSpecMode() ? 'true' : 'false';
+        const env = {
+          ...process.env,
+          GIT_TERMINAL_PROMPT: '0',
+          GIT_OPTIONAL_LOCKS: '0',
+          PATH: pathParts.join(path.delimiter),
+        };
 
-        env.SSH_ASKPASS = normalizeGitHelperPath(gitTempDir.getAskPassSh());
-        env.GIT_ASKPASS = normalizeGitHelperPath(gitTempDir.getAskPassSh());
+        const gitTempDir = new GitTempDir();
 
-        if (process.platform === 'linux') {
-          env.GIT_SSH_COMMAND = gitTempDir.getSshWrapperSh();
-        } else if (process.env.GIT_SSH_COMMAND) {
-          env.GIT_SSH_COMMAND = process.env.GIT_SSH_COMMAND;
-        } else {
-          env.GIT_SSH = process.env.GIT_SSH;
+        if (useGpgWrapper) {
+          await gitTempDir.ensure();
+          args.unshift('-c', `gpg.program=${gitTempDir.getGpgWrapperSh()}`);
         }
+        if (useGitPromptServer) {
+          gitPromptServer = new GitPromptServer(gitTempDir);
+          await gitPromptServer.start(this.prompt);
 
-        const credentialHelperSh = normalizeGitHelperPath(gitTempDir.getCredentialHelperSh());
-        args.unshift('-c', `credential.helper=${credentialHelperSh}`);
-      }
+          env.ATOM_GITHUB_TMP = gitTempDir.getRootPath();
+          env.ATOM_GITHUB_ASKPASS_PATH = normalizeGitHelperPath(
+            gitTempDir.getAskPassJs()
+          );
+          env.ATOM_GITHUB_CREDENTIAL_PATH = normalizeGitHelperPath(
+            gitTempDir.getCredentialHelperJs()
+          );
+          env.ATOM_GITHUB_ELECTRON_PATH = normalizeGitHelperPath(
+            getAtomHelperPath()
+          );
+          env.ATOM_GITHUB_SOCK_ADDR = gitPromptServer.getAddress();
 
-      if (useGpgWrapper && useGitPromptServer && useGpgAtomPrompt) {
-        env.ATOM_GITHUB_GPG_PROMPT = 'true';
-      }
+          env.ATOM_GITHUB_WORKDIR_PATH = this.workingDir;
+          env.ATOM_GITHUB_DUGITE_PATH = getDugitePath();
+          env.ATOM_GITHUB_KEYTAR_STRATEGY_PATH = require('./shared/keytar-strategy.js?raw');
 
-      /* istanbul ignore if */
-      if (diagnosticsEnabled) {
-        env.GIT_TRACE = 'true';
-        env.GIT_TRACE_CURL = 'true';
-      }
-
-      let opts = {env};
-
-      if (stdin) {
-        opts.stdin = stdin;
-        opts.stdinEncoding = 'utf8';
-      }
-
-      /* istanbul ignore if */
-      if (process.env.PRINT_GIT_TIMES) {
-        console.time(`git:${formattedArgs}`);
-      }
-
-      return new Promise(async (resolve, reject) => {
-        if (options.beforeRun) {
-          const newArgsOpts = await options.beforeRun({args, opts});
-          args = newArgsOpts.args;
-          opts = newArgsOpts.opts;
-        }
-        const {promise, cancel} = this.executeGitCommand(args, opts, timingMarker);
-        let expectCancel = false;
-        if (gitPromptServer) {
-          subscriptions.add(gitPromptServer.onDidCancel(async ({handlerPid}) => {
-            expectCancel = true;
-            await cancel();
-
-            // On Windows, the SSH_ASKPASS handler is executed as a non-child process, so the bin\git-askpass-atom.sh
-            // process does not terminate when the git process is killed.
-            // Kill the handler process *after* the git process has been killed to ensure that git doesn't have a
-            // chance to fall back to GIT_ASKPASS from the credential handler.
-            await new Promise((resolveKill, rejectKill) => {
-              require('tree-kill')(handlerPid, 'SIGTERM', err => {
-                /* istanbul ignore if */
-                if (err) { rejectKill(err); } else { resolveKill(); }
-              });
-            });
-          }));
-        }
-
-        const {stdout, stderr, exitCode, signal, timing} = await promise.catch(err => {
-          if (err.signal) {
-            return {signal: err.signal};
+          // "ssh" won't respect SSH_ASKPASS unless:
+          // (a) it's running without a tty
+          // (b) DISPLAY is set to something nonempty
+          // But, on a Mac, DISPLAY is unset. Ensure that it is so our SSH_ASKPASS is respected.
+          if (!process.env.DISPLAY || process.env.DISPLAY.length === 0) {
+            env.DISPLAY = 'atom-github-placeholder';
           }
-          reject(err);
-          return {};
-        });
 
-        if (timing) {
-          const {execTime, spawnTime, ipcTime} = timing;
-          const now = performance.now();
-          timingMarker.mark('nexttick', now - execTime - spawnTime - ipcTime);
-          timingMarker.mark('execute', now - execTime - ipcTime);
-          timingMarker.mark('ipc', now - ipcTime);
-        }
-        timingMarker.finalize();
+          env.ATOM_GITHUB_ORIGINAL_PATH = process.env.PATH || '';
+          env.ATOM_GITHUB_ORIGINAL_GIT_ASKPASS = process.env.GIT_ASKPASS || '';
+          env.ATOM_GITHUB_ORIGINAL_SSH_ASKPASS = process.env.SSH_ASKPASS || '';
+          env.ATOM_GITHUB_ORIGINAL_GIT_SSH_COMMAND =
+            process.env.GIT_SSH_COMMAND || '';
+          env.ATOM_GITHUB_SPEC_MODE = atom.inSpecMode() ? 'true' : 'false';
 
-        /* istanbul ignore if */
-        if (process.env.PRINT_GIT_TIMES) {
-          console.timeEnd(`git:${formattedArgs}`);
+          env.SSH_ASKPASS = normalizeGitHelperPath(gitTempDir.getAskPassSh());
+          env.GIT_ASKPASS = normalizeGitHelperPath(gitTempDir.getAskPassSh());
+
+          if (process.platform === 'linux') {
+            env.GIT_SSH_COMMAND = gitTempDir.getSshWrapperSh();
+          } else if (process.env.GIT_SSH_COMMAND) {
+            env.GIT_SSH_COMMAND = process.env.GIT_SSH_COMMAND;
+          } else {
+            env.GIT_SSH = process.env.GIT_SSH;
+          }
+
+          const credentialHelperSh = normalizeGitHelperPath(
+            gitTempDir.getCredentialHelperSh()
+          );
+          args.unshift('-c', `credential.helper=${credentialHelperSh}`);
         }
 
-        if (gitPromptServer) {
-          gitPromptServer.terminate();
+        if (useGpgWrapper && useGitPromptServer && useGpgAtomPrompt) {
+          env.ATOM_GITHUB_GPG_PROMPT = 'true';
         }
-        subscriptions.dispose();
 
         /* istanbul ignore if */
         if (diagnosticsEnabled) {
-          const exposeControlCharacters = raw => {
-            if (!raw) { return ''; }
+          env.GIT_TRACE = 'true';
+          env.GIT_TRACE_CURL = 'true';
+        }
 
-            return raw
-              .replace(/\u0000/ug, '<NUL>\n')
-              .replace(/\u001F/ug, '<SEP>');
-          };
+        let opts = { env };
 
-          if (headless) {
-            let summary = `git:${formattedArgs}\n`;
-            if (exitCode !== undefined) {
-              summary += `exit status: ${exitCode}\n`;
-            } else if (signal) {
-              summary += `exit signal: ${signal}\n`;
-            }
-            if (stdin && stdin.length !== 0) {
-              summary += `stdin:\n${exposeControlCharacters(stdin)}\n`;
-            }
-            summary += 'stdout:';
-            if (stdout.length === 0) {
-              summary += ' <empty>\n';
-            } else {
-              summary += `\n${exposeControlCharacters(stdout)}\n`;
-            }
-            summary += 'stderr:';
-            if (stderr.length === 0) {
-              summary += ' <empty>\n';
-            } else {
-              summary += `\n${exposeControlCharacters(stderr)}\n`;
-            }
+        if (stdin) {
+          opts.stdin = stdin;
+          opts.stdinEncoding = 'utf8';
+        }
 
-            console.log(summary);
-          } else {
-            const headerStyle = 'font-weight: bold; color: blue;';
+        /* istanbul ignore if */
+        if (process.env.PRINT_GIT_TIMES) {
+          console.time(`git:${formattedArgs}`);
+        }
 
-            console.groupCollapsed(`git:${formattedArgs}`);
-            if (exitCode !== undefined) {
-              console.log('%cexit status%c %d', headerStyle, 'font-weight: normal; color: black;', exitCode);
-            } else if (signal) {
-              console.log('%cexit signal%c %s', headerStyle, 'font-weight: normal; color: black;', signal);
-            }
-            console.log(
-              '%cfull arguments%c %s',
-              headerStyle, 'font-weight: normal; color: black;',
-              util.inspect(args, {breakLength: Infinity}),
-            );
-            if (stdin && stdin.length !== 0) {
-              console.log('%cstdin', headerStyle);
-              console.log(exposeControlCharacters(stdin));
-            }
-            console.log('%cstdout', headerStyle);
-            console.log(exposeControlCharacters(stdout));
-            console.log('%cstderr', headerStyle);
-            console.log(exposeControlCharacters(stderr));
-            console.groupEnd();
+        return new Promise(async (resolve, reject) => {
+          if (options.beforeRun) {
+            const newArgsOpts = await options.beforeRun({ args, opts });
+            args = newArgsOpts.args;
+            opts = newArgsOpts.opts;
           }
-        }
-
-        if (exitCode !== 0 && !expectCancel) {
-          const err = new GitError(
-            `${formattedArgs} exited with code ${exitCode}\nstdout: ${stdout}\nstderr: ${stderr}`,
+          const { promise, cancel } = this.executeGitCommand(
+            args,
+            opts,
+            timingMarker
           );
-          err.code = exitCode;
-          err.stdErr = stderr;
-          err.stdOut = stdout;
-          err.command = formattedArgs;
-          reject(err);
-        }
+          let expectCancel = false;
+          if (gitPromptServer) {
+            subscriptions.add(
+              gitPromptServer.onDidCancel(async ({ handlerPid }) => {
+                expectCancel = true;
+                await cancel();
 
-        if (!IGNORED_GIT_COMMANDS.includes(commandName)) {
-          incrementCounter(commandName);
-        }
-        resolve(stdout);
-      });
-    }, {parallel: !writeOperation});
+                // On Windows, the SSH_ASKPASS handler is executed as a non-child process, so the bin\git-askpass-atom.sh
+                // process does not terminate when the git process is killed.
+                // Kill the handler process *after* the git process has been killed to ensure that git doesn't have a
+                // chance to fall back to GIT_ASKPASS from the credential handler.
+                await new Promise((resolveKill, rejectKill) => {
+                  require('tree-kill')(handlerPid, 'SIGTERM', (err) => {
+                    /* istanbul ignore if */
+                    if (err) {
+                      rejectKill(err);
+                    } else {
+                      resolveKill();
+                    }
+                  });
+                });
+              })
+            );
+          }
+
+          const { stdout, stderr, exitCode, signal, timing } =
+            await promise.catch((err) => {
+              if (err.signal) {
+                return { signal: err.signal };
+              }
+              reject(err);
+              return {};
+            });
+
+          if (timing) {
+            const { execTime, spawnTime, ipcTime } = timing;
+            const now = performance.now();
+            timingMarker.mark('nexttick', now - execTime - spawnTime - ipcTime);
+            timingMarker.mark('execute', now - execTime - ipcTime);
+            timingMarker.mark('ipc', now - ipcTime);
+          }
+          timingMarker.finalize();
+
+          /* istanbul ignore if */
+          if (process.env.PRINT_GIT_TIMES) {
+            console.timeEnd(`git:${formattedArgs}`);
+          }
+
+          if (gitPromptServer) {
+            gitPromptServer.terminate();
+          }
+          subscriptions.dispose();
+
+          /* istanbul ignore if */
+          if (diagnosticsEnabled) {
+            const exposeControlCharacters = (raw) => {
+              if (!raw) {
+                return '';
+              }
+
+              return raw
+                .replace(/\u0000/gu, '<NUL>\n')
+                .replace(/\u001F/gu, '<SEP>');
+            };
+
+            if (headless) {
+              let summary = `git:${formattedArgs}\n`;
+              if (exitCode !== undefined) {
+                summary += `exit status: ${exitCode}\n`;
+              } else if (signal) {
+                summary += `exit signal: ${signal}\n`;
+              }
+              if (stdin && stdin.length !== 0) {
+                summary += `stdin:\n${exposeControlCharacters(stdin)}\n`;
+              }
+              summary += 'stdout:';
+              if (stdout.length === 0) {
+                summary += ' <empty>\n';
+              } else {
+                summary += `\n${exposeControlCharacters(stdout)}\n`;
+              }
+              summary += 'stderr:';
+              if (stderr.length === 0) {
+                summary += ' <empty>\n';
+              } else {
+                summary += `\n${exposeControlCharacters(stderr)}\n`;
+              }
+
+              console.log(summary);
+            } else {
+              const headerStyle = 'font-weight: bold; color: blue;';
+
+              console.groupCollapsed(`git:${formattedArgs}`);
+              if (exitCode !== undefined) {
+                console.log(
+                  '%cexit status%c %d',
+                  headerStyle,
+                  'font-weight: normal; color: black;',
+                  exitCode
+                );
+              } else if (signal) {
+                console.log(
+                  '%cexit signal%c %s',
+                  headerStyle,
+                  'font-weight: normal; color: black;',
+                  signal
+                );
+              }
+              console.log(
+                '%cfull arguments%c %s',
+                headerStyle,
+                'font-weight: normal; color: black;',
+                util.inspect(args, { breakLength: Infinity })
+              );
+              if (stdin && stdin.length !== 0) {
+                console.log('%cstdin', headerStyle);
+                console.log(exposeControlCharacters(stdin));
+              }
+              console.log('%cstdout', headerStyle);
+              console.log(exposeControlCharacters(stdout));
+              console.log('%cstderr', headerStyle);
+              console.log(exposeControlCharacters(stderr));
+              console.groupEnd();
+            }
+          }
+
+          if (exitCode !== 0 && !expectCancel) {
+            const err = new GitError(
+              `${formattedArgs} exited with code ${exitCode}\nstdout: ${stdout}\nstderr: ${stderr}`
+            );
+            err.code = exitCode;
+            err.stdErr = stderr;
+            err.stdOut = stdout;
+            err.command = formattedArgs;
+            reject(err);
+          }
+
+          if (!IGNORED_GIT_COMMANDS.includes(commandName)) {
+            incrementCounter(commandName);
+          }
+          resolve(stdout);
+        });
+      },
+      { parallel: !writeOperation }
+    );
     /* eslint-enable no-console,no-control-regex */
   }
 
@@ -378,17 +443,23 @@ export default class GitShellOutStrategy {
   }
 
   executeGitCommand(args, options, marker = null) {
-    if (process.env.ATOM_GITHUB_INLINE_GIT_EXEC || !WorkerManager.getInstance().isReady()) {
+    if (
+      process.env.ATOM_GITHUB_INLINE_GIT_EXEC ||
+      !WorkerManager.getInstance().isReady()
+    ) {
       marker && marker.mark('nexttick');
 
       let childPid;
-      options.processCallback = child => {
+      options.processCallback = (child) => {
         childPid = child.pid;
 
         /* istanbul ignore next */
-        child.stdin.on('error', err => {
+        child.stdin.on('error', (err) => {
           throw new Error(
-            `Error writing to stdin: git ${args.join(' ')} in ${this.workingDir}\n${options.stdin}\n${err}`);
+            `Error writing to stdin: git ${args.join(' ')} in ${
+              this.workingDir
+            }\n${options.stdin}\n${err}`
+          );
         });
       };
 
@@ -403,9 +474,13 @@ export default class GitShellOutStrategy {
           }
 
           return new Promise((resolve, reject) => {
-            require('tree-kill')(childPid, 'SIGTERM', err => {
+            require('tree-kill')(childPid, 'SIGTERM', (err) => {
               /* istanbul ignore if */
-              if (err) { reject(err); } else { resolve(); }
+              if (err) {
+                reject(err);
+              } else {
+                resolve();
+              }
             });
           });
         },
@@ -423,7 +498,11 @@ export default class GitShellOutStrategy {
   async resolveDotGitDir() {
     try {
       await fs.stat(this.workingDir); // fails if folder doesn't exist
-      const output = await this.exec(['rev-parse', '--resolve-git-dir', path.join(this.workingDir, '.git')]);
+      const output = await this.exec([
+        'rev-parse',
+        '--resolve-git-dir',
+        path.join(this.workingDir, '.git'),
+      ]);
       const dotGitDir = output.trim();
       return toNativePathSep(dotGitDir);
     } catch (e) {
@@ -439,9 +518,11 @@ export default class GitShellOutStrategy {
    * Staging/Unstaging files and patches and committing
    */
   stageFiles(paths) {
-    if (paths.length === 0) { return Promise.resolve(null); }
+    if (paths.length === 0) {
+      return Promise.resolve(null);
+    }
     const args = ['add'].concat(paths.map(toGitPathSep));
-    return this.exec(args, {writeOperation: true});
+    return this.exec(args, { writeOperation: true });
   }
 
   async fetchCommitMessageTemplate() {
@@ -452,61 +533,77 @@ export default class GitShellOutStrategy {
 
     const homeDir = os.homedir();
 
-    templatePath = templatePath.trim().replace(EXPAND_TILDE_REGEX, (_, user) => {
-      // if no user is specified, fall back to using the home directory.
-      return `${user ? path.join(path.dirname(homeDir), user) : homeDir}/`;
-    });
+    templatePath = templatePath
+      .trim()
+      .replace(EXPAND_TILDE_REGEX, (_, user) => {
+        // if no user is specified, fall back to using the home directory.
+        return `${user ? path.join(path.dirname(homeDir), user) : homeDir}/`;
+      });
     templatePath = toNativePathSep(templatePath);
 
     if (!path.isAbsolute(templatePath)) {
       templatePath = path.join(this.workingDir, templatePath);
     }
 
-    if (!await fileExists(templatePath)) {
-      throw new Error(`Invalid commit template path set in Git config: ${templatePath}`);
+    if (!(await fileExists(templatePath))) {
+      throw new Error(
+        `Invalid commit template path set in Git config: ${templatePath}`
+      );
     }
-    return await fs.readFile(templatePath, {encoding: 'utf8'});
+    return await fs.readFile(templatePath, { encoding: 'utf8' });
   }
 
   unstageFiles(paths, commit = 'HEAD') {
-    if (paths.length === 0) { return Promise.resolve(null); }
+    if (paths.length === 0) {
+      return Promise.resolve(null);
+    }
     const args = ['reset', commit, '--'].concat(paths.map(toGitPathSep));
-    return this.exec(args, {writeOperation: true});
+    return this.exec(args, { writeOperation: true });
   }
 
   stageFileModeChange(filename, newMode) {
     const indexReadPromise = this.exec(['ls-files', '-s', '--', filename]);
-    return this.exec(['update-index', '--cacheinfo', `${newMode},<OID_TBD>,${filename}`], {
-      writeOperation: true,
-      beforeRun: async function determineArgs({args, opts}) {
-        const index = await indexReadPromise;
-        const oid = index.substr(7, 40);
-        return {
-          opts,
-          args: ['update-index', '--cacheinfo', `${newMode},${oid},${filename}`],
-        };
-      },
-    });
+    return this.exec(
+      ['update-index', '--cacheinfo', `${newMode},<OID_TBD>,${filename}`],
+      {
+        writeOperation: true,
+        beforeRun: async function determineArgs({ args, opts }) {
+          const index = await indexReadPromise;
+          const oid = index.substr(7, 40);
+          return {
+            opts,
+            args: [
+              'update-index',
+              '--cacheinfo',
+              `${newMode},${oid},${filename}`,
+            ],
+          };
+        },
+      }
+    );
   }
 
   stageFileSymlinkChange(filename) {
-    return this.exec(['rm', '--cached', filename], {writeOperation: true});
+    return this.exec(['rm', '--cached', filename], { writeOperation: true });
   }
 
-  applyPatch(patch, {index} = {}) {
+  applyPatch(patch, { index } = {}) {
     const args = ['apply', '-'];
-    if (index) { args.splice(1, 0, '--cached'); }
-    return this.exec(args, {stdin: patch, writeOperation: true});
+    if (index) {
+      args.splice(1, 0, '--cached');
+    }
+    return this.exec(args, { stdin: patch, writeOperation: true });
   }
 
-  async commit(rawMessage, {allowEmpty, amend, coAuthors, verbatim} = {}) {
+  async commit(rawMessage, { allowEmpty, amend, coAuthors, verbatim } = {}) {
     const args = ['commit'];
     let msg;
 
     // if amending and no new message is passed, use last commit's message. Ensure that we don't
     // mangle it in the process.
     if (amend && rawMessage.length === 0) {
-      const {unbornRef, messageBody, messageSubject} = await this.getHeadCommit();
+      const { unbornRef, messageBody, messageSubject } =
+        await this.getHeadCommit();
       if (unbornRef) {
         msg = rawMessage;
       } else {
@@ -521,14 +618,16 @@ export default class GitShellOutStrategy {
     // to be consistent with command line git.
     const template = await this.fetchCommitMessageTemplate();
     if (template) {
-
       // respecting the comment character from user settings or fall back to # as default.
       // https://git-scm.com/docs/git-config#git-config-corecommentChar
       let commentChar = await this.getConfig('core.commentChar');
       if (!commentChar) {
         commentChar = '#';
       }
-      msg = msg.split('\n').filter(line => !line.startsWith(commentChar)).join('\n');
+      msg = msg
+        .split('\n')
+        .filter((line) => !line.startsWith(commentChar))
+        .join('\n');
     }
 
     // Determine the cleanup mode.
@@ -536,7 +635,8 @@ export default class GitShellOutStrategy {
       args.push('--cleanup=verbatim');
     } else {
       const configured = await this.getConfig('commit.cleanup');
-      const mode = (configured && configured !== 'default') ? configured : 'strip';
+      const mode =
+        configured && configured !== 'default' ? configured : 'strip';
       args.push(`--cleanup=${mode}`);
     }
 
@@ -547,13 +647,17 @@ export default class GitShellOutStrategy {
 
     args.push('-m', msg.trim());
 
-    if (amend) { args.push('--amend'); }
-    if (allowEmpty) { args.push('--allow-empty'); }
-    return this.gpgExec(args, {writeOperation: true});
+    if (amend) {
+      args.push('--amend');
+    }
+    if (allowEmpty) {
+      args.push('--allow-empty');
+    }
+    return this.gpgExec(args, { writeOperation: true });
   }
 
   addCoAuthorsToMessage(message, coAuthors = []) {
-    const trailers = coAuthors.map(author => {
+    const trailers = coAuthors.map((author) => {
       return {
         token: 'Co-Authored-By',
         value: `${author.name} <${author.email}>`,
@@ -570,7 +674,14 @@ export default class GitShellOutStrategy {
    * File Status and Diffs
    */
   async getStatusBundle() {
-    const args = ['status', '--porcelain=v2', '--branch', '--untracked-files=all', '--ignore-submodules=dirty', '-z'];
+    const args = [
+      'status',
+      '--porcelain=v2',
+      '--branch',
+      '--untracked-files=all',
+      '--ignore-submodules=dirty',
+      '-z',
+    ];
     const output = await this.exec(args);
     if (output.length > MAX_STATUS_OUTPUT_LENGTH) {
       throw new LargeRepoError();
@@ -588,7 +699,7 @@ export default class GitShellOutStrategy {
   }
 
   updateNativePathSepForEntries(entries) {
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       // Normally we would avoid mutating responses from other package's APIs, but we control
       // the `what-the-status` module and know there are no side effects.
       // This is a hot code path and by mutating we avoid creating new objects that will just be GC'ed
@@ -603,8 +714,12 @@ export default class GitShellOutStrategy {
 
   async diffFileStatus(options = {}) {
     const args = ['diff', '--name-status', '--no-renames'];
-    if (options.staged) { args.push('--staged'); }
-    if (options.target) { args.push(options.target); }
+    if (options.staged) {
+      args.push('--staged');
+    }
+    if (options.target) {
+      args.push(options.target);
+    }
     const output = await this.exec(args);
 
     const statusMap = {
@@ -615,35 +730,58 @@ export default class GitShellOutStrategy {
     };
 
     const fileStatuses = {};
-    output && output.trim().split(LINE_ENDING_REGEX).forEach(line => {
-      const [status, rawFilePath] = line.split('\t');
-      const filePath = toNativePathSep(rawFilePath);
-      fileStatuses[filePath] = statusMap[status];
-    });
+    output &&
+      output
+        .trim()
+        .split(LINE_ENDING_REGEX)
+        .forEach((line) => {
+          const [status, rawFilePath] = line.split('\t');
+          const filePath = toNativePathSep(rawFilePath);
+          fileStatuses[filePath] = statusMap[status];
+        });
     if (!options.staged) {
       const untracked = await this.getUntrackedFiles();
-      untracked.forEach(filePath => { fileStatuses[filePath] = 'added'; });
+      untracked.forEach((filePath) => {
+        fileStatuses[filePath] = 'added';
+      });
     }
     return fileStatuses;
   }
 
   async getUntrackedFiles() {
-    const output = await this.exec(['ls-files', '--others', '--exclude-standard']);
-    if (output.trim() === '') { return []; }
+    const output = await this.exec([
+      'ls-files',
+      '--others',
+      '--exclude-standard',
+    ]);
+    if (output.trim() === '') {
+      return [];
+    }
     return output.trim().split(LINE_ENDING_REGEX).map(toNativePathSep);
   }
 
-  async getDiffsForFilePath(filePath, {staged, baseCommit} = {}) {
-    let args = ['diff', '--no-prefix', '--no-ext-diff', '--no-renames', '--diff-filter=u'];
-    if (staged) { args.push('--staged'); }
-    if (baseCommit) { args.push(baseCommit); }
+  async getDiffsForFilePath(filePath, { staged, baseCommit } = {}) {
+    let args = [
+      'diff',
+      '--no-prefix',
+      '--no-ext-diff',
+      '--no-renames',
+      '--diff-filter=u',
+    ];
+    if (staged) {
+      args.push('--staged');
+    }
+    if (baseCommit) {
+      args.push(baseCommit);
+    }
     args = args.concat(['--', toGitPathSep(filePath)]);
     const output = await this.exec(args);
 
     let rawDiffs = [];
     if (output) {
-      rawDiffs = parseDiff(output)
-        .filter(rawDiff => rawDiff.status !== 'unmerged');
+      rawDiffs = parseDiff(output).filter(
+        (rawDiff) => rawDiff.status !== 'unmerged'
+      );
 
       for (let i = 0; i < rawDiffs.length; i++) {
         const rawDiff = rawDiffs[i];
@@ -661,7 +799,7 @@ export default class GitShellOutStrategy {
       const absPath = path.join(this.workingDir, filePath);
       const executable = await isFileExecutable(absPath);
       const symlink = await isFileSymlink(absPath);
-      const contents = await fs.readFile(absPath, {encoding: 'utf8'});
+      const contents = await fs.readFile(absPath, { encoding: 'utf8' });
       const binary = isBinary(contents);
       let mode;
       let realpath;
@@ -674,17 +812,26 @@ export default class GitShellOutStrategy {
         mode = File.modes.NORMAL;
       }
 
-      rawDiffs.push(buildAddedFilePatch(filePath, binary ? null : contents, mode, realpath));
+      rawDiffs.push(
+        buildAddedFilePatch(filePath, binary ? null : contents, mode, realpath)
+      );
     }
     if (rawDiffs.length > 2) {
-      throw new Error(`Expected between 0 and 2 diffs for ${filePath} but got ${rawDiffs.length}`);
+      throw new Error(
+        `Expected between 0 and 2 diffs for ${filePath} but got ${rawDiffs.length}`
+      );
     }
     return rawDiffs;
   }
 
   async getStagedChangesPatch() {
     const output = await this.exec([
-      'diff', '--staged', '--no-prefix', '--no-ext-diff', '--no-renames', '--diff-filter=u',
+      'diff',
+      '--staged',
+      '--no-prefix',
+      '--no-ext-diff',
+      '--no-renames',
+      '--diff-filter=u',
     ]);
 
     if (!output) {
@@ -693,8 +840,12 @@ export default class GitShellOutStrategy {
 
     const diffs = parseDiff(output);
     for (const diff of diffs) {
-      if (diff.oldPath) { diff.oldPath = toNativePathSep(diff.oldPath); }
-      if (diff.newPath) { diff.newPath = toNativePathSep(diff.newPath); }
+      if (diff.oldPath) {
+        diff.oldPath = toNativePathSep(diff.oldPath);
+      }
+      if (diff.newPath) {
+        diff.newPath = toNativePathSep(diff.newPath);
+      }
     }
     return diffs;
   }
@@ -703,17 +854,25 @@ export default class GitShellOutStrategy {
    * Miscellaneous getters
    */
   async getCommit(ref) {
-    const [commit] = await this.getCommits({max: 1, ref, includeUnborn: true});
+    const [commit] = await this.getCommits({
+      max: 1,
+      ref,
+      includeUnborn: true,
+    });
     return commit;
   }
 
   async getHeadCommit() {
-    const [headCommit] = await this.getCommits({max: 1, ref: 'HEAD', includeUnborn: true});
+    const [headCommit] = await this.getCommits({
+      max: 1,
+      ref: 'HEAD',
+      includeUnborn: true,
+    });
     return headCommit;
   }
 
   async getCommits(options = {}) {
-    const {max, ref, includeUnborn, includePatch} = {
+    const { max, ref, includeUnborn, includePatch } = {
       max: 1,
       ref: 'HEAD',
       includeUnborn: false,
@@ -746,8 +905,11 @@ export default class GitShellOutStrategy {
       args.push('--patch', '-m', '--first-parent');
     }
 
-    const output = await this.exec(args.concat('--')).catch(err => {
-      if (/unknown revision/.test(err.stdErr) || /bad revision 'HEAD'/.test(err.stdErr)) {
+    const output = await this.exec(args.concat('--')).catch((err) => {
+      if (
+        /unknown revision/.test(err.stdErr) ||
+        /bad revision 'HEAD'/.test(err.stdErr)
+      ) {
         return '';
       } else {
         throw err;
@@ -755,7 +917,7 @@ export default class GitShellOutStrategy {
     });
 
     if (output === '') {
-      return includeUnborn ? [{sha: '', message: '', unbornRef: true}] : [];
+      return includeUnborn ? [{ sha: '', message: '', unbornRef: true }] : [];
     }
 
     const fields = output.trim().split('\0');
@@ -769,11 +931,15 @@ export default class GitShellOutStrategy {
         patch = parseDiff(diffs.trim());
       }
 
-      const {message: messageBody, coAuthors} = extractCoAuthorsAndRawCommitMessage(body);
+      const { message: messageBody, coAuthors } =
+        extractCoAuthorsAndRawCommitMessage(body);
 
       commits.push({
         sha: fields[i] && fields[i].trim(),
-        author: new Author(fields[i + 1] && fields[i + 1].trim(), fields[i + 2] && fields[i + 2].trim()),
+        author: new Author(
+          fields[i + 1] && fields[i + 1].trim(),
+          fields[i + 2] && fields[i + 2].trim()
+        ),
         authorDate: parseInt(fields[i + 3], 10),
         messageSubject: fields[i + 4],
         messageBody,
@@ -786,7 +952,7 @@ export default class GitShellOutStrategy {
   }
 
   async getAuthors(options = {}) {
-    const {max, ref} = {max: 1, ref: 'HEAD', ...options};
+    const { max, ref } = { max: 1, ref: 'HEAD', ...options };
 
     // https://git-scm.com/docs/git-log#_pretty_formats
     // %x1F - field separator byte
@@ -805,27 +971,39 @@ export default class GitShellOutStrategy {
 
     try {
       const output = await this.exec([
-        'log', `--format=${format}`, '-z', '-n', max, ref, '--',
+        'log',
+        `--format=${format}`,
+        '-z',
+        '-n',
+        max,
+        ref,
+        '--',
       ]);
 
-      return output.split('\0')
-        .reduce((acc, line) => {
-          if (line.length === 0) { return acc; }
-
-          const [an, ae, cn, ce, trailers] = line.split(delimiterString);
-          trailers
-            .split('\n')
-            .map(trailer => trailer.match(CO_AUTHOR_REGEX))
-            .filter(match => match !== null)
-            .forEach(([_, name, email]) => { acc[email] = name; });
-
-          acc[ae] = an;
-          acc[ce] = cn;
-
+      return output.split('\0').reduce((acc, line) => {
+        if (line.length === 0) {
           return acc;
-        }, {});
+        }
+
+        const [an, ae, cn, ce, trailers] = line.split(delimiterString);
+        trailers
+          .split('\n')
+          .map((trailer) => trailer.match(CO_AUTHOR_REGEX))
+          .filter((match) => match !== null)
+          .forEach(([_, name, email]) => {
+            acc[email] = name;
+          });
+
+        acc[ae] = an;
+        acc[ce] = cn;
+
+        return acc;
+      }, {});
     } catch (err) {
-      if (/unknown revision/.test(err.stdErr) || /bad revision 'HEAD'/.test(err.stdErr)) {
+      if (
+        /unknown revision/.test(err.stdErr) ||
+        /bad revision 'HEAD'/.test(err.stdErr)
+      ) {
         return [];
       } else {
         throw err;
@@ -838,7 +1016,7 @@ export default class GitShellOutStrategy {
     for (const trailer of trailers) {
       args.push('--trailer', `${trailer.token}=${trailer.value}`);
     }
-    return this.exec(args, {stdin: commitMessage});
+    return this.exec(args, { stdin: commitMessage });
   }
 
   readFileFromIndex(filePath) {
@@ -849,7 +1027,7 @@ export default class GitShellOutStrategy {
    * Merge
    */
   merge(branchName) {
-    return this.gpgExec(['merge', branchName], {writeOperation: true});
+    return this.gpgExec(['merge', branchName], { writeOperation: true });
   }
 
   isMerging(dotGitDir) {
@@ -857,7 +1035,7 @@ export default class GitShellOutStrategy {
   }
 
   abortMerge() {
-    return this.exec(['merge', '--abort'], {writeOperation: true});
+    return this.exec(['merge', '--abort'], { writeOperation: true });
   }
 
   checkoutSide(side, paths) {
@@ -876,7 +1054,7 @@ export default class GitShellOutStrategy {
       fileExists(path.join(dotGitDir, 'rebase-merge')),
       fileExists(path.join(dotGitDir, 'rebase-apply')),
     ]);
-    return results.some(r => r);
+    return results.some((r) => r);
   }
 
   /**
@@ -884,17 +1062,28 @@ export default class GitShellOutStrategy {
    */
   clone(remoteUrl, options = {}) {
     const args = ['clone'];
-    if (options.noLocal) { args.push('--no-local'); }
-    if (options.bare) { args.push('--bare'); }
-    if (options.recursive) { args.push('--recursive'); }
-    if (options.sourceRemoteName) { args.push('--origin', options.remoteName); }
+    if (options.noLocal) {
+      args.push('--no-local');
+    }
+    if (options.bare) {
+      args.push('--bare');
+    }
+    if (options.recursive) {
+      args.push('--recursive');
+    }
+    if (options.sourceRemoteName) {
+      args.push('--origin', options.remoteName);
+    }
     args.push(remoteUrl, this.workingDir);
 
-    return this.exec(args, {useGitPromptServer: true, writeOperation: true});
+    return this.exec(args, { useGitPromptServer: true, writeOperation: true });
   }
 
   fetch(remoteName, branchName) {
-    return this.exec(['fetch', remoteName, branchName], {useGitPromptServer: true, writeOperation: true});
+    return this.exec(['fetch', remoteName, branchName], {
+      useGitPromptServer: true,
+      writeOperation: true,
+    });
   }
 
   pull(remoteName, branchName, options = {}) {
@@ -902,14 +1091,25 @@ export default class GitShellOutStrategy {
     if (options.ffOnly) {
       args.push('--ff-only');
     }
-    return this.gpgExec(args, {useGitPromptServer: true, writeOperation: true});
+    return this.gpgExec(args, {
+      useGitPromptServer: true,
+      writeOperation: true,
+    });
   }
 
   push(remoteName, branchName, options = {}) {
-    const args = ['push', remoteName || 'origin', options.refSpec || `refs/heads/${branchName}`];
-    if (options.setUpstream) { args.push('--set-upstream'); }
-    if (options.force) { args.push('--force'); }
-    return this.exec(args, {useGitPromptServer: true, writeOperation: true});
+    const args = [
+      'push',
+      remoteName || 'origin',
+      options.refSpec || `refs/heads/${branchName}`,
+    ];
+    if (options.setUpstream) {
+      args.push('--set-upstream');
+    }
+    if (options.force) {
+      args.push('--force');
+    }
+    return this.exec(args, { useGitPromptServer: true, writeOperation: true });
   }
 
   /**
@@ -918,7 +1118,9 @@ export default class GitShellOutStrategy {
   reset(type, revision = 'HEAD') {
     const validTypes = ['soft'];
     if (!validTypes.includes(type)) {
-      throw new Error(`Invalid type ${type}. Must be one of: ${validTypes.join(', ')}`);
+      throw new Error(
+        `Invalid type ${type}. Must be one of: ${validTypes.join(', ')}`
+      );
     }
     return this.exec(['reset', `--${type}`, revision]);
   }
@@ -937,45 +1139,73 @@ export default class GitShellOutStrategy {
     }
     args.push(branchName);
     if (options.startPoint) {
-      if (options.track) { args.push('--track'); }
+      if (options.track) {
+        args.push('--track');
+      }
       args.push(options.startPoint);
     }
 
-    return this.exec(args, {writeOperation: true});
+    return this.exec(args, { writeOperation: true });
   }
 
   async getBranches() {
     const format = [
-      '%(objectname)', '%(HEAD)', '%(refname:short)',
-      '%(upstream)', '%(upstream:remotename)', '%(upstream:remoteref)',
-      '%(push)', '%(push:remotename)', '%(push:remoteref)',
+      '%(objectname)',
+      '%(HEAD)',
+      '%(refname:short)',
+      '%(upstream)',
+      '%(upstream:remotename)',
+      '%(upstream:remoteref)',
+      '%(push)',
+      '%(push:remotename)',
+      '%(push:remoteref)',
     ].join('%00');
 
-    const output = await this.exec(['for-each-ref', `--format=${format}`, 'refs/heads/**']);
-    return output.trim().split(LINE_ENDING_REGEX).map(line => {
-      const [
-        sha, head, name,
-        upstreamTrackingRef, upstreamRemoteName, upstreamRemoteRef,
-        pushTrackingRef, pushRemoteName, pushRemoteRef,
-      ] = line.split('\0');
+    const output = await this.exec([
+      'for-each-ref',
+      `--format=${format}`,
+      'refs/heads/**',
+    ]);
+    return output
+      .trim()
+      .split(LINE_ENDING_REGEX)
+      .map((line) => {
+        const [
+          sha,
+          head,
+          name,
+          upstreamTrackingRef,
+          upstreamRemoteName,
+          upstreamRemoteRef,
+          pushTrackingRef,
+          pushRemoteName,
+          pushRemoteRef,
+        ] = line.split('\0');
 
-      const branch = {name, sha, head: head === '*'};
-      if (upstreamTrackingRef || upstreamRemoteName || upstreamRemoteRef) {
-        branch.upstream = {
-          trackingRef: upstreamTrackingRef,
-          remoteName: upstreamRemoteName,
-          remoteRef: upstreamRemoteRef,
-        };
-      }
-      if (branch.upstream || pushTrackingRef || pushRemoteName || pushRemoteRef) {
-        branch.push = {
-          trackingRef: pushTrackingRef,
-          remoteName: pushRemoteName || (branch.upstream && branch.upstream.remoteName),
-          remoteRef: pushRemoteRef || (branch.upstream && branch.upstream.remoteRef),
-        };
-      }
-      return branch;
-    });
+        const branch = { name, sha, head: head === '*' };
+        if (upstreamTrackingRef || upstreamRemoteName || upstreamRemoteRef) {
+          branch.upstream = {
+            trackingRef: upstreamTrackingRef,
+            remoteName: upstreamRemoteName,
+            remoteRef: upstreamRemoteRef,
+          };
+        }
+        if (
+          branch.upstream ||
+          pushTrackingRef ||
+          pushRemoteName ||
+          pushRemoteRef
+        ) {
+          branch.push = {
+            trackingRef: pushTrackingRef,
+            remoteName:
+              pushRemoteName || (branch.upstream && branch.upstream.remoteName),
+            remoteRef:
+              pushRemoteRef || (branch.upstream && branch.upstream.remoteRef),
+          };
+        }
+        return branch;
+      });
   }
 
   async getBranchesWithCommit(sha, option = {}) {
@@ -992,21 +1222,31 @@ export default class GitShellOutStrategy {
   }
 
   checkoutFiles(paths, revision) {
-    if (paths.length === 0) { return null; }
+    if (paths.length === 0) {
+      return null;
+    }
     const args = ['checkout'];
-    if (revision) { args.push(revision); }
-    return this.exec(args.concat('--', paths.map(toGitPathSep)), {writeOperation: true});
+    if (revision) {
+      args.push(revision);
+    }
+    return this.exec(args.concat('--', paths.map(toGitPathSep)), {
+      writeOperation: true,
+    });
   }
 
   async describeHead() {
-    return (await this.exec(['describe', '--contains', '--all', '--always', 'HEAD'])).trim();
+    return (
+      await this.exec(['describe', '--contains', '--all', '--always', 'HEAD'])
+    ).trim();
   }
 
-  async getConfig(option, {local} = {}) {
+  async getConfig(option, { local } = {}) {
     let output;
     try {
       let args = ['config'];
-      if (local) { args.push('--local'); }
+      if (local) {
+        args.push('--local');
+      }
       args = args.concat(option);
       output = await this.exec(args);
     } catch (err) {
@@ -1021,24 +1261,32 @@ export default class GitShellOutStrategy {
     return output.trim();
   }
 
-  setConfig(option, value, {replaceAll, global} = {}) {
+  setConfig(option, value, { replaceAll, global } = {}) {
     let args = ['config'];
-    if (replaceAll) { args.push('--replace-all'); }
-    if (global) { args.push('--global'); }
+    if (replaceAll) {
+      args.push('--replace-all');
+    }
+    if (global) {
+      args.push('--global');
+    }
     args = args.concat(option, value);
-    return this.exec(args, {writeOperation: true});
+    return this.exec(args, { writeOperation: true });
   }
 
   unsetConfig(option) {
-    return this.exec(['config', '--unset', option], {writeOperation: true});
+    return this.exec(['config', '--unset', option], { writeOperation: true });
   }
 
   async getRemotes() {
-    let output = await this.getConfig(['--get-regexp', '^remote\\..*\\.url$'], {local: true});
+    let output = await this.getConfig(['--get-regexp', '^remote\\..*\\.url$'], {
+      local: true,
+    });
     if (output) {
       output = output.trim();
-      if (!output.length) { return []; }
-      return output.split('\n').map(line => {
+      if (!output.length) {
+        return [];
+      }
+      return output.split('\n').map((line) => {
         const match = line.match(/^remote\.(.*)\.url (.*)$/);
         return {
           name: match[1],
@@ -1054,20 +1302,32 @@ export default class GitShellOutStrategy {
     return this.exec(['remote', 'add', name, url]);
   }
 
-  async createBlob({filePath, stdin} = {}) {
+  async createBlob({ filePath, stdin } = {}) {
     let output;
     if (filePath) {
       try {
-        output = (await this.exec(['hash-object', '-w', filePath], {writeOperation: true})).trim();
+        output = (
+          await this.exec(['hash-object', '-w', filePath], {
+            writeOperation: true,
+          })
+        ).trim();
       } catch (e) {
-        if (e.stdErr && e.stdErr.match(/fatal: Cannot open .*: No such file or directory/)) {
+        if (
+          e.stdErr &&
+          e.stdErr.match(/fatal: Cannot open .*: No such file or directory/)
+        ) {
           output = null;
         } else {
           throw e;
         }
       }
     } else if (stdin) {
-      output = (await this.exec(['hash-object', '-w', '--stdin'], {stdin, writeOperation: true})).trim();
+      output = (
+        await this.exec(['hash-object', '-w', '--stdin'], {
+          stdin,
+          writeOperation: true,
+        })
+      ).trim();
     } else {
       throw new Error('Must supply file path or stdin');
     }
@@ -1076,7 +1336,7 @@ export default class GitShellOutStrategy {
 
   async expandBlobToFile(absFilePath, sha) {
     const output = await this.exec(['cat-file', '-p', sha]);
-    await fs.writeFile(absFilePath, output, {encoding: 'utf8'});
+    await fs.writeFile(absFilePath, output, { encoding: 'utf8' });
     return absFilePath;
   }
 
@@ -1086,8 +1346,17 @@ export default class GitShellOutStrategy {
 
   async mergeFile(oursPath, commonBasePath, theirsPath, resultPath) {
     const args = [
-      'merge-file', '-p', oursPath, commonBasePath, theirsPath,
-      '-L', 'current', '-L', 'after discard', '-L', 'before discard',
+      'merge-file',
+      '-p',
+      oursPath,
+      commonBasePath,
+      theirsPath,
+      '-L',
+      'current',
+      '-L',
+      'after discard',
+      '-L',
+      'before discard',
     ];
     let output;
     let conflict = false;
@@ -1105,27 +1374,43 @@ export default class GitShellOutStrategy {
     // Interpret a relative resultPath as relative to the repository working directory for consistency with the
     // other arguments.
     const resolvedResultPath = path.resolve(this.workingDir, resultPath);
-    await fs.writeFile(resolvedResultPath, output, {encoding: 'utf8'});
+    await fs.writeFile(resolvedResultPath, output, { encoding: 'utf8' });
 
-    return {filePath: oursPath, resultPath, conflict};
+    return { filePath: oursPath, resultPath, conflict };
   }
 
   async writeMergeConflictToIndex(filePath, commonBaseSha, oursSha, theirsSha) {
     const gitFilePath = toGitPathSep(filePath);
     const fileMode = await this.getFileMode(filePath);
     let indexInfo = `0 0000000000000000000000000000000000000000\t${gitFilePath}\n`;
-    if (commonBaseSha) { indexInfo += `${fileMode} ${commonBaseSha} 1\t${gitFilePath}\n`; }
-    if (oursSha) { indexInfo += `${fileMode} ${oursSha} 2\t${gitFilePath}\n`; }
-    if (theirsSha) { indexInfo += `${fileMode} ${theirsSha} 3\t${gitFilePath}\n`; }
-    return this.exec(['update-index', '--index-info'], {stdin: indexInfo, writeOperation: true});
+    if (commonBaseSha) {
+      indexInfo += `${fileMode} ${commonBaseSha} 1\t${gitFilePath}\n`;
+    }
+    if (oursSha) {
+      indexInfo += `${fileMode} ${oursSha} 2\t${gitFilePath}\n`;
+    }
+    if (theirsSha) {
+      indexInfo += `${fileMode} ${theirsSha} 3\t${gitFilePath}\n`;
+    }
+    return this.exec(['update-index', '--index-info'], {
+      stdin: indexInfo,
+      writeOperation: true,
+    });
   }
 
   async getFileMode(filePath) {
-    const output = await this.exec(['ls-files', '--stage', '--', toGitPathSep(filePath)]);
+    const output = await this.exec([
+      'ls-files',
+      '--stage',
+      '--',
+      toGitPathSep(filePath),
+    ]);
     if (output) {
       return output.slice(0, 6);
     } else {
-      const executable = await isFileExecutable(path.join(this.workingDir, filePath));
+      const executable = await isFileExecutable(
+        path.join(this.workingDir, filePath)
+      );
       const symlink = await isFileSymlink(path.join(this.workingDir, filePath));
       if (symlink) {
         return File.modes.SYMLINK;
@@ -1152,9 +1437,14 @@ function buildAddedFilePatch(filePath, contents, mode, realpath) {
       lines = [`+${toGitPathSep(realpath)}`, '\\ No newline at end of file'];
     } else {
       noNewLine = contents[contents.length - 1] !== '\n';
-      lines = contents.trim().split(LINE_ENDING_REGEX).map(line => `+${line}`);
+      lines = contents
+        .trim()
+        .split(LINE_ENDING_REGEX)
+        .map((line) => `+${line}`);
     }
-    if (noNewLine) { lines.push('\\ No newline at end of file'); }
+    if (noNewLine) {
+      lines.push('\\ No newline at end of file');
+    }
     hunks.push({
       lines,
       oldStartLine: 0,

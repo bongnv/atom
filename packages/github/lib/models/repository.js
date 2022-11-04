@@ -1,14 +1,19 @@
 import path from 'path';
 
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 import fs from 'fs-extra';
 import yubikiri from 'yubikiri';
 
-import {getNullActionPipelineManager} from '../action-pipeline';
+import { getNullActionPipelineManager } from '../action-pipeline';
 import CompositeGitStrategy from '../composite-git-strategy';
-import Author, {nullAuthor} from './author';
+import Author, { nullAuthor } from './author';
 import Branch from './branch';
-import {Loading, Absent, LoadingGuess, AbsentGuess} from './repository-states';
+import {
+  Loading,
+  Absent,
+  LoadingGuess,
+  AbsentGuess,
+} from './repository-states';
 
 const MERGE_MARKER_REGEX = /^(>|<){7} \S+$/m;
 
@@ -22,7 +27,7 @@ export default class Repository {
 
     this.emitter = new Emitter();
 
-    this.loadPromise = new Promise(resolve => {
+    this.loadPromise = new Promise((resolve) => {
       const sub = this.onDidChangeState(() => {
         if (!this.isLoading()) {
           resolve();
@@ -33,20 +38,30 @@ export default class Repository {
       });
     });
 
-    this.pipelineManager = options.pipelineManager || getNullActionPipelineManager();
+    this.pipelineManager =
+      options.pipelineManager || getNullActionPipelineManager();
     this.transitionTo(options[initialStateSym] || Loading);
   }
 
   static absent(options) {
-    return new Repository(null, null, {[initialStateSym]: Absent, ...options});
+    return new Repository(null, null, {
+      [initialStateSym]: Absent,
+      ...options,
+    });
   }
 
   static loadingGuess(options) {
-    return new Repository(null, null, {[initialStateSym]: LoadingGuess, ...options});
+    return new Repository(null, null, {
+      [initialStateSym]: LoadingGuess,
+      ...options,
+    });
   }
 
   static absentGuess(options) {
-    return new Repository(null, null, {[initialStateSym]: AbsentGuess, ...options});
+    return new Repository(null, null, {
+      [initialStateSym]: AbsentGuess,
+      ...options,
+    });
   }
 
   // State management //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +75,10 @@ export default class Repository {
     const nextState = new StateConstructor(this, ...payload);
     this.state = nextState;
 
-    this.emitter.emit('did-change-state', {from: currentState, to: this.state});
+    this.emitter.emit('did-change-state', {
+      from: currentState,
+      to: this.state,
+    });
     if (!this.isDestroyed()) {
       this.emitter.emit('did-update');
     }
@@ -73,14 +91,18 @@ export default class Repository {
   }
 
   getLoadPromise() {
-    return this.isAbsent() ? Promise.reject(new Error('An absent repository will never load')) : this.loadPromise;
+    return this.isAbsent()
+      ? Promise.reject(new Error('An absent repository will never load'))
+      : this.loadPromise;
   }
 
   /*
    * Use `callback` to request user input from all git strategies.
    */
   setPromptCallback(callback) {
-    this.git.getImplementers().forEach(strategy => strategy.setPromptCallback(callback));
+    this.git
+      .getImplementers()
+      .forEach((strategy) => strategy.setPromptCallback(callback));
   }
 
   // Pipeline
@@ -125,18 +147,31 @@ export default class Repository {
 
   async pathHasMergeMarkers(relativePath) {
     try {
-      const contents = await fs.readFile(path.join(this.getWorkingDirectoryPath(), relativePath), {encoding: 'utf8'});
+      const contents = await fs.readFile(
+        path.join(this.getWorkingDirectoryPath(), relativePath),
+        { encoding: 'utf8' }
+      );
       return MERGE_MARKER_REGEX.test(contents);
     } catch (e) {
       // EISDIR implies this is a submodule
-      if (e.code === 'ENOENT' || e.code === 'EISDIR') { return false; } else { throw e; }
+      if (e.code === 'ENOENT' || e.code === 'EISDIR') {
+        return false;
+      } else {
+        throw e;
+      }
     }
   }
 
   async getMergeMessage() {
     try {
-      const contents = await fs.readFile(path.join(this.getGitDirectoryPath(), 'MERGE_MSG'), {encoding: 'utf8'});
-      return contents.split(/\n/).filter(line => line.length > 0 && !line.startsWith('#')).join('\n');
+      const contents = await fs.readFile(
+        path.join(this.getGitDirectoryPath(), 'MERGE_MSG'),
+        { encoding: 'utf8' }
+      );
+      return contents
+        .split(/\n/)
+        .filter((line) => line.length > 0 && !line.startsWith('#'))
+        .join('\n');
     } catch (e) {
       return null;
     }
@@ -168,7 +203,9 @@ export default class Repository {
   }
 
   toString() {
-    return `Repository(state=${this.state.constructor.name}, workdir="${this.getWorkingDirectoryPath()}")`;
+    return `Repository(state=${
+      this.state.constructor.name
+    }, workdir="${this.getWorkingDirectoryPath()}")`;
   }
 
   // Compound Getters //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -186,34 +223,40 @@ export default class Repository {
   }
 
   async getUnstagedChanges() {
-    const {unstagedFiles} = await this.getStatusBundle();
+    const { unstagedFiles } = await this.getStatusBundle();
     return Object.keys(unstagedFiles)
       .sort()
-      .map(filePath => { return {filePath, status: unstagedFiles[filePath]}; });
+      .map((filePath) => {
+        return { filePath, status: unstagedFiles[filePath] };
+      });
   }
 
   async getStagedChanges() {
-    const {stagedFiles} = await this.getStatusBundle();
+    const { stagedFiles } = await this.getStatusBundle();
     return Object.keys(stagedFiles)
       .sort()
-      .map(filePath => { return {filePath, status: stagedFiles[filePath]}; });
+      .map((filePath) => {
+        return { filePath, status: stagedFiles[filePath] };
+      });
   }
 
   async getMergeConflicts() {
-    const {mergeConflictFiles} = await this.getStatusBundle();
-    return Object.keys(mergeConflictFiles).map(filePath => {
-      return {filePath, status: mergeConflictFiles[filePath]};
+    const { mergeConflictFiles } = await this.getStatusBundle();
+    return Object.keys(mergeConflictFiles).map((filePath) => {
+      return { filePath, status: mergeConflictFiles[filePath] };
     });
   }
 
   async isPartiallyStaged(fileName) {
-    const {unstagedFiles, stagedFiles} = await this.getStatusBundle();
+    const { unstagedFiles, stagedFiles } = await this.getStatusBundle();
     const u = unstagedFiles[fileName];
     const s = stagedFiles[fileName];
-    return (u === 'modified' && s === 'modified') ||
+    return (
+      (u === 'modified' && s === 'modified') ||
       (u === 'modified' && s === 'added') ||
       (u === 'added' && s === 'deleted') ||
-      (u === 'deleted' && s === 'modified');
+      (u === 'deleted' && s === 'modified')
+    );
   }
 
   async getRemoteForBranch(branchName) {
@@ -250,7 +293,7 @@ export default class Repository {
 
     const remotes = await this.getRemotes();
 
-    const gitHubRemotes = remotes.filter(remote => remote.isGithubRepo());
+    const gitHubRemotes = remotes.filter((remote) => remote.isGithubRepo());
     const selectedRemoteName = await this.getConfig('atomGithub.currentRemote');
     currentRemote = gitHubRemotes.withName(selectedRemoteName);
 
@@ -260,7 +303,6 @@ export default class Repository {
     // todo: handle the case where multiple remotes are available and no chosen remote is set.
     return currentRemote;
   }
-
 
   async hasGitHubRemote(host, owner, name) {
     const remotes = await this.getRemotes();
@@ -382,7 +424,7 @@ const delegates = [
 for (let i = 0; i < delegates.length; i++) {
   const delegate = delegates[i];
 
-  Repository.prototype[delegate] = function(...args) {
+  Repository.prototype[delegate] = function (...args) {
     return this.state[delegate](...args);
   };
 }

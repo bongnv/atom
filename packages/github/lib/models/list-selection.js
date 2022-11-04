@@ -1,4 +1,4 @@
-import {autobind} from '../helpers';
+import { autobind } from '../helpers';
 
 const COPY = Symbol('copy');
 
@@ -8,11 +8,11 @@ export default class ListSelection {
 
     if (options._copy !== COPY) {
       this.options = {
-        isItemSelectable: options.isItemSelectable || (item => !!item),
+        isItemSelectable: options.isItemSelectable || ((item) => !!item),
       };
 
       this.items = options.items || [];
-      this.selections = this.items.length > 0 ? [{head: 0, tail: 0}] : [];
+      this.selections = this.items.length > 0 ? [{ head: 0, tail: 0 }] : [];
     } else {
       this.options = {
         isItemSelectable: options.isItemSelectable,
@@ -25,7 +25,8 @@ export default class ListSelection {
   copy(options = {}) {
     return new ListSelection({
       _copy: COPY,
-      isItemSelectable: options.isItemSelectable || this.options.isItemSelectable,
+      isItemSelectable:
+        options.isItemSelectable || this.options.isItemSelectable,
       items: options.items || this.items,
       selections: options.selections || this.selections,
     });
@@ -38,14 +39,17 @@ export default class ListSelection {
   setItems(items) {
     let newSelectionIndex;
     if (this.selections.length > 0) {
-      const [{head, tail}] = this.selections;
+      const [{ head, tail }] = this.selections;
       newSelectionIndex = Math.min(head, tail, items.length - 1);
     } else {
       newSelectionIndex = 0;
     }
 
-    const newSelections = items.length > 0 ? [{head: newSelectionIndex, tail: newSelectionIndex}] : [];
-    return this.copy({items, selections: newSelections});
+    const newSelections =
+      items.length > 0
+        ? [{ head: newSelectionIndex, tail: newSelectionIndex }]
+        : [];
+    return this.copy({ items, selections: newSelections });
   }
 
   getItems() {
@@ -119,23 +123,31 @@ export default class ListSelection {
 
   selectItem(item, preserveTail, addOrSubtract) {
     if (addOrSubtract && preserveTail) {
-      throw new Error('addOrSubtract and preserveTail cannot both be true at the same time');
+      throw new Error(
+        'addOrSubtract and preserveTail cannot both be true at the same time'
+      );
     }
 
     const itemIndex = this.items.indexOf(item);
     if (preserveTail && this.selections[0]) {
       const newSelections = [
-        {head: itemIndex, tail: this.selections[0].tail, negate: this.selections[0].negate},
+        {
+          head: itemIndex,
+          tail: this.selections[0].tail,
+          negate: this.selections[0].negate,
+        },
         ...this.selections.slice(1),
       ];
-      return this.copy({selections: newSelections});
+      return this.copy({ selections: newSelections });
     } else {
-      const selection = {head: itemIndex, tail: itemIndex};
+      const selection = { head: itemIndex, tail: itemIndex };
       if (addOrSubtract) {
-        if (this.getSelectedItems().has(item)) { selection.negate = true; }
-        return this.copy({selections: [selection, ...this.selections]});
+        if (this.getSelectedItems().has(item)) {
+          selection.negate = true;
+        }
+        return this.copy({ selections: [selection, ...this.selections] });
       } else {
-        return this.copy({selections: [selection]});
+        return this.copy({ selections: [selection] });
       }
     }
   }
@@ -145,39 +157,60 @@ export default class ListSelection {
   }
 
   coalesce() {
-    if (this.selections.length === 0) { return this; }
+    if (this.selections.length === 0) {
+      return this;
+    }
 
     const mostRecent = this.selections[0];
     let mostRecentStart = Math.min(mostRecent.head, mostRecent.tail);
     let mostRecentEnd = Math.max(mostRecent.head, mostRecent.tail);
-    while (mostRecentStart > 0 && !this.isItemSelectable(this.items[mostRecentStart - 1])) {
+    while (
+      mostRecentStart > 0 &&
+      !this.isItemSelectable(this.items[mostRecentStart - 1])
+    ) {
       mostRecentStart--;
     }
-    while (mostRecentEnd < (this.items.length - 1) && !this.isItemSelectable(this.items[mostRecentEnd + 1])) {
+    while (
+      mostRecentEnd < this.items.length - 1 &&
+      !this.isItemSelectable(this.items[mostRecentEnd + 1])
+    ) {
       mostRecentEnd++;
     }
 
     let changed = false;
     const newSelections = [mostRecent];
-    for (let i = 1; i < this.selections.length;) {
+    for (let i = 1; i < this.selections.length; ) {
       const current = this.selections[i];
       const currentStart = Math.min(current.head, current.tail);
       const currentEnd = Math.max(current.head, current.tail);
-      if (mostRecentStart <= currentEnd + 1 && currentStart - 1 <= mostRecentEnd) {
+      if (
+        mostRecentStart <= currentEnd + 1 &&
+        currentStart - 1 <= mostRecentEnd
+      ) {
         if (mostRecent.negate) {
           if (current.head > current.tail) {
-            if (currentEnd > mostRecentEnd) { // suffix
-              newSelections.push({tail: mostRecentEnd + 1, head: currentEnd});
+            if (currentEnd > mostRecentEnd) {
+              // suffix
+              newSelections.push({ tail: mostRecentEnd + 1, head: currentEnd });
             }
-            if (currentStart < mostRecentStart) { // prefix
-              newSelections.push({tail: currentStart, head: mostRecentStart - 1});
+            if (currentStart < mostRecentStart) {
+              // prefix
+              newSelections.push({
+                tail: currentStart,
+                head: mostRecentStart - 1,
+              });
             }
           } else {
-            if (currentStart < mostRecentStart) { // prefix
-              newSelections.push({head: currentStart, tail: mostRecentStart - 1});
+            if (currentStart < mostRecentStart) {
+              // prefix
+              newSelections.push({
+                head: currentStart,
+                tail: mostRecentStart - 1,
+              });
             }
-            if (currentEnd > mostRecentEnd) { // suffix
-              newSelections.push({head: mostRecentEnd + 1, tail: currentEnd});
+            if (currentEnd > mostRecentEnd) {
+              // suffix
+              newSelections.push({ head: mostRecentEnd + 1, tail: currentEnd });
             }
           }
           changed = true;
@@ -206,12 +239,12 @@ export default class ListSelection {
       newSelections.shift();
     }
 
-    return changed ? this.copy({selections: newSelections}) : this;
+    return changed ? this.copy({ selections: newSelections }) : this;
   }
 
   getSelectedItems() {
     const selectedItems = new Set();
-    for (const {head, tail, negate} of this.selections.slice().reverse()) {
+    for (const { head, tail, negate } of this.selections.slice().reverse()) {
       const start = Math.min(head, tail);
       const end = Math.max(head, tail);
       for (let i = start; i <= end; i++) {
@@ -229,7 +262,9 @@ export default class ListSelection {
   }
 
   getHeadItem() {
-    return this.selections.length > 0 ? this.items[this.selections[0].head] : null;
+    return this.selections.length > 0
+      ? this.items[this.selections[0].head]
+      : null;
   }
 
   getMostRecentSelectionStartIndex() {

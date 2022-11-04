@@ -1,17 +1,17 @@
 import Refresher from '../../lib/models/refresher';
 
-describe('Refresher', function() {
+describe('Refresher', function () {
   let refresher;
 
-  beforeEach(function() {
+  beforeEach(function () {
     refresher = new Refresher();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     refresher.dispose();
   });
 
-  it('calls the latest retry method registered per key instance when triggered', function() {
+  it('calls the latest retry method registered per key instance when triggered', function () {
     const keyOne = Symbol('one');
     const keyTwo = Symbol('two');
 
@@ -30,7 +30,7 @@ describe('Refresher', function() {
     assert.isTrue(two0.called);
   });
 
-  it('deregisters a retry callback for a key', function() {
+  it('deregisters a retry callback for a key', function () {
     const keyOne = Symbol('one');
     const keyTwo = Symbol('two');
 
@@ -48,7 +48,7 @@ describe('Refresher', function() {
     assert.isTrue(two.called);
   });
 
-  it('deregisters all retry callbacks on dispose', function() {
+  it('deregisters all retry callbacks on dispose', function () {
     const keyOne = Symbol('one');
     const keyTwo = Symbol('two');
 

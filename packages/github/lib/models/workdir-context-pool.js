@@ -1,13 +1,12 @@
 import compareSets from 'compare-sets';
 
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 import WorkdirContext from './workdir-context';
 
 /**
  * Manage a WorkdirContext for each open directory.
  */
 export default class WorkdirContextPool {
-
   /**
    * Options will be passed to each `WorkdirContext` as it is created.
    */
@@ -26,8 +25,10 @@ export default class WorkdirContextPool {
    * Access the context mapped to a known directory.
    */
   getContext(directory) {
-    const {pipelineManager} = this.options;
-    return this.contexts.get(directory) || WorkdirContext.absent({pipelineManager});
+    const { pipelineManager } = this.options;
+    return (
+      this.contexts.get(directory) || WorkdirContext.absent({ pipelineManager })
+    );
   }
 
   /**
@@ -37,13 +38,17 @@ export default class WorkdirContextPool {
   async getMatchingContext(host, owner, repo) {
     const matches = await Promise.all(
       this.withResidentContexts(async (_workdir, context) => {
-        const match = await context.getRepository().hasGitHubRemote(host, owner, repo);
+        const match = await context
+          .getRepository()
+          .hasGitHubRemote(host, owner, repo);
         return match ? context : null;
-      }),
+      })
     );
     const filtered = matches.filter(Boolean);
 
-    return filtered.length === 1 ? filtered[0] : WorkdirContext.absent({...this.options});
+    return filtered.length === 1
+      ? filtered[0]
+      : WorkdirContext.absent({ ...this.options });
   }
 
   add(directory, options = {}, silenceEmitter = false) {
@@ -51,7 +56,10 @@ export default class WorkdirContextPool {
       return this.getContext(directory);
     }
 
-    const context = new WorkdirContext(directory, {...this.options, ...options});
+    const context = new WorkdirContext(directory, {
+      ...this.options,
+      ...options,
+    });
     this.contexts.set(directory, context);
 
     const disposable = context.subs;
@@ -68,16 +76,18 @@ export default class WorkdirContextPool {
     forwardEvent('onDidDestroyRepository', 'did-destroy-repository');
 
     // Propagate global cache invalidations across all resident contexts
-    disposable.add(context.getRepository().onDidGloballyInvalidate(spec => {
-      this.withResidentContexts((_workdir, eachContext) => {
-        if (eachContext !== context) {
-          eachContext.getRepository().acceptInvalidation(spec);
-        }
-      });
-    }));
+    disposable.add(
+      context.getRepository().onDidGloballyInvalidate((spec) => {
+        this.withResidentContexts((_workdir, eachContext) => {
+          if (eachContext !== context) {
+            eachContext.getRepository().acceptInvalidation(spec);
+          }
+        });
+      })
+    );
 
     if (!silenceEmitter) {
-      this.emitter.emit('did-change-contexts', {added: new Set([directory])});
+      this.emitter.emit('did-change-contexts', { added: new Set([directory]) });
     }
 
     return context;
@@ -88,7 +98,9 @@ export default class WorkdirContextPool {
     this.add(directory, options, true);
 
     if (!silenceEmitter) {
-      this.emitter.emit('did-change-contexts', {altered: new Set([directory])});
+      this.emitter.emit('did-change-contexts', {
+        altered: new Set([directory]),
+      });
     }
   }
 
@@ -100,14 +112,16 @@ export default class WorkdirContextPool {
       existing.destroy();
 
       if (!silenceEmitter) {
-        this.emitter.emit('did-change-contexts', {removed: new Set([directory])});
+        this.emitter.emit('did-change-contexts', {
+          removed: new Set([directory]),
+        });
       }
     }
   }
 
   set(directories, options = {}) {
     const previous = new Set(this.contexts.keys());
-    const {added, removed} = compareSets(previous, directories);
+    const { added, removed } = compareSets(previous, directories);
 
     for (const directory of added) {
       this.add(directory, options, true);
@@ -117,7 +131,7 @@ export default class WorkdirContextPool {
     }
 
     if (added.size !== 0 || removed.size !== 0) {
-      this.emitter.emit('did-change-contexts', {added, removed});
+      this.emitter.emit('did-change-contexts', { added, removed });
     }
   }
 
@@ -160,7 +174,7 @@ export default class WorkdirContextPool {
   clear() {
     const workdirs = new Set();
 
-    this.withResidentContexts(workdir => {
+    this.withResidentContexts((workdir) => {
       this.remove(workdir, true);
       workdirs.add(workdir);
     });
@@ -168,7 +182,7 @@ export default class WorkdirContextPool {
     WorkdirContext.destroyAbsent();
 
     if (workdirs.size !== 0) {
-      this.emitter.emit('did-change-contexts', {removed: workdirs});
+      this.emitter.emit('did-change-contexts', { removed: workdirs });
     }
   }
 }

@@ -1,8 +1,8 @@
 import PatchBuffer from './patch-buffer';
 import Hunk from './hunk';
-import File, {nullFile} from './file';
-import Patch, {DEFERRED, EXPANDED, REMOVED} from './patch';
-import {Unchanged, Addition, Deletion, NoNewline} from './region';
+import File, { nullFile } from './file';
+import Patch, { DEFERRED, EXPANDED, REMOVED } from './patch';
+import { Unchanged, Addition, Deletion, NoNewline } from './region';
 import FilePatch from './file-patch';
 import MultiFilePatch from './multi-file-patch';
 
@@ -24,7 +24,7 @@ export const DEFAULT_OPTIONS = {
 };
 
 export function buildFilePatch(diffs, options) {
-  const opts = {...DEFAULT_OPTIONS, ...options};
+  const opts = { ...DEFAULT_OPTIONS, ...options };
   const patchBuffer = new PatchBuffer();
 
   let filePatch;
@@ -41,11 +41,11 @@ export function buildFilePatch(diffs, options) {
   // Delete the trailing newline.
   patchBuffer.deleteLastNewline();
 
-  return new MultiFilePatch({patchBuffer, filePatches: [filePatch]});
+  return new MultiFilePatch({ patchBuffer, filePatches: [filePatch] });
 }
 
 export function buildMultiFilePatch(diffs, options) {
-  const opts = {...DEFAULT_OPTIONS, ...options};
+  const opts = { ...DEFAULT_OPTIONS, ...options };
 
   const patchBuffer = new PatchBuffer();
 
@@ -63,7 +63,7 @@ export function buildMultiFilePatch(diffs, options) {
       if (otherHalf) {
         // The second half. Complete the paired diff, or fail if they have unexpected statuses or modes.
         const [otherDiff, otherIndex] = otherHalf;
-        actions[otherIndex] = (function(_diff, _otherDiff) {
+        actions[otherIndex] = (function (_diff, _otherDiff) {
           return () => dualDiffFilePatch(_diff, _otherDiff, patchBuffer, opts);
         })(diff, otherDiff);
         byPath.delete(thePath);
@@ -73,7 +73,7 @@ export function buildMultiFilePatch(diffs, options) {
         index++;
       }
     } else {
-      actions[index] = (function(_diff) {
+      actions[index] = (function (_diff) {
         return () => singleDiffFilePatch(_diff, patchBuffer, opts);
       })(diff);
       index++;
@@ -82,35 +82,41 @@ export function buildMultiFilePatch(diffs, options) {
 
   // Populate unpaired diffs that looked like they could be part of a pair, but weren't.
   for (const [unpairedDiff, originalIndex] of byPath.values()) {
-    actions[originalIndex] = (function(_unpairedDiff) {
+    actions[originalIndex] = (function (_unpairedDiff) {
       return () => singleDiffFilePatch(_unpairedDiff, patchBuffer, opts);
     })(unpairedDiff);
   }
 
-  const filePatches = actions.map(action => action());
+  const filePatches = actions.map((action) => action());
 
   // Delete the final trailing newline from the last non-empty patch.
   patchBuffer.deleteLastNewline();
 
   // Append hidden patches corresponding to each removed file.
   for (const removedPath of opts.removed) {
-    const removedFile = new File({path: removedPath});
+    const removedFile = new File({ path: removedPath });
     const removedMarker = patchBuffer.markPosition(
       Patch.layerName,
       patchBuffer.getBuffer().getEndPosition(),
-      {invalidate: 'never', exclusive: false},
+      { invalidate: 'never', exclusive: false }
     );
-    filePatches.push(FilePatch.createHiddenFilePatch(
-      removedFile,
-      removedFile,
-      removedMarker,
-      REMOVED,
-      /* istanbul ignore next */
-      () => { throw new Error(`Attempt to expand removed file patch ${removedPath}`); },
-    ));
+    filePatches.push(
+      FilePatch.createHiddenFilePatch(
+        removedFile,
+        removedFile,
+        removedMarker,
+        REMOVED,
+        /* istanbul ignore next */
+        () => {
+          throw new Error(
+            `Attempt to expand removed file patch ${removedPath}`
+          );
+        }
+      )
+    );
   }
 
-  return new MultiFilePatch({patchBuffer, filePatches});
+  return new MultiFilePatch({ patchBuffer, filePatches });
 }
 
 function emptyDiffFilePatch() {
@@ -132,52 +138,75 @@ function singleDiffFilePatch(diff, patchBuffer, opts) {
     newSymlink = diff.hunks[0].lines[2].slice(1);
   }
 
-  const oldFile = diff.oldPath !== null || diff.oldMode !== null
-    ? new File({path: diff.oldPath, mode: diff.oldMode, symlink: oldSymlink})
-    : nullFile;
-  const newFile = diff.newPath !== null || diff.newMode !== null
-    ? new File({path: diff.newPath, mode: diff.newMode, symlink: newSymlink})
-    : nullFile;
+  const oldFile =
+    diff.oldPath !== null || diff.oldMode !== null
+      ? new File({
+          path: diff.oldPath,
+          mode: diff.oldMode,
+          symlink: oldSymlink,
+        })
+      : nullFile;
+  const newFile =
+    diff.newPath !== null || diff.newMode !== null
+      ? new File({
+          path: diff.newPath,
+          mode: diff.newMode,
+          symlink: newSymlink,
+        })
+      : nullFile;
 
   const renderStatusOverride =
     (oldFile.isPresent() && opts.renderStatusOverrides[oldFile.getPath()]) ||
     (newFile.isPresent() && opts.renderStatusOverrides[newFile.getPath()]) ||
     undefined;
 
-  const renderStatus = renderStatusOverride ||
-    (isDiffLarge([diff], opts) && DEFERRED) ||
-    EXPANDED;
+  const renderStatus =
+    renderStatusOverride || (isDiffLarge([diff], opts) && DEFERRED) || EXPANDED;
 
   if (!renderStatus.isVisible()) {
     const patchMarker = patchBuffer.markPosition(
       Patch.layerName,
       patchBuffer.getBuffer().getEndPosition(),
-      {invalidate: 'never', exclusive: false},
+      { invalidate: 'never', exclusive: false }
     );
 
     return FilePatch.createHiddenFilePatch(
-      oldFile, newFile, patchMarker, renderStatus,
+      oldFile,
+      newFile,
+      patchMarker,
+      renderStatus,
       () => {
         const subPatchBuffer = new PatchBuffer();
         const [hunks, nextPatchMarker] = buildHunks(diff, subPatchBuffer);
-        const nextPatch = new Patch({status: diff.status, hunks, marker: nextPatchMarker});
+        const nextPatch = new Patch({
+          status: diff.status,
+          hunks,
+          marker: nextPatchMarker,
+        });
 
         subPatchBuffer.deleteLastNewline();
-        return {patch: nextPatch, patchBuffer: subPatchBuffer};
-      },
+        return { patch: nextPatch, patchBuffer: subPatchBuffer };
+      }
     );
   } else {
     const [hunks, patchMarker] = buildHunks(diff, patchBuffer);
-    const patch = new Patch({status: diff.status, hunks, marker: patchMarker});
+    const patch = new Patch({
+      status: diff.status,
+      hunks,
+      marker: patchMarker,
+    });
 
-    const rawPatches = opts.preserveOriginal ? {content: diff} : null;
+    const rawPatches = opts.preserveOriginal ? { content: diff } : null;
     return new FilePatch(oldFile, newFile, patch, rawPatches);
   }
 }
 
 function dualDiffFilePatch(diff1, diff2, patchBuffer, opts) {
   let modeChangeDiff, contentChangeDiff;
-  if (diff1.oldMode === File.modes.SYMLINK || diff1.newMode === File.modes.SYMLINK) {
+  if (
+    diff1.oldMode === File.modes.SYMLINK ||
+    diff1.newMode === File.modes.SYMLINK
+  ) {
     modeChangeDiff = diff1;
     contentChangeDiff = diff2;
   } else {
@@ -205,13 +234,24 @@ function dualDiffFilePatch(diff1, diff2, patchBuffer, opts) {
     oldSymlink = symlink;
     newMode = contentChangeDiff.newMode;
   } else {
-    throw new Error(`Invalid mode change diff status: ${modeChangeDiff.status}`);
+    throw new Error(
+      `Invalid mode change diff status: ${modeChangeDiff.status}`
+    );
   }
 
-  const oldFile = new File({path: filePath, mode: oldMode, symlink: oldSymlink});
-  const newFile = new File({path: filePath, mode: newMode, symlink: newSymlink});
+  const oldFile = new File({
+    path: filePath,
+    mode: oldMode,
+    symlink: oldSymlink,
+  });
+  const newFile = new File({
+    path: filePath,
+    mode: newMode,
+    symlink: newSymlink,
+  });
 
-  const renderStatus = opts.renderStatusOverrides[filePath] ||
+  const renderStatus =
+    opts.renderStatusOverrides[filePath] ||
     (isDiffLarge([contentChangeDiff], opts) && DEFERRED) ||
     EXPANDED;
 
@@ -219,25 +259,33 @@ function dualDiffFilePatch(diff1, diff2, patchBuffer, opts) {
     const patchMarker = patchBuffer.markPosition(
       Patch.layerName,
       patchBuffer.getBuffer().getEndPosition(),
-      {invalidate: 'never', exclusive: false},
+      { invalidate: 'never', exclusive: false }
     );
 
     return FilePatch.createHiddenFilePatch(
-      oldFile, newFile, patchMarker, renderStatus,
+      oldFile,
+      newFile,
+      patchMarker,
+      renderStatus,
       () => {
         const subPatchBuffer = new PatchBuffer();
-        const [hunks, nextPatchMarker] = buildHunks(contentChangeDiff, subPatchBuffer);
-        const nextPatch = new Patch({status, hunks, marker: nextPatchMarker});
+        const [hunks, nextPatchMarker] = buildHunks(
+          contentChangeDiff,
+          subPatchBuffer
+        );
+        const nextPatch = new Patch({ status, hunks, marker: nextPatchMarker });
 
         subPatchBuffer.deleteLastNewline();
-        return {patch: nextPatch, patchBuffer: subPatchBuffer};
-      },
+        return { patch: nextPatch, patchBuffer: subPatchBuffer };
+      }
     );
   } else {
     const [hunks, patchMarker] = buildHunks(contentChangeDiff, patchBuffer);
-    const patch = new Patch({status, hunks, marker: patchMarker});
+    const patch = new Patch({ status, hunks, marker: patchMarker });
 
-    const rawPatches = opts.preserveOriginal ? {content: contentChangeDiff, mode: modeChangeDiff} : null;
+    const rawPatches = opts.preserveOriginal
+      ? { content: contentChangeDiff, mode: modeChangeDiff }
+      : null;
     return new FilePatch(oldFile, newFile, patch, rawPatches);
   }
 }
@@ -250,100 +298,123 @@ const CHANGEKIND = {
 };
 
 function buildHunks(diff, patchBuffer) {
-  const inserter = patchBuffer.createInserterAtEnd()
-    .keepBefore(patchBuffer.findAllMarkers({endPosition: patchBuffer.getInsertionPoint()}));
+  const inserter = patchBuffer.createInserterAtEnd().keepBefore(
+    patchBuffer.findAllMarkers({
+      endPosition: patchBuffer.getInsertionPoint(),
+    })
+  );
 
   let patchMarker = null;
   let firstHunk = true;
   const hunks = [];
 
-  inserter.markWhile(Patch.layerName, () => {
-    for (const rawHunk of diff.hunks) {
-      let firstRegion = true;
-      const regions = [];
+  inserter.markWhile(
+    Patch.layerName,
+    () => {
+      for (const rawHunk of diff.hunks) {
+        let firstRegion = true;
+        const regions = [];
 
-      // Separate hunks with an unmarked newline
-      if (firstHunk) {
-        firstHunk = false;
-      } else {
-        inserter.insert('\n');
-      }
+        // Separate hunks with an unmarked newline
+        if (firstHunk) {
+          firstHunk = false;
+        } else {
+          inserter.insert('\n');
+        }
 
-      inserter.markWhile(Hunk.layerName, () => {
-        let firstRegionLine = true;
-        let currentRegionText = '';
-        let CurrentRegionKind = null;
+        inserter.markWhile(
+          Hunk.layerName,
+          () => {
+            let firstRegionLine = true;
+            let currentRegionText = '';
+            let CurrentRegionKind = null;
 
-        function finishRegion() {
-          if (CurrentRegionKind === null) {
-            return;
-          }
+            function finishRegion() {
+              if (CurrentRegionKind === null) {
+                return;
+              }
 
-          // Separate regions with an unmarked newline
-          if (firstRegion) {
-            firstRegion = false;
-          } else {
-            inserter.insert('\n');
-          }
+              // Separate regions with an unmarked newline
+              if (firstRegion) {
+                firstRegion = false;
+              } else {
+                inserter.insert('\n');
+              }
 
-          inserter.insertMarked(currentRegionText, CurrentRegionKind.layerName, {
+              inserter.insertMarked(
+                currentRegionText,
+                CurrentRegionKind.layerName,
+                {
+                  invalidate: 'never',
+                  exclusive: false,
+                  callback: (function (_regions, _CurrentRegionKind) {
+                    return (regionMarker) => {
+                      _regions.push(new _CurrentRegionKind(regionMarker));
+                    };
+                  })(regions, CurrentRegionKind),
+                }
+              );
+            }
+
+            for (const rawLine of rawHunk.lines) {
+              const NextRegionKind = CHANGEKIND[rawLine[0]];
+              if (NextRegionKind === undefined) {
+                throw new Error(
+                  `Unknown diff status character: "${rawLine[0]}"`
+                );
+              }
+              const nextLine = rawLine.slice(1);
+
+              let separator = '';
+              if (firstRegionLine) {
+                firstRegionLine = false;
+              } else {
+                separator = '\n';
+              }
+
+              if (NextRegionKind === CurrentRegionKind) {
+                currentRegionText += separator + nextLine;
+
+                continue;
+              } else {
+                finishRegion();
+
+                CurrentRegionKind = NextRegionKind;
+                currentRegionText = nextLine;
+              }
+            }
+            finishRegion();
+          },
+          {
             invalidate: 'never',
             exclusive: false,
-            callback: (function(_regions, _CurrentRegionKind) {
-              return regionMarker => { _regions.push(new _CurrentRegionKind(regionMarker)); };
-            })(regions, CurrentRegionKind),
-          });
-        }
-
-        for (const rawLine of rawHunk.lines) {
-          const NextRegionKind = CHANGEKIND[rawLine[0]];
-          if (NextRegionKind === undefined) {
-            throw new Error(`Unknown diff status character: "${rawLine[0]}"`);
+            callback: (function (_hunks, _rawHunk, _regions) {
+              return (hunkMarker) => {
+                _hunks.push(
+                  new Hunk({
+                    oldStartRow: _rawHunk.oldStartLine,
+                    newStartRow: _rawHunk.newStartLine,
+                    oldRowCount: _rawHunk.oldLineCount,
+                    newRowCount: _rawHunk.newLineCount,
+                    sectionHeading: _rawHunk.heading,
+                    marker: hunkMarker,
+                    regions: _regions,
+                  })
+                );
+              };
+            })(hunks, rawHunk, regions),
           }
-          const nextLine = rawLine.slice(1);
-
-          let separator = '';
-          if (firstRegionLine) {
-            firstRegionLine = false;
-          } else {
-            separator = '\n';
-          }
-
-          if (NextRegionKind === CurrentRegionKind) {
-            currentRegionText += separator + nextLine;
-
-            continue;
-          } else {
-            finishRegion();
-
-            CurrentRegionKind = NextRegionKind;
-            currentRegionText = nextLine;
-          }
-        }
-        finishRegion();
-      }, {
-        invalidate: 'never',
-        exclusive: false,
-        callback: (function(_hunks, _rawHunk, _regions) {
-          return hunkMarker => {
-            _hunks.push(new Hunk({
-              oldStartRow: _rawHunk.oldStartLine,
-              newStartRow: _rawHunk.newStartLine,
-              oldRowCount: _rawHunk.oldLineCount,
-              newRowCount: _rawHunk.newLineCount,
-              sectionHeading: _rawHunk.heading,
-              marker: hunkMarker,
-              regions: _regions,
-            }));
-          };
-        })(hunks, rawHunk, regions),
-      });
+        );
+      }
+    },
+    {
+      invalidate: 'never',
+      exclusive: false,
+      callback: (marker) => {
+        patchMarker = marker;
+      },
     }
-  }, {
-    invalidate: 'never',
-    exclusive: false,
-    callback: marker => { patchMarker = marker; },
-  });
+  );
 
   // Separate multiple non-empty patches on the same buffer with an unmarked newline. The newline after the final
   // non-empty patch (if there is one) should be deleted before MultiFilePatch construction.
@@ -358,9 +429,12 @@ function buildHunks(diff, patchBuffer) {
 
 function isDiffLarge(diffs, opts) {
   const size = diffs.reduce((diffSizeCounter, diff) => {
-    return diffSizeCounter + diff.hunks.reduce((hunkSizeCounter, hunk) => {
-      return hunkSizeCounter + hunk.lines.length;
-    }, 0);
+    return (
+      diffSizeCounter +
+      diff.hunks.reduce((hunkSizeCounter, hunk) => {
+        return hunkSizeCounter + hunk.lines.length;
+      }, 0)
+    );
   }, 0);
 
   return size > opts.largeDiffThreshold;

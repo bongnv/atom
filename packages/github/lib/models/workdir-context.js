@@ -1,10 +1,10 @@
-import {Emitter, CompositeDisposable} from 'event-kit';
+import { Emitter, CompositeDisposable } from 'event-kit';
 
 import Repository from './repository';
 import ResolutionProgress from './conflicts/resolution-progress';
 import FileSystemChangeObserver from './file-system-change-observer';
 import WorkspaceChangeObserver from './workspace-change-observer';
-import {autobind} from '../helpers';
+import { autobind } from '../helpers';
 
 const createRepoSym = Symbol('createRepo');
 
@@ -19,7 +19,6 @@ let absentWorkdirContext;
  * change events.
  */
 export default class WorkdirContext {
-
   /*
    * Available options:
    * - `options.window`: Browser window global, used on Linux by the WorkspaceChangeObserver.
@@ -31,8 +30,16 @@ export default class WorkdirContext {
 
     this.directory = directory;
 
-    const {window: theWindow, workspace, promptCallback, pipelineManager} = options;
-    this.repository = (options[createRepoSym] || (() => new Repository(directory, null, {pipelineManager})))();
+    const {
+      window: theWindow,
+      workspace,
+      promptCallback,
+      pipelineManager,
+    } = options;
+    this.repository = (
+      options[createRepoSym] ||
+      (() => new Repository(directory, null, { pipelineManager }))
+    )();
 
     this.destroyed = false;
     this.emitter = new Emitter();
@@ -48,14 +55,22 @@ export default class WorkdirContext {
     }
 
     // Wire up event forwarding among models
-    this.subs.add(this.repository.onDidChangeState(this.repositoryChangedState));
-    this.subs.add(this.observer.onDidChange(events => {
-      this.repository.observeFilesystemChange(events);
-    }));
-    this.subs.add(this.observer.onDidChangeWorkdirOrHead(() => this.emitter.emit('did-change-workdir-or-head')));
+    this.subs.add(
+      this.repository.onDidChangeState(this.repositoryChangedState)
+    );
+    this.subs.add(
+      this.observer.onDidChange((events) => {
+        this.repository.observeFilesystemChange(events);
+      })
+    );
+    this.subs.add(
+      this.observer.onDidChangeWorkdirOrHead(() =>
+        this.emitter.emit('did-change-workdir-or-head')
+      )
+    );
 
     // If a pre-loaded Repository was provided, broadcast an initial state change event.
-    this.repositoryChangedState({from: null, to: this.repository.state});
+    this.repositoryChangedState({ from: null, to: this.repository.state });
   }
 
   static absent(options) {
@@ -76,11 +91,12 @@ export default class WorkdirContext {
     const projectPathCount = options.projectPathCount || 0;
     const initPathCount = options.initPathCount || 0;
 
-    const createRepo = (projectPathCount === 1 || (projectPathCount === 0 && initPathCount === 1)) ?
-      () => Repository.loadingGuess({pipelineManager}) :
-      () => Repository.absentGuess({pipelineManager});
+    const createRepo =
+      projectPathCount === 1 || (projectPathCount === 0 && initPathCount === 1)
+        ? () => Repository.loadingGuess({ pipelineManager })
+        : () => Repository.absentGuess({ pipelineManager });
 
-    return new WorkdirContext(null, {[createRepoSym]: createRepo});
+    return new WorkdirContext(null, { [createRepoSym]: createRepo });
   }
 
   /**
@@ -116,7 +132,10 @@ export default class WorkdirContext {
   }
 
   useWorkspaceChangeObserver() {
-    return !!process.env.ATOM_GITHUB_WORKSPACE_OBSERVER || process.platform === 'linux';
+    return (
+      !!process.env.ATOM_GITHUB_WORKSPACE_OBSERVER ||
+      process.platform === 'linux'
+    );
   }
 
   // Event subscriptions
@@ -146,7 +165,7 @@ export default class WorkdirContext {
    * useful for test cases; most callers should prefer subscribing to `onDidChangeRepositoryState`.
    */
   getRepositoryStatePromise(stateName) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const sub = this.onDidChangeRepositoryState(() => {
         if (this.repository.isInState(stateName)) {
           resolve();
@@ -161,7 +180,7 @@ export default class WorkdirContext {
    * test cases.
    */
   getObserverStartedPromise() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const sub = this.onDidStartObserver(() => {
         resolve();
         sub.dispose();
@@ -204,7 +223,7 @@ export default class WorkdirContext {
 
 class AbsentWorkdirContext extends WorkdirContext {
   constructor(options) {
-    super(null, {[createRepoSym]: () => Repository.absent(options)});
+    super(null, { [createRepoSym]: () => Repository.absent(options) });
   }
 
   isPresent() {

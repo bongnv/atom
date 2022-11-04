@@ -1,11 +1,11 @@
-import {TextBuffer} from 'atom';
+import { TextBuffer } from 'atom';
 
 import ResolutionProgress from '../../../lib/models/conflicts/resolution-progress';
-import {InMemoryStrategy} from '../../../lib/shared/keytar-strategy';
+import { InMemoryStrategy } from '../../../lib/shared/keytar-strategy';
 import GithubLoginModel from '../../../lib/models/github-login-model';
 import RefHolder from '../../../lib/models/ref-holder';
 import UserStore from '../../../lib/models/user-store';
-import {nullAuthor} from '../../../lib/models/author';
+import { nullAuthor } from '../../../lib/models/author';
 
 function noop() {}
 
@@ -33,9 +33,9 @@ export function gitTabItemProps(atomEnv, repository, overrides = {}) {
     changeWorkingDirectory: noop,
     contextLocked: false,
     setContextLock: () => {},
-    onDidChangeWorkDirs: () => ({dispose: () => {}}),
+    onDidChangeWorkDirs: () => ({ dispose: () => {} }),
     getCurrentWorkDirs: () => new Set(),
-    ...overrides
+    ...overrides,
   };
 }
 
@@ -43,10 +43,14 @@ export function gitTabContainerProps(atomEnv, repository, overrides = {}) {
   return gitTabItemProps(atomEnv, repository, overrides);
 }
 
-export async function gitTabControllerProps(atomEnv, repository, overrides = {}) {
+export async function gitTabControllerProps(
+  atomEnv,
+  repository,
+  overrides = {}
+) {
   const repoProps = {
     lastCommit: await repository.getLastCommit(),
-    recentCommits: await repository.getRecentCommits({max: 10}),
+    recentCommits: await repository.getRecentCommits({ max: 10 }),
     isMerging: await repository.isMerging(),
     isRebasing: await repository.isRebasing(),
     hasUndoHistory: await repository.hasDiscardHistory(),
@@ -60,7 +64,9 @@ export async function gitTabControllerProps(atomEnv, repository, overrides = {})
     ...overrides,
   };
 
-  repoProps.mergeMessage = repoProps.isMerging ? await repository.getMergeMessage() : null;
+  repoProps.mergeMessage = repoProps.isMerging
+    ? await repository.getMergeMessage()
+    : null;
 
   return gitTabContainerProps(atomEnv, repository, repoProps);
 }
@@ -78,7 +84,7 @@ export async function gitTabViewProps(atomEnv, repository, overrides = {}) {
     emailBuffer: new TextBuffer(),
     lastCommit: await repository.getLastCommit(),
     currentBranch: await repository.getCurrentBranch(),
-    recentCommits: await repository.getRecentCommits({max: 10}),
+    recentCommits: await repository.getRecentCommits({ max: 10 }),
     isMerging: await repository.isMerging(),
     isRebasing: await repository.isRebasing(),
     hasUndoHistory: await repository.hasDiscardHistory(),
@@ -119,15 +125,17 @@ export async function gitTabViewProps(atomEnv, repository, overrides = {}) {
     contextLocked: false,
     changeWorkingDirectory: () => {},
     setContextLock: () => {},
-    onDidChangeWorkDirs: () => ({dispose: () => {}}),
+    onDidChangeWorkDirs: () => ({ dispose: () => {} }),
     getCurrentWorkDirs: () => new Set(),
-    onDidUpdateRepo: () => ({dispose: () => {}}),
+    onDidUpdateRepo: () => ({ dispose: () => {} }),
     getCommitter: () => nullAuthor,
 
     ...overrides,
   };
 
-  props.mergeMessage = props.isMerging ? await repository.getMergeMessage() : null;
+  props.mergeMessage = props.isMerging
+    ? await repository.getMergeMessage()
+    : null;
   props.userStore = new UserStore({
     repository: props.repository,
     login: new GithubLoginModel(InMemoryStrategy),

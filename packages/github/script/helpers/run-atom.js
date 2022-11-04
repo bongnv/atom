@@ -1,8 +1,8 @@
-const {spawn} = require('child_process');
+const { spawn } = require('child_process');
 
 function atomProcess(env, ...args) {
   const atomBinPath = process.env.ATOM_SCRIPT_PATH || 'atom';
-  const atomEnv = {...process.env, ...env};
+  const atomEnv = { ...process.env, ...env };
   const isWindows = process.platform === 'win32';
 
   return new Promise((resolve, reject) => {
@@ -15,7 +15,7 @@ function atomProcess(env, ...args) {
       windowsHide: true,
     });
 
-    child.on('error', err => {
+    child.on('error', (err) => {
       if (!settled) {
         settled = true;
         reject(err);
@@ -28,7 +28,7 @@ function atomProcess(env, ...args) {
     child.on('exit', (code, signal) => {
       if (!settled) {
         settled = true;
-        resolve({code, signal});
+        resolve({ code, signal });
       }
     });
   });
@@ -36,7 +36,7 @@ function atomProcess(env, ...args) {
 
 async function runAtom(...args) {
   try {
-    const {code, signal} = await atomProcess(...args);
+    const { code, signal } = await atomProcess(...args);
     if (signal) {
       // eslint-disable-next-line no-console
       console.log(`Atom process killed with signal ${signal}.`);

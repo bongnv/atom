@@ -2,12 +2,12 @@ import path from 'path';
 import querystring from 'querystring';
 import url from 'url';
 
-import {ipcRenderer as ipc} from 'electron';
+import { ipcRenderer as ipc } from 'electron';
 import * as remote from '@electron/remote';
-const {BrowserWindow} = remote;
-import {Emitter, Disposable, CompositeDisposable} from 'event-kit';
+const { BrowserWindow } = remote;
+import { Emitter, Disposable, CompositeDisposable } from 'event-kit';
 
-import {getPackageRoot, autobind} from './helpers';
+import { getPackageRoot, autobind } from './helpers';
 
 export default class WorkerManager {
   static instance = null;
@@ -20,7 +20,9 @@ export default class WorkerManager {
   }
 
   static reset(force) {
-    if (this.instance) { this.instance.destroy(force); }
+    if (this.instance) {
+      this.instance.destroy(force);
+    }
     this.instance = null;
   }
 
@@ -37,7 +39,9 @@ export default class WorkerManager {
   }
 
   request(data) {
-    if (this.destroyed) { throw new Error('Worker is destroyed'); }
+    if (this.destroyed) {
+      throw new Error('Worker is destroyed');
+    }
     let operation;
     const requestPromise = new Promise((resolve, reject) => {
       operation = new Operation(data, resolve, reject);
@@ -50,8 +54,10 @@ export default class WorkerManager {
     };
   }
 
-  createNewWorker({operationCountLimit} = {operationCountLimit: 10}) {
-    if (this.destroyed) { return; }
+  createNewWorker({ operationCountLimit } = { operationCountLimit: 10 }) {
+    if (this.destroyed) {
+      return;
+    }
     this.activeWorker = new Worker({
       operationCountLimit,
       onDestroyed: this.onDestroyed,
@@ -67,9 +73,13 @@ export default class WorkerManager {
 
   onCrashed(crashedWorker) {
     if (crashedWorker === this.getActiveWorker()) {
-      this.createNewWorker({operationCountLimit: crashedWorker.getOperationCountLimit()});
+      this.createNewWorker({
+        operationCountLimit: crashedWorker.getOperationCountLimit(),
+      });
     }
-    crashedWorker.getRemainingOperations().forEach(operation => this.activeWorker.executeOperation(operation));
+    crashedWorker
+      .getRemainingOperations()
+      .forEach((operation) => this.activeWorker.executeOperation(operation));
   }
 
   onSick(sickWorker) {
@@ -79,14 +89,21 @@ export default class WorkerManager {
         operationCountLimit: ${sickWorker.getOperationCountLimit()},
         completed operation count: ${sickWorker.getCompletedOperationCount()}`);
     }
-    const operationCountLimit = this.calculateNewOperationCountLimit(sickWorker);
-    return this.createNewWorker({operationCountLimit});
+    const operationCountLimit =
+      this.calculateNewOperationCountLimit(sickWorker);
+    return this.createNewWorker({ operationCountLimit });
   }
 
   calculateNewOperationCountLimit(lastWorker) {
     let operationCountLimit = 10;
-    if (lastWorker.getOperationCountLimit() >= lastWorker.getCompletedOperationCount()) {
-      operationCountLimit = Math.min(lastWorker.getOperationCountLimit() * 2, 100);
+    if (
+      lastWorker.getOperationCountLimit() >=
+      lastWorker.getCompletedOperationCount()
+    ) {
+      operationCountLimit = Math.min(
+        lastWorker.getOperationCountLimit() * 2,
+        100
+      );
     }
     return operationCountLimit;
   }
@@ -101,19 +118,24 @@ export default class WorkerManager {
 
   destroy(force) {
     this.destroyed = true;
-    this.workers.forEach(worker => worker.destroy(force));
+    this.workers.forEach((worker) => worker.destroy(force));
   }
 }
-
 
 export class Worker {
   static channelName = 'github:renderer-ipc';
 
-  constructor({operationCountLimit, onSick, onCrashed, onDestroyed}) {
+  constructor({ operationCountLimit, onSick, onCrashed, onDestroyed }) {
     autobind(
       this,
-      'handleDataReceived', 'onOperationComplete', 'handleCancelled', 'handleExecStarted', 'handleSpawnError',
-      'handleStdinError', 'handleSick', 'handleCrashed',
+      'handleDataReceived',
+      'onOperationComplete',
+      'handleCancelled',
+      'handleExecStarted',
+      'handleSpawnError',
+      'handleStdinError',
+      'handleSick',
+      'handleCrashed'
     );
 
     this.operationCountLimit = operationCountLimit;
@@ -169,10 +191,10 @@ export class Worker {
     return this.rendererProcess.cancelOperation(operation);
   }
 
-  handleDataReceived({id, results}) {
+  handleDataReceived({ id, results }) {
     const operation = this.operationsById.get(id);
-    operation.complete(results, data => {
-      const {timing} = data;
+    operation.complete(results, (data) => {
+      const { timing } = data;
       const totalInternalTime = timing.execTime + timing.spawnTime;
       const ipcTime = operation.getExecutionTime() - totalInternalTime;
       data.timing.ipcTime = ipcTime;
@@ -189,7 +211,7 @@ export class Worker {
     }
   }
 
-  handleCancelled({id}) {
+  handleCancelled({ id }) {
     const operation = this.operationsById.get(id);
     if (operation) {
       // handleDataReceived() can be received before handleCancelled()
@@ -197,17 +219,17 @@ export class Worker {
     }
   }
 
-  handleExecStarted({id}) {
+  handleExecStarted({ id }) {
     const operation = this.operationsById.get(id);
     operation.setInProgress();
   }
 
-  handleSpawnError({id, err}) {
+  handleSpawnError({ id, err }) {
     const operation = this.operationsById.get(id);
     operation.error(err);
   }
 
-  handleStdinError({id, stdin, err}) {
+  handleStdinError({ id, stdin, err }) {
     const operation = this.operationsById.get(id);
     operation.error(err);
   }
@@ -245,21 +267,30 @@ export class Worker {
   async destroy(force) {
     this.onDestroyed(this);
     if (this.operationsById.size > 0 && !force) {
-      const remainingOperationPromises = this.getRemainingOperations()
-        .map(operation => operation.getPromise().catch(() => null));
+      const remainingOperationPromises = this.getRemainingOperations().map(
+        (operation) => operation.getPromise().catch(() => null)
+      );
       await Promise.all(remainingOperationPromises);
     }
     this.rendererProcess.destroy();
   }
 }
 
-
 /*
 Sends operations to renderer processes
 */
 export class RendererProcess {
-  constructor({loadUrl,
-    onDestroyed, onCrashed, onSick, onData, onCancelled, onSpawnError, onStdinError, onExecStarted}) {
+  constructor({
+    loadUrl,
+    onDestroyed,
+    onCrashed,
+    onSick,
+    onData,
+    onCancelled,
+    onSpawnError,
+    onStdinError,
+    onExecStarted,
+  }) {
     autobind(this, 'handleDestroy');
     this.onDestroyed = onDestroyed;
     this.onCrashed = onCrashed;
@@ -278,7 +309,7 @@ export class RendererProcess {
 
         // The default of contextIsolation is changed to true so we'll have to set it to false.
         // See https://github.com/electron/electron/issues/23506 for more information
-        contextIsolation: false
+        contextIsolation: false,
       },
     });
     this.webContents = this.win.webContents;
@@ -299,11 +330,13 @@ export class RendererProcess {
           this.win.destroy();
         }
       }),
-      this.emitter,
+      this.emitter
     );
 
     this.ready = false;
-    this.readyPromise = new Promise(resolve => { this.resolveReady = resolve; });
+    this.readyPromise = new Promise((resolve) => {
+      this.resolveReady = resolve;
+    });
   }
 
   isReady() {
@@ -316,14 +349,14 @@ export class RendererProcess {
   }
 
   registerListeners() {
-    const handleMessages = (event, {sourceWebContentsId, type, data}) => {
+    const handleMessages = (event, { sourceWebContentsId, type, data }) => {
       if (sourceWebContentsId === this.win.webContents.id) {
         this.emitter.emit(type, data);
       }
     };
 
     ipc.on(Worker.channelName, handleMessages);
-    this.emitter.on('renderer-ready', ({pid}) => {
+    this.emitter.on('renderer-ready', ({ pid }) => {
       this.pid = pid;
       this.ready = true;
       this.resolveReady();
@@ -339,13 +372,17 @@ export class RendererProcess {
     this.emitter.on('exec-started', this.onExecStarted);
 
     this.subscriptions.add(
-      new Disposable(() => ipc.removeListener(Worker.channelName, handleMessages)),
+      new Disposable(() =>
+        ipc.removeListener(Worker.channelName, handleMessages)
+      )
     );
   }
 
   executeOperation(operation) {
-    return operation.execute(payload => {
-      if (this.destroyed) { return null; }
+    return operation.execute((payload) => {
+      if (this.destroyed) {
+        return null;
+      }
       return this.webContents.send(Worker.channelName, {
         type: 'git-exec',
         data: payload,
@@ -354,8 +391,10 @@ export class RendererProcess {
   }
 
   cancelOperation(operation) {
-    return operation.cancel(payload => {
-      if (this.destroyed) { return null; }
+    return operation.cancel((payload) => {
+      if (this.destroyed) {
+        return null;
+      }
       return this.webContents.send(Worker.channelName, {
         type: 'git-cancel',
         data: payload,
@@ -377,7 +416,6 @@ export class RendererProcess {
   }
 }
 
-
 export class Operation {
   static status = {
     PENDING: Symbol('pending'),
@@ -385,7 +423,7 @@ export class Operation {
     COMPLETE: Symbol('complete'),
     CANCELLING: Symbol('cancelling'),
     CANCELLED: Symbol('canceled'),
-  }
+  };
 
   static id = 0;
 
@@ -428,7 +466,7 @@ export class Operation {
     }
   }
 
-  complete(results, mutate = data => data) {
+  complete(results, mutate = (data) => data) {
     this.endTime = performance.now();
     this.results = results;
     this.resolve(mutate(results));
@@ -445,21 +483,25 @@ export class Operation {
 
   error(results) {
     this.endTime = performance.now();
-    const err = new Error(results.message, results.fileName, results.lineNumber);
+    const err = new Error(
+      results.message,
+      results.fileName,
+      results.lineNumber
+    );
     err.stack = results.stack;
     this.reject(err);
   }
 
   execute(execFn) {
     this.startTime = performance.now();
-    return execFn({...this.data, id: this.id});
+    return execFn({ ...this.data, id: this.id });
   }
 
   cancel(execFn) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.status = Operation.status.CANCELLING;
       this.cancellationResolve = resolve;
-      execFn({id: this.id});
+      execFn({ id: this.id });
     });
   }
 }

@@ -1,4 +1,4 @@
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
 export default class ResolutionProgress {
   constructor() {

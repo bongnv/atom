@@ -59,7 +59,7 @@ export default {
     if (this.fileView) {
       return this.fileView;
     }
-    const FileView  = require('./file-view');
+    const FileView = require('./file-view');
     this.fileView = new FileView(this.stack);
     return this.fileView;
   },
@@ -68,7 +68,7 @@ export default {
     if (this.projectView) {
       return this.projectView;
     }
-    const ProjectView  = require('./project-view');
+    const ProjectView = require('./project-view');
     this.projectView = new ProjectView(this.stack);
     return this.projectView;
   },

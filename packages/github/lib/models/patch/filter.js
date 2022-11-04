@@ -46,5 +46,5 @@ export function filter(original) {
     index = nextIndex;
   }
 
-  return {filtered: accumulating ? accumulated : original, removed};
+  return { filtered: accumulating ? accumulated : original, removed };
 }

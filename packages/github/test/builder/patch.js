@@ -1,7 +1,7 @@
 // Builders for classes related to MultiFilePatches.
 
-import {buildMultiFilePatch} from '../../lib/models/patch/builder';
-import {EXPANDED} from '../../lib/models/patch/patch';
+import { buildMultiFilePatch } from '../../lib/models/patch/builder';
+import { EXPANDED } from '../../lib/models/patch/patch';
 import File from '../../lib/models/patch/file';
 
 const UNSET = Symbol('unset');
@@ -15,9 +15,12 @@ class MultiFilePatchBuilder {
   addFilePatch(block = () => {}) {
     const filePatch = new FilePatchBuilder();
     block(filePatch);
-    const {raw, renderStatusOverrides} = filePatch.build();
+    const { raw, renderStatusOverrides } = filePatch.build();
     this.rawFilePatches.push(raw);
-    this.renderStatusOverrides = Object.assign(this.renderStatusOverrides, renderStatusOverrides);
+    this.renderStatusOverrides = Object.assign(
+      this.renderStatusOverrides,
+      renderStatusOverrides
+    );
     return this;
   }
 
@@ -27,7 +30,7 @@ class MultiFilePatchBuilder {
       renderStatusOverrides: this.renderStatusOverrides,
       ...opts,
     });
-    return {raw, multiFilePatch};
+    return { raw, multiFilePatch };
   }
 }
 
@@ -105,7 +108,7 @@ class FilePatchBuilder {
   }
 
   build(opts = {}) {
-    const {raw: rawPatch} = this.patchBuilder.build();
+    const { raw: rawPatch } = this.patchBuilder.build();
     const renderStatusOverrides = {};
     renderStatusOverrides[this._oldPath] = rawPatch.renderStatus;
 
@@ -186,7 +189,7 @@ class FileBuilder {
   }
 
   build() {
-    return {path: this._path, mode: this._mode, symlink: this._symlink};
+    return { path: this._path, mode: this._mode, symlink: this._symlink };
   }
 }
 
@@ -201,7 +204,9 @@ class PatchBuilder {
 
   status(st) {
     if (['modified', 'added', 'deleted', 'renamed'].indexOf(st) === -1) {
-      throw new Error(`Unrecognized status: ${st} (must be 'modified', 'added' or 'deleted')`);
+      throw new Error(
+        `Unrecognized status: ${st} (must be 'modified', 'added' or 'deleted')`
+      );
     }
 
     this._status = st;
@@ -216,7 +221,7 @@ class PatchBuilder {
   addHunk(block = () => {}) {
     const builder = new HunkBuilder(this.drift);
     block(builder);
-    const {raw, drift} = builder.build();
+    const { raw, drift } = builder.build();
     this.rawHunks.push(raw);
     this.drift = drift;
     return this;
@@ -230,12 +235,30 @@ class PatchBuilder {
   build(opt = {}) {
     if (this.rawHunks.length === 0 && !this.explicitlyEmpty) {
       if (this._status === 'modified') {
-        this.addHunk(hunk => hunk.oldRow(1).unchanged('0000').added('0001').deleted('0002').unchanged('0003'));
-        this.addHunk(hunk => hunk.oldRow(10).unchanged('0004').added('0005').deleted('0006').unchanged('0007'));
+        this.addHunk((hunk) =>
+          hunk
+            .oldRow(1)
+            .unchanged('0000')
+            .added('0001')
+            .deleted('0002')
+            .unchanged('0003')
+        );
+        this.addHunk((hunk) =>
+          hunk
+            .oldRow(10)
+            .unchanged('0004')
+            .added('0005')
+            .deleted('0006')
+            .unchanged('0007')
+        );
       } else if (this._status === 'added') {
-        this.addHunk(hunk => hunk.oldRow(1).added('0000', '0001', '0002', '0003'));
+        this.addHunk((hunk) =>
+          hunk.oldRow(1).added('0000', '0001', '0002', '0003')
+        );
       } else if (this._status === 'deleted') {
-        this.addHunk(hunk => hunk.oldRow(1).deleted('0000', '0001', '0002', '0003'));
+        this.addHunk((hunk) =>
+          hunk.oldRow(1).deleted('0000', '0001', '0002', '0003')
+        );
       }
     }
 
@@ -245,20 +268,25 @@ class PatchBuilder {
       renderStatus: this._renderStatus,
     };
 
-    const mfp = buildMultiFilePatch([{
-      oldPath: 'file',
-      oldMode: File.modes.NORMAL,
-      newPath: 'file',
-      newMode: File.modes.NORMAL,
-      ...raw,
-    }], {
-      renderStatusOverrides: {file: this._renderStatus},
-      ...opt,
-    });
+    const mfp = buildMultiFilePatch(
+      [
+        {
+          oldPath: 'file',
+          oldMode: File.modes.NORMAL,
+          newPath: 'file',
+          newMode: File.modes.NORMAL,
+          ...raw,
+        },
+      ],
+      {
+        renderStatusOverrides: { file: this._renderStatus },
+        ...opt,
+      }
+    );
     const [filePatch] = mfp.getFilePatches();
     const patch = filePatch.getPatch();
 
-    return {raw, patch};
+    return { raw, patch };
   }
 }
 
@@ -313,7 +341,7 @@ class HunkBuilder {
     }
 
     if (this.oldRowCount === null) {
-      this.oldRowCount = this.lines.filter(line => /^[ -]/.test(line)).length;
+      this.oldRowCount = this.lines.filter((line) => /^[ -]/.test(line)).length;
     }
 
     if (this.newStartRow === null) {
@@ -321,7 +349,7 @@ class HunkBuilder {
     }
 
     if (this.newRowCount === null) {
-      this.newRowCount = this.lines.filter(line => /^[ +]/.test(line)).length;
+      this.newRowCount = this.lines.filter((line) => /^[ +]/.test(line)).length;
     }
 
     const raw = {
@@ -333,14 +361,16 @@ class HunkBuilder {
       lines: this.lines,
     };
 
-    const mfp = buildMultiFilePatch([{
-      oldPath: 'file',
-      oldMode: File.modes.NORMAL,
-      newPath: 'file',
-      newMode: File.modes.NORMAL,
-      status: 'modified',
-      hunks: [raw],
-    }]);
+    const mfp = buildMultiFilePatch([
+      {
+        oldPath: 'file',
+        oldMode: File.modes.NORMAL,
+        newPath: 'file',
+        newMode: File.modes.NORMAL,
+        status: 'modified',
+        hunks: [raw],
+      },
+    ]);
     const [fp] = mfp.getFilePatches();
     const [hunk] = fp.getHunks();
 

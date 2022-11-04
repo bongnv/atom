@@ -1,12 +1,14 @@
 /* istanbul ignore file */
 
-import {commitMutation, graphql} from 'react-relay';
+import { commitMutation, graphql } from 'react-relay';
 import moment from 'moment';
 
-import {renderMarkdown} from '../helpers';
+import { renderMarkdown } from '../helpers';
 
 const mutation = graphql`
-  mutation updatePrReviewCommentMutation($input: UpdatePullRequestReviewCommentInput!) {
+  mutation updatePrReviewCommentMutation(
+    $input: UpdatePullRequestReviewCommentInput!
+  ) {
     updatePullRequestReviewComment(input: $input) {
       pullRequestReviewComment {
         id
@@ -18,7 +20,7 @@ const mutation = graphql`
   }
 `;
 
-export default (environment, {commentId, commentBody}) => {
+export default (environment, { commentId, commentBody }) => {
   const variables = {
     input: {
       pullRequestReviewCommentId: commentId,
@@ -38,15 +40,12 @@ export default (environment, {commentId, commentBody}) => {
   };
 
   return new Promise((resolve, reject) => {
-    commitMutation(
-      environment,
-      {
-        mutation,
-        variables,
-        optimisticResponse,
-        onCompleted: resolve,
-        onError: reject,
-      },
-    );
+    commitMutation(environment, {
+      mutation,
+      variables,
+      optimisticResponse,
+      onCompleted: resolve,
+      onError: reject,
+    });
   });
 };

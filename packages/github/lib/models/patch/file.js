@@ -11,9 +11,9 @@ export default class File {
 
     // Submodule mount point
     GITLINK: '160000',
-  }
+  };
 
-  constructor({path, mode, symlink}) {
+  constructor({ path, mode, symlink }) {
     this.path = path;
     this.mode = mode;
     this.symlink = symlink;
@@ -36,7 +36,10 @@ export default class File {
   }
 
   isRegularFile() {
-    return this.getMode() === this.constructor.modes.NORMAL || this.getMode() === this.constructor.modes.EXECUTABLE;
+    return (
+      this.getMode() === this.constructor.modes.NORMAL ||
+      this.getMode() === this.constructor.modes.EXECUTABLE
+    );
   }
 
   isExecutable() {
@@ -89,7 +92,11 @@ export const nullFile = {
   },
 
   clone(opts = {}) {
-    if (opts.path === undefined && opts.mode === undefined && opts.symlink === undefined) {
+    if (
+      opts.path === undefined &&
+      opts.mode === undefined &&
+      opts.symlink === undefined
+    ) {
       return this;
     } else {
       return new File({

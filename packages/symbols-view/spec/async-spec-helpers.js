@@ -1,7 +1,7 @@
 /** @babel */
 
 export function beforeEach(fn) {
-  global.beforeEach(function() {
+  global.beforeEach(function () {
     const result = fn();
     if (result instanceof Promise) {
       waitsForPromise(() => result);
@@ -10,7 +10,7 @@ export function beforeEach(fn) {
 }
 
 export function afterEach(fn) {
-  global.afterEach(function() {
+  global.afterEach(function () {
     const result = fn();
     if (result instanceof Promise) {
       waitsForPromise(() => result);
@@ -18,9 +18,9 @@ export function afterEach(fn) {
   });
 }
 
-['it', 'fit', 'ffit', 'fffit'].forEach(function(name) {
-  module.exports[name] = function(description, fn) {
-    global[name](description, function() {
+['it', 'fit', 'ffit', 'fffit'].forEach(function (name) {
+  module.exports[name] = function (description, fn) {
+    global[name](description, function () {
       const result = fn();
       if (result instanceof Promise) {
         waitsForPromise(() => result);
@@ -29,7 +29,7 @@ export function afterEach(fn) {
   };
 });
 
-export async function conditionPromise(condition)  {
+export async function conditionPromise(condition) {
   const startTime = Date.now();
 
   while (true) {
@@ -51,15 +51,15 @@ export async function conditionPromise(condition)  {
 }
 
 export function timeoutPromise(timeout) {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     global.setTimeout(resolve, timeout);
   });
 }
 
 function waitsForPromise(fn) {
   const promise = fn();
-  global.waitsFor('spec promise to resolve', function(done) {
-    promise.then(done, function(error) {
+  global.waitsFor('spec promise to resolve', function (done) {
+    promise.then(done, function (error) {
       jasmine.getEnv().currentSpec.fail(error);
       done();
     });

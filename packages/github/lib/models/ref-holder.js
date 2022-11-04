@@ -1,4 +1,4 @@
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
 /*
  * Allow child components to operate on refs captured by a parent component.
@@ -67,8 +67,8 @@ export default class RefHolder {
 
   getPromise() {
     if (this.isEmpty()) {
-      return new Promise(resolve => {
-        const sub = this.observe(value => {
+      return new Promise((resolve) => {
+        const sub = this.observe((value) => {
           resolve(value);
           sub.dispose();
         });
@@ -82,13 +82,13 @@ export default class RefHolder {
     return RefHolder.on(this.isEmpty() ? absent() : present(this.get()));
   }
 
-  setter = value => {
+  setter = (value) => {
     const oldValue = this.value;
     this.value = value;
     if (value !== oldValue && value !== null && value !== undefined) {
       this.emitter.emit('did-update', value);
     }
-  }
+  };
 
   observe(callback) {
     if (!this.isEmpty()) {

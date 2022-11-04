@@ -1,6 +1,6 @@
 const generate = require('@babel/generator').default;
 
-module.exports = function({types: t}) {
+module.exports = function ({ types: t }) {
   return {
     name: 'assert-messages',
     visitor: {
@@ -9,11 +9,19 @@ module.exports = function({types: t}) {
 
         // assert.something
         const callee = path.node.callee;
-        if (!t.isMemberExpression(callee)) { return; }
+        if (!t.isMemberExpression(callee)) {
+          return;
+        }
 
-        if (!t.isIdentifier(callee.object, {name: 'assert'})) { return; }
-        if (t.isIdentifier(callee.property, {name: 'isRejected'})) { return; }
-        if (!t.isIdentifier(callee.property)) { return; }
+        if (!t.isIdentifier(callee.object, { name: 'assert' })) {
+          return;
+        }
+        if (t.isIdentifier(callee.property, { name: 'isRejected' })) {
+          return;
+        }
+        if (!t.isIdentifier(callee.property)) {
+          return;
+        }
 
         try {
           const code = generate(path.node).code;

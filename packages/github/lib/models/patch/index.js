@@ -1,1 +1,1 @@
-export {buildFilePatch, buildMultiFilePatch} from './builder';
+export { buildFilePatch, buildMultiFilePatch } from './builder';

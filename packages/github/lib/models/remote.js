@@ -1,11 +1,12 @@
-import {getEndpoint, DOTCOM} from './endpoint';
+import { getEndpoint, DOTCOM } from './endpoint';
 
 export default class Remote {
   constructor(name, url) {
     this.name = name;
     this.url = url;
 
-    const {isGithubRepo, domain, protocol, owner, repo} = githubInfoFromRemote(url);
+    const { isGithubRepo, domain, protocol, owner, repo } =
+      githubInfoFromRemote(url);
     this.githubRepo = isGithubRepo;
     this.domain = domain;
     this.protocol = protocol;

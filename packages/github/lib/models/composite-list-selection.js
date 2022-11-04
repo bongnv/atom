@@ -7,12 +7,12 @@ export default class CompositeListSelection {
     if (options._copy !== COPY) {
       this.keysBySelection = new Map();
       this.selections = [];
-      this.idForItem = options.idForItem || (item => item);
+      this.idForItem = options.idForItem || ((item) => item);
       this.resolveNextUpdatePromise = () => {};
       this.activeSelectionIndex = null;
 
       for (const [key, items] of options.listsByKey) {
-        const selection = new ListSelection({items});
+        const selection = new ListSelection({ items });
         this.keysBySelection.set(selection, key);
         this.selections.push(selection);
 
@@ -39,7 +39,9 @@ export default class CompositeListSelection {
 
     if (options.keysBySelection || options.selections) {
       if (!options.keysBySelection || !options.selections) {
-        throw new Error('keysBySelection and selection must always be updated simultaneously');
+        throw new Error(
+          'keysBySelection and selection must always be updated simultaneously'
+        );
       }
 
       selections = options.selections;
@@ -52,11 +54,13 @@ export default class CompositeListSelection {
     return new CompositeListSelection({
       keysBySelection,
       selections,
-      activeSelectionIndex: options.activeSelectionIndex !== undefined
-        ? options.activeSelectionIndex
-        : this.activeSelectionIndex,
+      activeSelectionIndex:
+        options.activeSelectionIndex !== undefined
+          ? options.activeSelectionIndex
+          : this.activeSelectionIndex,
       idForItem: options.idForItem || this.idForItem,
-      resolveNextUpdatePromise: options.resolveNextUpdatePromise || this.resolveNextUpdatePromise,
+      resolveNextUpdatePromise:
+        options.resolveNextUpdatePromise || this.resolveNextUpdatePromise,
       _copy: COPY,
     });
   }
@@ -77,14 +81,18 @@ export default class CompositeListSelection {
 
       const oldItems = selection.getItems();
       if (!isDifferent) {
-        isDifferent = oldItems.length !== newItems.length || oldItems.some((oldItem, j) => oldItem === newItems[j]);
+        isDifferent =
+          oldItems.length !== newItems.length ||
+          oldItems.some((oldItem, j) => oldItem === newItems[j]);
       }
 
       const oldHeadItem = selection.getHeadItem();
       selection = selection.setItems(newItems);
       let newHeadItem = null;
       if (oldHeadItem) {
-        newHeadItem = newItems.find(item => this.idForItem(item) === this.idForItem(oldHeadItem));
+        newHeadItem = newItems.find(
+          (item) => this.idForItem(item) === this.idForItem(oldHeadItem)
+        );
       }
       if (newHeadItem) {
         selection = selection.selectItem(newHeadItem);
@@ -138,7 +146,9 @@ export default class CompositeListSelection {
 
   selectFirstNonEmptyList() {
     return this.copy({
-      activeSelectionIndex: this.selections.findIndex(selection => selection.getItems().length > 0),
+      activeSelectionIndex: this.selections.findIndex(
+        (selection) => selection.getItems().length > 0
+      ),
     });
   }
 
@@ -160,14 +170,20 @@ export default class CompositeListSelection {
 
   activateSelection(selection) {
     const index = this.selections.indexOf(selection);
-    if (index === -1) { throw new Error('Selection not found'); }
-    return this.copy({activeSelectionIndex: index});
+    if (index === -1) {
+      throw new Error('Selection not found');
+    }
+    return this.copy({ activeSelectionIndex: index });
   }
 
   activateNextSelection() {
-    for (let i = this.activeSelectionIndex + 1; i < this.selections.length; i++) {
+    for (
+      let i = this.activeSelectionIndex + 1;
+      i < this.selections.length;
+      i++
+    ) {
       if (this.selections[i].getItems().length > 0) {
-        return this.copy({activeSelectionIndex: i});
+        return this.copy({ activeSelectionIndex: i });
       }
     }
     return this;
@@ -176,7 +192,7 @@ export default class CompositeListSelection {
   activatePreviousSelection() {
     for (let i = this.activeSelectionIndex - 1; i >= 0; i--) {
       if (this.selections[i].getItems().length > 0) {
-        return this.copy({activeSelectionIndex: i});
+        return this.copy({ activeSelectionIndex: i });
       }
     }
     return this;
@@ -185,7 +201,7 @@ export default class CompositeListSelection {
   activateLastSelection() {
     for (let i = this.selections.length - 1; i >= 0; i--) {
       if (this.selections[i].getItems().length > 0) {
-        return this.copy({activeSelectionIndex: i});
+        return this.copy({ activeSelectionIndex: i });
       }
     }
     return this;
@@ -202,7 +218,9 @@ export default class CompositeListSelection {
       next = next.activateSelection(selection);
     }
     if (selection === next.getActiveSelection()) {
-      next = next.updateActiveSelection(s => s.selectItem(item, preserveTail));
+      next = next.updateActiveSelection((s) =>
+        s.selectItem(item, preserveTail)
+      );
     }
     return next;
   }
@@ -214,30 +232,34 @@ export default class CompositeListSelection {
     }
 
     if (selection === this.getActiveSelection()) {
-      return this.updateActiveSelection(s => s.addOrSubtractSelection(item));
+      return this.updateActiveSelection((s) => s.addOrSubtractSelection(item));
     } else {
-      return this.activateSelection(selection).updateActiveSelection(s => s.selectItem(item));
+      return this.activateSelection(selection).updateActiveSelection((s) =>
+        s.selectItem(item)
+      );
     }
   }
 
   selectAllItems() {
-    return this.updateActiveSelection(s => s.selectAllItems());
+    return this.updateActiveSelection((s) => s.selectAllItems());
   }
 
   selectFirstItem(preserveTail) {
-    return this.updateActiveSelection(s => s.selectFirstItem(preserveTail));
+    return this.updateActiveSelection((s) => s.selectFirstItem(preserveTail));
   }
 
   selectLastItem(preserveTail) {
-    return this.updateActiveSelection(s => s.selectLastItem(preserveTail));
+    return this.updateActiveSelection((s) => s.selectLastItem(preserveTail));
   }
 
   coalesce() {
-    return this.updateActiveSelection(s => s.coalesce());
+    return this.updateActiveSelection((s) => s.coalesce());
   }
 
   selectionForItem(item) {
-    return this.selections.find(selection => selection.getItems().includes(item));
+    return this.selections.find((selection) =>
+      selection.getItems().includes(item)
+    );
   }
 
   listKeyForItem(item) {
@@ -246,29 +268,39 @@ export default class CompositeListSelection {
 
   selectNextItem(preserveTail = false) {
     let next = this;
-    if (!preserveTail && next.getActiveSelection().getHeadItem() === next.getActiveSelection().getLastItem()) {
+    if (
+      !preserveTail &&
+      next.getActiveSelection().getHeadItem() ===
+        next.getActiveSelection().getLastItem()
+    ) {
       next = next.activateNextSelection();
       if (next !== this) {
-        return next.updateActiveSelection(s => s.selectFirstItem());
+        return next.updateActiveSelection((s) => s.selectFirstItem());
       } else {
-        return next.updateActiveSelection(s => s.selectLastItem());
+        return next.updateActiveSelection((s) => s.selectLastItem());
       }
     } else {
-      return next.updateActiveSelection(s => s.selectNextItem(preserveTail));
+      return next.updateActiveSelection((s) => s.selectNextItem(preserveTail));
     }
   }
 
   selectPreviousItem(preserveTail = false) {
     let next = this;
-    if (!preserveTail && next.getActiveSelection().getHeadItem() === next.getActiveSelection().getItems()[0]) {
+    if (
+      !preserveTail &&
+      next.getActiveSelection().getHeadItem() ===
+        next.getActiveSelection().getItems()[0]
+    ) {
       next = next.activatePreviousSelection();
       if (next !== this) {
-        return next.updateActiveSelection(s => s.selectLastItem());
+        return next.updateActiveSelection((s) => s.selectLastItem());
       } else {
-        return next.updateActiveSelection(s => s.selectFirstItem());
+        return next.updateActiveSelection((s) => s.selectFirstItem());
       }
     } else {
-      return next.updateActiveSelection(s => s.selectPreviousItem(preserveTail));
+      return next.updateActiveSelection((s) =>
+        s.selectPreviousItem(preserveTail)
+      );
     }
   }
 
@@ -276,7 +308,7 @@ export default class CompositeListSelection {
     for (let i = 0; i < this.selections.length; i++) {
       const selection = this.selections[i];
       const key = this.keysBySelection.get(selection);
-      const found = selection.getItems().find(item => predicate(item, key));
+      const found = selection.getItems().find((item) => predicate(item, key));
       if (found !== undefined) {
         return found;
       }

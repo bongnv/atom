@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 
-import {commitMutation, graphql} from 'react-relay';
+import { commitMutation, graphql } from 'react-relay';
 
 const mutation = graphql`
   mutation submitPrReviewMutation($input: SubmitPullRequestReviewInput!) {
@@ -12,7 +12,7 @@ const mutation = graphql`
   }
 `;
 
-export default (environment, {reviewID, event}) => {
+export default (environment, { reviewID, event }) => {
   const variables = {
     input: {
       event,
@@ -21,14 +21,11 @@ export default (environment, {reviewID, event}) => {
   };
 
   return new Promise((resolve, reject) => {
-    commitMutation(
-      environment,
-      {
-        mutation,
-        variables,
-        onCompleted: resolve,
-        onError: reject,
-      },
-    );
+    commitMutation(environment, {
+      mutation,
+      variables,
+      onCompleted: resolve,
+      onError: reject,
+    });
   });
 };

@@ -35,7 +35,7 @@ const rawDeletionDiff = dedent`
   -file
   -was
   -deleted
-`
+`;
 
 const rawAdditionDiff = dedent`
   diff --git a/added b/added
@@ -47,6 +47,6 @@ const rawAdditionDiff = dedent`
   +one
   +two
   +three
-`
+`;
 
-export {rawDiff, rawDiffWithPathPrefix, rawDeletionDiff, rawAdditionDiff};
+export { rawDiff, rawDiffWithPathPrefix, rawDeletionDiff, rawAdditionDiff };

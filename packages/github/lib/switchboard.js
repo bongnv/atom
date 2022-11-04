@@ -1,4 +1,4 @@
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
 /*
  * Register callbacks and construct Promises to wait for the next occurrence of specific events that occur throughout
@@ -42,7 +42,7 @@ export default class Switchboard {
     }
 
     const created = new Promise((resolve, reject) => {
-      const subscription = this.onDid(eventName, payload => {
+      const subscription = this.onDid(eventName, (payload) => {
         subscription.dispose();
         this.promises.delete(eventName);
         resolve(payload);
@@ -64,16 +64,16 @@ export default class Switchboard {
   'FinishRender',
   'FinishContextChangeRender',
   'FinishRepositoryRefresh',
-].forEach(eventName => {
-  Switchboard.prototype[`did${eventName}`] = function(payload) {
+].forEach((eventName) => {
+  Switchboard.prototype[`did${eventName}`] = function (payload) {
     this.did(eventName, payload);
   };
 
-  Switchboard.prototype[`get${eventName}Promise`] = function() {
+  Switchboard.prototype[`get${eventName}Promise`] = function () {
     return this.getPromise(eventName);
   };
 
-  Switchboard.prototype[`onDid${eventName}`] = function(callback) {
+  Switchboard.prototype[`onDid${eventName}`] = function (callback) {
     return this.onDid(eventName, callback);
   };
 });

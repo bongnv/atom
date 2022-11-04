@@ -6,11 +6,14 @@ export default class TabGroup {
   }
 
   appendElement(element, autofocus) {
-    const lastNode = this.nodesByElement.get(this.lastElement) || {next: element, previous: element};
+    const lastNode = this.nodesByElement.get(this.lastElement) || {
+      next: element,
+      previous: element,
+    };
     const next = lastNode.next;
     const previous = this.lastElement || element;
 
-    this.nodesByElement.set(element, {next, previous});
+    this.nodesByElement.set(element, { next, previous });
     this.nodesByElement.get(lastNode.next).previous = element;
     lastNode.next = element;
 
@@ -34,7 +37,7 @@ export default class TabGroup {
   }
 
   after(element) {
-    const node = this.nodesByElement.get(element) || {next: undefined};
+    const node = this.nodesByElement.get(element) || { next: undefined };
     return node.next;
   }
 
@@ -52,7 +55,7 @@ export default class TabGroup {
   }
 
   before(element) {
-    const node = this.nodesByElement.get(element) || {previous: undefined};
+    const node = this.nodesByElement.get(element) || { previous: undefined };
     return node.previous;
   }
 

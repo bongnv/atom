@@ -45,14 +45,14 @@ export default class URIPattern {
       auth: splitAuth(parsed.auth, asPart),
       hostname: asPart(parsed.hostname),
       port: asPart(parsed.port),
-      pathname: (parsed.pathname || '').split('/').slice(1).map(segment => asPart(segment)),
-      query: Object.keys(parsed.query).reduce(
-        (acc, current) => {
-          acc[current] = asPart(parsed.query[current]);
-          return acc;
-        },
-        {},
-      ),
+      pathname: (parsed.pathname || '')
+        .split('/')
+        .slice(1)
+        .map((segment) => asPart(segment)),
+      query: Object.keys(parsed.query).reduce((acc, current) => {
+        acc[current] = asPart(parsed.query[current]);
+        return acc;
+      }, {}),
       hash: asPart(parsed.hash, '#', ''),
     };
   }
@@ -82,10 +82,15 @@ export default class URIPattern {
     }
 
     // pathname
-    const pathParts = (other.pathname || '').split('/').filter(p => p.length > 0);
+    const pathParts = (other.pathname || '')
+      .split('/')
+      .filter((p) => p.length > 0);
     let mineInd = 0;
     let yoursInd = 0;
-    while (mineInd < this.parts.pathname.length && yoursInd < pathParts.length) {
+    while (
+      mineInd < this.parts.pathname.length &&
+      yoursInd < pathParts.length
+    ) {
       const mine = this.parts.pathname[mineInd];
       const yours = pathParts[yoursInd];
 
@@ -231,7 +236,7 @@ class CapturePart {
  * the `pathname`. Escape brackets from a pattern with `-a` and `-z`, and literal dashes with `--`.
  */
 function dashEscape(raw) {
-  return raw.replace(/[{}-]/g, ch => {
+  return raw.replace(/[{}-]/g, (ch) => {
     if (ch === '{') {
       return '-a';
     } else if (ch === '}') {
@@ -283,15 +288,15 @@ function asPart(patternSegment, prefix = '', suffix = '') {
 /**
  * Split the `.auth` field into username and password subcomponent.
  */
-function splitAuth(auth, fn = x => x) {
+function splitAuth(auth, fn = (x) => x) {
   if (auth === null) {
-    return {username: fn(null), password: fn(null)};
+    return { username: fn(null), password: fn(null) };
   }
 
   const ind = auth.indexOf(':');
   return ind !== -1
-    ? {username: fn(auth.slice(0, ind)), password: fn(auth.slice(ind + 1))}
-    : {username: fn(auth), password: fn(null)};
+    ? { username: fn(auth.slice(0, ind)), password: fn(auth.slice(ind + 1)) }
+    : { username: fn(auth), password: fn(null) };
 }
 
 /**

@@ -1,14 +1,14 @@
-import {Range} from 'atom';
-import {RBTree} from 'bintrees';
+import { Range } from 'atom';
+import { RBTree } from 'bintrees';
 
 import PatchBuffer from './patch-buffer';
 
 export default class MultiFilePatch {
   static createNull() {
-    return new this({patchBuffer: new PatchBuffer(), filePatches: []});
+    return new this({ patchBuffer: new PatchBuffer(), filePatches: [] });
   }
 
-  constructor({patchBuffer, filePatches}) {
+  constructor({ patchBuffer, filePatches }) {
     this.patchBuffer = patchBuffer;
     this.filePatches = filePatches;
 
@@ -30,8 +30,14 @@ export default class MultiFilePatch {
 
   clone(opts = {}) {
     return new this.constructor({
-      patchBuffer: opts.patchBuffer !== undefined ? opts.patchBuffer : this.getPatchBuffer(),
-      filePatches: opts.filePatches !== undefined ? opts.filePatches : this.getFilePatches(),
+      patchBuffer:
+        opts.patchBuffer !== undefined
+          ? opts.patchBuffer
+          : this.getPatchBuffer(),
+      filePatches:
+        opts.filePatches !== undefined
+          ? opts.filePatches
+          : this.getFilePatches(),
     });
   }
 
@@ -87,10 +93,15 @@ export default class MultiFilePatch {
   }
 
   getFilePatchAt(bufferRow) {
-    if (bufferRow < 0 || bufferRow > this.patchBuffer.getBuffer().getLastRow()) {
+    if (
+      bufferRow < 0 ||
+      bufferRow > this.patchBuffer.getBuffer().getLastRow()
+    ) {
       return undefined;
     }
-    const [marker] = this.patchBuffer.findMarkers('patch', {intersectsRow: bufferRow});
+    const [marker] = this.patchBuffer.findMarkers('patch', {
+      intersectsRow: bufferRow,
+    });
     return this.filePatchesByMarker.get(marker);
   }
 
@@ -98,16 +109,27 @@ export default class MultiFilePatch {
     if (bufferRow < 0) {
       return undefined;
     }
-    const [marker] = this.patchBuffer.findMarkers('hunk', {intersectsRow: bufferRow});
+    const [marker] = this.patchBuffer.findMarkers('hunk', {
+      intersectsRow: bufferRow,
+    });
     return this.hunksByMarker.get(marker);
   }
 
   getStagePatchForLines(selectedLineSet) {
     const nextPatchBuffer = new PatchBuffer();
-    const nextFilePatches = this.getFilePatchesContaining(selectedLineSet).map(fp => {
-      return fp.buildStagePatchForLines(this.getBuffer(), nextPatchBuffer, selectedLineSet);
+    const nextFilePatches = this.getFilePatchesContaining(selectedLineSet).map(
+      (fp) => {
+        return fp.buildStagePatchForLines(
+          this.getBuffer(),
+          nextPatchBuffer,
+          selectedLineSet
+        );
+      }
+    );
+    return this.clone({
+      patchBuffer: nextPatchBuffer,
+      filePatches: nextFilePatches,
     });
-    return this.clone({patchBuffer: nextPatchBuffer, filePatches: nextFilePatches});
   }
 
   getStagePatchForHunk(hunk) {
@@ -116,10 +138,19 @@ export default class MultiFilePatch {
 
   getUnstagePatchForLines(selectedLineSet) {
     const nextPatchBuffer = new PatchBuffer();
-    const nextFilePatches = this.getFilePatchesContaining(selectedLineSet).map(fp => {
-      return fp.buildUnstagePatchForLines(this.getBuffer(), nextPatchBuffer, selectedLineSet);
+    const nextFilePatches = this.getFilePatchesContaining(selectedLineSet).map(
+      (fp) => {
+        return fp.buildUnstagePatchForLines(
+          this.getBuffer(),
+          nextPatchBuffer,
+          selectedLineSet
+        );
+      }
+    );
+    return this.clone({
+      patchBuffer: nextPatchBuffer,
+      filePatches: nextFilePatches,
     });
-    return this.clone({patchBuffer: nextPatchBuffer, filePatches: nextFilePatches});
   }
 
   getUnstagePatchForHunk(hunk) {
@@ -141,10 +172,15 @@ export default class MultiFilePatch {
         let includesMax = false;
 
         for (const change of hunk.getChanges()) {
-          for (const {intersection, gap} of change.intersectRows(selectedRows, true)) {
+          for (const { intersection, gap } of change.intersectRows(
+            selectedRows,
+            true
+          )) {
             // Only include a partial range if this intersection includes the last selected buffer row.
             includesMax = intersection.intersectsRow(lastMax);
-            const delta = includesMax ? lastMax - intersection.start.row + 1 : intersection.getRowCount();
+            const delta = includesMax
+              ? lastMax - intersection.start.row + 1
+              : intersection.getRowCount();
 
             if (gap) {
               // Range of unselected changes.
@@ -197,7 +233,10 @@ export default class MultiFilePatch {
       selectionRow = lastChangedRow;
     }
 
-    return Range.fromObject([[selectionRow, 0], [selectionRow, Infinity]]);
+    return Range.fromObject([
+      [selectionRow, 0],
+      [selectionRow, Infinity],
+    ]);
   }
 
   isDiffRowOffsetIndexEmpty(filePatchPath) {
@@ -208,15 +247,22 @@ export default class MultiFilePatch {
   populateDiffRowOffsetIndices(filePatch) {
     let diffRow = 1;
     const index = new RBTree((a, b) => a.diffRow - b.diffRow);
-    this.diffRowOffsetIndices.set(filePatch.getPath(), {startBufferRow: filePatch.getStartRange().start.row, index});
+    this.diffRowOffsetIndices.set(filePatch.getPath(), {
+      startBufferRow: filePatch.getStartRange().start.row,
+      index,
+    });
 
-    for (let hunkIndex = 0; hunkIndex < filePatch.getHunks().length; hunkIndex++) {
+    for (
+      let hunkIndex = 0;
+      hunkIndex < filePatch.getHunks().length;
+      hunkIndex++
+    ) {
       const hunk = filePatch.getHunks()[hunkIndex];
       this.hunksByMarker.set(hunk.getMarker(), hunk);
 
       // Advance past the hunk body
       diffRow += hunk.bufferRowCount();
-      index.insert({diffRow, offset: hunkIndex + 1});
+      index.insert({ diffRow, offset: hunkIndex + 1 });
 
       // Advance past the next hunk header
       diffRow++;
@@ -267,7 +313,9 @@ export default class MultiFilePatch {
   }
 
   anyPresent() {
-    return this.patchBuffer !== null && this.filePatches.some(fp => fp.isPresent());
+    return (
+      this.patchBuffer !== null && this.filePatches.some((fp) => fp.isPresent())
+    );
   }
 
   didAnyChangeExecutableMode() {
@@ -280,7 +328,7 @@ export default class MultiFilePatch {
   }
 
   anyHaveTypechange() {
-    return this.getFilePatches().some(fp => fp.hasTypechange());
+    return this.getFilePatches().some((fp) => fp.hasTypechange());
   }
 
   getMaxLineNumberWidth() {
@@ -317,7 +365,7 @@ export default class MultiFilePatch {
     const before = this.getMarkersBefore(index);
     const after = this.getMarkersAfter(index);
 
-    filePatch.triggerCollapseIn(this.patchBuffer, {before, after});
+    filePatch.triggerCollapseIn(this.patchBuffer, { before, after });
 
     this.filePatchesByMarker.set(filePatch.getMarker(), filePatch);
 
@@ -339,7 +387,7 @@ export default class MultiFilePatch {
     const before = this.getMarkersBefore(index);
     const after = this.getMarkersAfter(index);
 
-    filePatch.triggerExpandIn(this.patchBuffer, {before, after});
+    filePatch.triggerExpandIn(this.patchBuffer, { before, after });
 
     this.filePatchesByMarker.set(filePatch.getMarker(), filePatch);
     for (const hunk of filePatch.getHunks()) {
@@ -383,40 +431,46 @@ export default class MultiFilePatch {
     return after;
   }
 
-  isPatchVisible = filePatchPath => {
+  isPatchVisible = (filePatchPath) => {
     const patch = this.filePatchesByPath.get(filePatchPath);
     if (!patch) {
       return false;
     }
     return patch.getRenderStatus().isVisible();
-  }
+  };
 
   getBufferRowForDiffPosition = (fileName, diffRow) => {
     const offsetIndex = this.diffRowOffsetIndices.get(fileName);
     if (!offsetIndex) {
       // eslint-disable-next-line no-console
-      console.error('Attempt to compute buffer row for invalid diff position: file not included', {
-        fileName,
-        diffRow,
-        validFileNames: Array.from(this.diffRowOffsetIndices.keys()),
-      });
+      console.error(
+        'Attempt to compute buffer row for invalid diff position: file not included',
+        {
+          fileName,
+          diffRow,
+          validFileNames: Array.from(this.diffRowOffsetIndices.keys()),
+        }
+      );
       return null;
     }
-    const {startBufferRow, index} = offsetIndex;
+    const { startBufferRow, index } = offsetIndex;
 
-    const result = index.lowerBound({diffRow}).data();
+    const result = index.lowerBound({ diffRow }).data();
     if (!result) {
       // eslint-disable-next-line no-console
-      console.error('Attempt to compute buffer row for invalid diff position: diff row out of range', {
-        fileName,
-        diffRow,
-      });
+      console.error(
+        'Attempt to compute buffer row for invalid diff position: diff row out of range',
+        {
+          fileName,
+          diffRow,
+        }
+      );
       return null;
     }
-    const {offset} = result;
+    const { offset } = result;
 
     return startBufferRow + diffRow - offset;
-  }
+  };
 
   getPreviewPatchBuffer(fileName, diffRow, maxRowCount) {
     const bufferRow = this.getBufferRowForDiffPosition(fileName, diffRow);
@@ -428,21 +482,33 @@ export default class MultiFilePatch {
     const filePatchIndex = this.filePatches.indexOf(filePatch);
     const hunk = this.getHunkAt(bufferRow);
 
-    const previewStartRow = Math.max(bufferRow - maxRowCount + 1, hunk.getRange().start.row);
+    const previewStartRow = Math.max(
+      bufferRow - maxRowCount + 1,
+      hunk.getRange().start.row
+    );
     const previewEndRow = bufferRow;
 
     const before = this.getMarkersBefore(filePatchIndex);
     const after = this.getMarkersAfter(filePatchIndex);
     const exclude = new Set([...before, ...after]);
 
-    return this.patchBuffer.createSubBuffer([[previewStartRow, 0], [previewEndRow, Infinity]], {exclude}).patchBuffer;
+    return this.patchBuffer.createSubBuffer(
+      [
+        [previewStartRow, 0],
+        [previewEndRow, Infinity],
+      ],
+      { exclude }
+    ).patchBuffer;
   }
 
   /*
    * Construct an apply-able patch String.
    */
   toString() {
-    return this.filePatches.map(fp => fp.toStringIn(this.getBuffer())).join('') + '\n';
+    return (
+      this.filePatches.map((fp) => fp.toStringIn(this.getBuffer())).join('') +
+      '\n'
+    );
   }
 
   /*
@@ -451,10 +517,16 @@ export default class MultiFilePatch {
   /* istanbul ignore next */
   inspect() {
     let inspectString = '(MultiFilePatch';
-    inspectString += ` filePatchesByMarker=(${Array.from(this.filePatchesByMarker.keys(), m => m.id).join(', ')})`;
-    inspectString += ` hunksByMarker=(${Array.from(this.hunksByMarker.keys(), m => m.id).join(', ')})\n`;
+    inspectString += ` filePatchesByMarker=(${Array.from(
+      this.filePatchesByMarker.keys(),
+      (m) => m.id
+    ).join(', ')})`;
+    inspectString += ` hunksByMarker=(${Array.from(
+      this.hunksByMarker.keys(),
+      (m) => m.id
+    ).join(', ')})\n`;
     for (const filePatch of this.filePatches) {
-      inspectString += filePatch.inspect({indent: 2});
+      inspectString += filePatch.inspect({ indent: 2 });
     }
     inspectString += ')\n';
     return inspectString;

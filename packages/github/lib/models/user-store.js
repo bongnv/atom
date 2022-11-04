@@ -1,9 +1,9 @@
 import yubikiri from 'yubikiri';
-import {Emitter, CompositeDisposable} from 'event-kit';
+import { Emitter, CompositeDisposable } from 'event-kit';
 
 import RelayNetworkLayerManager from '../relay-network-layer-manager';
-import Author, {nullAuthor} from './author';
-import {UNAUTHENTICATED, INSUFFICIENT} from '../shared/keytar-strategy';
+import Author, { nullAuthor } from './author';
+import { UNAUTHENTICATED, INSUFFICIENT } from '../shared/keytar-strategy';
 import ModelObserver from './model-observer';
 
 // This is a guess about what a reasonable value is. Can adjust if performance is poor.
@@ -17,7 +17,7 @@ export const source = {
 
 class GraphQLCache {
   // One hour
-  static MAX_AGE_MS = 3.6e6
+  static MAX_AGE_MS = 3.6e6;
 
   constructor() {
     this.bySlug = new Map();
@@ -25,7 +25,7 @@ class GraphQLCache {
 
   get(remote) {
     const slug = remote.getSlug();
-    const {ts, data} = this.bySlug.get(slug) || {
+    const { ts, data } = this.bySlug.get(slug) || {
       ts: -Infinity,
       data: {},
     };
@@ -38,12 +38,12 @@ class GraphQLCache {
   }
 
   set(remote, data) {
-    this.bySlug.set(remote.getSlug(), {ts: Date.now(), data});
+    this.bySlug.set(remote.getSlug(), { ts: Date.now(), data });
   }
 }
 
 export default class UserStore {
-  constructor({repository, login, config}) {
+  constructor({ repository, login, config }) {
     this.emitter = new Emitter();
     this.subs = new CompositeDisposable();
 
@@ -61,11 +61,12 @@ export default class UserStore {
     this.cache = new GraphQLCache();
 
     this.repositoryObserver = new ModelObserver({
-      fetchData: r => yubikiri({
-        committer: r.getCommitter(),
-        authors: r.getAuthors({max: MAX_COMMITS}),
-        remotes: r.getRemotes(),
-      }),
+      fetchData: (r) =>
+        yubikiri({
+          committer: r.getCommitter(),
+          authors: r.getAuthors({ max: MAX_COMMITS }),
+          remotes: r.getRemotes(),
+        }),
       didUpdate: () => this.loadUsers(),
     });
     this.repositoryObserver.setActiveModel(repository);
@@ -76,12 +77,12 @@ export default class UserStore {
     this.loginObserver.setActiveModel(login);
 
     this.subs.add(
-      config.observe('github.excludedUsers', value => {
+      config.observe('github.excludedUsers', (value) => {
         this.excludedUsers = new Set(
-          (value || '').split(/\s*,\s*/).filter(each => each.length > 0),
+          (value || '').split(/\s*,\s*/).filter((each) => each.length > 0)
         );
         return this.loadUsers();
-      }),
+      })
     );
   }
 
@@ -98,7 +99,9 @@ export default class UserStore {
     }
 
     this.setCommitter(data.committer);
-    const githubRemotes = Array.from(data.remotes).filter(remote => remote.isGithubRepo());
+    const githubRemotes = Array.from(data.remotes).filter((remote) =>
+      remote.isGithubRepo()
+    );
 
     if (githubRemotes.length > 0) {
       await this.loadUsersFromGraphQL(githubRemotes);
@@ -115,7 +118,7 @@ export default class UserStore {
 
   loadUsersFromGraphQL(remotes) {
     return Promise.all(
-      Array.from(remotes, remote => this.loadMentionableUsers(remote)),
+      Array.from(remotes, (remote) => this.loadMentionableUsers(remote))
     );
   }
 
@@ -124,7 +127,11 @@ export default class UserStore {
       return null;
     }
     const token = await loginModel.getToken(loginAccount);
-    if (token === UNAUTHENTICATED || token === INSUFFICIENT || token instanceof Error) {
+    if (
+      token === UNAUTHENTICATED ||
+      token === INSUFFICIENT ||
+      token instanceof Error
+    ) {
       return null;
     }
     return token;
@@ -138,7 +145,10 @@ export default class UserStore {
     }
 
     const endpoint = remote.getEndpoint();
-    const token = await this.getToken(this.loginObserver.getActiveModel(), endpoint.getLoginAccount());
+    const token = await this.getToken(
+      this.loginObserver.getActiveModel(),
+      endpoint.getLoginAccount()
+    );
     if (!token) {
       return;
     }
@@ -150,9 +160,10 @@ export default class UserStore {
     const remoteUsers = [];
 
     while (hasMore) {
-      const response = await fetchQuery({
-        name: 'GetMentionableUsers',
-        text: `
+      const response = await fetchQuery(
+        {
+          name: 'GetMentionableUsers',
+          text: `
           query GetMentionableUsers($owner: String!, $name: String!, $first: Int!, $after: String) {
             repository(owner: $owner, name: $name) {
               mentionableUsers(first: $first, after: $after) {
@@ -169,17 +180,23 @@ export default class UserStore {
             }
           }
         `,
-      }, {
-        owner: remote.getOwner(),
-        name: remote.getRepo(),
-        first: 100,
-        after: cursor,
-      });
+        },
+        {
+          owner: remote.getOwner(),
+          name: remote.getRepo(),
+          first: 100,
+          after: cursor,
+        }
+      );
 
       /* istanbul ignore if */
       if (response.errors && response.errors.length > 1) {
         // eslint-disable-next-line no-console
-        console.error(`Error fetching mentionable users:\n${response.errors.map(e => e.message).join('\n')}`);
+        console.error(
+          `Error fetching mentionable users:\n${response.errors
+            .map((e) => e.message)
+            .join('\n')}`
+        );
       }
 
       if (!response.data || !response.data.repository) {
@@ -187,7 +204,7 @@ export default class UserStore {
       }
 
       const connection = response.data.repository.mentionableUsers;
-      const authors = connection.nodes.map(node => {
+      const authors = connection.nodes.map((node) => {
         if (node.email === '') {
           node.email = `${node.login}@users.noreply.github.com`;
         }
@@ -235,9 +252,15 @@ export default class UserStore {
     // TODO: [ku 3/2018] consider sorting based on most recent authors or commit frequency
     const users = [];
     for (const author of this.allUsers.values()) {
-      if (author.matches(this.committer)) { continue; }
-      if (author.isNoReply()) { continue; }
-      if (this.excludedUsers.has(author.getEmail())) { continue; }
+      if (author.matches(this.committer)) {
+        continue;
+      }
+      if (author.isNoReply()) {
+        continue;
+      }
+      if (this.excludedUsers.has(author.getEmail())) {
+        continue;
+      }
 
       users.push(author);
     }

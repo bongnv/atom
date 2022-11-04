@@ -58,9 +58,9 @@ export default class AutoFocus {
     this.captured = null;
   }
 
-  target = element => this.firstTarget(0)(element);
+  target = (element) => this.firstTarget(0)(element);
 
-  firstTarget = index => element => {
+  firstTarget = (index) => (element) => {
     if (index < this.index) {
       this.index = index;
       this.captured = element;

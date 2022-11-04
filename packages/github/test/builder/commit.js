@@ -2,7 +2,7 @@ import moment from 'moment';
 
 import Commit from '../../lib/models/commit';
 import Author from '../../lib/models/author';
-import {multiFilePatchBuilder} from './patch';
+import { multiFilePatchBuilder } from './patch';
 
 class CommitBuilder {
   constructor() {

@@ -1,42 +1,66 @@
-import {TextBuffer, Range} from 'atom';
+import { TextBuffer, Range } from 'atom';
 
 import Hunk from './hunk';
-import {Unchanged, Addition, Deletion, NoNewline} from './region';
+import { Unchanged, Addition, Deletion, NoNewline } from './region';
 
 export const EXPANDED = {
   /* istanbul ignore next */
-  toString() { return 'RenderStatus(expanded)'; },
+  toString() {
+    return 'RenderStatus(expanded)';
+  },
 
-  isVisible() { return true; },
+  isVisible() {
+    return true;
+  },
 
-  isExpandable() { return false; },
+  isExpandable() {
+    return false;
+  },
 };
 
 export const COLLAPSED = {
   /* istanbul ignore next */
-  toString() { return 'RenderStatus(collapsed)'; },
+  toString() {
+    return 'RenderStatus(collapsed)';
+  },
 
-  isVisible() { return false; },
+  isVisible() {
+    return false;
+  },
 
-  isExpandable() { return true; },
+  isExpandable() {
+    return true;
+  },
 };
 
 export const DEFERRED = {
   /* istanbul ignore next */
-  toString() { return 'RenderStatus(deferred)'; },
+  toString() {
+    return 'RenderStatus(deferred)';
+  },
 
-  isVisible() { return false; },
+  isVisible() {
+    return false;
+  },
 
-  isExpandable() { return true; },
+  isExpandable() {
+    return true;
+  },
 };
 
 export const REMOVED = {
   /* istanbul ignore next */
-  toString() { return 'RenderStatus(removed)'; },
+  toString() {
+    return 'RenderStatus(removed)';
+  },
 
-  isVisible() { return false; },
+  isVisible() {
+    return false;
+  },
 
-  isExpandable() { return false; },
+  isExpandable() {
+    return false;
+  },
 };
 
 export default class Patch {
@@ -50,12 +74,15 @@ export default class Patch {
     return new HiddenPatch(marker, renderStatus, showFn);
   }
 
-  constructor({status, hunks, marker}) {
+  constructor({ status, hunks, marker }) {
     this.status = status;
     this.hunks = hunks;
     this.marker = marker;
 
-    this.changedLineCount = this.getHunks().reduce((acc, hunk) => acc + hunk.changedLineCount(), 0);
+    this.changedLineCount = this.getHunks().reduce(
+      (acc, hunk) => acc + hunk.changedLineCount(),
+      0
+    );
   }
 
   getStatus() {
@@ -135,7 +162,8 @@ export default class Patch {
       const lastHunk = this.hunks[this.hunks.length - 1];
       markers.push(lastHunk.getMarker());
       if (lastHunk.getRegions().length > 0) {
-        const lastRegion = lastHunk.getRegions()[lastHunk.getRegions().length - 1];
+        const lastRegion =
+          lastHunk.getRegions()[lastHunk.getRegions().length - 1];
         markers.push(lastRegion.getMarker());
       }
     }
@@ -144,7 +172,11 @@ export default class Patch {
 
   buildStagePatchForLines(originalBuffer, nextPatchBuffer, rowSet) {
     const originalBaseOffset = this.getMarker().getRange().start.row;
-    const builder = new BufferBuilder(originalBuffer, originalBaseOffset, nextPatchBuffer);
+    const builder = new BufferBuilder(
+      originalBuffer,
+      originalBaseOffset,
+      nextPatchBuffer
+    );
     const hunks = [];
 
     let newRowDelta = 0;
@@ -155,7 +187,10 @@ export default class Patch {
       let noNewlineRowCount = 0;
 
       for (const region of hunk.getRegions()) {
-        for (const {intersection, gap} of region.intersectRows(rowSet, true)) {
+        for (const { intersection, gap } of region.intersectRows(
+          rowSet,
+          true
+        )) {
           region.when({
             addition: () => {
               if (gap) {
@@ -199,19 +234,24 @@ export default class Patch {
         // Hunk contains at least one selected line
 
         builder.markHunkRange(hunk.getRange());
-        const {regions, marker} = builder.latestHunkWasIncluded();
+        const { regions, marker } = builder.latestHunkWasIncluded();
         const newStartRow = hunk.getNewStartRow() + newRowDelta;
-        const newRowCount = marker.getRange().getRowCount() - selectedDeletionRowCount - noNewlineRowCount;
+        const newRowCount =
+          marker.getRange().getRowCount() -
+          selectedDeletionRowCount -
+          noNewlineRowCount;
 
-        hunks.push(new Hunk({
-          oldStartRow: hunk.getOldStartRow(),
-          oldRowCount: hunk.getOldRowCount(),
-          newStartRow,
-          newRowCount,
-          sectionHeading: hunk.getSectionHeading(),
-          marker,
-          regions,
-        }));
+        hunks.push(
+          new Hunk({
+            oldStartRow: hunk.getOldStartRow(),
+            oldRowCount: hunk.getOldRowCount(),
+            newStartRow,
+            newRowCount,
+            sectionHeading: hunk.getSectionHeading(),
+            marker,
+            regions,
+          })
+        );
 
         newRowDelta += newRowCount - hunk.getNewRowCount();
       } else {
@@ -223,18 +263,28 @@ export default class Patch {
 
     const marker = nextPatchBuffer.markRange(
       this.constructor.layerName,
-      [[0, 0], [nextPatchBuffer.getBuffer().getLastRow() - 1, Infinity]],
-      {invalidate: 'never', exclusive: false},
+      [
+        [0, 0],
+        [nextPatchBuffer.getBuffer().getLastRow() - 1, Infinity],
+      ],
+      { invalidate: 'never', exclusive: false }
     );
 
     const wholeFile = rowSet.size === this.changedLineCount;
-    const status = this.getStatus() === 'deleted' && !wholeFile ? 'modified' : this.getStatus();
-    return this.clone({hunks, status, marker});
+    const status =
+      this.getStatus() === 'deleted' && !wholeFile
+        ? 'modified'
+        : this.getStatus();
+    return this.clone({ hunks, status, marker });
   }
 
   buildUnstagePatchForLines(originalBuffer, nextPatchBuffer, rowSet) {
     const originalBaseOffset = this.getMarker().getRange().start.row;
-    const builder = new BufferBuilder(originalBuffer, originalBaseOffset, nextPatchBuffer);
+    const builder = new BufferBuilder(
+      originalBuffer,
+      originalBaseOffset,
+      nextPatchBuffer
+    );
     const hunks = [];
     let newRowDelta = 0;
 
@@ -245,7 +295,10 @@ export default class Patch {
       let deletionRowCount = 0;
 
       for (const region of hunk.getRegions()) {
-        for (const {intersection, gap} of region.intersectRows(rowSet, true)) {
+        for (const { intersection, gap } of region.intersectRows(
+          rowSet,
+          true
+        )) {
           region.when({
             addition: () => {
               if (gap) {
@@ -292,16 +345,18 @@ export default class Patch {
         // Hunk contains at least one selected line
 
         builder.markHunkRange(hunk.getRange());
-        const {marker, regions} = builder.latestHunkWasIncluded();
-        hunks.push(new Hunk({
-          oldStartRow: hunk.getNewStartRow(),
-          oldRowCount: contextRowCount + deletionRowCount,
-          newStartRow: hunk.getNewStartRow() + newRowDelta,
-          newRowCount: contextRowCount + additionRowCount,
-          sectionHeading: hunk.getSectionHeading(),
-          marker,
-          regions,
-        }));
+        const { marker, regions } = builder.latestHunkWasIncluded();
+        hunks.push(
+          new Hunk({
+            oldStartRow: hunk.getNewStartRow(),
+            oldRowCount: contextRowCount + deletionRowCount,
+            newStartRow: hunk.getNewStartRow() + newRowDelta,
+            newRowCount: contextRowCount + additionRowCount,
+            sectionHeading: hunk.getSectionHeading(),
+            marker,
+            regions,
+          })
+        );
       } else {
         builder.latestHunkWasDiscarded();
       }
@@ -320,30 +375,45 @@ export default class Patch {
 
     const marker = nextPatchBuffer.markRange(
       this.constructor.layerName,
-      [[0, 0], [nextPatchBuffer.getBuffer().getLastRow(), Infinity]],
-      {invalidate: 'never', exclusive: false},
+      [
+        [0, 0],
+        [nextPatchBuffer.getBuffer().getLastRow(), Infinity],
+      ],
+      { invalidate: 'never', exclusive: false }
     );
 
-    return this.clone({hunks, status, marker});
+    return this.clone({ hunks, status, marker });
   }
 
   getFirstChangeRange() {
     const firstHunk = this.getHunks()[0];
     if (!firstHunk) {
-      return Range.fromObject([[0, 0], [0, 0]]);
+      return Range.fromObject([
+        [0, 0],
+        [0, 0],
+      ]);
     }
 
     const firstChange = firstHunk.getChanges()[0];
     if (!firstChange) {
-      return Range.fromObject([[0, 0], [0, 0]]);
+      return Range.fromObject([
+        [0, 0],
+        [0, 0],
+      ]);
     }
 
     const firstRow = firstChange.getStartBufferRow();
-    return Range.fromObject([[firstRow, 0], [firstRow, Infinity]]);
+    return Range.fromObject([
+      [firstRow, 0],
+      [firstRow, Infinity],
+    ]);
   }
 
   toStringIn(buffer) {
-    return this.getHunks().reduce((str, hunk) => str + hunk.toStringIn(buffer), '');
+    return this.getHunks().reduce(
+      (str, hunk) => str + hunk.toStringIn(buffer),
+      ''
+    );
   }
 
   /*
@@ -370,7 +440,7 @@ export default class Patch {
     }
     inspectString += '\n';
     for (const hunk of this.hunks) {
-      inspectString += hunk.inspect({indent: options.indent + 2});
+      inspectString += hunk.inspect({ indent: options.indent + 2 });
     }
     inspectString += `${indentation})\n`;
     return inspectString;
@@ -387,7 +457,7 @@ export default class Patch {
 
 class HiddenPatch extends Patch {
   constructor(marker, renderStatus, showFn) {
-    super({status: null, hunks: [], marker});
+    super({ status: null, hunks: [], marker });
 
     this.renderStatus = renderStatus;
     this.show = showFn;
@@ -423,7 +493,10 @@ class HiddenPatch extends Patch {
 class NullPatch {
   constructor() {
     const buffer = new TextBuffer();
-    this.marker = buffer.markRange([[0, 0], [0, 0]]);
+    this.marker = buffer.markRange([
+      [0, 0],
+      [0, 0],
+    ]);
   }
 
   getStatus() {
@@ -439,7 +512,10 @@ class NullPatch {
   }
 
   getStartRange() {
-    return Range.fromObject([[0, 0], [0, 0]]);
+    return Range.fromObject([
+      [0, 0],
+      [0, 0],
+    ]);
   }
 
   getHunks() {
@@ -471,7 +547,10 @@ class NullPatch {
         status: opts.status !== undefined ? opts.status : this.getStatus(),
         hunks: opts.hunks !== undefined ? opts.hunks : this.getHunks(),
         marker: opts.marker !== undefined ? opts.marker : this.getMarker(),
-        renderStatus: opts.renderStatus !== undefined ? opts.renderStatus : this.getRenderStatus(),
+        renderStatus:
+          opts.renderStatus !== undefined
+            ? opts.renderStatus
+            : this.getRenderStatus(),
       });
     }
   }
@@ -493,7 +572,10 @@ class NullPatch {
   }
 
   getFirstChangeRange() {
-    return Range.fromObject([[0, 0], [0, 0]]);
+    return Range.fromObject([
+      [0, 0],
+      [0, 0],
+    ]);
   }
 
   updateMarkers() {}
@@ -537,7 +619,8 @@ class BufferBuilder {
     // The ranges provided to builder methods are expected to be valid within the original buffer. Account for
     // the position of the Patch within its original TextBuffer, and any existing content already on the next
     // TextBuffer.
-    this.offset = this.nextPatchBuffer.getBuffer().getLastRow() - originalBaseOffset;
+    this.offset =
+      this.nextPatchBuffer.getBuffer().getLastRow() - originalBaseOffset;
 
     this.hunkBufferText = '';
     this.hunkRowCount = 0;
@@ -558,40 +641,53 @@ class BufferBuilder {
   }
 
   markRegion(range, RegionKind) {
-    const finalRange = this.offset !== 0
-      ? range.translate([this.offset, 0], [this.offset, 0])
-      : range;
+    const finalRange =
+      this.offset !== 0
+        ? range.translate([this.offset, 0], [this.offset, 0])
+        : range;
 
     // Collapse consecutive ranges of the same RegionKind into one continuous region.
     const lastRegion = this.hunkRegions[this.hunkRegions.length - 1];
-    if (lastRegion && lastRegion.RegionKind === RegionKind && finalRange.start.row - lastRegion.range.end.row === 1) {
+    if (
+      lastRegion &&
+      lastRegion.RegionKind === RegionKind &&
+      finalRange.start.row - lastRegion.range.end.row === 1
+    ) {
       lastRegion.range.end = finalRange.end;
     } else {
-      this.hunkRegions.push({RegionKind, range: finalRange});
+      this.hunkRegions.push({ RegionKind, range: finalRange });
     }
   }
 
   markHunkRange(range) {
     let finalRange = range;
     if (this.hunkStartOffset !== 0 || this.offset !== 0) {
-      finalRange = finalRange.translate([this.hunkStartOffset, 0], [this.offset, 0]);
+      finalRange = finalRange.translate(
+        [this.hunkStartOffset, 0],
+        [this.offset, 0]
+      );
     }
     this.hunkRange = finalRange;
   }
 
   latestHunkWasIncluded() {
-    this.nextPatchBuffer.buffer.append(this.hunkBufferText, {normalizeLineEndings: false});
+    this.nextPatchBuffer.buffer.append(this.hunkBufferText, {
+      normalizeLineEndings: false,
+    });
 
-    const regions = this.hunkRegions.map(({RegionKind, range}) => {
+    const regions = this.hunkRegions.map(({ RegionKind, range }) => {
       const regionMarker = this.nextPatchBuffer.markRange(
         RegionKind.layerName,
         range,
-        {invalidate: 'never', exclusive: false},
+        { invalidate: 'never', exclusive: false }
       );
       return new RegionKind(regionMarker);
     });
 
-    const marker = this.nextPatchBuffer.markRange('hunk', this.hunkRange, {invalidate: 'never', exclusive: false});
+    const marker = this.nextPatchBuffer.markRange('hunk', this.hunkRange, {
+      invalidate: 'never',
+      exclusive: false,
+    });
 
     this.hunkBufferText = '';
     this.hunkRowCount = 0;
@@ -599,7 +695,7 @@ class BufferBuilder {
     this.hunkRegions = [];
     this.hunkRange = null;
 
-    return {regions, marker};
+    return { regions, marker };
   }
 
   latestHunkWasDiscarded() {
@@ -611,6 +707,6 @@ class BufferBuilder {
     this.hunkRegions = [];
     this.hunkRange = null;
 
-    return {regions: [], marker: null};
+    return { regions: [], marker: null };
   }
 }

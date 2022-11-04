@@ -1,28 +1,26 @@
-import {filter, MAX_PATCH_CHARS} from '../../../lib/models/patch/filter';
+import { filter, MAX_PATCH_CHARS } from '../../../lib/models/patch/filter';
 
-describe('patch filter', function() {
-  it('passes through small patches as-is', function() {
+describe('patch filter', function () {
+  it('passes through small patches as-is', function () {
     const original = new PatchBuilder()
       .addSmallPatch('path-a.txt')
       .addSmallPatch('path-b.txt')
       .toString();
 
-    const {filtered, removed} = filter(original);
+    const { filtered, removed } = filter(original);
     assert.strictEqual(filtered, original);
     assert.sameMembers(Array.from(removed), []);
   });
 
-  it('removes files from the patch that exceed the size threshold', function() {
+  it('removes files from the patch that exceed the size threshold', function () {
     const original = new PatchBuilder()
       .addLargePatch('path-a.txt')
       .addSmallPatch('path-b.txt')
       .toString();
 
-    const expected = new PatchBuilder()
-      .addSmallPatch('path-b.txt')
-      .toString();
+    const expected = new PatchBuilder().addSmallPatch('path-b.txt').toString();
 
-    const {filtered, removed} = filter(original);
+    const { filtered, removed } = filter(original);
     assert.strictEqual(filtered, expected);
     assert.sameMembers(Array.from(removed), ['path-a.txt']);
   });

@@ -1,4 +1,4 @@
-import {autobind} from '../lib/helpers';
+import { autobind } from '../lib/helpers';
 import AsyncQueue from '../lib/async-queue';
 
 class Task {
@@ -30,9 +30,9 @@ class Task {
   }
 }
 
-describe('AsyncQueue', function() {
-  it('runs items in parallel up to the set max', async function() {
-    const queue = new AsyncQueue({parallelism: 3});
+describe('AsyncQueue', function () {
+  it('runs items in parallel up to the set max', async function () {
+    const queue = new AsyncQueue({ parallelism: 3 });
 
     const tasks = [
       new Task('task 1'),
@@ -50,11 +50,31 @@ describe('AsyncQueue', function() {
     const p3 = queue.push(() => tasks[3].run());
     const p4 = queue.push(() => tasks[4].run());
 
-    p0.then(value => { results[0] = value; }).catch(err => { errors[0] = err; });
-    p1.then(value => { results[1] = value; }).catch(err => { errors[1] = err; });
-    p2.then(value => { results[2] = value; }).catch(err => { errors[2] = err; });
-    p3.then(value => { results[3] = value; }).catch(err => { errors[3] = err; });
-    p4.then(value => { results[4] = value; }).catch(err => { errors[4] = err; });
+    p0.then((value) => {
+      results[0] = value;
+    }).catch((err) => {
+      errors[0] = err;
+    });
+    p1.then((value) => {
+      results[1] = value;
+    }).catch((err) => {
+      errors[1] = err;
+    });
+    p2.then((value) => {
+      results[2] = value;
+    }).catch((err) => {
+      errors[2] = err;
+    });
+    p3.then((value) => {
+      results[3] = value;
+    }).catch((err) => {
+      errors[3] = err;
+    });
+    p4.then((value) => {
+      results[4] = value;
+    }).catch((err) => {
+      errors[4] = err;
+    });
 
     assert.isTrue(tasks[0].started);
     assert.isTrue(tasks[1].started);
@@ -81,8 +101,8 @@ describe('AsyncQueue', function() {
     assert.isTrue(tasks[4].started);
   });
 
-  it('runs non-parallelizable tasks serially', async function() {
-    const queue = new AsyncQueue({parallelism: 3});
+  it('runs non-parallelizable tasks serially', async function () {
+    const queue = new AsyncQueue({ parallelism: 3 });
 
     const tasks = [
       new Task('task 1'),
@@ -95,8 +115,8 @@ describe('AsyncQueue', function() {
 
     const p0 = queue.push(() => tasks[0].run());
     const p1 = queue.push(() => tasks[1].run());
-    const p2 = queue.push(() => tasks[2].run(), {parallel: false});
-    const p3 = queue.push(() => tasks[3].run(), {parallel: false});
+    const p2 = queue.push(() => tasks[2].run(), { parallel: false });
+    const p3 = queue.push(() => tasks[3].run(), { parallel: false });
     queue.push(() => tasks[4].run());
     queue.push(() => tasks[5].run());
 
@@ -128,14 +148,14 @@ describe('AsyncQueue', function() {
     assert.isTrue(tasks[5].started);
   });
 
-  it('continues to work when tasks throw synchronous errors', async function() {
-    const queue = new AsyncQueue({parallelism: 1});
+  it('continues to work when tasks throw synchronous errors', async function () {
+    const queue = new AsyncQueue({ parallelism: 1 });
 
     const p1 = queue.push(() => {
       throw new Error('error thrown from task 1');
     });
     const p2 = queue.push(() => {
-      return new Promise(res => res(2));
+      return new Promise((res) => res(2));
     });
 
     try {

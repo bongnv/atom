@@ -1,11 +1,11 @@
 import path from 'path';
-import {nullCommit} from '../commit';
+import { nullCommit } from '../commit';
 import BranchSet from '../branch-set';
 import RemoteSet from '../remote-set';
-import {nullOperationStates} from '../operation-states';
+import { nullOperationStates } from '../operation-states';
 import MultiFilePatch from '../patch/multi-file-patch';
 import CompositeGitStrategy from '../../composite-git-strategy';
-import {Keys} from './cache/keys';
+import { Keys } from './cache/keys';
 
 /**
  * Map of registered subclasses to allow states to transition to one another without circular dependencies.
@@ -227,7 +227,7 @@ export default class State {
 
   // Direct blob interactions
 
-  createBlob({filePath, stdin} = {}) {
+  createBlob({ filePath, stdin } = {}) {
     return unsupportedOperationPromise(this, 'createBlob');
   }
 
@@ -245,7 +245,12 @@ export default class State {
     return unsupportedOperationPromise(this, 'updateDiscardHistory');
   }
 
-  storeBeforeAndAfterBlobs(filePaths, isSafe, destructiveAction, partialDiscardFilePath = null) {
+  storeBeforeAndAfterBlobs(
+    filePaths,
+    isSafe,
+    destructiveAction,
+    partialDiscardFilePath = null
+  ) {
     return unsupportedOperationPromise(this, 'storeBeforeAndAfterBlobs');
   }
 
@@ -280,7 +285,7 @@ export default class State {
         oid: null,
         head: null,
         upstream: null,
-        aheadBehind: {ahead: null, behind: null},
+        aheadBehind: { ahead: null, behind: null },
       },
     });
   }
@@ -306,7 +311,11 @@ export default class State {
   }
 
   readFileFromIndex(filePath) {
-    return Promise.reject(new Error(`fatal: Path ${filePath} does not exist (neither on disk nor in the index).`));
+    return Promise.reject(
+      new Error(
+        `fatal: Path ${filePath} does not exist (neither on disk nor in the index).`
+      )
+    );
   }
 
   // Commit access
@@ -463,7 +472,9 @@ export default class State {
     const StateConstructor = stateConstructors.get(stateName);
     /* istanbul ignore if */
     if (StateConstructor === undefined) {
-      throw new Error(`Attempt to transition to unrecognized state ${stateName}`);
+      throw new Error(
+        `Attempt to transition to unrecognized state ${stateName}`
+      );
     }
     return this.repository.transition(this, StateConstructor, ...payload);
   }
@@ -489,7 +500,7 @@ export default class State {
     // We want to report config values from the global or system level, but never local ones (unless we're in the
     // present state, which overrides this).
     // The filesystem root is the most likely and convenient place for this to be true.
-    const {root} = path.parse(process.cwd());
+    const { root } = path.parse(process.cwd());
     return CompositeGitStrategy.create(root);
   }
 
@@ -536,7 +547,9 @@ export default class State {
 
   // Parse a DiscardHistory payload from the SHA recorded in config.
   async loadHistoryPayload() {
-    const historySha = await this.current().directGetConfig('atomGithub.historySha');
+    const historySha = await this.current().directGetConfig(
+      'atomGithub.historySha'
+    );
     if (!historySha) {
       return {};
     }
@@ -567,5 +580,7 @@ export default class State {
 }
 
 function unsupportedOperationPromise(self, opName) {
-  return Promise.reject(new Error(`${opName} is not available in ${self} state`));
+  return Promise.reject(
+    new Error(`${opName} is not available in ${self} state`)
+  );
 }

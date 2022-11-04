@@ -1,7 +1,14 @@
-import {TextBuffer, Range, Point} from 'atom';
-import {inspect} from 'util';
+import { TextBuffer, Range, Point } from 'atom';
+import { inspect } from 'util';
 
-const LAYER_NAMES = ['unchanged', 'addition', 'deletion', 'nonewline', 'hunk', 'patch'];
+const LAYER_NAMES = [
+  'unchanged',
+  'addition',
+  'deletion',
+  'nonewline',
+  'hunk',
+  'patch',
+];
 
 export default class PatchBuffer {
   constructor() {
@@ -69,8 +76,8 @@ export default class PatchBuffer {
     const baseOffset = range.start.negate();
     const includedMarkersByLayer = LAYER_NAMES.reduce((map, layerName) => {
       map[layerName] = this.layers[layerName]
-        .findMarkers({intersectsRange: range})
-        .filter(m => !opts.exclude.has(m));
+        .findMarkers({ intersectsRange: range })
+        .filter((m) => !opts.exclude.has(m));
       return map;
     }, {});
     const markerMap = new Map();
@@ -82,38 +89,55 @@ export default class PatchBuffer {
       for (const oldMarker of includedMarkersByLayer[layerName]) {
         const oldRange = oldMarker.getRange();
 
-        const clippedStart = oldRange.start.isLessThanOrEqual(range.start) ? range.start : oldRange.start;
-        const clippedEnd = oldRange.end.isGreaterThanOrEqual(range.end) ? range.end : oldRange.end;
+        const clippedStart = oldRange.start.isLessThanOrEqual(range.start)
+          ? range.start
+          : oldRange.start;
+        const clippedEnd = oldRange.end.isGreaterThanOrEqual(range.end)
+          ? range.end
+          : oldRange.end;
 
         // Exclude non-empty markers that intersect *only* at the range start or end
-        if (clippedStart.isEqual(clippedEnd) && !oldRange.start.isEqual(oldRange.end)) {
+        if (
+          clippedStart.isEqual(clippedEnd) &&
+          !oldRange.start.isEqual(oldRange.end)
+        ) {
           continue;
         }
 
-        const startOffset = clippedStart.row === range.start.row ? baseOffset : [baseOffset.row, 0];
-        const endOffset = clippedEnd.row === range.start.row ? baseOffset : [baseOffset.row, 0];
+        const startOffset =
+          clippedStart.row === range.start.row
+            ? baseOffset
+            : [baseOffset.row, 0];
+        const endOffset =
+          clippedEnd.row === range.start.row ? baseOffset : [baseOffset.row, 0];
 
         const newMarker = subBuffer.markRange(
           layerName,
-          [clippedStart.translate(startOffset), clippedEnd.translate(endOffset)],
-          oldMarker.getProperties(),
+          [
+            clippedStart.translate(startOffset),
+            clippedEnd.translate(endOffset),
+          ],
+          oldMarker.getProperties()
         );
         markerMap.set(oldMarker, newMarker);
       }
     }
 
-    return {patchBuffer: subBuffer, markerMap};
+    return { patchBuffer: subBuffer, markerMap };
   }
 
   extractPatchBuffer(rangeLike, options = {}) {
-    const {patchBuffer: subBuffer, markerMap} = this.createSubBuffer(rangeLike, options);
+    const { patchBuffer: subBuffer, markerMap } = this.createSubBuffer(
+      rangeLike,
+      options
+    );
 
     for (const oldMarker of markerMap.keys()) {
       oldMarker.destroy();
     }
 
     this.buffer.setTextInRange(rangeLike, '');
-    return {patchBuffer: subBuffer, markerMap};
+    return { patchBuffer: subBuffer, markerMap };
   }
 
   deleteLastNewline() {
@@ -131,7 +155,11 @@ export default class PatchBuffer {
     const markerMap = new Map();
     for (const layerName of LAYER_NAMES) {
       for (const originalMarker of original.getLayer(layerName).getMarkers()) {
-        const newMarker = this.markRange(layerName, originalMarker.getRange(), originalMarker.getProperties());
+        const newMarker = this.markRange(
+          layerName,
+          originalMarker.getRange(),
+          originalMarker.getProperties()
+        );
         markerMap.set(originalMarker, newMarker);
       }
     }
@@ -151,8 +179,18 @@ export default class PatchBuffer {
     const increasingMarkers = [];
     for (const layerName of options.layerNames) {
       for (const marker of this.findMarkers(layerName, {})) {
-        increasingMarkers.push({layerName, point: marker.getRange().start, start: true, id: marker.id});
-        increasingMarkers.push({layerName, point: marker.getRange().end, end: true, id: marker.id});
+        increasingMarkers.push({
+          layerName,
+          point: marker.getRange().start,
+          start: true,
+          id: marker.id,
+        });
+        increasingMarkers.push({
+          layerName,
+          point: marker.getRange().end,
+          end: true,
+          id: marker.id,
+        });
       }
     }
     increasingMarkers.sort((a, b) => {
@@ -173,7 +211,9 @@ export default class PatchBuffer {
     let inspectPoint = Point.fromObject([0, 0]);
     for (const marker of increasingMarkers) {
       if (!marker.point.isEqual(inspectPoint)) {
-        inspectString += inspect(this.buffer.getTextInRange([inspectPoint, marker.point])) + '\n';
+        inspectString +=
+          inspect(this.buffer.getTextInRange([inspectPoint, marker.point])) +
+          '\n';
       }
 
       if (marker.start) {
@@ -225,12 +265,18 @@ class Inserter {
     const start = this.insertionPoint.copy();
     block();
     const end = this.insertionPoint.copy();
-    this.markerBlueprints.push({layerName, range: new Range(start, end), markerOpts});
+    this.markerBlueprints.push({
+      layerName,
+      range: new Range(start, end),
+      markerOpts,
+    });
     return this;
   }
 
   insert(text) {
-    const insertedRange = this.patchBuffer.getBuffer().insert(this.insertionPoint, text);
+    const insertedRange = this.patchBuffer
+      .getBuffer()
+      .insert(this.insertionPoint, text);
     this.insertionPoint = insertedRange.end;
     return this;
   }
@@ -246,25 +292,34 @@ class Inserter {
     const subMarkerMap = new Map();
     for (const layerName of LAYER_NAMES) {
       for (const oldMarker of subPatchBuffer.findMarkers(layerName, {})) {
-        const startOffset = oldMarker.getRange().start.row === 0 ? baseOffset : [baseOffset.row, 0];
-        const endOffset = oldMarker.getRange().end.row === 0 ? baseOffset : [baseOffset.row, 0];
+        const startOffset =
+          oldMarker.getRange().start.row === 0
+            ? baseOffset
+            : [baseOffset.row, 0];
+        const endOffset =
+          oldMarker.getRange().end.row === 0 ? baseOffset : [baseOffset.row, 0];
 
         const range = oldMarker.getRange().translate(startOffset, endOffset);
         const markerOpts = {
           ...oldMarker.getProperties(),
-          callback: newMarker => { subMarkerMap.set(oldMarker, newMarker); },
+          callback: (newMarker) => {
+            subMarkerMap.set(oldMarker, newMarker);
+          },
         };
-        this.markerBlueprints.push({layerName, range, markerOpts});
+        this.markerBlueprints.push({ layerName, range, markerOpts });
       }
     }
 
-    this.markerMapCallbacks.push({markerMap: subMarkerMap, callback: opts.callback});
+    this.markerMapCallbacks.push({
+      markerMap: subMarkerMap,
+      callback: opts.callback,
+    });
 
     return this;
   }
 
   apply() {
-    for (const {layerName, range, markerOpts} of this.markerBlueprints) {
+    for (const { layerName, range, markerOpts } of this.markerBlueprints) {
       const callback = markerOpts.callback;
       delete markerOpts.callback;
 
@@ -274,7 +329,7 @@ class Inserter {
       }
     }
 
-    for (const {markerMap, callback} of this.markerMapCallbacks) {
+    for (const { markerMap, callback } of this.markerMapCallbacks) {
       callback(markerMap);
     }
 

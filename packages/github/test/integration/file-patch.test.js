@@ -3,13 +3,15 @@ import path from 'path';
 import until from 'test-until';
 import dedent from 'dedent-js';
 
-import {setup, teardown} from './helpers';
+import { setup, teardown } from './helpers';
 import GitShellOutStrategy from '../../lib/git-shell-out-strategy';
 
-describe('integration: file patches', function() {
+describe('integration: file patches', function () {
   // NOTE: This test does not pass on VSTS macOS builds.  It will be re-enabled
   // once the underlying problem is solved.  See atom/github#2617 for details.
-  if (process.env.CI_PROVIDER === 'VSTS') { return; }
+  if (process.env.CI_PROVIDER === 'VSTS') {
+    return;
+  }
 
   let context, wrapper, atomEnv;
   let workspace;
@@ -21,12 +23,12 @@ describe('integration: file patches', function() {
 
   this.retries(5); // FLAKE
 
-  beforeEach(function() {
+  beforeEach(function () {
     // These tests take a little longer because they rely on real filesystem events and git operations.
     until.setDefaultTimeout(9000);
   });
 
-  afterEach(async function() {
+  afterEach(async function () {
     if (context) {
       await teardown(context);
     }
@@ -45,7 +47,10 @@ describe('integration: file patches', function() {
     repoRoot = atomEnv.project.getPaths()[0];
     git = new GitShellOutStrategy(repoRoot);
 
-    usesWorkspaceObserver = context.githubPackage.getContextPool().getContext(repoRoot).useWorkspaceChangeObserver();
+    usesWorkspaceObserver = context.githubPackage
+      .getContextPool()
+      .getContext(repoRoot)
+      .useWorkspaceChangeObserver();
 
     workspaceElement = atomEnv.views.getView(workspace);
 
@@ -71,27 +76,43 @@ describe('integration: file patches', function() {
     await until(() => {
       listItem = wrapper
         .update()
-        .find(`.github-StagingView-${stagingStatus} .github-FilePatchListView-item`)
-        .filterWhere(w => w.find('.github-FilePatchListView-path').text() === relativePath);
+        .find(
+          `.github-StagingView-${stagingStatus} .github-FilePatchListView-item`
+        )
+        .filterWhere(
+          (w) =>
+            w.find('.github-FilePatchListView-path').text() === relativePath
+        );
       return listItem.exists();
     }, `the list item for path ${relativePath} (${stagingStatus}) appears`);
 
-    listItem.simulate('mousedown', {button: 0, persist() {}});
+    listItem.simulate('mousedown', { button: 0, persist() {} });
     window.dispatchEvent(new MouseEvent('mouseup'));
 
     const itemSelector = `ChangedFileItem[relPath="${relativePath}"][stagingStatus="${stagingStatus}"]`;
     await until(
-      () => wrapper.update().find(itemSelector).find('.github-FilePatchView').exists(),
-      `the ChangedFileItem for ${relativePath} arrives and loads`,
+      () =>
+        wrapper
+          .update()
+          .find(itemSelector)
+          .find('.github-FilePatchView')
+          .exists(),
+      `the ChangedFileItem for ${relativePath} arrives and loads`
     );
   }
 
   function getPatchItem(stagingStatus, relativePath) {
-    return wrapper.update().find(`ChangedFileItem[relPath="${relativePath}"][stagingStatus="${stagingStatus}"]`);
+    return wrapper
+      .update()
+      .find(
+        `ChangedFileItem[relPath="${relativePath}"][stagingStatus="${stagingStatus}"]`
+      );
   }
 
   function getPatchEditor(stagingStatus, relativePath) {
-    const component = getPatchItem(stagingStatus, relativePath).find('.github-FilePatchView').find('AtomTextEditor');
+    const component = getPatchItem(stagingStatus, relativePath)
+      .find('.github-FilePatchView')
+      .find('AtomTextEditor');
 
     if (!component.exists()) {
       return null;
@@ -126,7 +147,11 @@ describe('integration: file patches', function() {
       }
       editor.setSoftWrapped(false);
 
-      const decorationsByMarker = editor.decorationManager.decorationPropertiesByMarkerForScreenRowRange(0, Infinity);
+      const decorationsByMarker =
+        editor.decorationManager.decorationPropertiesByMarkerForScreenRowRange(
+          0,
+          Infinity
+        );
       actualClassesByRow.clear();
       for (const [marker, decorations] of decorationsByMarker) {
         const rowNumbers = marker.getScreenRange().getRows();
@@ -150,9 +175,15 @@ describe('integration: file patches', function() {
       unexpectedClassesByRow.clear();
       let match = true;
 
-      for (let i = 0; i < Math.max(rows.length, editor.getLastScreenRow()); i++) {
+      for (
+        let i = 0;
+        i < Math.max(rows.length, editor.getLastScreenRow());
+        i++
+      ) {
         const [expectedText, ...givenClasses] = rows[i] || [''];
-        const expectedClasses = givenClasses.map(givenClass => aliases.get(givenClass) || givenClass);
+        const expectedClasses = givenClasses.map(
+          (givenClass) => aliases.get(givenClass) || givenClass
+        );
 
         const actualText = editor.lineTextForScreenRow(i);
         const actualClasses = new Set(actualClassesByRow.get(i) || []);
@@ -165,14 +196,18 @@ describe('integration: file patches', function() {
           match = false;
         }
 
-        const missingClasses = expectedClasses.filter(expectedClass => !actualClasses.delete(expectedClass));
+        const missingClasses = expectedClasses.filter(
+          (expectedClass) => !actualClasses.delete(expectedClass)
+        );
         if (missingClasses.length > 0) {
           // An expected class was not present on this screen row.
           missingClassesByRow.set(i, missingClasses);
           match = false;
         }
 
-        const unexpectedClasses = Array.from(actualClasses).filter(remainingClass => knownClasses.has(remainingClass));
+        const unexpectedClasses = Array.from(actualClasses).filter(
+          (remainingClass) => knownClasses.has(remainingClass)
+        );
         if (unexpectedClasses.length > 0) {
           // A known class that was not expected was present on this screen row.
           unexpectedClassesByRow.set(i, unexpectedClasses);
@@ -181,18 +216,18 @@ describe('integration: file patches', function() {
       }
 
       return match;
-    }, 'a matching updated file patch arrives').catch(e => {
+    }, 'a matching updated file patch arrives').catch((e) => {
       let diagnosticOutput = '';
       for (let i = 0; i < actualRowText.length; i++) {
         diagnosticOutput += differentRows.has(i) ? '! ' : '  ';
         diagnosticOutput += actualRowText[i];
 
         const annotations = [];
-        annotations.push(...actualClassesByRow.get(i) || []);
-        for (const missingClass of (missingClassesByRow.get(i) || [])) {
+        annotations.push(...(actualClassesByRow.get(i) || []));
+        for (const missingClass of missingClassesByRow.get(i) || []) {
           annotations.push(`-"${missingClass}"`);
         }
-        for (const unexpectedClass of (unexpectedClassesByRow.get(i) || [])) {
+        for (const unexpectedClass of unexpectedClassesByRow.get(i) || []) {
           annotations.push(`x"${unexpectedClass}"`);
         }
         if (annotations.length > 0) {
@@ -210,63 +245,77 @@ describe('integration: file patches', function() {
     });
   }
 
-  describe('with an added file', function() {
-    beforeEach(async function() {
+  describe('with an added file', function () {
+    beforeEach(async function () {
       await useFixture('three-files');
-      await fs.writeFile(repoPath('added-file.txt'), '0000\n0001\n0002\n0003\n0004\n0005\n', {encoding: 'utf8'});
+      await fs.writeFile(
+        repoPath('added-file.txt'),
+        '0000\n0001\n0002\n0003\n0004\n0005\n',
+        { encoding: 'utf8' }
+      );
       triggerChange();
       await clickFileInGitTab('unstaged', 'added-file.txt');
     });
 
-    describe('unstaged', function() {
-      it('may be partially staged', async function() {
+    describe('unstaged', function () {
+      it('may be partially staged', async function () {
         // Stage lines two and three
-        getPatchEditor('unstaged', 'added-file.txt').setSelectedBufferRange([[2, 1], [3, 3]]);
+        getPatchEditor('unstaged', 'added-file.txt').setSelectedBufferRange([
+          [2, 1],
+          [3, 3],
+        ]);
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await patchContent(
-          'unstaged', 'added-file.txt',
+          'unstaged',
+          'added-file.txt',
           ['0000', 'added'],
           ['0001', 'added'],
           ['0002'],
           ['0003'],
           ['0004', 'added', 'selected'],
-          ['0005', 'added'],
+          ['0005', 'added']
         );
 
         await clickFileInGitTab('staged', 'added-file.txt');
         await patchContent(
-          'staged', 'added-file.txt',
+          'staged',
+          'added-file.txt',
           ['0002', 'added', 'selected'],
-          ['0003', 'added', 'selected'],
+          ['0003', 'added', 'selected']
         );
       });
 
-      it('may be completed staged', async function() {
+      it('may be completed staged', async function () {
         getPatchEditor('unstaged', 'added-file.txt').selectAll();
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await clickFileInGitTab('staged', 'added-file.txt');
         await patchContent(
-          'staged', 'added-file.txt',
+          'staged',
+          'added-file.txt',
           ['0000', 'added', 'selected'],
           ['0001', 'added', 'selected'],
           ['0002', 'added', 'selected'],
           ['0003', 'added', 'selected'],
           ['0004', 'added', 'selected'],
-          ['0005', 'added', 'selected'],
+          ['0005', 'added', 'selected']
         );
       });
 
-      it('may discard lines', async function() {
-        getPatchEditor('unstaged', 'added-file.txt').setSelectedBufferRange([[1, 0], [3, 3]]);
+      it('may discard lines', async function () {
+        getPatchEditor('unstaged', 'added-file.txt').setSelectedBufferRange([
+          [1, 0],
+          [3, 3],
+        ]);
         wrapper.find('.github-HunkHeaderView-discardButton').simulate('click');
 
         await patchContent(
-          'unstaged', 'added-file.txt',
+          'unstaged',
+          'added-file.txt',
           ['0000', 'added'],
           ['0004', 'added', 'selected'],
-          ['0005', 'added'],
+          ['0005', 'added']
         );
 
         const editor = await workspace.open(repoPath('added-file.txt'));
@@ -274,442 +323,663 @@ describe('integration: file patches', function() {
       });
     });
 
-    describe('staged', function() {
-      beforeEach(async function() {
+    describe('staged', function () {
+      beforeEach(async function () {
         await git.stageFiles(['added-file.txt']);
         await clickFileInGitTab('staged', 'added-file.txt');
       });
 
-      it('may be partially unstaged', async function() {
+      it('may be partially unstaged', async function () {
         this.retries(5); // FLAKE
-        getPatchEditor('staged', 'added-file.txt').setSelectedBufferRange([[3, 0], [4, 3]]);
+        getPatchEditor('staged', 'added-file.txt').setSelectedBufferRange([
+          [3, 0],
+          [4, 3],
+        ]);
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await patchContent(
-          'staged', 'added-file.txt',
+          'staged',
+          'added-file.txt',
           ['0000', 'added'],
           ['0001', 'added'],
           ['0002', 'added'],
-          ['0005', 'added', 'selected'],
+          ['0005', 'added', 'selected']
         );
 
         await clickFileInGitTab('unstaged', 'added-file.txt');
         await patchContent(
-          'unstaged', 'added-file.txt',
+          'unstaged',
+          'added-file.txt',
           ['0000'],
           ['0001'],
           ['0002'],
           ['0003', 'added', 'selected'],
           ['0004', 'added', 'selected'],
-          ['0005'],
+          ['0005']
         );
       });
 
-      it('may be completely unstaged', async function() {
+      it('may be completely unstaged', async function () {
         this.retries(5); // FLAKE
         getPatchEditor('staged', 'added-file.txt').selectAll();
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await clickFileInGitTab('unstaged', 'added-file.txt');
         await patchContent(
-          'unstaged', 'added-file.txt',
+          'unstaged',
+          'added-file.txt',
           ['0000', 'added', 'selected'],
           ['0001', 'added', 'selected'],
           ['0002', 'added', 'selected'],
           ['0003', 'added', 'selected'],
           ['0004', 'added', 'selected'],
-          ['0005', 'added', 'selected'],
+          ['0005', 'added', 'selected']
         );
       });
     });
   });
 
-  describe('with a removed file', function() {
-    beforeEach(async function() {
+  describe('with a removed file', function () {
+    beforeEach(async function () {
       await useFixture('multi-line-file');
 
       await fs.remove(repoPath('sample.js'));
       triggerChange();
     });
 
-    describe('unstaged', function() {
-      beforeEach(async function() {
+    describe('unstaged', function () {
+      beforeEach(async function () {
         await clickFileInGitTab('unstaged', 'sample.js');
       });
 
-      it('may be partially staged', async function() {
-        getPatchEditor('unstaged', 'sample.js').setSelectedBufferRange([[4, 0], [7, 5]]);
+      it('may be partially staged', async function () {
+        getPatchEditor('unstaged', 'sample.js').setSelectedBufferRange([
+          [4, 0],
+          [7, 5],
+        ]);
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted'],
           ['  const sort = function(items) {', 'deleted'],
           ['    if (items.length <= 1) { return items; }', 'deleted'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted'],
-          ['    return sort(left).concat(pivot).concat(sort(right));', 'deleted', 'selected'],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+          ],
+          [
+            '    return sort(left).concat(pivot).concat(sort(right));',
+            'deleted',
+            'selected',
+          ],
           ['  };', 'deleted'],
           ['', 'deleted'],
           ['  return sort(Array.apply(this, arguments));', 'deleted'],
-          ['};', 'deleted'],
+          ['};', 'deleted']
         );
 
         await clickFileInGitTab('staged', 'sample.js');
 
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['  const sort = function(items) {'],
           ['    if (items.length <= 1) { return items; }'],
           ['    let pivot = items.shift(), current, left = [], right = [];'],
           ['    while (items.length > 0) {', 'deleted', 'selected'],
           ['      current = items.shift();', 'deleted', 'selected'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted', 'selected'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+            'selected',
+          ],
           ['    }', 'deleted', 'selected'],
           ['    return sort(left).concat(pivot).concat(sort(right));'],
           ['  };'],
-          [''],
+          ['']
         );
       });
 
-      it('may be completely staged', async function() {
-        getPatchEditor('unstaged', 'sample.js').setSelectedBufferRange([[0, 0], [12, 2]]);
+      it('may be completely staged', async function () {
+        getPatchEditor('unstaged', 'sample.js').setSelectedBufferRange([
+          [0, 0],
+          [12, 2],
+        ]);
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await clickFileInGitTab('staged', 'sample.js');
 
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted', 'selected'],
           ['  const sort = function(items) {', 'deleted', 'selected'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {', 'deleted', 'selected'],
           ['      current = items.shift();', 'deleted', 'selected'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted', 'selected'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+            'selected',
+          ],
           ['    }', 'deleted', 'selected'],
-          ['    return sort(left).concat(pivot).concat(sort(right));', 'deleted', 'selected'],
+          [
+            '    return sort(left).concat(pivot).concat(sort(right));',
+            'deleted',
+            'selected',
+          ],
           ['  };', 'deleted', 'selected'],
           ['', 'deleted', 'selected'],
-          ['  return sort(Array.apply(this, arguments));', 'deleted', 'selected'],
-          ['};', 'deleted', 'selected'],
+          [
+            '  return sort(Array.apply(this, arguments));',
+            'deleted',
+            'selected',
+          ],
+          ['};', 'deleted', 'selected']
         );
       });
 
-      it('may discard lines', async function() {
+      it('may discard lines', async function () {
         getPatchEditor('unstaged', 'sample.js').setSelectedBufferRanges([
-          [[1, 0], [2, 0]],
-          [[7, 0], [8, 1]],
+          [
+            [1, 0],
+            [2, 0],
+          ],
+          [
+            [7, 0],
+            [8, 1],
+          ],
         ]);
         wrapper.find('.github-HunkHeaderView-discardButton').simulate('click');
 
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted'],
           ['  const sort = function(items) {'],
           ['    if (items.length <= 1) { return items; }'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted'],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+          ],
           ['    while (items.length > 0) {', 'deleted'],
           ['      current = items.shift();', 'deleted'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+          ],
           ['    }'],
           ['    return sort(left).concat(pivot).concat(sort(right));'],
           ['  };', 'deleted', 'selected'],
           ['', 'deleted'],
           ['  return sort(Array.apply(this, arguments));', 'deleted'],
-          ['};', 'deleted'],
+          ['};', 'deleted']
         );
 
         const editor = await workspace.open(repoPath('sample.js'));
         assert.strictEqual(
           editor.getText(),
           '  const sort = function(items) {\n' +
-          '    if (items.length <= 1) { return items; }\n' +
-          '    }\n' +
-          '    return sort(left).concat(pivot).concat(sort(right));\n',
+            '    if (items.length <= 1) { return items; }\n' +
+            '    }\n' +
+            '    return sort(left).concat(pivot).concat(sort(right));\n'
         );
       });
     });
 
-    describe('staged', function() {
-      beforeEach(async function() {
+    describe('staged', function () {
+      beforeEach(async function () {
         await git.stageFiles(['sample.js']);
         await clickFileInGitTab('staged', 'sample.js');
       });
 
-      it('may be partially unstaged', async function() {
-        getPatchEditor('staged', 'sample.js').setSelectedBufferRange([[8, 0], [8, 5]]);
+      it('may be partially unstaged', async function () {
+        getPatchEditor('staged', 'sample.js').setSelectedBufferRange([
+          [8, 0],
+          [8, 5],
+        ]);
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted'],
           ['  const sort = function(items) {', 'deleted'],
           ['    if (items.length <= 1) { return items; }', 'deleted'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted'],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+          ],
           ['    while (items.length > 0) {', 'deleted'],
           ['      current = items.shift();', 'deleted'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+          ],
           ['    }', 'deleted'],
           ['    return sort(left).concat(pivot).concat(sort(right));'],
           ['  };', 'deleted', 'selected'],
           ['', 'deleted'],
           ['  return sort(Array.apply(this, arguments));', 'deleted'],
-          ['};', 'deleted'],
+          ['};', 'deleted']
         );
 
         await clickFileInGitTab('unstaged', 'sample.js');
 
-        await patchContent(
-          'unstaged', 'sample.js',
-          ['    return sort(left).concat(pivot).concat(sort(right));', 'deleted', 'selected'],
-        );
+        await patchContent('unstaged', 'sample.js', [
+          '    return sort(left).concat(pivot).concat(sort(right));',
+          'deleted',
+          'selected',
+        ]);
       });
 
-      it('may be completely unstaged', async function() {
+      it('may be completely unstaged', async function () {
         getPatchEditor('staged', 'sample.js').selectAll();
         wrapper.find('.github-HunkHeaderView-stageButton').simulate('click');
 
         await clickFileInGitTab('unstaged', 'sample.js');
 
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted', 'selected'],
           ['  const sort = function(items) {', 'deleted', 'selected'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {', 'deleted', 'selected'],
           ['      current = items.shift();', 'deleted', 'selected'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted', 'selected'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+            'selected',
+          ],
           ['    }', 'deleted', 'selected'],
-          ['    return sort(left).concat(pivot).concat(sort(right));', 'deleted', 'selected'],
+          [
+            '    return sort(left).concat(pivot).concat(sort(right));',
+            'deleted',
+            'selected',
+          ],
           ['  };', 'deleted', 'selected'],
           ['', 'deleted', 'selected'],
-          ['  return sort(Array.apply(this, arguments));', 'deleted', 'selected'],
-          ['};', 'deleted', 'selected'],
+          [
+            '  return sort(Array.apply(this, arguments));',
+            'deleted',
+            'selected',
+          ],
+          ['};', 'deleted', 'selected']
         );
       });
     });
   });
 
-  describe('with a symlink that used to be a file', function() {
-    beforeEach(async function() {
+  describe('with a symlink that used to be a file', function () {
+    beforeEach(async function () {
       await useFixture('multi-line-file');
       await fs.remove(repoPath('sample.js'));
-      await fs.writeFile(repoPath('target.txt'), 'something to point the symlink to', {encoding: 'utf8'});
+      await fs.writeFile(
+        repoPath('target.txt'),
+        'something to point the symlink to',
+        { encoding: 'utf8' }
+      );
       await fs.symlink(repoPath('target.txt'), repoPath('sample.js'));
       triggerChange();
     });
 
-    describe('unstaged', function() {
-      before(function() {
+    describe('unstaged', function () {
+      before(function () {
         if (process.platform === 'win32') {
           this.skip();
         }
       });
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         await clickFileInGitTab('unstaged', 'sample.js');
       });
 
-      it('may stage the content deletion without the symlink creation', async function() {
+      it('may stage the content deletion without the symlink creation', async function () {
         getPatchEditor('unstaged', 'sample.js').selectAll();
-        getPatchItem('unstaged', 'sample.js').find('.github-HunkHeaderView-stageButton').simulate('click');
+        getPatchItem('unstaged', 'sample.js')
+          .find('.github-HunkHeaderView-stageButton')
+          .simulate('click');
 
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           [repoPath('target.txt'), 'added', 'selected'],
-          [' No newline at end of file', 'nonewline'],
+          [' No newline at end of file', 'nonewline']
         );
 
-        assert.isTrue(getPatchItem('unstaged', 'sample.js').find('.github-FilePatchView-metaTitle').exists());
+        assert.isTrue(
+          getPatchItem('unstaged', 'sample.js')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
 
         await clickFileInGitTab('staged', 'sample.js');
 
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted', 'selected'],
           ['  const sort = function(items) {', 'deleted', 'selected'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {', 'deleted', 'selected'],
           ['      current = items.shift();', 'deleted', 'selected'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted', 'selected'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+            'selected',
+          ],
           ['    }', 'deleted', 'selected'],
-          ['    return sort(left).concat(pivot).concat(sort(right));', 'deleted', 'selected'],
+          [
+            '    return sort(left).concat(pivot).concat(sort(right));',
+            'deleted',
+            'selected',
+          ],
           ['  };', 'deleted', 'selected'],
           ['', 'deleted', 'selected'],
-          ['  return sort(Array.apply(this, arguments));', 'deleted', 'selected'],
-          ['};', 'deleted', 'selected'],
+          [
+            '  return sort(Array.apply(this, arguments));',
+            'deleted',
+            'selected',
+          ],
+          ['};', 'deleted', 'selected']
         );
-        assert.isFalse(getPatchItem('staged', 'sample.js').find('.github-FilePatchView-metaTitle').exists());
+        assert.isFalse(
+          getPatchItem('staged', 'sample.js')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
       });
 
-      it('may stage the content deletion and the symlink creation', async function() {
-        getPatchItem('unstaged', 'sample.js').find('.github-FilePatchView-metaControls button').simulate('click');
+      it('may stage the content deletion and the symlink creation', async function () {
+        getPatchItem('unstaged', 'sample.js')
+          .find('.github-FilePatchView-metaControls button')
+          .simulate('click');
 
         await clickFileInGitTab('staged', 'sample.js');
 
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted', 'selected'],
           ['  const sort = function(items) {', 'deleted', 'selected'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {', 'deleted', 'selected'],
           ['      current = items.shift();', 'deleted', 'selected'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted', 'selected'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+            'selected',
+          ],
           ['    }', 'deleted', 'selected'],
-          ['    return sort(left).concat(pivot).concat(sort(right));', 'deleted', 'selected'],
+          [
+            '    return sort(left).concat(pivot).concat(sort(right));',
+            'deleted',
+            'selected',
+          ],
           ['  };', 'deleted', 'selected'],
           ['', 'deleted', 'selected'],
-          ['  return sort(Array.apply(this, arguments));', 'deleted', 'selected'],
-          ['};', 'deleted', 'selected'],
+          [
+            '  return sort(Array.apply(this, arguments));',
+            'deleted',
+            'selected',
+          ],
+          ['};', 'deleted', 'selected']
         );
-        assert.isTrue(getPatchItem('staged', 'sample.js').find('.github-FilePatchView-metaTitle').exists());
+        assert.isTrue(
+          getPatchItem('staged', 'sample.js')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
       });
     });
 
-    describe('staged', function() {
-      before(function() {
+    describe('staged', function () {
+      before(function () {
         if (process.platform === 'win32') {
           this.skip();
         }
       });
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         await git.stageFiles(['sample.js']);
         await clickFileInGitTab('staged', 'sample.js');
       });
 
-      it.skip('may unstage the symlink creation but not the content deletion', async function() {
-        getPatchItem('staged', 'sample.js').find('.github-FilePatchView-metaControls button').simulate('click');
+      it.skip('may unstage the symlink creation but not the content deletion', async function () {
+        getPatchItem('staged', 'sample.js')
+          .find('.github-FilePatchView-metaControls button')
+          .simulate('click');
 
         await clickFileInGitTab('unstaged', 'sample.js');
 
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {', 'deleted', 'selected'],
           ['  const sort = function(items) {', 'deleted', 'selected'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {', 'deleted', 'selected'],
           ['      current = items.shift();', 'deleted', 'selected'],
-          ['      current < pivot ? left.push(current) : right.push(current);', 'deleted', 'selected'],
+          [
+            '      current < pivot ? left.push(current) : right.push(current);',
+            'deleted',
+            'selected',
+          ],
           ['    }', 'deleted', 'selected'],
-          ['    return sort(left).concat(pivot).concat(sort(right));', 'deleted', 'selected'],
+          [
+            '    return sort(left).concat(pivot).concat(sort(right));',
+            'deleted',
+            'selected',
+          ],
           ['  };', 'deleted', 'selected'],
           ['', 'deleted', 'selected'],
-          ['  return sort(Array.apply(this, arguments));', 'deleted', 'selected'],
-          ['};', 'deleted', 'selected'],
+          [
+            '  return sort(Array.apply(this, arguments));',
+            'deleted',
+            'selected',
+          ],
+          ['};', 'deleted', 'selected']
         );
-        assert.isTrue(getPatchItem('unstaged', 'sample.js').find('.github-FilePatchView-metaTitle').exists());
+        assert.isTrue(
+          getPatchItem('unstaged', 'sample.js')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
       });
     });
   });
 
-  describe('with a file that used to be a symlink', function() {
-    beforeEach(async function() {
+  describe('with a file that used to be a symlink', function () {
+    beforeEach(async function () {
       await useFixture('symlinks');
 
       await fs.remove(repoPath('symlink.txt'));
-      await fs.writeFile(repoPath('symlink.txt'), "Guess what I'm a text file now suckers", {encoding: 'utf8'});
+      await fs.writeFile(
+        repoPath('symlink.txt'),
+        "Guess what I'm a text file now suckers",
+        { encoding: 'utf8' }
+      );
       triggerChange();
     });
 
-    describe.skip('unstaged', function() {
-      beforeEach(async function() {
+    describe.skip('unstaged', function () {
+      beforeEach(async function () {
         await clickFileInGitTab('unstaged', 'symlink.txt');
       });
 
-      it('may stage the symlink deletion without the content addition', async function() {
-        getPatchItem('unstaged', 'symlink.txt').find('.github-FilePatchView-metaControls button').simulate('click');
+      it('may stage the symlink deletion without the content addition', async function () {
+        getPatchItem('unstaged', 'symlink.txt')
+          .find('.github-FilePatchView-metaControls button')
+          .simulate('click');
         await assert.async.isFalse(
-          getPatchItem('unstaged', 'symlink.txt').find('.github-FilePatchView-metaTitle').exists(),
+          getPatchItem('unstaged', 'symlink.txt')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
         );
 
         await patchContent(
-          'unstaged', 'symlink.txt',
+          'unstaged',
+          'symlink.txt',
           ["Guess what I'm a text file now suckers", 'added', 'selected'],
-          [' No newline at end of file', 'nonewline'],
+          [' No newline at end of file', 'nonewline']
         );
 
         await clickFileInGitTab('staged', 'symlink.txt');
 
         await patchContent(
-          'staged', 'symlink.txt',
+          'staged',
+          'symlink.txt',
           ['./regular-file.txt', 'deleted', 'selected'],
-          [' No newline at end of file', 'nonewline'],
+          [' No newline at end of file', 'nonewline']
         );
-        assert.isTrue(getPatchItem('staged', 'symlink.txt').find('.github-FilePatchView-metaTitle').exists());
+        assert.isTrue(
+          getPatchItem('staged', 'symlink.txt')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
       });
 
-      it('may stage the content addition and the symlink deletion together', async function() {
+      it('may stage the content addition and the symlink deletion together', async function () {
         getPatchEditor('unstaged', 'symlink.txt').selectAll();
-        getPatchItem('unstaged', 'symlink.txt').find('.github-HunkHeaderView-stageButton').simulate('click');
+        getPatchItem('unstaged', 'symlink.txt')
+          .find('.github-HunkHeaderView-stageButton')
+          .simulate('click');
 
         await clickFileInGitTab('staged', 'symlink.txt');
 
         await patchContent(
-          'staged', 'symlink.txt',
+          'staged',
+          'symlink.txt',
           ["Guess what I'm a text file now suckers", 'added', 'selected'],
-          [' No newline at end of file', 'nonewline'],
+          [' No newline at end of file', 'nonewline']
         );
-        assert.isTrue(getPatchItem('staged', 'symlink.txt').find('.github-FilePatchView-metaTitle').exists());
+        assert.isTrue(
+          getPatchItem('staged', 'symlink.txt')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
       });
     });
 
-    describe('staged', function() {
-      before(function() {
+    describe('staged', function () {
+      before(function () {
         if (process.platform === 'win32') {
           this.skip();
         }
       });
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         await git.stageFiles(['symlink.txt']);
         await clickFileInGitTab('staged', 'symlink.txt');
       });
 
-      it('may unstage the content addition and the symlink deletion together', async function() {
-        getPatchItem('staged', 'symlink.txt').find('.github-FilePatchView-metaControls button').simulate('click');
+      it('may unstage the content addition and the symlink deletion together', async function () {
+        getPatchItem('staged', 'symlink.txt')
+          .find('.github-FilePatchView-metaControls button')
+          .simulate('click');
 
         await clickFileInGitTab('unstaged', 'symlink.txt');
 
-        assert.isTrue(getPatchItem('unstaged', 'symlink.txt').find('.github-FilePatchView-metaTitle').exists());
+        assert.isTrue(
+          getPatchItem('unstaged', 'symlink.txt')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
 
         await patchContent(
-          'unstaged', 'symlink.txt',
+          'unstaged',
+          'symlink.txt',
           ["Guess what I'm a text file now suckers", 'added', 'selected'],
-          [' No newline at end of file', 'nonewline'],
+          [' No newline at end of file', 'nonewline']
         );
       });
 
-      it('may unstage the content addition without the symlink deletion', async function() {
+      it('may unstage the content addition without the symlink deletion', async function () {
         getPatchEditor('staged', 'symlink.txt').selectAll();
-        getPatchItem('staged', 'symlink.txt').find('.github-HunkHeaderView-stageButton').simulate('click');
+        getPatchItem('staged', 'symlink.txt')
+          .find('.github-HunkHeaderView-stageButton')
+          .simulate('click');
 
         await clickFileInGitTab('unstaged', 'symlink.txt');
 
         await patchContent(
-          'unstaged', 'symlink.txt',
+          'unstaged',
+          'symlink.txt',
           ["Guess what I'm a text file now suckers", 'added', 'selected'],
-          [' No newline at end of file', 'nonewline'],
+          [' No newline at end of file', 'nonewline']
         );
-        assert.isFalse(getPatchItem('unstaged', 'symlink.txt').find('.github-FilePatchView-metaTitle').exists());
+        assert.isFalse(
+          getPatchItem('unstaged', 'symlink.txt')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
 
         await clickFileInGitTab('staged', 'symlink.txt');
-        assert.isTrue(getPatchItem('staged', 'symlink.txt').find('.github-FilePatchView-metaTitle').exists());
+        assert.isTrue(
+          getPatchItem('staged', 'symlink.txt')
+            .find('.github-FilePatchView-metaTitle')
+            .exists()
+        );
         await patchContent(
-          'staged', 'symlink.txt',
+          'staged',
+          'symlink.txt',
           ['./regular-file.txt', 'deleted', 'selected'],
-          [' No newline at end of file', 'nonewline'],
+          [' No newline at end of file', 'nonewline']
         );
       });
     });
   });
 
-  describe('with a modified file', function() {
-    beforeEach(async function() {
+  describe('with a modified file', function () {
+    beforeEach(async function () {
       await useFixture('multi-line-file');
 
       await fs.writeFile(
@@ -729,33 +999,45 @@ describe('integration: file patches', function() {
             return sort(Array.apply(this, arguments));
           };\n
         `,
-        {encoding: 'utf8'},
+        { encoding: 'utf8' }
       );
       triggerChange();
     });
 
-    describe('unstaged', function() {
-      beforeEach(async function() {
+    describe('unstaged', function () {
+      beforeEach(async function () {
         await clickFileInGitTab('unstaged', 'sample.js');
       });
 
-      it('may be partially staged', async function() {
+      it('may be partially staged', async function () {
         getPatchEditor('unstaged', 'sample.js').setSelectedBufferRanges([
-          [[2, 0], [2, 0]],
-          [[10, 0], [10, 0]],
+          [
+            [2, 0],
+            [2, 0],
+          ],
+          [
+            [10, 0],
+            [10, 0],
+          ],
         ]);
 
-        getPatchItem('unstaged', 'sample.js').find('.github-HunkHeaderView-stageButton').simulate('click');
+        getPatchItem('unstaged', 'sample.js')
+          .find('.github-HunkHeaderView-stageButton')
+          .simulate('click');
         // in the case of multiple selections, the next selection is calculated based on bottom most selection
         // When the bottom most changed line in a diff is staged/unstaged, then the new bottom most changed
         // line is selected.
         // Essentially we want to keep the selection close to where it was, for ease of keyboard navigation.
 
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {'],
           ['  const sort = function(items) {'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted'],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+          ],
           ['    while (items.length > 0) {'],
           ['      current = items.shift();'],
           ['      current < pivot ? left.push(current) : right.push(current);'],
@@ -764,15 +1046,20 @@ describe('integration: file patches', function() {
           ['    // added 0', 'added', 'selected'],
           ['    // added 1'],
           ['  };'],
-          [''],
+          ['']
         );
 
         await clickFileInGitTab('staged', 'sample.js');
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['const quicksort = function() {'],
           ['  const sort = function(items) {'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
           ['    let pivot = items.shift(), current, left = [], right = [];'],
           ['    while (items.length > 0) {'],
           ['      current = items.shift();'],
@@ -782,21 +1069,32 @@ describe('integration: file patches', function() {
           ['    // added 1', 'added', 'selected'],
           ['  };'],
           [''],
-          ['  return sort(Array.apply(this, arguments));'],
+          ['  return sort(Array.apply(this, arguments));']
         );
       });
 
-      it('may be completely staged', async function() {
+      it('may be completely staged', async function () {
         getPatchEditor('unstaged', 'sample.js').selectAll();
-        getPatchItem('unstaged', 'sample.js').find('.github-HunkHeaderView-stageButton').simulate('click');
+        getPatchItem('unstaged', 'sample.js')
+          .find('.github-HunkHeaderView-stageButton')
+          .simulate('click');
 
         await clickFileInGitTab('staged', 'sample.js');
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['const quicksort = function() {'],
           ['  const sort = function(items) {'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {'],
           ['      current = items.shift();'],
           ['      current < pivot ? left.push(current) : right.push(current);'],
@@ -806,19 +1104,28 @@ describe('integration: file patches', function() {
           ['    // added 1', 'added', 'selected'],
           ['  };'],
           [''],
-          ['  return sort(Array.apply(this, arguments));'],
+          ['  return sort(Array.apply(this, arguments));']
         );
       });
 
-      it('may discard lines', async function() {
+      it('may discard lines', async function () {
         getPatchEditor('unstaged', 'sample.js').setSelectedBufferRanges([
-          [[3, 0], [3, 0]],
-          [[9, 0], [9, 0]],
+          [
+            [3, 0],
+            [3, 0],
+          ],
+          [
+            [9, 0],
+            [9, 0],
+          ],
         ]);
-        getPatchItem('unstaged', 'sample.js').find('.github-HunkHeaderView-discardButton').simulate('click');
+        getPatchItem('unstaged', 'sample.js')
+          .find('.github-HunkHeaderView-discardButton')
+          .simulate('click');
 
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {'],
           ['  const sort = function(items) {'],
           ['    if (items.length <= 1) { return items; }', 'deleted'],
@@ -831,11 +1138,13 @@ describe('integration: file patches', function() {
           ['    // added 1', 'added', 'selected'],
           ['  };'],
           [''],
-          ['  return sort(Array.apply(this, arguments));'],
+          ['  return sort(Array.apply(this, arguments));']
         );
 
         const editor = await workspace.open(repoPath('sample.js'));
-        assert.strictEqual(editor.getText(), dedent`
+        assert.strictEqual(
+          editor.getText(),
+          dedent`
           const quicksort = function() {
             const sort = function(items) {
               let pivot = items.shift(), current, left = [], right = [];
@@ -849,25 +1158,35 @@ describe('integration: file patches', function() {
 
             return sort(Array.apply(this, arguments));
           };\n
-        `);
+        `
+        );
       });
     });
 
-    describe('staged', function() {
-      beforeEach(async function() {
+    describe('staged', function () {
+      beforeEach(async function () {
         await git.stageFiles(['sample.js']);
         await clickFileInGitTab('staged', 'sample.js');
       });
 
-      it('may be partially unstaged', async function() {
+      it('may be partially unstaged', async function () {
         getPatchEditor('staged', 'sample.js').setSelectedBufferRanges([
-          [[3, 0], [3, 0]],
-          [[10, 0], [10, 0]],
+          [
+            [3, 0],
+            [3, 0],
+          ],
+          [
+            [10, 0],
+            [10, 0],
+          ],
         ]);
-        getPatchItem('staged', 'sample.js').find('.github-HunkHeaderView-stageButton').simulate('click');
+        getPatchItem('staged', 'sample.js')
+          .find('.github-HunkHeaderView-stageButton')
+          .simulate('click');
 
         await patchContent(
-          'staged', 'sample.js',
+          'staged',
+          'sample.js',
           ['const quicksort = function() {'],
           ['  const sort = function(items) {'],
           ['    if (items.length <= 1) { return items; }', 'deleted'],
@@ -880,15 +1199,20 @@ describe('integration: file patches', function() {
           ['    // added 0', 'added', 'selected'],
           ['  };'],
           [''],
-          ['  return sort(Array.apply(this, arguments));'],
+          ['  return sort(Array.apply(this, arguments));']
         );
 
         await clickFileInGitTab('unstaged', 'sample.js');
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {'],
           ['  const sort = function(items) {'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {'],
           ['      current = items.shift();'],
           ['      current < pivot ? left.push(current) : right.push(current);'],
@@ -898,21 +1222,32 @@ describe('integration: file patches', function() {
           ['    // added 1', 'added', 'selected'],
           ['  };'],
           [''],
-          ['  return sort(Array.apply(this, arguments));'],
+          ['  return sort(Array.apply(this, arguments));']
         );
       });
 
-      it('may be fully unstaged', async function() {
+      it('may be fully unstaged', async function () {
         getPatchEditor('staged', 'sample.js').selectAll();
-        getPatchItem('staged', 'sample.js').find('.github-HunkHeaderView-stageButton').simulate('click');
+        getPatchItem('staged', 'sample.js')
+          .find('.github-HunkHeaderView-stageButton')
+          .simulate('click');
 
         await clickFileInGitTab('unstaged', 'sample.js');
         await patchContent(
-          'unstaged', 'sample.js',
+          'unstaged',
+          'sample.js',
           ['const quicksort = function() {'],
           ['  const sort = function(items) {'],
-          ['    if (items.length <= 1) { return items; }', 'deleted', 'selected'],
-          ['    let pivot = items.shift(), current, left = [], right = [];', 'deleted', 'selected'],
+          [
+            '    if (items.length <= 1) { return items; }',
+            'deleted',
+            'selected',
+          ],
+          [
+            '    let pivot = items.shift(), current, left = [], right = [];',
+            'deleted',
+            'selected',
+          ],
           ['    while (items.length > 0) {'],
           ['      current = items.shift();'],
           ['      current < pivot ? left.push(current) : right.push(current);'],
@@ -922,7 +1257,7 @@ describe('integration: file patches', function() {
           ['    // added 1', 'added', 'selected'],
           ['  };'],
           [''],
-          ['  return sort(Array.apply(this, arguments));'],
+          ['  return sort(Array.apply(this, arguments));']
         );
       });
     });

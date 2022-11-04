@@ -1,6 +1,6 @@
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 
-import {autobind} from '../helpers';
+import { autobind } from '../helpers';
 
 export default class StyleCalculator {
   constructor(styles, config) {
@@ -15,10 +15,8 @@ export default class StyleCalculator {
     const updateStyles = () => {
       this.updateStyles(sourcePath, getStylesheetFn);
     };
-    configsToWatch.forEach(configToWatch => {
-      subscriptions.add(
-        this.config.onDidChange(configToWatch, updateStyles),
-      );
+    configsToWatch.forEach((configToWatch) => {
+      subscriptions.add(this.config.onDidChange(configToWatch, updateStyles));
     });
     updateStyles();
     return subscriptions;
@@ -26,6 +24,6 @@ export default class StyleCalculator {
 
   updateStyles(sourcePath, getStylesheetFn) {
     const stylesheet = getStylesheetFn(this.config);
-    this.styles.addStyleSheet(stylesheet, {sourcePath, priority: 0});
+    this.styles.addStyleSheet(stylesheet, { sourcePath, priority: 0 });
   }
 }

@@ -1,9 +1,9 @@
 /* istanbul ignore file */
 
-import {commitMutation, graphql} from 'react-relay';
-import {ConnectionHandler} from 'relay-runtime';
+import { commitMutation, graphql } from 'react-relay';
+import { ConnectionHandler } from 'relay-runtime';
 
-import {renderMarkdown} from '../helpers';
+import { renderMarkdown } from '../helpers';
 
 const mutation = graphql`
   mutation addPrReviewMutation($input: AddPullRequestReviewInput!) {
@@ -30,9 +30,9 @@ const mutation = graphql`
 
 let placeholderID = 0;
 
-export default (environment, {body, event, pullRequestID, viewerID}) => {
+export default (environment, { body, event, pullRequestID, viewerID }) => {
   const variables = {
-    input: {pullRequestId: pullRequestID},
+    input: { pullRequestId: pullRequestID },
   };
 
   if (body) {
@@ -42,12 +42,16 @@ export default (environment, {body, event, pullRequestID, viewerID}) => {
     variables.input.event = event;
   }
 
-  const configs = [{
-    type: 'RANGE_ADD',
-    parentID: pullRequestID,
-    connectionInfo: [{key: 'ReviewSummariesAccumulator_reviews', rangeBehavior: 'append'}],
-    edgeName: 'reviewEdge',
-  }];
+  const configs = [
+    {
+      type: 'RANGE_ADD',
+      parentID: pullRequestID,
+      connectionInfo: [
+        { key: 'ReviewSummariesAccumulator_reviews', rangeBehavior: 'append' },
+      ],
+      edgeName: 'reviewEdge',
+    },
+  ];
 
   function optimisticUpdater(store) {
     const pullRequest = store.get(pullRequestID);
@@ -69,28 +73,36 @@ export default (environment, {body, event, pullRequestID, viewerID}) => {
     if (viewerID) {
       author = store.get(viewerID);
     } else {
-      author = store.create(`add-pr-review-comment:author:${placeholderID++}`, 'User');
+      author = store.create(
+        `add-pr-review-comment:author:${placeholderID++}`,
+        'User'
+      );
       author.setValue('...', 'login');
       author.setValue('atom://github/img/avatar.svg', 'avatarUrl');
     }
     review.setLinkedRecord(author, 'author');
 
-    const reviews = ConnectionHandler.getConnection(pullRequest, 'ReviewSummariesAccumulator_reviews');
-    const edge = ConnectionHandler.createEdge(store, reviews, review, 'PullRequestReviewEdge');
+    const reviews = ConnectionHandler.getConnection(
+      pullRequest,
+      'ReviewSummariesAccumulator_reviews'
+    );
+    const edge = ConnectionHandler.createEdge(
+      store,
+      reviews,
+      review,
+      'PullRequestReviewEdge'
+    );
     ConnectionHandler.insertEdgeAfter(reviews, edge);
   }
 
   return new Promise((resolve, reject) => {
-    commitMutation(
-      environment,
-      {
-        mutation,
-        variables,
-        configs,
-        optimisticUpdater,
-        onCompleted: resolve,
-        onError: reject,
-      },
-    );
+    commitMutation(environment, {
+      mutation,
+      variables,
+      configs,
+      optimisticUpdater,
+      onCompleted: resolve,
+      onError: reject,
+    });
   });
 };

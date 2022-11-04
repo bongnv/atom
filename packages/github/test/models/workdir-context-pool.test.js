@@ -1,15 +1,15 @@
 import temp from 'temp';
-import {Disposable} from 'event-kit';
+import { Disposable } from 'event-kit';
 
-import {cloneRepository} from '../helpers';
+import { cloneRepository } from '../helpers';
 
 import WorkdirContextPool from '../../lib/models/workdir-context-pool';
 
-describe('WorkdirContextPool', function() {
+describe('WorkdirContextPool', function () {
   let pool;
   let mockWindow, mockWorkspace;
 
-  beforeEach(function() {
+  beforeEach(function () {
     mockWindow = {
       addEventListener: sinon.spy(),
       removeEventListener: sinon.spy(),
@@ -25,14 +25,14 @@ describe('WorkdirContextPool', function() {
     });
   });
 
-  describe('add', function() {
+  describe('add', function () {
     let workingDirectory;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       workingDirectory = await cloneRepository('three-files');
     });
 
-    it('adds a WorkdirContext for a new working directory', function() {
+    it('adds a WorkdirContext for a new working directory', function () {
       assert.equal(pool.size(), 0);
       assert.isFalse(pool.getContext(workingDirectory).isPresent());
 
@@ -42,7 +42,7 @@ describe('WorkdirContextPool', function() {
       assert.isTrue(pool.getContext(workingDirectory).isPresent());
     });
 
-    it('is a no-op if the working directory already has a context', function() {
+    it('is a no-op if the working directory already has a context', function () {
       pool.add(workingDirectory);
       assert.equal(pool.size(), 1);
 
@@ -53,7 +53,7 @@ describe('WorkdirContextPool', function() {
       assert.equal(pool.size(), 1);
     });
 
-    it('begins but does not await the asynchronous initialization process', async function() {
+    it('begins but does not await the asynchronous initialization process', async function () {
       pool.add(workingDirectory);
       const context = pool.getContext(workingDirectory);
       assert.isTrue(context.getRepository().isLoading());
@@ -65,8 +65,8 @@ describe('WorkdirContextPool', function() {
     });
   });
 
-  describe('replace', function() {
-    it('adds a WorkdirContext if one is absent', function() {
+  describe('replace', function () {
+    it('adds a WorkdirContext if one is absent', function () {
       const directory = temp.mkdirSync();
 
       assert.equal(pool.size(), 0);
@@ -78,7 +78,7 @@ describe('WorkdirContextPool', function() {
       assert.isTrue(pool.getContext(directory).isPresent());
     });
 
-    it('removes an existing WorkdirContext if one is present', async function() {
+    it('removes an existing WorkdirContext if one is present', async function () {
       const directory = await cloneRepository('three-files');
 
       pool.add(directory);
@@ -96,30 +96,30 @@ describe('WorkdirContextPool', function() {
     });
   });
 
-  describe('remove', function() {
+  describe('remove', function () {
     let existingDirectory, existingContext;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       existingDirectory = await cloneRepository('three-files');
       pool.add(existingDirectory);
 
       existingContext = pool.getContext(existingDirectory);
     });
 
-    it('removes a WorkdirContext for an existing working directory', function() {
+    it('removes a WorkdirContext for an existing working directory', function () {
       assert.equal(pool.size(), 1);
       pool.remove(existingDirectory);
       assert.isFalse(pool.getContext(existingDirectory).isPresent());
       assert.equal(pool.size(), 0);
     });
 
-    it('is a no-op if the working directory is not present', function() {
+    it('is a no-op if the working directory is not present', function () {
       assert.equal(pool.size(), 1);
       pool.remove('/nope');
       assert.equal(pool.size(), 1);
     });
 
-    it('begins but does not await the termination process', function() {
+    it('begins but does not await the termination process', function () {
       const repo = existingContext.getRepository();
       sinon.spy(repo, 'destroy');
 
@@ -130,10 +130,10 @@ describe('WorkdirContextPool', function() {
     });
   });
 
-  describe('set', function() {
+  describe('set', function () {
     let dir0, dir1, dir2;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       [dir0, dir1, dir2] = await Promise.all([
         cloneRepository('three-files'),
         cloneRepository('three-files'),
@@ -144,7 +144,7 @@ describe('WorkdirContextPool', function() {
       pool.add(dir1);
     });
 
-    it('adds new directories, removes missing ones, and maintains kept ones', function() {
+    it('adds new directories, removes missing ones, and maintains kept ones', function () {
       const context0 = pool.getContext(dir0);
       const context1 = pool.getContext(dir1);
 
@@ -161,15 +161,15 @@ describe('WorkdirContextPool', function() {
     });
   });
 
-  describe('getContext', function() {
+  describe('getContext', function () {
     let dir;
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       dir = await cloneRepository('three-files');
       pool.add(dir);
     });
 
-    it('returns a context by directory', function() {
+    it('returns a context by directory', function () {
       const context = pool.getContext(dir);
       assert.isTrue(context.isPresent());
 
@@ -177,19 +177,17 @@ describe('WorkdirContextPool', function() {
       assert.strictEqual(dir, repo.getWorkingDirectoryPath());
     });
 
-    it('returns a null context when missing', function() {
+    it('returns a null context when missing', function () {
       const context = pool.getContext('/nope');
       assert.isFalse(context.isPresent());
     });
   });
 
-  describe('getMatchingContext', function() {
+  describe('getMatchingContext', function () {
     let dirs;
 
-    beforeEach(async function() {
-      dirs = await Promise.all(
-        [1, 2, 3].map(() => cloneRepository()),
-      );
+    beforeEach(async function () {
+      dirs = await Promise.all([1, 2, 3].map(() => cloneRepository()));
     });
 
     async function addRepoRemote(context, name, url) {
@@ -198,44 +196,71 @@ describe('WorkdirContextPool', function() {
       await repo.addRemote(name, url);
     }
 
-    it('returns a single resident context that has a repository with a matching remote', async function() {
+    it('returns a single resident context that has a repository with a matching remote', async function () {
       const matchingContext = pool.add(dirs[0]);
-      await addRepoRemote(matchingContext, 'upstream', 'git@github.com:atom/github.git');
+      await addRepoRemote(
+        matchingContext,
+        'upstream',
+        'git@github.com:atom/github.git'
+      );
 
       const nonMatchingContext0 = pool.add(dirs[1]);
-      await addRepoRemote(nonMatchingContext0, 'up', 'git@github.com:atom/atom.git');
+      await addRepoRemote(
+        nonMatchingContext0,
+        'up',
+        'git@github.com:atom/atom.git'
+      );
 
       pool.add(dirs[2]);
 
-      assert.strictEqual(await pool.getMatchingContext('github.com', 'atom', 'github'), matchingContext);
+      assert.strictEqual(
+        await pool.getMatchingContext('github.com', 'atom', 'github'),
+        matchingContext
+      );
     });
 
-    it('returns a null context when no contexts have suitable repositories', async function() {
+    it('returns a null context when no contexts have suitable repositories', async function () {
       const context0 = pool.add(dirs[0]);
       await addRepoRemote(context0, 'upstream', 'git@github.com:atom/atom.git');
 
       pool.add(dirs[1]);
 
-      const match = await pool.getMatchingContext('github.com', 'atom', 'github');
+      const match = await pool.getMatchingContext(
+        'github.com',
+        'atom',
+        'github'
+      );
       assert.isFalse(match.isPresent());
     });
 
-    it('returns a null context when more than one context has a suitable repository', async function() {
+    it('returns a null context when more than one context has a suitable repository', async function () {
       const context0 = pool.add(dirs[0]);
-      await addRepoRemote(context0, 'upstream', 'git@github.com:atom/github.git');
+      await addRepoRemote(
+        context0,
+        'upstream',
+        'git@github.com:atom/github.git'
+      );
 
       const context1 = pool.add(dirs[1]);
-      await addRepoRemote(context1, 'upstream', 'git@github.com:atom/github.git');
+      await addRepoRemote(
+        context1,
+        'upstream',
+        'git@github.com:atom/github.git'
+      );
 
       pool.add(dirs[2]);
 
-      const match = await pool.getMatchingContext('github.com', 'atom', 'github');
+      const match = await pool.getMatchingContext(
+        'github.com',
+        'atom',
+        'github'
+      );
       assert.isFalse(match.isPresent());
     });
   });
 
-  describe('clear', function() {
-    it('removes all resident contexts', async function() {
+  describe('clear', function () {
+    it('removes all resident contexts', async function () {
       const [dir0, dir1, dir2] = await Promise.all([
         cloneRepository('three-files'),
         cloneRepository('three-files'),
@@ -257,11 +282,11 @@ describe('WorkdirContextPool', function() {
     });
   });
 
-  describe('emitter', function() {
-    describe('did-change-contexts', function() {
+  describe('emitter', function () {
+    describe('did-change-contexts', function () {
       let dir0, dir1, dir2, emitterSpy;
 
-      beforeEach(async function() {
+      beforeEach(async function () {
         [dir0, dir1, dir2] = await Promise.all([
           cloneRepository('three-files'),
           cloneRepository('three-files'),
@@ -275,72 +300,67 @@ describe('WorkdirContextPool', function() {
         pool.onDidChangePoolContexts(emitterSpy);
       });
 
-      it('emits only once for set', function() {
+      it('emits only once for set', function () {
         pool.set(new Set([dir1, dir2]));
         assert.isTrue(emitterSpy.calledOnce);
-        assert.deepEqual(
-          emitterSpy.getCall(0).args[0],
-          {added: new Set([dir1, dir2]), removed: new Set([dir0])},
-        );
+        assert.deepEqual(emitterSpy.getCall(0).args[0], {
+          added: new Set([dir1, dir2]),
+          removed: new Set([dir0]),
+        });
       });
 
-      it('does not emit for set when no changes are made', function() {
+      it('does not emit for set when no changes are made', function () {
         pool.set(new Set([dir0]));
         assert.isFalse(emitterSpy.called);
       });
 
-      it('emits only once for clear', function() {
+      it('emits only once for clear', function () {
         pool.clear();
         assert.isTrue(emitterSpy.calledOnce);
-        assert.deepEqual(
-          emitterSpy.getCall(0).args[0],
-          {removed: new Set([dir0])},
-        );
+        assert.deepEqual(emitterSpy.getCall(0).args[0], {
+          removed: new Set([dir0]),
+        });
       });
 
-      it('does not emit for clear when no changes are made', function() {
+      it('does not emit for clear when no changes are made', function () {
         pool.clear();
         emitterSpy.resetHistory();
         pool.clear(); // Should not emit
         assert.isFalse(emitterSpy.called);
       });
 
-      it('emits only once for replace', function() {
+      it('emits only once for replace', function () {
         pool.replace(dir0);
         assert.isTrue(emitterSpy.calledOnce);
-        assert.deepEqual(
-          emitterSpy.getCall(0).args[0],
-          {altered: new Set([dir0])},
-        );
+        assert.deepEqual(emitterSpy.getCall(0).args[0], {
+          altered: new Set([dir0]),
+        });
       });
 
-      it('emits for every new add', function() {
+      it('emits for every new add', function () {
         pool.remove(dir0);
         emitterSpy.resetHistory();
         pool.add(dir0);
         pool.add(dir1);
         pool.add(dir2);
         assert.isTrue(emitterSpy.calledThrice);
-        assert.deepEqual(
-          emitterSpy.getCall(0).args[0],
-          {added: new Set([dir0])},
-        );
-        assert.deepEqual(
-          emitterSpy.getCall(1).args[0],
-          {added: new Set([dir1])},
-        );
-        assert.deepEqual(
-          emitterSpy.getCall(2).args[0],
-          {added: new Set([dir2])},
-        );
+        assert.deepEqual(emitterSpy.getCall(0).args[0], {
+          added: new Set([dir0]),
+        });
+        assert.deepEqual(emitterSpy.getCall(1).args[0], {
+          added: new Set([dir1]),
+        });
+        assert.deepEqual(emitterSpy.getCall(2).args[0], {
+          added: new Set([dir2]),
+        });
       });
 
-      it('does not emit for add when a context already exists', function() {
+      it('does not emit for add when a context already exists', function () {
         pool.add(dir0);
         assert.isFalse(emitterSpy.called);
       });
 
-      it('emits for every remove', function() {
+      it('emits for every remove', function () {
         pool.add(dir1);
         pool.add(dir2);
         emitterSpy.resetHistory();
@@ -348,59 +368,62 @@ describe('WorkdirContextPool', function() {
         pool.remove(dir1);
         pool.remove(dir2);
         assert.isTrue(emitterSpy.calledThrice);
-        assert.deepEqual(
-          emitterSpy.getCall(0).args[0],
-          {removed: new Set([dir0])},
-        );
-        assert.deepEqual(
-          emitterSpy.getCall(1).args[0],
-          {removed: new Set([dir1])},
-        );
-        assert.deepEqual(
-          emitterSpy.getCall(2).args[0],
-          {removed: new Set([dir2])},
-        );
+        assert.deepEqual(emitterSpy.getCall(0).args[0], {
+          removed: new Set([dir0]),
+        });
+        assert.deepEqual(emitterSpy.getCall(1).args[0], {
+          removed: new Set([dir1]),
+        });
+        assert.deepEqual(emitterSpy.getCall(2).args[0], {
+          removed: new Set([dir2]),
+        });
       });
 
-      it('does not emit for remove when a context did not exist', function() {
+      it('does not emit for remove when a context did not exist', function () {
         pool.remove(dir1);
         assert.isFalse(emitterSpy.called);
       });
     });
   });
 
-  describe('cross-instance cache invalidation', function() {
-    it('invalidates a config cache key in different instances when a global setting is changed', async function() {
+  describe('cross-instance cache invalidation', function () {
+    it('invalidates a config cache key in different instances when a global setting is changed', async function () {
       const base = String(Date.now());
       const value0 = `${base}-0`;
       const value1 = `${base}-1`;
 
-      const repo0 = pool.add(await cloneRepository('three-files')).getRepository();
-      const repo1 = pool.add(await cloneRepository('three-files')).getRepository();
+      const repo0 = pool
+        .add(await cloneRepository('three-files'))
+        .getRepository();
+      const repo1 = pool
+        .add(await cloneRepository('three-files'))
+        .getRepository();
       const repo2 = pool.add(temp.mkdirSync()).getRepository();
 
-      await Promise.all([repo0, repo1, repo2].map(repo => repo.getLoadPromise()));
+      await Promise.all(
+        [repo0, repo1, repo2].map((repo) => repo.getLoadPromise())
+      );
 
       const [before0, before1, before2] = await Promise.all(
-        [repo0, repo1, repo2].map(repo => repo.getConfig('atomGithub.test')),
+        [repo0, repo1, repo2].map((repo) => repo.getConfig('atomGithub.test'))
       );
 
       assert.notInclude([before0, before1, before2], value0);
 
-      await repo2.setConfig('atomGithub.test', value0, {global: true});
+      await repo2.setConfig('atomGithub.test', value0, { global: true });
 
       const [after0, after1, after2] = await Promise.all(
-        [repo0, repo1, repo2].map(repo => repo.getConfig('atomGithub.test')),
+        [repo0, repo1, repo2].map((repo) => repo.getConfig('atomGithub.test'))
       );
 
       assert.strictEqual(after0, value0);
       assert.strictEqual(after1, value0);
       assert.strictEqual(after2, value0);
 
-      await repo0.setConfig('atomGithub.test', value1, {global: true});
+      await repo0.setConfig('atomGithub.test', value1, { global: true });
 
       const [final0, final1, final2] = await Promise.all(
-        [repo0, repo1, repo2].map(repo => repo.getConfig('atomGithub.test')),
+        [repo0, repo1, repo2].map((repo) => repo.getConfig('atomGithub.test'))
       );
 
       assert.strictEqual(final0, value1);

@@ -30,9 +30,11 @@ export default class EventLogger {
       return;
     }
 
-    const uniqueRelativeNames = new Set(events.map(event => {
-      return path.relative(this.directory, event.path);
-    }));
+    const uniqueRelativeNames = new Set(
+      events.map((event) => {
+        return path.relative(this.directory, event.path);
+      })
+    );
 
     const fileNames = Array.from(uniqueRelativeNames).slice(0, 3);
     const elipses = uniqueRelativeNames.size > 3 ? '...' : '';
@@ -40,13 +42,15 @@ export default class EventLogger {
 
     /* eslint-disable no-console */
     if (headless) {
-      const eventText = events.map(event => {
-        if (event.action === 'renamed') {
-          return `  ${event.oldPath} => ${event.path} (${event.action})\n`;
-        } else {
-          return `  ${event.path} (${event.action})\n`;
-        }
-      }).join('\n');
+      const eventText = events
+        .map((event) => {
+          if (event.action === 'renamed') {
+            return `  ${event.oldPath} => ${event.path} (${event.action})\n`;
+          } else {
+            return `  ${event.path} (${event.action})\n`;
+          }
+        })
+        .join('\n');
       console.log(summary + '\n' + eventText);
     } else {
       console.groupCollapsed(summary);
@@ -81,7 +85,10 @@ export default class EventLogger {
   }
 
   isEnabled() {
-    return process.env.ATOM_GITHUB_FS_EVENT_LOG || atom.config.get('github.filesystemEventDiagnostics');
+    return (
+      process.env.ATOM_GITHUB_FS_EVENT_LOG ||
+      atom.config.get('github.filesystemEventDiagnostics')
+    );
   }
 
   getShortName() {
@@ -96,11 +103,12 @@ export default class EventLogger {
     }
 
     // eslint-disable-next-line no-console
-    console.log('%c%s%c: %s',
+    console.log(
+      '%c%s%c: %s',
       'font-weight: bold; color: blue;',
       this.getShortName(),
       'font-weight: normal; color: black;',
-      line,
+      line
     );
   }
 }

@@ -9,7 +9,7 @@ export function createRepositoryResult(attrs = {}) {
     defaultRefName: 'master',
     defaultRefID: 'ref0',
     ...attrs,
-  }
+  };
 
   return {
     defaultBranchRef: {
@@ -18,5 +18,5 @@ export function createRepositoryResult(attrs = {}) {
       id: o.defaultRefID,
     },
     id: o.id,
-  }
+  };
 }

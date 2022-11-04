@@ -1,7 +1,7 @@
-import Remote, {nullRemote} from '../../lib/models/remote';
+import Remote, { nullRemote } from '../../lib/models/remote';
 
-describe('Remote', function() {
-  it('detects and extracts information from GitHub repository URLs', function() {
+describe('Remote', function () {
+  it('detects and extracts information from GitHub repository URLs', function () {
     const urls = [
       ['git@github.com:atom/github.git', 'ssh'],
       ['git@github.com:/atom/github.git', 'ssh'],
@@ -29,11 +29,8 @@ describe('Remote', function() {
     }
   });
 
-  it('detects non-GitHub remotes', function() {
-    const urls = [
-      'git@gitlab.com:atom/github.git',
-      'atom/github',
-    ];
+  it('detects non-GitHub remotes', function () {
+    const urls = ['git@gitlab.com:atom/github.git', 'atom/github'];
 
     for (const url of urls) {
       const remote = new Remote('origin', url);
@@ -50,7 +47,7 @@ describe('Remote', function() {
     }
   });
 
-  it('may be created without a URL', function() {
+  it('may be created without a URL', function () {
     const remote = new Remote('origin');
 
     assert.isTrue(remote.isPresent());
@@ -64,7 +61,7 @@ describe('Remote', function() {
     assert.isNull(remote.getSlug());
   });
 
-  it('has a corresponding null object', function() {
+  it('has a corresponding null object', function () {
     assert.isFalse(nullRemote.isPresent());
     assert.strictEqual(nullRemote.getName(), '');
     assert.strictEqual(nullRemote.getUrl(), '');
@@ -76,30 +73,48 @@ describe('Remote', function() {
     assert.isNull(nullRemote.getSlug());
     assert.strictEqual(nullRemote.getNameOr('else'), 'else');
     assert.isNull(nullRemote.getEndpoint());
-    assert.strictEqual(nullRemote.getEndpointOrDotcom().getGraphQLRoot(), 'https://api.github.com/graphql');
+    assert.strictEqual(
+      nullRemote.getEndpointOrDotcom().getGraphQLRoot(),
+      'https://api.github.com/graphql'
+    );
   });
 
-  describe('getEndpoint', function() {
-    it('accesses an Endpoint for the corresponding GitHub host', function() {
+  describe('getEndpoint', function () {
+    it('accesses an Endpoint for the corresponding GitHub host', function () {
       const remote = new Remote('origin', 'git@github.com:atom/github.git');
-      assert.strictEqual(remote.getEndpoint().getGraphQLRoot(), 'https://api.github.com/graphql');
+      assert.strictEqual(
+        remote.getEndpoint().getGraphQLRoot(),
+        'https://api.github.com/graphql'
+      );
     });
 
-    it('returns null for non-GitHub URLs', function() {
-      const elsewhere = new Remote('mirror', 'https://me@bitbucket.org/team/repo.git');
+    it('returns null for non-GitHub URLs', function () {
+      const elsewhere = new Remote(
+        'mirror',
+        'https://me@bitbucket.org/team/repo.git'
+      );
       assert.isNull(elsewhere.getEndpoint());
     });
   });
 
-  describe('getEndpointOrDotcom', function() {
-    it('accesses the same Endpoint for the corresponding GitHub host', function() {
+  describe('getEndpointOrDotcom', function () {
+    it('accesses the same Endpoint for the corresponding GitHub host', function () {
       const remote = new Remote('origin', 'git@github.com:atom/github.git');
-      assert.strictEqual(remote.getEndpointOrDotcom().getGraphQLRoot(), 'https://api.github.com/graphql');
+      assert.strictEqual(
+        remote.getEndpointOrDotcom().getGraphQLRoot(),
+        'https://api.github.com/graphql'
+      );
     });
 
-    it('returns dotcom for non-GitHub URLs', function() {
-      const elsewhere = new Remote('mirror', 'https://me@bitbucket.org/team/repo.git');
-      assert.strictEqual(elsewhere.getEndpointOrDotcom().getGraphQLRoot(), 'https://api.github.com/graphql');
+    it('returns dotcom for non-GitHub URLs', function () {
+      const elsewhere = new Remote(
+        'mirror',
+        'https://me@bitbucket.org/team/repo.git'
+      );
+      assert.strictEqual(
+        elsewhere.getEndpointOrDotcom().getGraphQLRoot(),
+        'https://api.github.com/graphql'
+      );
     });
   });
 });

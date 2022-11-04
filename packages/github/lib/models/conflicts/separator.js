@@ -1,4 +1,4 @@
-import {deleteMarkerIn} from './marker-tools';
+import { deleteMarkerIn } from './marker-tools';
 
 export default class Separator {
   constructor(editor, marker) {
@@ -15,7 +15,9 @@ export default class Separator {
   }
 
   isModified() {
-    const currentText = this.editor.getTextInBufferRange(this.getMarker().getBufferRange());
+    const currentText = this.editor.getTextInBufferRange(
+      this.getMarker().getBufferRange()
+    );
     return !/^=======\r?\n?$/.test(currentText);
   }
 }

@@ -14,6 +14,6 @@ export default class IDGenerator {
   }
 
   embed() {
-    return {[IDGEN]: this};
+    return { [IDGEN]: this };
   }
 }

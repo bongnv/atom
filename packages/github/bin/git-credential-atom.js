@@ -4,11 +4,13 @@ const url = require('url');
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-const {execFile} = require('child_process');
-const {GitProcess} = require(process.env.ATOM_GITHUB_DUGITE_PATH);
-const {createStrategy, UNAUTHENTICATED} = require(process.env.ATOM_GITHUB_KEYTAR_STRATEGY_PATH);
+const { execFile } = require('child_process');
+const { GitProcess } = require(process.env.ATOM_GITHUB_DUGITE_PATH);
+const { createStrategy, UNAUTHENTICATED } = require(process.env
+  .ATOM_GITHUB_KEYTAR_STRATEGY_PATH);
 
-const diagnosticsEnabled = process.env.GIT_TRACE && process.env.GIT_TRACE.length !== 0;
+const diagnosticsEnabled =
+  process.env.GIT_TRACE && process.env.GIT_TRACE.length !== 0;
 const workdirPath = process.env.ATOM_GITHUB_WORKDIR_PATH;
 const inSpecMode = process.env.ATOM_GITHUB_SPEC_MODE === 'true';
 const sockAddr = process.argv[2];
@@ -38,12 +40,12 @@ function getSockOptions() {
     if (Number.isNaN(port)) {
       throw new Error(`Non-integer TCP port: ${tcp[1]}`);
     }
-    return {port, host: 'localhost', ...common};
+    return { port, host: 'localhost', ...common };
   }
 
   const unix = /unix:(.+)/.exec(sockAddr);
   if (unix) {
-    return {path: unix[1], ...common};
+    return { path: unix[1], ...common };
   }
 
   throw new Error(`Malformed $ATOM_GITHUB_SOCK_ADDR: ${sockAddr}`);
@@ -60,7 +62,7 @@ function systemCredentialHelpers() {
     return Promise.resolve([]);
   }
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const env = {
       PATH: process.env.ATOM_GITHUB_ORIGINAL_PATH || '',
       GIT_CONFIG_PARAMETERS: '',
@@ -69,19 +71,31 @@ function systemCredentialHelpers() {
     log('discover credential helpers from system git configuration');
     log(`PATH = ${env.PATH}`);
 
-    execFile('git', ['config', '--system', '--get-all', 'credential.helper'], {env}, (error, stdout) => {
-      if (error) {
-        log(`failed to list credential helpers. this is ok\n${error.stack}`);
+    execFile(
+      'git',
+      ['config', '--system', '--get-all', 'credential.helper'],
+      { env },
+      (error, stdout) => {
+        if (error) {
+          log(`failed to list credential helpers. this is ok\n${error.stack}`);
 
-        // Oh well, c'est la vie
-        resolve([]);
-        return;
+          // Oh well, c'est la vie
+          resolve([]);
+          return;
+        }
+
+        const helpers = stdout
+          .split(/\n+/)
+          .map((line) => line.trim())
+          .filter((each) => each.length > 0);
+        log(
+          `discovered system credential helpers: ${helpers
+            .map((h) => `"${h}"`)
+            .join(', ')}`
+        );
+        resolve(helpers);
       }
-
-      const helpers = stdout.split(/\n+/).map(line => line.trim()).filter(each => each.length > 0);
-      log(`discovered system credential helpers: ${helpers.map(h => `"${h}"`).join(', ')}`);
-      resolve(helpers);
-    });
+    );
   });
 }
 
@@ -97,11 +111,16 @@ async function withAllHelpers(query, subAction) {
     GIT_CONFIG_PARAMETERS: '', // Only you can prevent forkbombs
   };
 
-  const stdin = Object.keys(query).map(k => `${k}=${query[k]}\n`).join('') + '\n';
+  const stdin =
+    Object.keys(query)
+      .map((k) => `${k}=${query[k]}\n`)
+      .join('') + '\n';
   const stdinEncoding = 'utf8';
 
   const args = [];
-  systemHelpers.forEach(helper => args.push('-c', `credential.helper=${helper}`));
+  systemHelpers.forEach((helper) =>
+    args.push('-c', `credential.helper=${helper}`)
+  );
   args.push('credential', subAction);
 
   log(`attempting to run ${subAction} with user-configured credential helpers`);
@@ -110,7 +129,7 @@ async function withAllHelpers(query, subAction) {
   log(`arguments = ${args.join(' ')}`);
   log(`stdin =\n${stdin.replace(/password=[^\n]+/, 'password=*******')}`);
 
-  return GitProcess.exec(args, workdirPath, {env, stdin, stdinEncoding});
+  return GitProcess.exec(args, workdirPath, { env, stdin, stdinEncoding });
 }
 
 /*
@@ -118,12 +137,12 @@ async function withAllHelpers(query, subAction) {
  */
 function parse() {
   return new Promise((resolve, reject) => {
-    const rl = readline.createInterface({input: process.stdin});
+    const rl = readline.createInterface({ input: process.stdin });
 
     let resolved = false;
     const query = {};
 
-    rl.on('line', line => {
+    rl.on('line', (line) => {
       if (resolved) {
         return;
       }
@@ -143,7 +162,11 @@ function parse() {
 
       const key = line.substring(0, ind);
       const value = line.substring(ind + 1).replace(/\n$/, '');
-      log(`parsed from stdin: [${key}] = [${key === 'password' ? '******' : value}]`);
+      log(
+        `parsed from stdin: [${key}] = [${
+          key === 'password' ? '******' : value
+        }]`
+      );
 
       query[key] = value;
     });
@@ -165,11 +188,13 @@ function parse() {
  * hooray! Report the results to stdout. Otherwise, reject the promise and collect credentials through Atom.
  */
 async function fromOtherHelpers(query) {
-  const {stdout, stderr, exitCode} = await withAllHelpers(query, 'fill');
+  const { stdout, stderr, exitCode } = await withAllHelpers(query, 'fill');
   if (exitCode !== 0) {
     log(`stdout:\n${stdout}`);
     log(`stderr:\n${stderr}`);
-    log(`user-configured credential helpers failed with exit code ${exitCode}. this is ok`);
+    log(
+      `user-configured credential helpers failed with exit code ${exitCode}. this is ok`
+    );
 
     throw new Error('git-credential fill failed');
   }
@@ -179,7 +204,9 @@ async function fromOtherHelpers(query) {
 
     return stdout;
   } else {
-    log(`no password received from user-configured credential helper:\n${stdout}`);
+    log(
+      `no password received from user-configured credential helper:\n${stdout}`
+    );
 
     throw new Error('No password reported from upstream git-credential fill');
   }
@@ -200,7 +227,9 @@ async function fromKeytar(query) {
 
   if (!query.username) {
     const metaService = `atom-github-git-meta @ ${query.protocol}://${query.host}`;
-    log(`reading username from service "${metaService}" and account "username"`);
+    log(
+      `reading username from service "${metaService}" and account "username"`
+    );
     const u = await strategy.getPassword(metaService, 'username');
     if (u !== UNAUTHENTICATED) {
       log('username found in keychain');
@@ -221,44 +250,55 @@ async function fromKeytar(query) {
 
   if (password === UNAUTHENTICATED) {
     // Read GitHub tab token
-    const githubHost = query.host === 'github.com'
-      ? `${query.protocol}://api.${query.host}`
-      : `${query.protocol}://${query.host}`;
+    const githubHost =
+      query.host === 'github.com'
+        ? `${query.protocol}://api.${query.host}`
+        : `${query.protocol}://${query.host}`;
     log(`reading service "atom-github" and account "${githubHost}"`);
-    const githubPassword = await strategy.getPassword('atom-github', githubHost);
+    const githubPassword = await strategy.getPassword(
+      'atom-github',
+      githubHost
+    );
     if (githubPassword !== UNAUTHENTICATED) {
       try {
         if (!query.username) {
-          const apiHost = query.host === 'github.com' ? 'api.github.com' : query.host;
-          const apiPath = query.host === 'github.com' ? '/graphql' : '/api/graphql';
+          const apiHost =
+            query.host === 'github.com' ? 'api.github.com' : query.host;
+          const apiPath =
+            query.host === 'github.com' ? '/graphql' : '/api/graphql';
 
           const response = await new Promise((resolve, reject) => {
-            const postBody = JSON.stringify({query: 'query { viewer { login } }'});
-            const req = https.request({
-              protocol: query.protocol + ':',
-              hostname: apiHost,
-              method: 'POST',
-              path: apiPath,
-              headers: {
-                'content-type': 'application/json',
-                'content-length': Buffer.byteLength(postBody, 'utf8'),
-                'Authorization': `bearer ${githubPassword}`,
-                'Accept': 'application/vnd.github.graphql-profiling+json',
-                'User-Agent': 'Atom git credential helper/1.0.0',
-              },
-            }, res => {
-              const parts = [];
-
-              res.setEncoding('utf8');
-              res.on('data', chunk => parts.push(chunk));
-              res.on('end', () => {
-                if (res.statusCode !== 200) {
-                  reject(new Error(parts.join('')));
-                } else {
-                  resolve(parts.join(''));
-                }
-              });
+            const postBody = JSON.stringify({
+              query: 'query { viewer { login } }',
             });
+            const req = https.request(
+              {
+                protocol: query.protocol + ':',
+                hostname: apiHost,
+                method: 'POST',
+                path: apiPath,
+                headers: {
+                  'content-type': 'application/json',
+                  'content-length': Buffer.byteLength(postBody, 'utf8'),
+                  Authorization: `bearer ${githubPassword}`,
+                  Accept: 'application/vnd.github.graphql-profiling+json',
+                  'User-Agent': 'Atom git credential helper/1.0.0',
+                },
+              },
+              (res) => {
+                const parts = [];
+
+                res.setEncoding('utf8');
+                res.on('data', (chunk) => parts.push(chunk));
+                res.on('end', () => {
+                  if (res.statusCode !== 200) {
+                    reject(new Error(parts.join('')));
+                  } else {
+                    resolve(parts.join(''));
+                  }
+                });
+              }
+            );
 
             req.on('error', reject);
             req.end(postBody);
@@ -279,8 +319,12 @@ async function fromKeytar(query) {
 
       // Always remember credentials we had to go to GraphQL to get
       await new Promise((resolve, reject) => {
-        fs.writeFile(rememberFile, '', {encoding: 'utf8'}, err => {
-          if (err) { reject(err); } else { resolve(); }
+        fs.writeFile(rememberFile, '', { encoding: 'utf8' }, (err) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
         });
       });
     }
@@ -288,8 +332,8 @@ async function fromKeytar(query) {
 
   if (password !== UNAUTHENTICATED) {
     const lines = ['protocol', 'host', 'username']
-      .filter(k => query[k] !== undefined)
-      .map(k => `${k}=${query[k]}\n`);
+      .filter((k) => query[k] !== undefined)
+      .map((k) => `${k}=${query[k]}\n`);
     lines.push(`password=${password}\n`);
     return lines.join('') + 'quit=true\n';
   } else {
@@ -308,7 +352,12 @@ function dialog(q) {
   const prompt = 'Please enter your credentials for ' + url.format(q);
   const includeUsername = !q.username;
 
-  const query = {prompt, includeUsername, includeRemember: true, pid: process.pid};
+  const query = {
+    prompt,
+    includeUsername,
+    includeRemember: true,
+    pid: process.pid,
+  };
 
   const sockOptions = getSockOptions();
 
@@ -321,7 +370,7 @@ function dialog(q) {
 
       let payload = '';
 
-      socket.on('data', data => {
+      socket.on('data', (data) => {
         payload += data;
       });
       socket.on('end', () => {
@@ -330,13 +379,13 @@ function dialog(q) {
         try {
           const reply = JSON.parse(payload);
 
-          const writeReply = function(err) {
+          const writeReply = function (err) {
             if (err) {
               log(`Unable to write remember file: ${err.stack}`);
             }
 
             const lines = [];
-            ['protocol', 'host', 'username', 'password'].forEach(k => {
+            ['protocol', 'host', 'username', 'password'].forEach((k) => {
               const value = reply[k] !== undefined ? reply[k] : q[k];
               lines.push(`${k}=${value}\n`);
             });
@@ -346,7 +395,7 @@ function dialog(q) {
           };
 
           if (reply.remember) {
-            fs.writeFile(rememberFile, '', {encoding: 'utf8'}, writeReply);
+            fs.writeFile(rememberFile, '', { encoding: 'utf8' }, writeReply);
           } else {
             writeReply();
           }
@@ -357,7 +406,7 @@ function dialog(q) {
       });
 
       log('writing query');
-      await new Promise(r => {
+      await new Promise((r) => {
         socket.end(JSON.stringify(query), 'utf8', r);
       });
       log('query written');
@@ -370,8 +419,8 @@ function dialog(q) {
  * Write a successfully used username and password pair to the OS keychain, so that fromKeytar will find it.
  */
 async function toKeytar(query) {
-  const rememberFlag = await new Promise(resolve => {
-    fs.access(rememberFile, err => resolve(!err));
+  const rememberFlag = await new Promise((resolve) => {
+    fs.access(rememberFile, (err) => resolve(!err));
   });
   if (!rememberFlag) {
     return;
@@ -407,15 +456,19 @@ async function get() {
   const reply = await fromOtherHelpers(query)
     .catch(() => fromKeytar(query))
     .catch(() => dialog(query))
-    .catch(err => {
+    .catch((err) => {
       process.stderr.write(`Unable to prompt through Atom:\n${err.stack}`);
       log('failure');
       return 'quit=true\n\n';
     });
 
   await new Promise((resolve, reject) => {
-    process.stdout.write(reply, err => {
-      if (err) { reject(err); } else { resolve(); }
+    process.stdout.write(reply, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
     });
   });
 
@@ -454,17 +507,17 @@ log(`socket address = ${sockAddr}`);
 log(`action = ${action}`);
 
 switch (action) {
-case 'get':
-  get();
-  break;
-case 'store':
-  store();
-  break;
-case 'erase':
-  erase();
-  break;
-default:
-  log(`Unrecognized command: ${action}`);
-  process.exit(0);
-  break;
+  case 'get':
+    get();
+    break;
+  case 'store':
+    store();
+    break;
+  case 'erase':
+    erase();
+    break;
+  default:
+    log(`Unrecognized command: ${action}`);
+    process.exit(0);
+    break;
 }

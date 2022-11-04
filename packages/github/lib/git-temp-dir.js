@@ -2,14 +2,20 @@ import os from 'os';
 import url from 'url';
 import path from 'path';
 import fs from 'fs-extra';
-import {getPackageRoot, getTempDir} from './helpers';
+import { getPackageRoot, getTempDir } from './helpers';
 
 export const BIN_SCRIPTS = {
-  getCredentialHelperJs: url.fileURLToPath(require('../bin/git-credential-atom.js?raw')),
-  getCredentialHelperSh: url.fileURLToPath(require('../bin/git-credential-atom.sh?raw')),
+  getCredentialHelperJs: url.fileURLToPath(
+    require('../bin/git-credential-atom.js?raw')
+  ),
+  getCredentialHelperSh: url.fileURLToPath(
+    require('../bin/git-credential-atom.sh?raw')
+  ),
   getAskPassJs: url.fileURLToPath(require('../bin/git-askpass-atom.js?raw')),
   getAskPassSh: url.fileURLToPath(require('../bin/git-askpass-atom.sh?raw')),
-  getSshWrapperSh: url.fileURLToPath(require('../bin/linux-ssh-wrapper.sh?raw')),
+  getSshWrapperSh: url.fileURLToPath(
+    require('../bin/linux-ssh-wrapper.sh?raw')
+  ),
   getGpgWrapperSh: url.fileURLToPath(require('../bin/gpg-wrapper.sh?raw')),
 };
 
@@ -30,16 +36,13 @@ export default class GitTempDir {
     });
 
     await Promise.all(
-      Object.values(BIN_SCRIPTS).map(async filename => {
-        await fs.copy(
-          filename,
-          path.join(this.root, filename),
-        );
+      Object.values(BIN_SCRIPTS).map(async (filename) => {
+        await fs.copy(filename, path.join(this.root, filename));
 
         if (path.extname(filename) === '.sh') {
           await fs.chmod(path.join(this.root, filename), 0o700);
         }
-      }),
+      })
     );
 
     this.created = true;
@@ -51,7 +54,9 @@ export default class GitTempDir {
 
   getScriptPath(filename) {
     if (!this.created) {
-      throw new Error(`Attempt to access filename ${filename} in uninitialized GitTempDir`);
+      throw new Error(
+        `Attempt to access filename ${filename} in uninitialized GitTempDir`
+      );
     }
 
     return path.join(this.root, filename);
@@ -59,9 +64,9 @@ export default class GitTempDir {
 
   getSocketOptions() {
     if (process.platform === 'win32') {
-      return {port: 0, host: 'localhost'};
+      return { port: 0, host: 'localhost' };
     } else {
-      return {path: this.getScriptPath('helper.sock')};
+      return { path: this.getScriptPath('helper.sock') };
     }
   }
 
@@ -72,7 +77,7 @@ export default class GitTempDir {
 
 function createGetter(key) {
   const filename = BIN_SCRIPTS[key];
-  return function() {
+  return function () {
     return this.getScriptPath(filename);
   };
 }

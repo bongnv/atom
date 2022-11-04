@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Disposable} from 'event-kit';
+import { Disposable } from 'event-kit';
 
 export default class Accumulator extends React.Component {
   static propTypes = {
@@ -22,7 +22,7 @@ export default class Accumulator extends React.Component {
 
     // Called right after refetch happens
     onDidRefetch: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -32,7 +32,7 @@ export default class Accumulator extends React.Component {
     this.nextUpdateSub = new Disposable();
 
     this.nextUpdateID = null;
-    this.state = {error: null};
+    this.state = { error: null };
   }
 
   componentDidMount() {
@@ -47,7 +47,11 @@ export default class Accumulator extends React.Component {
   }
 
   render() {
-    return this.props.children(this.state.error, this.props.resultBatch, this.props.relay.hasMore());
+    return this.props.children(
+      this.state.error,
+      this.props.resultBatch,
+      this.props.relay.hasMore()
+    );
   }
 
   attemptToLoadMore = () => {
@@ -59,15 +63,21 @@ export default class Accumulator extends React.Component {
       return;
     }
 
-    this.loadMoreSub = this.props.relay.loadMore(this.props.pageSize, this.accumulate);
-  }
+    this.loadMoreSub = this.props.relay.loadMore(
+      this.props.pageSize,
+      this.accumulate
+    );
+  };
 
-  accumulate = error => {
+  accumulate = (error) => {
     if (error) {
-      this.setState({error});
+      this.setState({ error });
     } else {
       if (this.props.waitTimeMs > 0 && this.nextUpdateID === null) {
-        this.nextUpdateID = setTimeout(this.attemptToLoadMore, this.props.waitTimeMs);
+        this.nextUpdateID = setTimeout(
+          this.attemptToLoadMore,
+          this.props.waitTimeMs
+        );
         this.nextUpdateSub = new Disposable(() => {
           clearTimeout(this.nextUpdateID);
           this.nextUpdateID = null;
@@ -76,5 +86,5 @@ export default class Accumulator extends React.Component {
         this.attemptToLoadMore();
       }
     }
-  }
+  };
 }

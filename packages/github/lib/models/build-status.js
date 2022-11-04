@@ -36,20 +36,29 @@ const NEUTRAL = {
 };
 
 const STATUS_CONTEXT_MAP = {
-  EXPECTED: PENDING, PENDING, SUCCESS, ERROR, FAILURE,
+  EXPECTED: PENDING,
+  PENDING,
+  SUCCESS,
+  ERROR,
+  FAILURE,
 };
 
-export function buildStatusFromStatusContext({state}) {
+export function buildStatusFromStatusContext({ state }) {
   return STATUS_CONTEXT_MAP[state] || DEFAULT;
 }
 
 const PENDING_CHECK_STATUSES = new Set(['QUEUED', 'IN_PROGRESS', 'REQUESTED']);
 
 const COMPLETED_CHECK_CONCLUSION_MAP = {
-  SUCCESS, FAILURE, TIMED_OUT: ERROR, CANCELLED: ERROR, ACTION_REQUIRED, NEUTRAL,
+  SUCCESS,
+  FAILURE,
+  TIMED_OUT: ERROR,
+  CANCELLED: ERROR,
+  ACTION_REQUIRED,
+  NEUTRAL,
 };
 
-export function buildStatusFromCheckResult({status, conclusion}) {
+export function buildStatusFromCheckResult({ status, conclusion }) {
   if (PENDING_CHECK_STATUSES.has(status)) {
     return PENDING;
   } else if (status === 'COMPLETED') {

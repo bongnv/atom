@@ -1,7 +1,10 @@
-import Author, {nullAuthor, NO_REPLY_GITHUB_EMAIL} from '../../lib/models/author';
+import Author, {
+  nullAuthor,
+  NO_REPLY_GITHUB_EMAIL,
+} from '../../lib/models/author';
 
-describe('Author', function() {
-  it('recognizes the no-reply GitHub email address', function() {
+describe('Author', function () {
+  it('recognizes the no-reply GitHub email address', function () {
     const a0 = new Author('foo@bar.com', 'Eh');
     assert.isFalse(a0.isNoReply());
 
@@ -9,7 +12,7 @@ describe('Author', function() {
     assert.isTrue(a1.isNoReply());
   });
 
-  it('distinguishes authors with a GitHub handle', function() {
+  it('distinguishes authors with a GitHub handle', function () {
     const a0 = new Author('foo@bar.com', 'Eh', 'handle');
     assert.isTrue(a0.hasLogin());
 
@@ -17,7 +20,7 @@ describe('Author', function() {
     assert.isFalse(a1.hasLogin());
   });
 
-  it('implements matching by email address', function() {
+  it('implements matching by email address', function () {
     const a0 = new Author('same@same.com', 'Zero');
     const a1 = new Author('same@same.com', 'One');
     const a2 = new Author('same@same.com', 'Two', 'two');
@@ -29,30 +32,36 @@ describe('Author', function() {
     assert.isFalse(a0.matches(nullAuthor));
   });
 
-  it('creates the correct avatar urls', function() {
+  it('creates the correct avatar urls', function () {
     const a0 = new Author('same@same.com', 'Zero');
     const a1 = new Author('0000000+testing@users.noreply.github.com', 'One');
     const a2 = new Author('', 'Blank Email');
     const a3 = new Author(null, 'Null Email');
 
-    assert.strictEqual('https://avatars.githubusercontent.com/u/e?email=same%40same.com&s=32', a0.getAvatarUrl());
-    assert.strictEqual('https://avatars.githubusercontent.com/u/0000000?s=32', a1.getAvatarUrl());
+    assert.strictEqual(
+      'https://avatars.githubusercontent.com/u/e?email=same%40same.com&s=32',
+      a0.getAvatarUrl()
+    );
+    assert.strictEqual(
+      'https://avatars.githubusercontent.com/u/0000000?s=32',
+      a1.getAvatarUrl()
+    );
     assert.strictEqual('', a2.getAvatarUrl());
     assert.strictEqual('', a3.getAvatarUrl());
     assert.strictEqual('', nullAuthor.getAvatarUrl());
   });
 
-  it('returns name and email as a string', function() {
+  it('returns name and email as a string', function () {
     const a0 = new Author('same@same.com', 'Zero');
     assert.strictEqual('Zero <same@same.com>', a0.toString());
   });
 
-  it('returns name, email, and login as a string', function() {
+  it('returns name, email, and login as a string', function () {
     const a0 = new Author('same@same.com', 'Zero', 'handle');
     assert.strictEqual('Zero <same@same.com> @handle', a0.toString());
   });
 
-  it('compares names by alphabetical order', function() {
+  it('compares names by alphabetical order', function () {
     const a0 = new Author('same@same.com', 'Zero');
     const a1 = new Author('same@same.com', 'One');
     const a2 = new Author('same@same.com', 'Two', 'two');
@@ -63,29 +72,29 @@ describe('Author', function() {
     assert.strictEqual(Author.compare(a0, nullAuthor), 1);
   });
 
-  it('returns null author as a string', function() {
+  it('returns null author as a string', function () {
     assert.strictEqual(nullAuthor.toString(), 'null author');
   });
 
-  it('assumes 2 null authors are equal', function() {
+  it('assumes 2 null authors are equal', function () {
     const nullAuthor2 = require('../../lib/models/author').nullAuthor;
     assert.isTrue(nullAuthor.matches(nullAuthor2));
   });
 
-  it('assumes nullAuthors are never present', function() {
+  it('assumes nullAuthors are never present', function () {
     assert.isFalse(nullAuthor.isPresent());
   });
 
-  it('assumes nullAuthors are never new', function() {
+  it('assumes nullAuthors are never new', function () {
     assert.isFalse(nullAuthor.isNew());
   });
 
-  it('assumes nullAuthors don\'t have logins', function() {
+  it("assumes nullAuthors don't have logins", function () {
     assert.isFalse(nullAuthor.hasLogin());
     assert.strictEqual(nullAuthor.getLogin(), null);
   });
 
-  it('assumes nullAuthors don\'t use a no reply email', function() {
+  it("assumes nullAuthors don't use a no reply email", function () {
     assert.isFalse(nullAuthor.isNoReply());
   });
 });

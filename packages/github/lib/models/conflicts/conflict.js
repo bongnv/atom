@@ -1,16 +1,15 @@
-import {MIDDLE} from './position';
-import {OURS, THEIRS, BASE} from './source';
+import { MIDDLE } from './position';
+import { OURS, THEIRS, BASE } from './source';
 import Side from './side';
 import Banner from './banner';
 import Separator from './separator';
 
-import {ConflictParser} from './parser';
-import {EditorAdapter, ChunkAdapter} from './parser/adapter';
-import {NoopVisitor} from './parser/noop-visitor';
+import { ConflictParser } from './parser';
+import { EditorAdapter, ChunkAdapter } from './parser/adapter';
+import { NoopVisitor } from './parser/noop-visitor';
 
 // Regular expression that matches the beginning of a potential conflict.
 const CONFLICT_START_REGEX = /^<{7} ([^\r\n]+)\r?\n/g;
-
 
 /*
  * Conflict parser visitor that marks each buffer range and assembles a Conflict from the
@@ -38,7 +37,13 @@ class ConflictVisitor {
    * textRowEnd - [Integer] of the first buffer row beyond the extend of this side's text.
    */
   visitOurSide(position, bannerRow, textRowStart, textRowEnd) {
-    this.ours = this.markSide(position, OURS, bannerRow, textRowStart, textRowEnd);
+    this.ours = this.markSide(
+      position,
+      OURS,
+      bannerRow,
+      textRowStart,
+      textRowEnd
+    );
   }
 
   /*
@@ -47,17 +52,29 @@ class ConflictVisitor {
    * textRowEnd - [Integer] first buffer row beyond the extend of this side's text.
    */
   visitBaseSide(bannerRow, textRowStart, textRowEnd) {
-    this.base = this.markSide(MIDDLE, BASE, bannerRow, textRowStart, textRowEnd);
+    this.base = this.markSide(
+      MIDDLE,
+      BASE,
+      bannerRow,
+      textRowStart,
+      textRowEnd
+    );
   }
 
   /*
    * sepRowStart - [Integer] buffer row that contains the "=======" separator.
    */
   visitSeparator(sepRowStart) {
-    const marker = this.layer.markBufferRange([[sepRowStart, 0], [sepRowStart + 1, 0]], {
-      invalidate: 'surround',
-      exclusive: true,
-    });
+    const marker = this.layer.markBufferRange(
+      [
+        [sepRowStart, 0],
+        [sepRowStart + 1, 0],
+      ],
+      {
+        invalidate: 'surround',
+        exclusive: true,
+      }
+    );
     this.separator = new Separator(this.editor, marker);
   }
 
@@ -68,7 +85,13 @@ class ConflictVisitor {
    * textRowEnd - [Integer] first buffer row beyond the extent of this side's text.
    */
   visitTheirSide(position, bannerRow, textRowStart, textRowEnd) {
-    this.theirs = this.markSide(position, THEIRS, bannerRow, textRowStart, textRowEnd);
+    this.theirs = this.markSide(
+      position,
+      THEIRS,
+      bannerRow,
+      textRowStart,
+      textRowEnd
+    );
   }
 
   markSide(position, source, bannerRow, textRowStart, textRowEnd) {
@@ -77,29 +100,51 @@ class ConflictVisitor {
       middle: () => 0,
       bottom: () => this.editor.lineTextForBufferRow(bannerRow).length,
     });
-    const blockRange = [[bannerRow, blockCol], [bannerRow, blockCol]];
+    const blockRange = [
+      [bannerRow, blockCol],
+      [bannerRow, blockCol],
+    ];
     const blockMarker = this.layer.markBufferRange(blockRange, {
       invalidate: 'surround',
       exclusive: true,
     });
 
     const description = this.sideDescription(bannerRow);
-    const bannerRange = [[bannerRow, 0], [bannerRow + 1, 0]];
+    const bannerRange = [
+      [bannerRow, 0],
+      [bannerRow + 1, 0],
+    ];
     const bannerMarker = this.layer.markBufferRange(bannerRange, {
       invalidate: 'surround',
       exclusive: true,
     });
     const originalBannerText = this.editor.getTextInBufferRange(bannerRange);
-    const banner = new Banner(this.editor, bannerMarker, description, originalBannerText);
+    const banner = new Banner(
+      this.editor,
+      bannerMarker,
+      description,
+      originalBannerText
+    );
 
-    const textRange = [[textRowStart, 0], [textRowEnd, 0]];
+    const textRange = [
+      [textRowStart, 0],
+      [textRowEnd, 0],
+    ];
     const sideMarker = this.layer.markBufferRange(textRange, {
       invalidate: 'surround',
       exclusive: false,
     });
     const originalText = this.editor.getTextInBufferRange(textRange);
 
-    return new Side(this.editor, sideMarker, blockMarker, source, position, banner, originalText);
+    return new Side(
+      this.editor,
+      sideMarker,
+      blockMarker,
+      source,
+      position,
+      banner,
+      originalText
+    );
   }
 
   /*
@@ -108,7 +153,9 @@ class ConflictVisitor {
    * bannerRow - [Integer] buffer row containing the <, |, or > marker
    */
   sideDescription(bannerRow) {
-    return this.editor.lineTextForBufferRow(bannerRow).match(/^[<|>]{7} (.*)$/)[1];
+    return this.editor
+      .lineTextForBufferRow(bannerRow)
+      .match(/^[<|>]{7} (.*)$/)[1];
   }
 
   conflict() {
@@ -123,7 +170,7 @@ export default class Conflict {
     this.bySource = {};
     this.byPosition = {};
 
-    [ours, base, theirs].forEach(side => {
+    [ours, base, theirs].forEach((side) => {
       if (!side) {
         return;
       }
@@ -148,7 +195,9 @@ export default class Conflict {
   }
 
   getSides() {
-    return ['ours', 'base', 'theirs'].map(sourceName => this.bySource[sourceName]).filter(side => side);
+    return ['ours', 'base', 'theirs']
+      .map((sourceName) => this.bySource[sourceName])
+      .filter((side) => side);
   }
 
   getChosenSide() {
@@ -156,7 +205,7 @@ export default class Conflict {
   }
 
   getUnchosenSides() {
-    return this.getSides().filter(side => side !== this.resolution);
+    return this.getSides().filter((side) => side !== this.resolution);
   }
 
   getSide(source) {
@@ -167,7 +216,7 @@ export default class Conflict {
    * Return a `Side` containing a buffer point, or `undefined` if none do.
    */
   getSideContaining(point) {
-    return this.getSides().find(side => side.includesPoint(point));
+    return this.getSides().find((side) => side.includesPoint(point));
   }
 
   /*
@@ -192,7 +241,10 @@ export default class Conflict {
    */
   markerAfter(position) {
     return position.when({
-      top: () => (this.byPosition.middle ? this.byPosition.middle.getBannerMarker() : this.getSeparator().getMarker()),
+      top: () =>
+        this.byPosition.middle
+          ? this.byPosition.middle.getBannerMarker()
+          : this.getSeparator().getMarker(),
       middle: () => this.getSeparator().getMarker(),
       bottom: () => this.byPosition.bottom.getBannerMarker(),
     });
@@ -214,7 +266,7 @@ export default class Conflict {
     const conflicts = [];
     let lastRow = -1;
 
-    editor.getBuffer().scan(CONFLICT_START_REGEX, m => {
+    editor.getBuffer().scan(CONFLICT_START_REGEX, (m) => {
       const conflictStartRow = m.range.start.row;
       if (conflictStartRow < lastRow) {
         // Match within an already-parsed conflict.
@@ -244,7 +296,7 @@ export default class Conflict {
       let lastResult = null;
       let lastPartialMarker = '';
 
-      stream.on('data', chunk => {
+      stream.on('data', (chunk) => {
         const adapter = new ChunkAdapter(lastPartialMarker + chunk);
         if (!lastResult) {
           if (!adapter.advanceTo(CONFLICT_START_REGEX)) {
@@ -253,8 +305,14 @@ export default class Conflict {
           }
         }
         do {
-          const parser = new ConflictParser(adapter, new NoopVisitor(), isRebase);
-          const result = lastResult ? parser.continueFrom(lastResult) : parser.parse();
+          const parser = new ConflictParser(
+            adapter,
+            new NoopVisitor(),
+            isRebase
+          );
+          const result = lastResult
+            ? parser.continueFrom(lastResult)
+            : parser.parse();
 
           if (result.wasSuccessful()) {
             count++;

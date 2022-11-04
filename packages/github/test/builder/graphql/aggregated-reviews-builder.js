@@ -1,4 +1,4 @@
-import {pullRequestBuilder, reviewThreadBuilder} from './pr';
+import { pullRequestBuilder, reviewThreadBuilder } from './pr';
 
 import summariesQuery from '../../../lib/containers/accumulators/__generated__/reviewSummariesAccumulator_pullRequest.graphql.js';
 import threadsQuery from '../../../lib/containers/accumulators/__generated__/reviewThreadsAccumulator_pullRequest.graphql.js';
@@ -50,9 +50,9 @@ class AggregatedReviewsBuilder {
     block(subBuilder);
 
     const commentBuilder = reviewThreadBuilder(commentsQuery);
-    commentBuilder.comments(conn => {
+    commentBuilder.comments((conn) => {
       for (const block0 of commentBlocks) {
-        conn.addEdge(e => e.node(block0));
+        conn.addEdge((e) => e.node(block0));
       }
     });
 
@@ -63,27 +63,31 @@ class AggregatedReviewsBuilder {
   }
 
   build() {
-    this._reviewSummaryBuilder.reviews(conn => {
+    this._reviewSummaryBuilder.reviews((conn) => {
       for (const block of this._summaryBlocks) {
-        conn.addEdge(e => e.node(block));
+        conn.addEdge((e) => e.node(block));
       }
     });
     const summariesPullRequest = this._reviewSummaryBuilder.build();
-    const summaries = summariesPullRequest.reviews.edges.map(e => e.node);
+    const summaries = summariesPullRequest.reviews.edges.map((e) => e.node);
 
-    this._reviewThreadsBuilder.reviewThreads(conn => {
+    this._reviewThreadsBuilder.reviewThreads((conn) => {
       for (const block of this._threadBlocks) {
-        conn.addEdge(e => e.node(block));
+        conn.addEdge((e) => e.node(block));
       }
     });
     const threadsPullRequest = this._reviewThreadsBuilder.build();
 
-    const commentThreads = threadsPullRequest.reviewThreads.edges.map((e, i) => {
-      const thread = e.node;
-      const commentsReviewThread = this._commentsBuilders[i].build();
-      const comments = commentsReviewThread.comments.edges.map(e0 => e0.node);
-      return {thread, comments};
-    });
+    const commentThreads = threadsPullRequest.reviewThreads.edges.map(
+      (e, i) => {
+        const thread = e.node;
+        const commentsReviewThread = this._commentsBuilders[i].build();
+        const comments = commentsReviewThread.comments.edges.map(
+          (e0) => e0.node
+        );
+        return { thread, comments };
+      }
+    );
 
     return {
       errors: this._errors,

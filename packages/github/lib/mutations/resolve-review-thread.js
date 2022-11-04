@@ -1,9 +1,6 @@
 /* istanbul ignore file */
 
-import {
-  commitMutation,
-  graphql,
-} from 'react-relay';
+import { commitMutation, graphql } from 'react-relay';
 
 const mutation = graphql`
   mutation resolveReviewThreadMutation($input: ResolveReviewThreadInput!) {
@@ -22,7 +19,7 @@ const mutation = graphql`
   }
 `;
 
-export default (environment, {threadID, viewerID, viewerLogin}) => {
+export default (environment, { threadID, viewerID, viewerLogin }) => {
   const variables = {
     input: {
       threadId: threadID,
@@ -45,15 +42,12 @@ export default (environment, {threadID, viewerID, viewerLogin}) => {
   };
 
   return new Promise((resolve, reject) => {
-    commitMutation(
-      environment,
-      {
-        mutation,
-        variables,
-        optimisticResponse,
-        onCompleted: resolve,
-        onError: reject,
-      },
-    );
+    commitMutation(environment, {
+      mutation,
+      variables,
+      optimisticResponse,
+      onCompleted: resolve,
+      onError: reject,
+    });
   });
 };

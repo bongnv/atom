@@ -14,7 +14,10 @@ export default class Cloning extends State {
 
   async start() {
     await fs.mkdirs(this.workdir());
-    await this.doClone(this.remoteUrl, {recursive: true, sourceRemoteName: this.sourceRemoteName});
+    await this.doClone(this.remoteUrl, {
+      recursive: true,
+      sourceRemoteName: this.sourceRemoteName,
+    });
 
     await this.transitionTo('Loading');
   }

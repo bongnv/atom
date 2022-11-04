@@ -1,5 +1,9 @@
-import {SpecBuilder} from './builder';
-import {makeDefaultGetterName, makeNullableFunctionName, makeAdderFunctionName} from './names';
+import { SpecBuilder } from './builder';
+import {
+  makeDefaultGetterName,
+  makeNullableFunctionName,
+  makeAdderFunctionName,
+} from './names';
 
 // Dynamically construct a Builder class that includes *only* fields that are selected by a GraphQL fragment. Adding
 // fields to a fragment will cause them to be automatically included when that a Builder instance is created with
@@ -22,62 +26,84 @@ import {makeDefaultGetterName, makeNullableFunctionName, makeAdderFunctionName} 
 // * "custom" installs its value as a method on the generated Builder with the provided field name.
 //
 // See the README in this directory for examples.
-export function createSpecBuilderClass(typeName, fieldDescriptions, interfaces = '') {
+export function createSpecBuilderClass(
+  typeName,
+  fieldDescriptions,
+  interfaces = ''
+) {
   class Builder extends SpecBuilder {}
   Builder.prototype.typeName = typeName;
   Builder.prototype.builderName = typeName + 'Builder';
 
-  Builder.prototype.allTypeNames = new Set([typeName, ...interfaces.split(/\s*&\s*/)]);
+  Builder.prototype.allTypeNames = new Set([
+    typeName,
+    ...interfaces.split(/\s*&\s*/),
+  ]);
 
   // These functions are used to install functions on the Builder class that implement specific access patterns. They're
   // implemented here as inner functions to avoid the use of function literals within a loop.
 
   function installScalarSetter(fieldName) {
-    Builder.prototype[fieldName] = function(_value) {
+    Builder.prototype[fieldName] = function (_value) {
       return this.singularScalarFieldSetter(fieldName, _value);
     };
   }
 
   function installScalarAdder(pluralFieldName, singularFieldName) {
-    Builder.prototype[makeAdderFunctionName(singularFieldName)] = function(_value) {
+    Builder.prototype[makeAdderFunctionName(singularFieldName)] = function (
+      _value
+    ) {
       return this.pluralScalarFieldAdder(pluralFieldName, _value);
     };
   }
 
   function installLinkedSetter(fieldName, LinkedBuilder) {
-    Builder.prototype[fieldName] = function(_block = () => {}) {
+    Builder.prototype[fieldName] = function (_block = () => {}) {
       return this.singularLinkedFieldSetter(fieldName, LinkedBuilder, _block);
     };
   }
 
-  function installLinkedAdder(pluralFieldName, singularFieldName, LinkedBuilder) {
-    Builder.prototype[makeAdderFunctionName(singularFieldName)] = function(_block = () => {}) {
-      return this.pluralLinkedFieldAdder(pluralFieldName, LinkedBuilder, _block);
+  function installLinkedAdder(
+    pluralFieldName,
+    singularFieldName,
+    LinkedBuilder
+  ) {
+    Builder.prototype[makeAdderFunctionName(singularFieldName)] = function (
+      _block = () => {}
+    ) {
+      return this.pluralLinkedFieldAdder(
+        pluralFieldName,
+        LinkedBuilder,
+        _block
+      );
     };
   }
 
   function installNullableFunction(fieldName) {
-    Builder.prototype[makeNullableFunctionName(fieldName)] = function() {
+    Builder.prototype[makeNullableFunctionName(fieldName)] = function () {
       return this.nullField(fieldName);
     };
   }
 
   function installDefaultGetter(fieldName, descriptionDefault) {
     const defaultGetterName = makeDefaultGetterName(fieldName);
-    const defaultGetter = typeof descriptionDefault === 'function' ? descriptionDefault : function() {
-      return descriptionDefault;
-    };
+    const defaultGetter =
+      typeof descriptionDefault === 'function'
+        ? descriptionDefault
+        : function () {
+            return descriptionDefault;
+          };
     Builder.prototype[defaultGetterName] = defaultGetter;
   }
 
   function installDefaultPluralGetter(fieldName) {
-    installDefaultGetter(fieldName, function() {
+    installDefaultGetter(fieldName, function () {
       return [];
     });
   }
 
   function installDefaultLinkedGetter(fieldName) {
-    installDefaultGetter(fieldName, function() {
+    installDefaultGetter(fieldName, function () {
       this[fieldName]();
       return this.fields[fieldName];
     });
@@ -114,11 +140,13 @@ export function createSpecBuilderClass(typeName, fieldDescriptions, interfaces =
         /* eslint-disable-next-line no-console */
         console.error(
           `Linked field ${fieldName} requested without a builder class in ${name}.\n` +
-          'This can happen if you have a circular dependency between builders in different ' +
-          'modules. Use defer() to defer loading of one builder to break it.',
-          fieldDescriptions,
+            'This can happen if you have a circular dependency between builders in different ' +
+            'modules. Use defer() to defer loading of one builder to break it.',
+          fieldDescriptions
         );
-        throw new Error(`Linked field ${fieldName} requested without a builder class in ${name}`);
+        throw new Error(
+          `Linked field ${fieldName} requested without a builder class in ${name}`
+        );
       }
 
       if (description.plural) {

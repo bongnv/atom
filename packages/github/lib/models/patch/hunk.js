@@ -49,7 +49,7 @@ export default class Hunk {
   }
 
   getChanges() {
-    return this.regions.filter(change => change.isChange());
+    return this.regions.filter((change) => change.isChange());
   }
 
   getMarker() {
@@ -127,13 +127,13 @@ export default class Hunk {
   getMaxLineNumberWidth() {
     return Math.max(
       (this.oldStartRow + this.oldRowCount).toString().length,
-      (this.newStartRow + this.newRowCount).toString().length,
+      (this.newStartRow + this.newRowCount).toString().length
     );
   }
 
   changedLineCount() {
     return this.regions
-      .filter(region => region.isChange())
+      .filter((region) => region.isChange())
       .reduce((count, change) => count + change.bufferRowCount(), 0);
   }
 
@@ -152,7 +152,10 @@ export default class Hunk {
   }
 
   toStringIn(buffer) {
-    return this.getRegions().reduce((str, region) => str + region.toStringIn(buffer), this.getHeader() + '\n');
+    return this.getRegions().reduce(
+      (str, region) => str + region.toStringIn(buffer),
+      this.getHeader() + '\n'
+    );
   }
 
   /*
@@ -178,7 +181,7 @@ export default class Hunk {
       inspectString += ' [invalid]';
     }
     for (const region of this.regions) {
-      inspectString += region.inspect({indent: options.indent + 2});
+      inspectString += region.inspect({ indent: options.indent + 2 });
     }
     inspectString += `${indentation})\n`;
     return inspectString;

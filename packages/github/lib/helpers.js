@@ -66,7 +66,7 @@ export function unusedProps(props, propTypes) {
 }
 
 export function getPackageRoot() {
-  const {resourcePath} = atom.getLoadSettings();
+  const { resourcePath } = atom.getLoadSettings();
   const currentFileWasRequiredFromSnapshot = !path.isAbsolute(__dirname);
   if (currentFileWasRequiredFromSnapshot) {
     return path.join(resourcePath, 'node_modules', 'github');
@@ -94,8 +94,15 @@ function getAtomAppName() {
 export function getAtomHelperPath() {
   if (process.platform === 'darwin') {
     const appName = getAtomAppName();
-    return path.resolve(process.resourcesPath, '..', 'Frameworks',
-      `${appName}.app`, 'Contents', 'MacOS', appName);
+    return path.resolve(
+      process.resourcesPath,
+      '..',
+      'Frameworks',
+      `${appName}.app`,
+      'Contents',
+      'MacOS',
+      appName
+    );
   } else {
     return process.execPath;
   }
@@ -107,9 +114,13 @@ export function getDugitePath() {
     DUGITE_PATH = require.resolve('dugite');
     if (!path.isAbsolute(DUGITE_PATH)) {
       // Assume we're snapshotted
-      const {resourcePath} = atom.getLoadSettings();
+      const { resourcePath } = atom.getLoadSettings();
       if (path.extname(resourcePath) === '.asar') {
-        DUGITE_PATH = path.join(`${resourcePath}.unpacked`, 'node_modules', 'dugite');
+        DUGITE_PATH = path.join(
+          `${resourcePath}.unpacked`,
+          'node_modules',
+          'dugite'
+        );
       } else {
         DUGITE_PATH = path.join(resourcePath, 'node_modules', 'dugite');
       }
@@ -146,64 +157,75 @@ function descriptorsFromProto(proto) {
  * returns the value of that property on the first object in `targets` where the target implements that property.
  */
 export function firstImplementer(...targets) {
-  return new Proxy({__implementations: targets}, {
-    get(target, name) {
-      if (name === 'getImplementers') {
-        return () => targets;
-      }
+  return new Proxy(
+    { __implementations: targets },
+    {
+      get(target, name) {
+        if (name === 'getImplementers') {
+          return () => targets;
+        }
 
-      if (Reflect.has(target, name)) {
-        return target[name];
-      }
+        if (Reflect.has(target, name)) {
+          return target[name];
+        }
 
-      const firstValidTarget = targets.find(t => Reflect.has(t, name));
-      if (firstValidTarget) {
-        return firstValidTarget[name];
-      } else {
-        return undefined;
-      }
-    },
+        const firstValidTarget = targets.find((t) => Reflect.has(t, name));
+        if (firstValidTarget) {
+          return firstValidTarget[name];
+        } else {
+          return undefined;
+        }
+      },
 
-    set(target, name, value) {
-      const firstValidTarget = targets.find(t => Reflect.has(t, name));
-      if (firstValidTarget) {
-        // eslint-disable-next-line no-return-assign
-        return firstValidTarget[name] = value;
-      } else {
-        // eslint-disable-next-line no-return-assign
-        return target[name] = value;
-      }
-    },
+      set(target, name, value) {
+        const firstValidTarget = targets.find((t) => Reflect.has(t, name));
+        if (firstValidTarget) {
+          // eslint-disable-next-line no-return-assign
+          return (firstValidTarget[name] = value);
+        } else {
+          // eslint-disable-next-line no-return-assign
+          return (target[name] = value);
+        }
+      },
 
-    // Used by sinon
-    has(target, name) {
-      if (name === 'getImplementers') {
-        return true;
-      }
+      // Used by sinon
+      has(target, name) {
+        if (name === 'getImplementers') {
+          return true;
+        }
 
-      return targets.some(t => Reflect.has(t, name));
-    },
+        return targets.some((t) => Reflect.has(t, name));
+      },
 
-    // Used by sinon
-    getOwnPropertyDescriptor(target, name) {
-      const firstValidTarget = targets.find(t => Reflect.getOwnPropertyDescriptor(t, name));
-      const compositeOwnPropertyDescriptor = Reflect.getOwnPropertyDescriptor(target, name);
-      if (firstValidTarget) {
-        return Reflect.getOwnPropertyDescriptor(firstValidTarget, name);
-      } else if (compositeOwnPropertyDescriptor) {
-        return compositeOwnPropertyDescriptor;
-      } else {
-        return undefined;
-      }
-    },
+      // Used by sinon
+      getOwnPropertyDescriptor(target, name) {
+        const firstValidTarget = targets.find((t) =>
+          Reflect.getOwnPropertyDescriptor(t, name)
+        );
+        const compositeOwnPropertyDescriptor = Reflect.getOwnPropertyDescriptor(
+          target,
+          name
+        );
+        if (firstValidTarget) {
+          return Reflect.getOwnPropertyDescriptor(firstValidTarget, name);
+        } else if (compositeOwnPropertyDescriptor) {
+          return compositeOwnPropertyDescriptor;
+        } else {
+          return undefined;
+        }
+      },
 
-    // Used by sinon
-    getPrototypeOf(target) {
-      return targets.reduceRight((acc, t) => {
-        return Object.create(acc, descriptorsFromProto(Object.getPrototypeOf(t)));
-      }, Object.prototype);
-    },
-  });
+      // Used by sinon
+      getPrototypeOf(target) {
+        return targets.reduceRight((acc, t) => {
+          return Object.create(
+            acc,
+            descriptorsFromProto(Object.getPrototypeOf(t))
+          );
+        }, Object.prototype);
+      },
+    }
+  );
 }
 
 function isRoot(dir) {
@@ -240,7 +262,9 @@ export function getTempDir(options = {}) {
       if (options.symlinkOk) {
         resolve(folder);
       } else {
-        fs.realpath(folder, (realError, rpath) => (realError ? reject(realError) : resolve(rpath)));
+        fs.realpath(folder, (realError, rpath) =>
+          realError ? reject(realError) : resolve(rpath)
+        );
       }
     });
   });
@@ -359,17 +383,20 @@ export function getCommitMessageEditors(repository, workspace) {
   if (!repository.isPresent()) {
     return [];
   }
-  return workspace.getTextEditors().filter(editor => editor.getPath() === getCommitMessagePath(repository));
+  return workspace
+    .getTextEditors()
+    .filter((editor) => editor.getPath() === getCommitMessagePath(repository));
 }
 
 let ChangedFileItem = null;
-export function getFilePatchPaneItems({onlyStaged, empty} = {}, workspace) {
+export function getFilePatchPaneItems({ onlyStaged, empty } = {}, workspace) {
   if (ChangedFileItem === null) {
     ChangedFileItem = require('./items/changed-file-item').default;
   }
 
-  return workspace.getPaneItems().filter(item => {
-    const isFilePatchItem = item && item.getRealItem && item.getRealItem() instanceof ChangedFileItem;
+  return workspace.getPaneItems().filter((item) => {
+    const isFilePatchItem =
+      item && item.getRealItem && item.getRealItem() instanceof ChangedFileItem;
     if (onlyStaged) {
       return isFilePatchItem && item.stagingStatus === 'staged';
     } else if (empty) {
@@ -380,14 +407,14 @@ export function getFilePatchPaneItems({onlyStaged, empty} = {}, workspace) {
   });
 }
 
-export function destroyFilePatchPaneItems({onlyStaged} = {}, workspace) {
-  const itemsToDestroy = getFilePatchPaneItems({onlyStaged}, workspace);
-  itemsToDestroy.forEach(item => item.destroy());
+export function destroyFilePatchPaneItems({ onlyStaged } = {}, workspace) {
+  const itemsToDestroy = getFilePatchPaneItems({ onlyStaged }, workspace);
+  itemsToDestroy.forEach((item) => item.destroy());
 }
 
 export function destroyEmptyFilePatchPaneItems(workspace) {
-  const itemsToDestroy = getFilePatchPaneItems({empty: true}, workspace);
-  itemsToDestroy.forEach(item => item.destroy());
+  const itemsToDestroy = getFilePatchPaneItems({ empty: true }, workspace);
+  itemsToDestroy.forEach((item) => item.destroy());
 }
 
 export function extractCoAuthorsAndRawCommitMessage(commitMessage) {
@@ -405,12 +432,17 @@ export function extractCoAuthorsAndRawCommitMessage(commitMessage) {
     }
   }
 
-  return {message: messageLines.join('\n'), coAuthors};
+  return { message: messageLines.join('\n'), coAuthors };
 }
 
 // Atom API pane item manipulation
 
-export function createItem(node, componentHolder = null, uri = null, extra = {}) {
+export function createItem(
+  node,
+  componentHolder = null,
+  uri = null,
+  extra = {}
+) {
   const holder = componentHolder || new RefHolder();
 
   const override = {
@@ -436,19 +468,27 @@ export function createItem(node, componentHolder = null, uri = null, extra = {})
 
         // The {value: ...} wrapper prevents .map() from flattening a returned RefHolder.
         // If component[name] is a RefHolder, we want to return that RefHolder as-is.
-        const {value} = holder.map(component => ({value: component[name]})).getOr({value: undefined});
+        const { value } = holder
+          .map((component) => ({ value: component[name] }))
+          .getOr({ value: undefined });
         return value;
       },
 
       set(target, name, value) {
-        return holder.map(component => {
-          component[name] = value;
-          return true;
-        }).getOr(true);
+        return holder
+          .map((component) => {
+            component[name] = value;
+            return true;
+          })
+          .getOr(true);
       },
 
       has(target, name) {
-        return holder.map(component => Reflect.has(component, name)).getOr(false) || Reflect.has(target, name);
+        return (
+          holder
+            .map((component) => Reflect.has(component, name))
+            .getOr(false) || Reflect.has(target, name)
+        );
       },
     });
   } else {
@@ -508,7 +548,7 @@ export function renderMarkdown(md) {
     marked.setOptions({
       silent: true,
       sanitize: true,
-      sanitizer: html => domPurify.sanitize(html),
+      sanitizer: (html) => domPurify.sanitize(html),
     });
   }
 

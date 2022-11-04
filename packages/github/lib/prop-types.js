@@ -1,13 +1,17 @@
 import PropTypes from 'prop-types';
 
-export const TokenPropType = PropTypes.oneOfType([PropTypes.string, PropTypes.symbol, PropTypes.instanceOf(Error)]);
+export const TokenPropType = PropTypes.oneOfType([
+  PropTypes.string,
+  PropTypes.symbol,
+  PropTypes.instanceOf(Error),
+]);
 
 export const DOMNodePropType = (props, propName, componentName) => {
   if (props[propName] instanceof HTMLElement) {
     return null;
   } else {
     return new Error(
-      `Invalid prop '${propName}' supplied to '${componentName}'. Value is not DOM element.`,
+      `Invalid prop '${propName}' supplied to '${componentName}'. Value is not DOM element.`
     );
   }
 };
@@ -76,21 +80,22 @@ export const AuthorPropType = PropTypes.shape({
   getAvatarUrl: PropTypes.func.isRequired,
 });
 
-export const RelayConnectionPropType = nodePropType => PropTypes.shape({
-  edges: PropTypes.arrayOf(
-    PropTypes.shape({
-      cursor: PropTypes.string,
-      node: nodePropType,
+export const RelayConnectionPropType = (nodePropType) =>
+  PropTypes.shape({
+    edges: PropTypes.arrayOf(
+      PropTypes.shape({
+        cursor: PropTypes.string,
+        node: nodePropType,
+      })
+    ),
+    pageInfo: PropTypes.shape({
+      endCursor: PropTypes.string,
+      hasNextPage: PropTypes.bool,
+      hasPreviousPage: PropTypes.bool,
+      startCursor: PropTypes.string,
     }),
-  ),
-  pageInfo: PropTypes.shape({
-    endCursor: PropTypes.string,
-    hasNextPage: PropTypes.bool,
-    hasPreviousPage: PropTypes.bool,
-    startCursor: PropTypes.string,
-  }),
-  totalCount: PropTypes.number,
-});
+    totalCount: PropTypes.number,
+  });
 
 export const RefHolderPropType = PropTypes.shape({
   isEmpty: PropTypes.func.isRequired,
@@ -187,7 +192,9 @@ function createItemTypePropType(required) {
     if (props[propName] === undefined || props[propName] === null) {
       /* istanbul ignore else */
       if (required) {
-        return new Error(`Missing required prop ${propName} on component ${componentName}.`);
+        return new Error(
+          `Missing required prop ${propName} on component ${componentName}.`
+        );
       } else {
         return undefined;
       }
@@ -195,9 +202,13 @@ function createItemTypePropType(required) {
 
     /* istanbul ignore if */
     if (!lazyItemConstructors.has(props[propName])) {
-      const choices = Array.from(lazyItemConstructors, each => each.name).join(', ');
+      const choices = Array.from(
+        lazyItemConstructors,
+        (each) => each.name
+      ).join(', ');
       return new Error(
-        `Invalid prop "${propName}" supplied to ${componentName}. Must be one of ${choices}.`);
+        `Invalid prop "${propName}" supplied to ${componentName}. Must be one of ${choices}.`
+      );
     }
 
     return undefined;

@@ -1,5 +1,5 @@
-import {nullRemote} from './remote';
-import {pushAtKey} from '../helpers';
+import { nullRemote } from './remote';
+import { pushAtKey } from '../helpers';
 
 export default class RemoteSet {
   constructor(iterable = []) {
@@ -39,9 +39,7 @@ export default class RemoteSet {
   }
 
   filter(predicate) {
-    return new this.constructor(
-      Array.from(this).filter(predicate),
-    );
+    return new this.constructor(Array.from(this).filter(predicate));
   }
 
   matchingGitHubRepository(owner, name) {

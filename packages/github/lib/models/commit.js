@@ -1,4 +1,4 @@
-import {buildMultiFilePatch} from './patch';
+import { buildMultiFilePatch } from './patch';
 
 const UNBORN = Symbol('unborn');
 
@@ -13,10 +13,19 @@ export default class Commit {
   static NEWLINE_THRESHOLD = 5;
 
   static createUnborn() {
-    return new Commit({unbornRef: UNBORN});
+    return new Commit({ unbornRef: UNBORN });
   }
 
-  constructor({sha, author, coAuthors, authorDate, messageSubject, messageBody, unbornRef, patch}) {
+  constructor({
+    sha,
+    author,
+    coAuthors,
+    authorDate,
+    messageSubject,
+    messageBody,
+    unbornRef,
+    patch,
+  }) {
     this.sha = sha;
     this.author = author;
     this.coAuthors = coAuthors || [];
@@ -25,7 +34,9 @@ export default class Commit {
     this.messageBody = messageBody;
     this.unbornRef = unbornRef === UNBORN;
 
-    this.multiFileDiff = patch ? buildMultiFilePatch(patch) : buildMultiFilePatch([]);
+    this.multiFileDiff = patch
+      ? buildMultiFilePatch(patch)
+      : buildMultiFilePatch([]);
   }
 
   getSha() {
@@ -65,11 +76,16 @@ export default class Commit {
   }
 
   isBodyLong() {
-    if (this.getMessageBody().length > this.constructor.LONG_MESSAGE_THRESHOLD) {
+    if (
+      this.getMessageBody().length > this.constructor.LONG_MESSAGE_THRESHOLD
+    ) {
       return true;
     }
 
-    if ((this.getMessageBody().match(/\r?\n/g) || []).length > this.constructor.NEWLINE_THRESHOLD) {
+    if (
+      (this.getMessageBody().match(/\r?\n/g) || []).length >
+      this.constructor.NEWLINE_THRESHOLD
+    ) {
       return true;
     }
 
@@ -97,13 +113,16 @@ export default class Commit {
       return this.getMessageBody();
     }
 
-    const {LONG_MESSAGE_THRESHOLD, NEWLINE_THRESHOLD} = this.constructor;
+    const { LONG_MESSAGE_THRESHOLD, NEWLINE_THRESHOLD } = this.constructor;
 
     let lastNewlineCutoff = null;
     let lastParagraphCutoff = null;
     let lastWordCutoff = null;
 
-    const searchText = this.getMessageBody().substring(0, LONG_MESSAGE_THRESHOLD);
+    const searchText = this.getMessageBody().substring(
+      0,
+      LONG_MESSAGE_THRESHOLD
+    );
     const boundaryRx = /\s+/g;
     let result;
     let lineCount = 0;
@@ -116,9 +135,15 @@ export default class Commit {
         break;
       }
 
-      if (newlineCount < 2 && result.index <= LONG_MESSAGE_THRESHOLD - WORD_ELIPSES.length) {
+      if (
+        newlineCount < 2 &&
+        result.index <= LONG_MESSAGE_THRESHOLD - WORD_ELIPSES.length
+      ) {
         lastWordCutoff = result.index;
-      } else if (result.index < LONG_MESSAGE_THRESHOLD - PARAGRAPH_ELIPSES.length) {
+      } else if (
+        result.index <
+        LONG_MESSAGE_THRESHOLD - PARAGRAPH_ELIPSES.length
+      ) {
         lastParagraphCutoff = result.index;
       }
     }
@@ -156,7 +181,13 @@ export default class Commit {
 
   isEqual(other) {
     // Directly comparable properties
-    const properties = ['sha', 'authorDate', 'messageSubject', 'messageBody', 'unbornRef'];
+    const properties = [
+      'sha',
+      'authorDate',
+      'messageSubject',
+      'messageBody',
+      'unbornRef',
+    ];
     for (const property of properties) {
       if (this[property] !== other[property]) {
         return false;
@@ -164,7 +195,10 @@ export default class Commit {
     }
 
     // Author
-    if (this.author.getEmail() !== other.getAuthorEmail() || this.author.getFullName() !== other.getAuthorName()) {
+    if (
+      this.author.getEmail() !== other.getAuthorEmail() ||
+      this.author.getFullName() !== other.getAuthorName()
+    ) {
       return false;
     }
 
@@ -177,8 +211,8 @@ export default class Commit {
       const otherCoAuthor = other.coAuthors[i];
 
       if (
-        thisCoAuthor.getFullName() !== otherCoAuthor.getFullName()
-        || thisCoAuthor.getEmail() !== otherCoAuthor.getEmail()
+        thisCoAuthor.getFullName() !== otherCoAuthor.getFullName() ||
+        thisCoAuthor.getEmail() !== otherCoAuthor.getEmail()
       ) {
         return false;
       }

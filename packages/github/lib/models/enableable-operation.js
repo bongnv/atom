@@ -15,15 +15,15 @@ export default class EnableableOperation {
 
   toggleState(component, stateKey) {
     this.beforeOp = () => {
-      component.setState(prevState => {
-        return !prevState[stateKey] ? {[stateKey]: true} : {};
+      component.setState((prevState) => {
+        return !prevState[stateKey] ? { [stateKey]: true } : {};
       });
     };
 
     this.afterOp = () => {
-      return new Promise(resolve => {
-        component.setState(prevState => {
-          return prevState[stateKey] ? {[stateKey]: false} : {};
+      return new Promise((resolve) => {
+        component.setState((prevState) => {
+          return prevState[stateKey] ? { [stateKey]: false } : {};
         }, resolve);
       });
     };
@@ -61,11 +61,17 @@ export default class EnableableOperation {
   }
 
   disable(reason = NO_REASON, message = 'disabled') {
-    if (!this.isEnabled() && this.disablement.reason === reason && this.disablement.message === message) {
+    if (
+      !this.isEnabled() &&
+      this.disablement.reason === reason &&
+      this.disablement.message === message
+    ) {
       return this;
     }
 
-    return new this.constructor(this.op, {[DISABLEMENT]: {reason, message}});
+    return new this.constructor(this.op, {
+      [DISABLEMENT]: { reason, message },
+    });
   }
 
   enable() {
@@ -73,6 +79,6 @@ export default class EnableableOperation {
       return this;
     }
 
-    return new this.constructor(this.op, {[DISABLEMENT]: ENABLED});
+    return new this.constructor(this.op, { [DISABLEMENT]: ENABLED });
   }
 }

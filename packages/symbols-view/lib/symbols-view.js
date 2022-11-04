@@ -63,7 +63,7 @@ export default class SymbolsView {
     });
     this.element = this.selectListView.element;
     this.element.classList.add('symbols-view');
-    this.panel = atom.workspace.addModalPanel({item: this, visible: false});
+    this.panel = atom.workspace.addModalPanel({ item: this, visible: false });
   }
 
   async destroy() {
@@ -76,7 +76,7 @@ export default class SymbolsView {
     return 'name';
   }
 
-  elementForItem({position, name, file, directory}) {
+  elementForItem({ position, name, file, directory }) {
     // Style matched characters in search results
     const matches = match(name, this.selectListView.getFilterQuery());
 
@@ -92,7 +92,9 @@ export default class SymbolsView {
     if (position) {
       primaryLine.textContent = `${name}:${position.row + 1}`;
     } else {
-      primaryLine.appendChild(SymbolsView.highlightMatches(this, name, matches));
+      primaryLine.appendChild(
+        SymbolsView.highlightMatches(this, name, matches)
+      );
     }
     li.appendChild(primaryLine);
 
@@ -107,7 +109,7 @@ export default class SymbolsView {
   async cancel() {
     if (!this.isCanceling) {
       this.isCanceling = true;
-      await this.selectListView.update({items: []});
+      await this.selectListView.update({ items: [] });
       this.panel.hide();
       if (this.previouslyFocusedElement) {
         this.previouslyFocusedElement.focus();
@@ -127,9 +129,11 @@ export default class SymbolsView {
 
   async didConfirmSelection(tag) {
     if (tag.file && !fs.isFileSync(path.join(tag.directory, tag.file))) {
-      await this.selectListView.update({errorMessage: 'Selected file does not exist'});
+      await this.selectListView.update({
+        errorMessage: 'Selected file does not exist',
+      });
       setTimeout(() => {
-        this.selectListView.update({errorMessage: null});
+        this.selectListView.update({ errorMessage: null });
       }, 2000);
     } else {
       await this.cancel();
@@ -152,8 +156,10 @@ export default class SymbolsView {
       };
     }
 
-    let {position} = tag;
-    if (!position) { position = this.getTagLine(tag); }
+    let { position } = tag;
+    if (!position) {
+      position = this.getTagLine(tag);
+    }
     if (tag.file) {
       atom.workspace.open(path.join(tag.directory, tag.file)).then(() => {
         if (position) {
@@ -174,11 +180,11 @@ export default class SymbolsView {
       beginningOfLine = true;
     }
     if (editor) {
-      editor.setCursorBufferPosition(position, {autoscroll: false});
+      editor.setCursorBufferPosition(position, { autoscroll: false });
       if (beginningOfLine) {
         editor.moveToFirstCharacterOfLine();
       }
-      editor.scrollToCursorPosition({center: true});
+      editor.scrollToCursorPosition({ center: true });
     }
   }
 

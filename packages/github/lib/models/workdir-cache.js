@@ -2,7 +2,7 @@ import path from 'path';
 import fs from 'fs-extra';
 
 import CompositeGitStrategy from '../composite-git-strategy';
-import {toNativePathSep} from '../helpers';
+import { toNativePathSep } from '../helpers';
 
 /**
  * Locate the nearest git working directory above a given starting point, caching results.
@@ -35,12 +35,15 @@ export default class WorkdirCache {
 
   async revParse(startPath) {
     try {
-      const startDir = (await fs.stat(startPath)).isDirectory() ? startPath : path.dirname(startPath);
+      const startDir = (await fs.stat(startPath)).isDirectory()
+        ? startPath
+        : path.dirname(startPath);
 
       // Within a git worktree, return a non-empty string containing the path to the worktree root.
       // Throw if a gitdir, outside of a worktree, or startDir does not exist.
-      const topLevel = await CompositeGitStrategy.create(startDir).exec(['rev-parse', '--show-toplevel'])
-        .catch(e => {
+      const topLevel = await CompositeGitStrategy.create(startDir)
+        .exec(['rev-parse', '--show-toplevel'])
+        .catch((e) => {
           if (/this operation must be run in a work tree/.test(e.stdErr)) {
             return null;
           }
@@ -52,7 +55,10 @@ export default class WorkdirCache {
 
       // Within a gitdir, return the absolute path to the gitdir.
       // Outside of a gitdir or worktree, throw.
-      const gitDir = await CompositeGitStrategy.create(startDir).exec(['rev-parse', '--absolute-git-dir']);
+      const gitDir = await CompositeGitStrategy.create(startDir).exec([
+        'rev-parse',
+        '--absolute-git-dir',
+      ]);
       return this.revParse(path.resolve(gitDir, '..'));
     } catch (e) {
       /* istanbul ignore if */
@@ -60,7 +66,7 @@ export default class WorkdirCache {
         // eslint-disable-next-line no-console
         console.error(
           `Unable to locate git workspace root for ${startPath}. Expected if ${startPath} is not in a git repository.`,
-          e,
+          e
         );
       }
       return null;

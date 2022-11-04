@@ -1,6 +1,6 @@
 import net from 'net';
-import {Emitter} from 'event-kit';
-import {normalizeGitHelperPath} from './helpers';
+import { Emitter } from 'event-kit';
+import { normalizeGitHelperPath } from './helpers';
 
 export default class GitPromptServer {
   constructor(gitTempDir) {
@@ -30,12 +30,12 @@ export default class GitPromptServer {
   }
 
   startListening(socketOptions) {
-    return new Promise(resolve => {
-      const server = net.createServer({allowHalfOpen: true}, connection => {
+    return new Promise((resolve) => {
+      const server = net.createServer({ allowHalfOpen: true }, (connection) => {
         connection.setEncoding('utf8');
 
         let payload = '';
-        connection.on('data', data => {
+        connection.on('data', (data) => {
           payload += data;
         });
 
@@ -56,11 +56,14 @@ export default class GitPromptServer {
     try {
       query = JSON.parse(data);
       const answer = await this.promptForInput(query);
-      await new Promise(resolve => {
+      await new Promise((resolve) => {
         connection.end(JSON.stringify(answer), 'utf8', resolve);
       });
     } catch (e) {
-      this.emitter.emit('did-cancel', query.pid ? {handlerPid: query.pid} : undefined);
+      this.emitter.emit(
+        'did-cancel',
+        query.pid ? { handlerPid: query.pid } : undefined
+      );
     }
   }
 
@@ -69,7 +72,7 @@ export default class GitPromptServer {
   }
 
   async terminate() {
-    await new Promise(resolve => this.server.close(resolve));
+    await new Promise((resolve) => this.server.close(resolve));
     this.emitter.dispose();
   }
 }

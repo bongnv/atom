@@ -293,9 +293,9 @@ module.exports = class FindView {
   handleEvents() {
     this.findEditor.onDidStopChanging(() => this.liveSearch());
     this.refs.nextButton.addEventListener('click', (e) =>
-      (e.shiftKey
+      e.shiftKey
         ? this.findPrevious({ focusEditorAfter: true })
-        : this.findNext({ focusEditorAfter: true }))
+        : this.findNext({ focusEditorAfter: true })
     );
     this.refs.findAllButton.addEventListener('click', this.findAll.bind(this));
     this.subscriptions.add(
@@ -317,7 +317,7 @@ module.exports = class FindView {
     );
 
     this.refs.replaceNextButton.addEventListener('click', (e) =>
-      (e.shiftKey ? this.replacePrevious() : this.replaceNext())
+      e.shiftKey ? this.replacePrevious() : this.replaceNext()
     );
     this.refs.replaceAllButton.addEventListener(
       'click',

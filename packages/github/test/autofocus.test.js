@@ -1,17 +1,17 @@
 import AutoFocus from '../lib/autofocus';
 
-describe('AutoFocus', function() {
+describe('AutoFocus', function () {
   let clock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     clock = sinon.useFakeTimers();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     clock.restore();
   });
 
-  it('captures an element and focuses it on trigger', function() {
+  it('captures an element and focuses it on trigger', function () {
     const element = new MockElement();
     const autofocus = new AutoFocus();
 
@@ -22,7 +22,7 @@ describe('AutoFocus', function() {
     assert.isTrue(element.wasFocused());
   });
 
-  it('captures multiple elements by index and focuses the first on trigger', function() {
+  it('captures multiple elements by index and focuses the first on trigger', function () {
     const element0 = new MockElement();
     const element1 = new MockElement();
     const element2 = new MockElement();
@@ -40,7 +40,7 @@ describe('AutoFocus', function() {
     assert.isFalse(element2.wasFocused());
   });
 
-  it('does nothing on trigger when nothing is captured', function() {
+  it('does nothing on trigger when nothing is captured', function () {
     const autofocus = new AutoFocus();
     autofocus.trigger();
   });

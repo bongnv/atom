@@ -1,13 +1,12 @@
 const qs = require('querystring');
 
-const {ipcRenderer: ipc} = require('electron');
+const { ipcRenderer: ipc } = require('electron');
 const remote = require('@electron/remote');
 
-const {GitProcess} = require('dugite');
-
+const { GitProcess } = require('dugite');
 
 class AverageTracker {
-  constructor({limit} = {limit: 10}) {
+  constructor({ limit } = { limit: 10 }) {
     // for now this serves a dual purpose - # of values tracked AND # discarded prior to starting avg calculation
     this.limit = limit;
     this.sum = 0;
@@ -43,7 +42,7 @@ class AverageTracker {
 const query = qs.parse(window.location.search.substr(1));
 const sourceWebContentsId = remote.getCurrentWindow().webContents.id;
 const operationCountLimit = parseInt(query.operationCountLimit, 10);
-const averageTracker = new AverageTracker({limit: operationCountLimit});
+const averageTracker = new AverageTracker({ limit: operationCountLimit });
 const childPidsById = new Map();
 
 const destroyRenderer = () => {
@@ -51,7 +50,9 @@ const destroyRenderer = () => {
     managerWebContents.removeListener('crashed', destroyRenderer);
     managerWebContents.removeListener('destroyed', destroyRenderer);
   }
-  const win = remote.BrowserWindow.fromWebContents(remote.getCurrentWebContents());
+  const win = remote.BrowserWindow.fromWebContents(
+    remote.getCurrentWebContents()
+  );
   if (win && !win.isDestroyed()) {
     win.destroy();
   }
@@ -68,36 +69,36 @@ if (managerWebContents && !managerWebContents.isDestroyed()) {
 }
 
 const channelName = query.channelName;
-ipc.on(channelName, (event, {type, data}) => {
+ipc.on(channelName, (event, { type, data }) => {
   if (type === 'git-exec') {
-    const {args, workingDir, options, id} = data;
+    const { args, workingDir, options, id } = data;
     if (args) {
       document.getElementById('command').textContent = `git ${args.join(' ')}`;
     }
 
-    options.processCallback = child => {
+    options.processCallback = (child) => {
       childPidsById.set(id, child.pid);
 
-      child.on('error', err => {
+      child.on('error', (err) => {
         event.sender.sendTo(managerWebContentsId, channelName, {
           sourceWebContentsId,
           type: 'git-spawn-error',
-          data: {id, err},
+          data: { id, err },
         });
       });
 
-      child.stdin.on('error', err => {
+      child.stdin.on('error', (err) => {
         event.sender.sendTo(managerWebContentsId, channelName, {
           sourceWebContentsId,
           type: 'git-stdin-error',
-          data: {id, stdin: options.stdin, err},
+          data: { id, stdin: options.stdin, err },
         });
       });
     };
 
     const spawnStart = performance.now();
-    GitProcess.exec(args, workingDir, options)
-      .then(({stdout, stderr, exitCode}) => {
+    GitProcess.exec(args, workingDir, options).then(
+      ({ stdout, stderr, exitCode }) => {
         const timing = {
           spawnTime: spawnEnd - spawnStart,
           execTime: performance.now() - spawnEnd,
@@ -109,10 +110,11 @@ ipc.on(channelName, (event, {type, data}) => {
           data: {
             id,
             average: averageTracker.getAverage(),
-            results: {stdout, stderr, exitCode, timing},
+            results: { stdout, stderr, exitCode, timing },
           },
         });
-      }, err => {
+      },
+      (err) => {
         const timing = {
           spawnTime: spawnEnd - spawnStart,
           execTime: performance.now() - spawnEnd,
@@ -133,7 +135,8 @@ ipc.on(channelName, (event, {type, data}) => {
             },
           },
         });
-      });
+      }
+    );
     const spawnEnd = performance.now();
     averageTracker.addValue(spawnEnd - spawnStart);
 
@@ -142,17 +145,19 @@ ipc.on(channelName, (event, {type, data}) => {
     // event.sender.sendTo(managerWebContentsId, channelName, {sourceWebContentsId, type: 'exec-started', data: {id}});
 
     if (averageTracker.enoughData() && averageTracker.getAverage() > 20) {
-      event.sender.sendTo(managerWebContentsId, channelName, {type: 'slow-spawns'});
+      event.sender.sendTo(managerWebContentsId, channelName, {
+        type: 'slow-spawns',
+      });
     }
   } else if (type === 'git-cancel') {
-    const {id} = data;
+    const { id } = data;
     const childPid = childPidsById.get(id);
     if (childPid !== undefined) {
       require('tree-kill')(childPid, 'SIGINT', () => {
         event.sender.sendTo(managerWebContentsId, channelName, {
           sourceWebContentsId,
           type: 'git-cancelled',
-          data: {id, childPid},
+          data: { id, childPid },
         });
       });
       childPidsById.delete(id);
@@ -162,4 +167,8 @@ ipc.on(channelName, (event, {type, data}) => {
   }
 });
 
-ipc.sendTo(managerWebContentsId, channelName, {sourceWebContentsId, type: 'renderer-ready', data: {pid: process.pid}});
+ipc.sendTo(managerWebContentsId, channelName, {
+  sourceWebContentsId,
+  type: 'renderer-ready',
+  data: { pid: process.pid },
+});

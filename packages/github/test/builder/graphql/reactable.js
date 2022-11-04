@@ -1,7 +1,7 @@
-import {createUnionBuilderClass} from './base';
+import { createUnionBuilderClass } from './base';
 
-import {IssueBuilder} from './issue';
-import {PullRequestBuilder, CommentBuilder, ReviewBuilder} from './pr';
+import { IssueBuilder } from './issue';
+import { PullRequestBuilder, CommentBuilder, ReviewBuilder } from './pr';
 
 export const ReactableBuilder = createUnionBuilderClass('Reactable', {
   beIssue: IssueBuilder,

@@ -1,5 +1,5 @@
-import {NoopVisitor} from './noop-visitor';
-import {TOP, BOTTOM} from '../position';
+import { NoopVisitor } from './noop-visitor';
+import { TOP, BOTTOM } from '../position';
 
 class Result {
   constructor(remainingSteps) {
@@ -21,13 +21,19 @@ export class ConflictParser {
     this.steps = [];
 
     if (this.isRebase) {
-      this.steps.push(parser => parser.visitHeaderSide(TOP, 'visitTheirSide'));
-      this.steps.push(parser => parser.visitBaseAndSeparator());
-      this.steps.push(parser => parser.visitFooterSide(BOTTOM, 'visitOurSide'));
+      this.steps.push((parser) =>
+        parser.visitHeaderSide(TOP, 'visitTheirSide')
+      );
+      this.steps.push((parser) => parser.visitBaseAndSeparator());
+      this.steps.push((parser) =>
+        parser.visitFooterSide(BOTTOM, 'visitOurSide')
+      );
     } else {
-      this.steps.push(parser => parser.visitHeaderSide(TOP, 'visitOurSide'));
-      this.steps.push(parser => parser.visitBaseAndSeparator());
-      this.steps.push(parser => parser.visitFooterSide(BOTTOM, 'visitTheirSide'));
+      this.steps.push((parser) => parser.visitHeaderSide(TOP, 'visitOurSide'));
+      this.steps.push((parser) => parser.visitBaseAndSeparator());
+      this.steps.push((parser) =>
+        parser.visitFooterSide(BOTTOM, 'visitTheirSide')
+      );
     }
   }
 
@@ -56,7 +62,12 @@ export class ConflictParser {
 
     const sideRowEnd = this.adapter.getCurrentRow();
 
-    this.visitor[visitMethod](position, sideRowStart, sideRowStart + 1, sideRowEnd);
+    this.visitor[visitMethod](
+      position,
+      sideRowStart,
+      sideRowStart + 1,
+      sideRowEnd
+    );
     return true;
   }
 
@@ -84,7 +95,11 @@ export class ConflictParser {
     while (b === '<') {
       // Embedded recursive conflict within a base side, caused by a criss-cross merge.
       // Advance the input adapter beyond it without marking anything.
-      const subParser = new ConflictParser(this.adapter, new NoopVisitor(), this.isRebase);
+      const subParser = new ConflictParser(
+        this.adapter,
+        new NoopVisitor(),
+        this.isRebase
+      );
       if (!subParser.parse().wasSuccessful()) {
         return false;
       }
@@ -120,7 +135,12 @@ export class ConflictParser {
     this.adapter.advanceRow();
     const sideRowEnd = this.adapter.getCurrentRow();
 
-    this.visitor[visitMethod](position, sideRowEnd - 1, sideRowStart, sideRowEnd - 1);
+    this.visitor[visitMethod](
+      position,
+      sideRowEnd - 1,
+      sideRowStart,
+      sideRowEnd - 1
+    );
     return true;
   }
 

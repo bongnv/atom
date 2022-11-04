@@ -1,5 +1,5 @@
 export default class ModelObserver {
-  constructor({fetchData, didUpdate}) {
+  constructor({ fetchData, didUpdate }) {
     this.fetchData = fetchData || (() => {});
     this.didUpdate = didUpdate || (() => {});
     this.activeModel = null;
@@ -21,7 +21,9 @@ export default class ModelObserver {
       this.pending = false;
       this.didUpdate(model);
       if (model) {
-        this.activeModelUpdateSubscription = model.onDidUpdate(() => this.refreshModelData(model));
+        this.activeModelUpdateSubscription = model.onDidUpdate(() =>
+          this.refreshModelData(model)
+        );
         return this.refreshModelData(model);
       }
     }
@@ -77,6 +79,8 @@ export default class ModelObserver {
   }
 
   destroy() {
-    if (this.activeModelUpdateSubscription) { this.activeModelUpdateSubscription.dispose(); }
+    if (this.activeModelUpdateSubscription) {
+      this.activeModelUpdateSubscription.dispose();
+    }
   }
 }

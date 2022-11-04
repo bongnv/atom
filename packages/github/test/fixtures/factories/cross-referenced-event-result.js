@@ -41,10 +41,12 @@ export function createCrossReferencedEventResult(opts) {
     id: o.id,
     referencedAt: o.referencedAt,
     isCrossRepository: o.isCrossRepository,
-    actor: !o.includeActor ? null : {
-      avatarUrl: o.actorAvatarUrl,
-      login: o.actorLogin,
-    },
+    actor: !o.includeActor
+      ? null
+      : {
+          avatarUrl: o.actorAvatarUrl,
+          login: o.actorLogin,
+        },
     source: {
       __typename: o.isPullRequest ? 'PullRequest' : 'Issue',
       number: o.number,
@@ -61,4 +63,4 @@ export function createCrossReferencedEventResult(opts) {
       },
     },
   };
-};
+}

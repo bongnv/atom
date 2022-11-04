@@ -21,17 +21,21 @@ class ReporterProxy {
   setReporter(reporter) {
     this.reporter = reporter;
 
-    this.events.forEach(customEvent => {
+    this.events.forEach((customEvent) => {
       this.reporter.addCustomEvent(customEvent.eventType, customEvent.event);
     });
     this.events = [];
 
-    this.timings.forEach(timing => {
-      this.reporter.addTiming(timing.eventType, timing.durationInMilliseconds, timing.metadata);
+    this.timings.forEach((timing) => {
+      this.reporter.addTiming(
+        timing.eventType,
+        timing.durationInMilliseconds,
+        timing.metadata
+      );
     });
     this.timings = [];
 
-    this.counters.forEach(counterName => {
+    this.counters.forEach((counterName) => {
       this.reporter.incrementCounter(counterName);
     });
     this.counters = [];
@@ -50,7 +54,7 @@ class ReporterProxy {
   addTiming(eventType, durationInMilliseconds, metadata = {}) {
     if (this.reporter === null) {
       this.startTimer();
-      this.timings.push({eventType, durationInMilliseconds, metadata});
+      this.timings.push({ eventType, durationInMilliseconds, metadata });
       return;
     }
 
@@ -60,7 +64,7 @@ class ReporterProxy {
   addEvent(eventType, event) {
     if (this.reporter === null) {
       this.startTimer();
-      this.events.push({eventType, event});
+      this.events.push({ eventType, event });
       return;
     }
 
