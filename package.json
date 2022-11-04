@@ -173,8 +173,6 @@
     "babel-plugin-add-module-exports": "^1.0.4",
     "babel-plugin-relay": "^14.1.0",
     "chai": "4.3.4",
-    "coffee-loader": "^4.0.0",
-    "coffeescript": "1.12.7",
     "copy-webpack-plugin": "^11.0.0",
     "electron": "13.6.9",
     "eslint": "^8.26.0",

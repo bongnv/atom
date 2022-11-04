@@ -10,7 +10,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const webpackDir = path.resolve(__dirname, '.webpack');
 const commonConfig = {
   mode: isDev ? 'development' : 'production',
-  devtool: isDev ? 'source-map' : 'inline-source-map',
+  devtool: isDev ? 'inline-source-map' : 'source-map',
   resolve: {
     extensions: ['.js', '.json', '.wasm', '.coffee', '.node', '.ts', '.tsx'],
   },
@@ -21,10 +21,6 @@ const commonConfig = {
       },
     },
     rules: [
-      {
-        test: /\.coffee$/,
-        loader: 'coffee-loader',
-      },
       {
         test: /\.node$/,
         use: 'node-loader',
