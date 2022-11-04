@@ -122,11 +122,9 @@ Using this criteria, all 91 packages have been evaluated and categorized to dete
 | **[bookmarks]**                   | 19          | 4        | 0                   | 12/10/17     |
 | **[bracket-matcher]**             | 74          | 8        | 0                   | 3/20/18      |
 | **[command-palette]**             | 18          | 6        | 0                   | 2/27/18      |
-| **[dalek]**                       | 2           | 0        | 0                   | 2/28/18      |
 | **[deprecation-cop]**             | 5           | 0        | 0                   | 9/7/17       |
 | **[dev-live-reload]**             | 4           | 0        | 0                   | 11/14/17     |
 | **[encoding-selector]**           | 11          | 2        | 0                   | 4/19/18      |
-| **[exception-reporting]**         | 5           | 0        | 0                   | 2/6/18       |
 | **[git-diff]**                    | 38          | 1        | 0                   | 1/18/18      |
 | **[go-to-line]**                  | 5           | 2        | 0                   | 1/25/18      |
 | **[grammar-selector]**            | 3           | 1        | 0                   | 4/12/18      |
@@ -269,11 +267,9 @@ One alternative approach would be to break this core Atom functionality out of p
 [bookmarks]: https://github.com/atom/bookmarks
 [bracket-matcher]: https://github.com/atom/bracket-matcher
 [command-palette]: https://github.com/atom/command-palette
-[dalek]: https://github.com/atom/dalek
 [deprecation-cop]: https://github.com/atom/deprecation-cop
 [dev-live-reload]: https://github.com/atom/dev-live-reload
 [encoding-selector]: https://github.com/atom/encoding-selector
-[exception-reporting]: https://github.com/atom/exception-reporting
 [find-and-replace]: https://github.com/atom/find-and-replace
 [fuzzy-finder]: https://github.com/atom/fuzzy-finder
 [git-diff]: https://github.com/atom/git-diff

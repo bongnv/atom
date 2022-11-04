@@ -115,6 +115,7 @@ class AtomEnvironment {
       deserializerManager: this.deserializers,
       viewRegistry: this.views,
       uriHandlerRegistry: this.uriHandlerRegistry,
+      nodeAPI: this.nodeAPI,
     });
 
     // Public: A {ThemeManager} instance
@@ -832,7 +833,7 @@ class AtomEnvironment {
       StartupTime.addMarker(
         'window:environment:start-editor-window:load-packages'
       );
-      this.packages.loadPackages();
+      await this.packages.loadPackages();
 
       const startTime = Date.now();
       StartupTime.addMarker(

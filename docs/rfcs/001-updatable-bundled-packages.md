@@ -18,7 +18,6 @@ Bundled packages are treated differently than community packages that you can in
 
 - You are not prompted to update them when new versions are released on `apm`
 - `apm` will warn you at the command line when you try to install or update a bundled package
-- If a user intentionally installs a bundled package from `apm` the [dalek package](https://github.com/atom/dalek/) will show a warning in the "deprecations" view asking the user to remove the offending package
 
 Despite all this, if the user _does_ manually install an update to a bundled package using `apm`, it will be loaded into the editor and updated dutifully as new releases occur. The only new functionality needed is to enable `apm` to check bundled packages for updates when those packages haven't yet been installed in the user's `~/.atom/packages` folder.
 
@@ -29,8 +28,6 @@ The primary use case for this improvement is enabling the GitHub package to ship
 Any bundled Atom package can opt in to new updates released via `apm` by adding `"coreUpdatable": true` to its `package.json` file. This causes `apm` to consider it as part of the list of packages it checks for updates. If a community (non-bundled) package sets this field to `true` or `false` it will be ignored as it's only relevant to bundled packages.
 
 Atom shows update notifications for Updatable bundled packages whenever they are available so long as those updates support the engine version of the current Atom build. Bundled package updates can also be found and installed in the Settings view's _Updates_ tab.
-
-The `dalek` package is aware of the new "Updatable" metadata and excludes updated bundled packages from its deprecation warnings.
 
 ### User Experience Examples
 

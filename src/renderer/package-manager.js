@@ -499,6 +499,7 @@ module.exports = class PackageManager {
     });
     this.initialPackagesLoaded = true;
     this.emitter.emit('did-load-initial-packages');
+    return Promise.resolve();
   }
 
   loadPackage(name) {
