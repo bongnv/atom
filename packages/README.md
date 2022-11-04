@@ -26,7 +26,6 @@ see the table below for the location of every core Atom package.
 | **bookmarks**                   | [`atom/bookmarks`][bookmarks]                                    | [#18273](https://github.com/atom/atom/issues/18273) |
 | **bracket-matcher**             | [`atom/bracket-matcher`][bracket-matcher]                        |                                                     |
 | **command-palette**             | [`atom/command-palette`][command-palette]                        |                                                     |
-| **deprecation-cop**             | [`./deprecation-cop`](./deprecation-cop)                         | [#17839](https://github.com/atom/atom/issues/17839) |
 | **dev-live-reload**             | [`./dev-live-reload`](dev-live-reload)                           | [#17840](https://github.com/atom/atom/issues/17840) |
 | **encoding-selector**           | [`atom/encoding-selector`][encoding-selector]                    | [#17841](https://github.com/atom/atom/issues/17841) |
 | **find-and-replace**            | [`atom/find-and-replace`][find-and-replace]                      |                                                     |
@@ -35,7 +34,6 @@ see the table below for the location of every core Atom package.
 | **git-diff**                    | [`./git-diff`](./git-diff)                                       | [#17843](https://github.com/atom/atom/issues/17843) |
 | **go-to-line**                  | [`./go-to-line`](./go-to-line)                                   | [#17844](https://github.com/atom/atom/issues/17844) |
 | **grammar-selector**            | [`./grammar-selector`](./grammar-selector)                       | [#17845](https://github.com/atom/atom/issues/17845) |
-| **incompatible-packages**       | [`./incompatible-packages`](./incompatible-packages)             | [#17846](https://github.com/atom/atom/issues/17846) |
 | **keybinding-resolver**         | [`atom/keybinding-resolver`][keybinding-resolver]                | [#18275](https://github.com/atom/atom/issues/18275) |
 | **language-c**                  | [`atom/language-c`][language-c]                                  |                                                     |
 | **language-clojure**            | [`atom/language-clojure`][language-clojure]                      |                                                     |
