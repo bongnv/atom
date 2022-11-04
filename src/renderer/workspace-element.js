@@ -211,11 +211,11 @@ class WorkspaceElement extends HTMLElement {
     window.addEventListener('drop', this.handleDrop, { capture: true });
   }
 
-  handleDragEnd(event) {
+  handleDragEnd() {
     this.dragEnded();
   }
 
-  handleDrop(event) {
+  handleDrop() {
     this.dragEnded();
   }
 
@@ -225,7 +225,7 @@ class WorkspaceElement extends HTMLElement {
     window.removeEventListener('drop', this.handleDrop, true);
   }
 
-  handleCenterEnter(event) {
+  handleCenterEnter() {
     // Just re-entering the center isn't enough to hide the dock toggle buttons, since they poke
     // into the center and we want to give an affordance.
     this.cursorInCenter = true;
@@ -292,7 +292,7 @@ class WorkspaceElement extends HTMLElement {
     }
   }
 
-  handleFocus(event) {
+  handleFocus() {
     this.model.getActivePane().activate();
   }
 
@@ -312,7 +312,7 @@ class WorkspaceElement extends HTMLElement {
     this.focusPaneViewInDirection('right');
   }
 
-  focusPaneViewInDirection(direction, pane) {
+  focusPaneViewInDirection(direction) {
     const activePane = this.model.getActivePane();
     const paneToFocus = this.nearestVisiblePaneInDirection(
       direction,

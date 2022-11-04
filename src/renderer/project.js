@@ -808,7 +808,7 @@ module.exports = class Project extends Model {
     return buffer;
   }
 
-  addBuffer(buffer, options = {}) {
+  addBuffer(buffer) {
     this.buffers.push(buffer);
     this.subscriptions.add(this.grammarRegistry.maintainLanguageMode(buffer));
     this.subscribeToBuffer(buffer);
@@ -826,7 +826,7 @@ module.exports = class Project extends Model {
     }
   }
 
-  removeBufferAtIndex(index, options = {}) {
+  removeBufferAtIndex(index) {
     const [buffer] = this.buffers.splice(index, 1);
     return buffer != null ? buffer.destroy() : undefined;
   }

@@ -129,15 +129,15 @@ module.exports = class TreeSitterGrammar {
   Section - Backward compatibility shims
   */
 
-  onDidUpdate(callback) {
+  onDidUpdate() {
     // do nothing
   }
 
-  tokenizeLines(text, compatibilityMode = true) {
+  tokenizeLines(text) {
     return text.split('\n').map((line) => this.tokenizeLine(line, null, false));
   }
 
-  tokenizeLine(line, ruleStack, firstLine) {
+  tokenizeLine(line) {
     return {
       value: line,
       scopes: [this.scopeName],

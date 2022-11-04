@@ -267,7 +267,7 @@ module.exports = class Dock {
     );
   }
 
-  update(props) {
+  update() {
     // Since we're interopping with non-etch stuff, this method's actually never called.
     return etch.update(this);
   }
@@ -321,7 +321,7 @@ module.exports = class Dock {
     this.setState({ size });
   }
 
-  handleMouseUp(event) {
+  handleMouseUp() {
     window.removeEventListener('mousemove', this.handleMouseMove);
     window.removeEventListener('mouseup', this.handleMouseUp);
     this.setState({ resizing: false });

@@ -17,7 +17,7 @@ const WORD_REGEX = /\w/;
 
 class TreeSitterLanguageMode {
   static _patchSyntaxNode() {
-    if (!Parser.SyntaxNode.prototype.hasOwnProperty('range')) {
+    if (!Object.prototype.hasOwnProperty.call(Parser.SyntaxNode, 'range')) {
       Object.defineProperty(Parser.SyntaxNode.prototype, 'range', {
         get() {
           return rangeForNode(this);
@@ -435,11 +435,11 @@ class TreeSitterLanguageMode {
   Section - Syntax Tree APIs
   */
 
-  getSyntaxNodeContainingRange(range, where = (_) => true) {
+  getSyntaxNodeContainingRange(range, where = () => true) {
     return this.getSyntaxNodeAndGrammarContainingRange(range, where).node;
   }
 
-  getSyntaxNodeAndGrammarContainingRange(range, where = (_) => true) {
+  getSyntaxNodeAndGrammarContainingRange(range, where = () => true) {
     const startIndex = this.buffer.characterIndexForPosition(range.start);
     const endIndex = this.buffer.characterIndexForPosition(range.end);
     const searchEndIndex = Math.max(0, endIndex - 1);
@@ -1116,7 +1116,9 @@ class LayerHighlightIterator {
   }
 
   seek(targetIndex, containingTags, containingTagStartIndices) {
-    while (this.treeCursor.gotoParent()) {}
+    while (this.treeCursor.gotoParent()) {
+      // no-op
+    }
 
     this.atEnd = true;
     this.closeTags.length = 0;
