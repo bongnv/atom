@@ -1,1 +1,10 @@
-{".source.ts":{"editor":{"commentStart":"// ","foldEndPattern":"^\\s*\\}|^\\s*\\]|^\\s*\\)","increaseIndentPattern":"(?x) \\{ [^}\"']* $ | \\[ [^\\]\"']* $ | \\( [^)\"']* $","decreaseIndentPattern":"(?x) ^ \\s* (\\s* /[*] .* [*]/ \\s*)* [}\\])]"}}}
+{
+  ".source.ts": {
+    "editor": {
+      "commentStart": "// ",
+      "foldEndPattern": "^\\s*\\}|^\\s*\\]|^\\s*\\)",
+      "increaseIndentPattern": "(?x) \\{ [^}\"']* $ | \\[ [^\\]\"']* $ | \\( [^)\"']* $",
+      "decreaseIndentPattern": "(?x) ^ \\s* (\\s* /[*] .* [*]/ \\s*)* [}\\])]"
+    }
+  }
+}

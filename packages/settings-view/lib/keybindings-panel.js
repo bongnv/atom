@@ -78,7 +78,7 @@ export default class KeybindingsPanel {
             <span>You can override these keybindings by copying </span>
             <span className="icon icon-clippy" />
             <span>and pasting them into </span>
-            <a className="link" onclick={this.didClickOpenKeymapFile}>
+            <a className="link" onClick={this.didClickOpenKeymapFile}>
               your keymap file
             </a>
           </div>

@@ -1,10 +1,10 @@
 import React from 'react';
-import {shallow} from 'enzyme';
-import {Disposable} from 'event-kit';
+import { shallow } from 'enzyme';
+import { Disposable } from 'event-kit';
 
 import Accumulator from '../../../lib/containers/accumulators/accumulator';
 
-describe('Accumulator', function() {
+describe('Accumulator', function () {
   function buildApp(override = {}) {
     const props = {
       resultBatch: [],
@@ -27,21 +27,23 @@ describe('Accumulator', function() {
     return <Accumulator {...props} />;
   }
 
-  it('accepts an already-loaded single page of results', function() {
+  it('accepts an already-loaded single page of results', function () {
     const fn = sinon.spy();
-    shallow(buildApp({
-      relay: {
-        hasMore: () => false,
-        isLoading: () => false,
-      },
-      resultBatch: [1, 2, 3],
-      children: fn,
-    }));
+    shallow(
+      buildApp({
+        relay: {
+          hasMore: () => false,
+          isLoading: () => false,
+        },
+        resultBatch: [1, 2, 3],
+        children: fn,
+      })
+    );
 
     assert.isTrue(fn.calledWith(null, [1, 2, 3], false));
   });
 
-  it('continues to paginate and accumulate results', function() {
+  it('continues to paginate and accumulate results', function () {
     const fn = sinon.spy();
     let hasMore = true;
     let loadMoreCallback = null;
@@ -59,21 +61,23 @@ describe('Accumulator', function() {
       isLoading: () => false,
     };
 
-    const wrapper = shallow(buildApp({relay, resultBatch: [1, 2, 3], children: fn}));
+    const wrapper = shallow(
+      buildApp({ relay, resultBatch: [1, 2, 3], children: fn })
+    );
     assert.isTrue(fn.calledWith(null, [1, 2, 3], true));
 
-    wrapper.setProps({resultBatch: [1, 2, 3, 4, 5, 6]});
+    wrapper.setProps({ resultBatch: [1, 2, 3, 4, 5, 6] });
     loadMoreCallback();
     assert.isTrue(fn.calledWith(null, [1, 2, 3, 4, 5, 6], true));
 
     hasMore = false;
-    wrapper.setProps({resultBatch: [1, 2, 3, 4, 5, 6, 7, 8, 9]});
+    wrapper.setProps({ resultBatch: [1, 2, 3, 4, 5, 6, 7, 8, 9] });
     loadMoreCallback();
     assert.isTrue(fn.calledWith(null, [1, 2, 3, 4, 5, 6, 7, 8, 9], false));
     assert.isNull(loadMoreCallback);
   });
 
-  it('reports an error to its render prop', function() {
+  it('reports an error to its render prop', function () {
     const fn = sinon.spy();
     const error = Symbol('the error');
 
@@ -86,26 +90,26 @@ describe('Accumulator', function() {
       },
     };
 
-    shallow(buildApp({relay, children: fn}));
+    shallow(buildApp({ relay, children: fn }));
     assert.isTrue(fn.calledWith(error, [], true));
   });
 
-  it('terminates a loadMore call when unmounting', function() {
-    const disposable = {dispose: sinon.spy()};
+  it('terminates a loadMore call when unmounting', function () {
+    const disposable = { dispose: sinon.spy() };
     const relay = {
       hasMore: () => true,
       loadMore: sinon.stub().returns(disposable),
       isLoading: () => false,
     };
 
-    const wrapper = shallow(buildApp({relay}));
+    const wrapper = shallow(buildApp({ relay }));
     assert.isTrue(relay.loadMore.called);
 
     wrapper.unmount();
     assert.isTrue(disposable.dispose.called);
   });
 
-  it('cancels a delayed accumulate call when unmounting', function() {
+  it('cancels a delayed accumulate call when unmounting', function () {
     const setTimeoutStub = sinon.stub(window, 'setTimeout').returns(123);
     const clearTimeoutStub = sinon.stub(window, 'clearTimeout');
 
@@ -113,7 +117,7 @@ describe('Accumulator', function() {
       hasMore: () => true,
     };
 
-    const wrapper = shallow(buildApp({relay, waitTimeMs: 1000}));
+    const wrapper = shallow(buildApp({ relay, waitTimeMs: 1000 }));
     assert.isTrue(setTimeoutStub.called);
 
     wrapper.unmount();

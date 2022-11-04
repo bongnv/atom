@@ -27,17 +27,14 @@ moment.locale('en');
 export default class Timeago extends React.Component {
   static propTypes = {
     time: PropTypes.any.isRequired,
-    type: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.func,
-    ]),
+    type: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
     displayStyle: PropTypes.oneOf(['short', 'long']),
-  }
+  };
 
   static defaultProps = {
     type: 'span',
     displayStyle: 'long',
-  }
+  };
 
   static getTimeDisplay(time, now, style) {
     const m = moment(time);
@@ -65,12 +62,14 @@ export default class Timeago extends React.Component {
   }
 
   render() {
-    const {type, time, displayStyle, ...others} = this.props;
+    const { type, time, displayStyle, ...others } = this.props;
     const display = Timeago.getTimeDisplay(time, moment(), displayStyle);
     const Type = type;
     const className = cx('timeago', others.className);
     return (
-      <Type {...others} className={className}>{display}</Type>
+      <Type {...others} className={className}>
+        {display}
+      </Type>
     );
   }
 }

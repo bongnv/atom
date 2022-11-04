@@ -1,33 +1,33 @@
 import React from 'react';
-import {shallow, mount} from 'enzyme';
+import { shallow, mount } from 'enzyme';
 
-import {makeTabbable, TabbableSelect} from '../../lib/views/tabbable';
+import { makeTabbable, TabbableSelect } from '../../lib/views/tabbable';
 import TabGroup from '../../lib/tab-group';
 
-describe('makeTabbable', function() {
+describe('makeTabbable', function () {
   let atomEnv, tabGroup;
 
   const fakeEvent = {
     stopPropagation() {},
   };
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
     tabGroup = new TabGroup();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
-  it('accepts an HTML tag', function() {
+  it('accepts an HTML tag', function () {
     const TabbableDiv = makeTabbable('div');
     const wrapper = shallow(
       <TabbableDiv
         tabGroup={tabGroup}
         commands={atomEnv.commands}
         other="value"
-      />,
+      />
     );
 
     // Rendered element properties
@@ -43,22 +43,26 @@ describe('makeTabbable', function() {
     commands.prop('target').setter(element);
 
     sinon.stub(tabGroup, 'focusAfter');
-    commands.find('Command[command="core:focus-next"]').prop('callback')(fakeEvent);
+    commands.find('Command[command="core:focus-next"]').prop('callback')(
+      fakeEvent
+    );
     assert.isTrue(tabGroup.focusAfter.called);
 
     sinon.stub(tabGroup, 'focusBefore');
-    commands.find('Command[command="core:focus-previous"]').prop('callback')(fakeEvent);
+    commands.find('Command[command="core:focus-previous"]').prop('callback')(
+      fakeEvent
+    );
     assert.isTrue(tabGroup.focusBefore.called);
   });
 
-  it('accepts a React component', function() {
+  it('accepts a React component', function () {
     const TabbableExample = makeTabbable(Example);
     const wrapper = shallow(
       <TabbableExample
         tabGroup={tabGroup}
         commands={atomEnv.commands}
         other="value"
-      />,
+      />
     );
 
     // Rendered component element properties
@@ -68,12 +72,14 @@ describe('makeTabbable', function() {
     assert.strictEqual(example.prop('other'), 'value');
   });
 
-  it('adds a ref to the TabGroup', function() {
+  it('adds a ref to the TabGroup', function () {
     sinon.stub(tabGroup, 'appendElement');
     sinon.stub(tabGroup, 'removeElement');
 
     const TabbableExample = makeTabbable(Example);
-    const wrapper = mount(<TabbableExample tabGroup={tabGroup} commands={atomEnv.commands} />);
+    const wrapper = mount(
+      <TabbableExample tabGroup={tabGroup} commands={atomEnv.commands} />
+    );
 
     const instance = wrapper.find(Example).instance();
     assert.isTrue(tabGroup.appendElement.calledWith(instance, false));
@@ -83,27 +89,38 @@ describe('makeTabbable', function() {
     assert.isTrue(tabGroup.removeElement.calledWith(instance));
   });
 
-  it('customizes the ref used to register commands', function() {
-    const TabbableExample = makeTabbable(Example, {rootRefProp: 'arbitraryName'});
-    const wrapper = shallow(<TabbableExample tabGroup={tabGroup} commands={atomEnv.commands} />);
+  it('customizes the ref used to register commands', function () {
+    const TabbableExample = makeTabbable(Example, {
+      rootRefProp: 'arbitraryName',
+    });
+    const wrapper = shallow(
+      <TabbableExample tabGroup={tabGroup} commands={atomEnv.commands} />
+    );
 
     const rootRef = wrapper.find(Example).prop('arbitraryName');
     assert.strictEqual(wrapper.find('Commands').prop('target'), rootRef);
   });
 
-  it('passes commands to the wrapped component', function() {
-    const TabbableExample = makeTabbable(Example, {passCommands: true});
-    const wrapper = shallow(<TabbableExample tabGroup={tabGroup} commands={atomEnv.commands} />);
-    assert.strictEqual(wrapper.find(Example).prop('commands'), atomEnv.commands);
+  it('passes commands to the wrapped component', function () {
+    const TabbableExample = makeTabbable(Example, { passCommands: true });
+    const wrapper = shallow(
+      <TabbableExample tabGroup={tabGroup} commands={atomEnv.commands} />
+    );
+    assert.strictEqual(
+      wrapper.find(Example).prop('commands'),
+      atomEnv.commands
+    );
   });
 
-  describe('TabbableSelect', function() {
-    it('proxies keydown events', function() {
-      const wrapper = mount(<TabbableSelect tabGroup={tabGroup} commands={atomEnv.commands} />);
+  describe('TabbableSelect', function () {
+    it('proxies keydown events', function () {
+      const wrapper = mount(
+        <TabbableSelect tabGroup={tabGroup} commands={atomEnv.commands} />
+      );
       const div = wrapper.find('div.github-TabbableWrapper').getDOMNode();
       const select = wrapper.find('Select').instance();
       let lastCode = null;
-      sinon.stub(select, 'handleKeyDown').callsFake(e => {
+      sinon.stub(select, 'handleKeyDown').callsFake((e) => {
         lastCode = e.keyCode;
       });
 
@@ -128,8 +145,10 @@ describe('makeTabbable', function() {
       }
     });
 
-    it('passes focus() to the Select component', function() {
-      const wrapper = mount(<TabbableSelect tabGroup={tabGroup} commands={atomEnv.commands} />);
+    it('passes focus() to the Select component', function () {
+      const wrapper = mount(
+        <TabbableSelect tabGroup={tabGroup} commands={atomEnv.commands} />
+      );
       const select = wrapper.find('Select').instance();
       sinon.stub(select, 'focus');
 

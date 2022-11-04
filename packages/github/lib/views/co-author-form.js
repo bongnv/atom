@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import Author from '../models/author';
-import Commands, {Command} from '../atom/commands';
-import {autobind} from '../helpers';
+import Commands, { Command } from '../atom/commands';
+import { autobind } from '../helpers';
 
 export default class CoAuthorForm extends React.Component {
   static propTypes = {
@@ -11,16 +11,24 @@ export default class CoAuthorForm extends React.Component {
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func,
     name: PropTypes.string,
-  }
+  };
 
   static defaultProps = {
     onSubmit: () => {},
     onCancel: () => {},
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
-    autobind(this, 'confirm', 'cancel', 'onNameChange', 'onEmailChange', 'validate', 'focusFirstInput');
+    autobind(
+      this,
+      'confirm',
+      'cancel',
+      'onNameChange',
+      'onEmailChange',
+      'validate',
+      'focusFirstInput'
+    );
 
     this.state = {
       name: this.props.name,
@@ -45,7 +53,7 @@ export default class CoAuthorForm extends React.Component {
           <input
             type="text"
             placeholder="Co-author name"
-            ref={e => (this.nameInput = e)}
+            ref={(e) => (this.nameInput = e)}
             className="input-text github-CoAuthorForm-name"
             value={this.state.name}
             onChange={this.onNameChange}
@@ -57,7 +65,7 @@ export default class CoAuthorForm extends React.Component {
           <input
             type="email"
             placeholder="foo@bar.com"
-            ref={e => (this.emailInput = e)}
+            ref={(e) => (this.emailInput = e)}
             className="input-text github-CoAuthorForm-email"
             value={this.state.email}
             onChange={this.onEmailChange}
@@ -65,8 +73,19 @@ export default class CoAuthorForm extends React.Component {
           />
         </label>
         <footer className="github-CoAuthorForm-row has-buttons">
-          <button className="btn github-CancelButton" tabIndex="3" onClick={this.cancel}>Cancel</button>
-          <button className="btn btn-primary" disabled={this.state.submitDisabled} tabIndex="4" onClick={this.confirm}>
+          <button
+            className="btn github-CancelButton"
+            tabIndex="3"
+            onClick={this.cancel}
+          >
+            Cancel
+          </button>
+          <button
+            className="btn btn-primary"
+            disabled={this.state.submitDisabled}
+            tabIndex="4"
+            onClick={this.confirm}
+          >
             Add Co-Author
           </button>
         </footer>
@@ -85,16 +104,16 @@ export default class CoAuthorForm extends React.Component {
   }
 
   onNameChange(e) {
-    this.setState({name: e.target.value}, this.validate);
+    this.setState({ name: e.target.value }, this.validate);
   }
 
   onEmailChange(e) {
-    this.setState({email: e.target.value}, this.validate);
+    this.setState({ email: e.target.value }, this.validate);
   }
 
   validate() {
     if (this.isInputValid()) {
-      this.setState({submitDisabled: false});
+      this.setState({ submitDisabled: false });
     }
   }
 

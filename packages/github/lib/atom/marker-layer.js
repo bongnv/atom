@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable, Disposable} from 'event-kit';
+import { CompositeDisposable, Disposable } from 'event-kit';
 
-import {autobind, extractProps} from '../helpers';
+import { autobind, extractProps } from '../helpers';
 import RefHolder from '../models/ref-holder';
-import {TextEditorContext} from './atom-text-editor';
-import {DecorableContext} from './marker';
+import { TextEditorContext } from './atom-text-editor';
+import { DecorableContext } from './marker';
 
 const markerLayerProps = {
   maintainHistory: PropTypes.bool,
@@ -29,7 +29,7 @@ class BareMarkerLayer extends React.Component {
   static defaultProps = {
     handleID: () => {},
     handleLayer: () => {},
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -51,7 +51,11 @@ class BareMarkerLayer extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (state.editorHolder.map(e => e === props.editor).getOr(props.editor === undefined)) {
+    if (
+      state.editorHolder
+        .map((e) => e === props.editor)
+        .getOr(props.editor === undefined)
+    ) {
       return null;
     }
 
@@ -94,7 +98,7 @@ class BareMarkerLayer extends React.Component {
     this.subs.remove(this.layerSub);
     this.layerSub.dispose();
 
-    this.state.editorHolder.map(editor => {
+    this.state.editorHolder.map((editor) => {
       const options = extractProps(this.props, markerLayerProps);
       let layer;
       if (this.props.external !== undefined) {
@@ -102,7 +106,10 @@ class BareMarkerLayer extends React.Component {
         if (!layer) {
           return null;
         }
-        if (layer !== this.props.external && layer.bufferMarkerLayer !== this.props.external) {
+        if (
+          layer !== this.props.external &&
+          layer.bufferMarkerLayer !== this.props.external
+        ) {
           // Oops, same layer ID on a different TextEditor
           return null;
         }
@@ -131,7 +138,7 @@ export default class MarkerLayer extends React.Component {
   render() {
     return (
       <TextEditorContext.Consumer>
-        {editor => <BareMarkerLayer editor={editor} {...this.props} />}
+        {(editor) => <BareMarkerLayer editor={editor} {...this.props} />}
       </TextEditorContext.Consumer>
     );
   }

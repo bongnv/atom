@@ -1,9 +1,8 @@
-@import "variables";
+@import 'variables';
 
 .github-BranchMenuView {
-
   .hidden {
-    display: none
+    display: none;
   }
 
   &-selector {
@@ -17,7 +16,9 @@
 
   .icon-sync::before {
     @keyframes github-BranchViewSync-animation {
-      100% { transform: rotate(360deg); }
+      100% {
+        transform: rotate(360deg);
+      }
     }
     animation: github-BranchViewSync-animation 2s linear 30; // limit to 1min in case something gets stuck
   }

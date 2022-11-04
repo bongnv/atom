@@ -51,15 +51,20 @@ module.exports = {
     },
   ],
   hooks: {
-    generateAssets: () => asyncOra('Compiling code', () => new Promise((resolve, reject) => {
-      compiler.run((err, stats) => {
-        if (err || stats.hasErrors()) {
-          reject(err || stats.toString());
-          return;
-        }
-        resolve();
-      });
-    })),
+    generateAssets: () =>
+      asyncOra(
+        'Compiling code',
+        () =>
+          new Promise((resolve, reject) => {
+            compiler.run((err, stats) => {
+              if (err || stats.hasErrors()) {
+                reject(err || stats.toString());
+                return;
+              }
+              resolve();
+            });
+          })
+      ),
     postStart: (_, child) => {
       const watching = compiler.watch({}, (err, stats) => {
         if (err) {

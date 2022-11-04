@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 
-import {ItemTypePropType, EndpointPropType} from '../prop-types';
+import { ItemTypePropType, EndpointPropType } from '../prop-types';
 import PullRequestPatchContainer from './pr-patch-container';
 import MultiFilePatchController from '../controllers/multi-file-patch-controller';
 import LoadingView from '../views/loading-view';
@@ -38,10 +38,12 @@ export default class PullRequestChangedFilesContainer extends React.Component {
 
     // Review comment threads
     reviewCommentsLoading: PropTypes.bool.isRequired,
-    reviewCommentThreads: PropTypes.arrayOf(PropTypes.shape({
-      thread: PropTypes.object.isRequired,
-      comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-    })).isRequired,
+    reviewCommentThreads: PropTypes.arrayOf(
+      PropTypes.shape({
+        thread: PropTypes.object.isRequired,
+        comments: PropTypes.arrayOf(PropTypes.object).isRequired,
+      })
+    ).isRequired,
 
     // refetch diff on refresh
     shouldRefetch: PropTypes.bool.isRequired,
@@ -50,7 +52,7 @@ export default class PullRequestChangedFilesContainer extends React.Component {
     initChangedFilePath: PropTypes.string,
     initChangedFilePosition: PropTypes.number,
     onOpenFilesTab: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -96,7 +98,9 @@ export default class PullRequestChangedFilesContainer extends React.Component {
 
       this.lastPatch = {
         subs: new CompositeDisposable(
-          ...multiFilePatch.getFilePatches().map(fp => fp.onDidChangeRenderStatus(() => this.forceUpdate())),
+          ...multiFilePatch
+            .getFilePatches()
+            .map((fp) => fp.onDidChangeRenderStatus(() => this.forceUpdate()))
         ),
         patch: multiFilePatch,
       };
@@ -111,5 +115,5 @@ export default class PullRequestChangedFilesContainer extends React.Component {
         {...this.props}
       />
     );
-  }
+  };
 }

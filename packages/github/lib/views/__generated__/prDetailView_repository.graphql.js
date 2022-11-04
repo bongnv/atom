@@ -26,47 +26,46 @@ export type prDetailView_repository$key = {
 };
 */
 
-
-const node/*: ReaderFragment*/ = {
-  "kind": "Fragment",
-  "name": "prDetailView_repository",
-  "type": "Repository",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
+const node /*: ReaderFragment*/ = {
+  kind: 'Fragment',
+  name: 'prDetailView_repository',
+  type: 'Repository',
+  metadata: null,
+  argumentDefinitions: [],
+  selections: [
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
+      kind: 'ScalarField',
+      alias: null,
+      name: 'id',
+      args: null,
+      storageKey: null,
     },
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "name",
-      "args": null,
-      "storageKey": null
+      kind: 'ScalarField',
+      alias: null,
+      name: 'name',
+      args: null,
+      storageKey: null,
     },
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "owner",
-      "storageKey": null,
-      "args": null,
-      "concreteType": null,
-      "plural": false,
-      "selections": [
+      kind: 'LinkedField',
+      alias: null,
+      name: 'owner',
+      storageKey: null,
+      args: null,
+      concreteType: null,
+      plural: false,
+      selections: [
         {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "login",
-          "args": null,
-          "storageKey": null
-        }
-      ]
-    }
-  ]
+          kind: 'ScalarField',
+          alias: null,
+          name: 'login',
+          args: null,
+          storageKey: null,
+        },
+      ],
+    },
+  ],
 };
 // prettier-ignore
 (node/*: any*/).hash = '3f3d61ddd6afa1c9e0811c3b5be51bb0';

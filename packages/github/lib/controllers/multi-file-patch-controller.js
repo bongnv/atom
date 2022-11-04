@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import path from 'path';
 
-import {autobind, equalSets} from '../helpers';
-import {addEvent} from '../reporter-proxy';
-import {MultiFilePatchPropType} from '../prop-types';
+import { autobind, equalSets } from '../helpers';
+import { addEvent } from '../reporter-proxy';
+import { MultiFilePatchPropType } from '../prop-types';
 import ChangedFileItem from '../items/changed-file-item';
 import MultiFilePatchView from '../views/multi-file-patch-view';
 
@@ -16,10 +16,12 @@ export default class MultiFilePatchController extends React.Component {
     hasUndoHistory: PropTypes.bool,
 
     reviewCommentsLoading: PropTypes.bool,
-    reviewCommentThreads: PropTypes.arrayOf(PropTypes.shape({
-      thread: PropTypes.object.isRequired,
-      comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-    })),
+    reviewCommentThreads: PropTypes.arrayOf(
+      PropTypes.shape({
+        thread: PropTypes.object.isRequired,
+        comments: PropTypes.arrayOf(PropTypes.object).isRequired,
+      })
+    ),
 
     workspace: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
@@ -32,15 +34,21 @@ export default class MultiFilePatchController extends React.Component {
     undoLastDiscard: PropTypes.func,
     surface: PropTypes.func,
     switchToIssueish: PropTypes.func,
-  }
+  };
 
   constructor(props) {
     super(props);
     autobind(
       this,
       'selectedRowsChanged',
-      'undoLastDiscard', 'diveIntoMirrorPatch', 'openFile',
-      'toggleFile', 'toggleRows', 'toggleModeChange', 'toggleSymlinkChange', 'discardRows',
+      'undoLastDiscard',
+      'diveIntoMirrorPatch',
+      'openFile',
+      'toggleFile',
+      'toggleRows',
+      'toggleModeChange',
+      'toggleSymlinkChange',
+      'discardRows'
     );
 
     this.state = {
@@ -53,7 +61,7 @@ export default class MultiFilePatchController extends React.Component {
     this.stagingOperationInProgress = false;
 
     this.lastPatchString = null;
-    this.patchChangePromise = new Promise(resolve => {
+    this.patchChangePromise = new Promise((resolve) => {
       this.resolvePatchChangePromise = resolve;
     });
   }
@@ -64,7 +72,7 @@ export default class MultiFilePatchController extends React.Component {
       this.lastPatchString !== this.props.multiFilePatch.toString()
     ) {
       this.resolvePatchChangePromise();
-      this.patchChangePromise = new Promise(resolve => {
+      this.patchChangePromise = new Promise((resolve) => {
         this.resolvePatchChangePromise = resolve;
       });
     }
@@ -74,12 +82,10 @@ export default class MultiFilePatchController extends React.Component {
     return (
       <MultiFilePatchView
         {...this.props}
-
         selectedRows={this.state.selectedRows}
         selectionMode={this.state.selectionMode}
         hasMultipleFileSelections={this.state.hasMultipleFileSelections}
         selectedRowsChanged={this.selectedRowsChanged}
-
         diveIntoMirrorPatch={this.diveIntoMirrorPatch}
         openFile={this.openFile}
         toggleFile={this.toggleFile}
@@ -95,41 +101,59 @@ export default class MultiFilePatchController extends React.Component {
     );
   }
 
-  undoLastDiscard(filePatch, {eventSource} = {}) {
+  undoLastDiscard(filePatch, { eventSource } = {}) {
     addEvent('undo-last-discard', {
       package: 'github',
       component: this.constructor.name,
       eventSource,
     });
 
-    return this.props.undoLastDiscard(filePatch.getPath(), this.props.repository);
+    return this.props.undoLastDiscard(
+      filePatch.getPath(),
+      this.props.repository
+    );
   }
 
   diveIntoMirrorPatch(filePatch) {
-    const mirrorStatus = this.withStagingStatus({staged: 'unstaged', unstaged: 'staged'});
+    const mirrorStatus = this.withStagingStatus({
+      staged: 'unstaged',
+      unstaged: 'staged',
+    });
     const workingDirectory = this.props.repository.getWorkingDirectoryPath();
-    const uri = ChangedFileItem.buildURI(filePatch.getPath(), workingDirectory, mirrorStatus);
+    const uri = ChangedFileItem.buildURI(
+      filePatch.getPath(),
+      workingDirectory,
+      mirrorStatus
+    );
 
     this.props.destroy();
     return this.props.workspace.open(uri);
   }
 
   async openFile(filePatch, positions, pending) {
-    const absolutePath = path.join(this.props.repository.getWorkingDirectoryPath(), filePatch.getPath());
-    const editor = await this.props.workspace.open(absolutePath, {pending});
+    const absolutePath = path.join(
+      this.props.repository.getWorkingDirectoryPath(),
+      filePatch.getPath()
+    );
+    const editor = await this.props.workspace.open(absolutePath, { pending });
     if (positions.length > 0) {
-      editor.setCursorBufferPosition(positions[0], {autoscroll: false});
+      editor.setCursorBufferPosition(positions[0], { autoscroll: false });
       for (const position of positions.slice(1)) {
         editor.addCursorAtBufferPosition(position);
       }
-      editor.scrollToBufferPosition(positions[positions.length - 1], {center: true});
+      editor.scrollToBufferPosition(positions[positions.length - 1], {
+        center: true,
+      });
     }
     return editor;
   }
 
   toggleFile(filePatch) {
     return this.stagingOperation(() => {
-      const methodName = this.withStagingStatus({staged: 'unstageFiles', unstaged: 'stageFiles'});
+      const methodName = this.withStagingStatus({
+        staged: 'unstageFiles',
+        unstaged: 'stageFiles',
+      });
       return this.props.repository[methodName]([filePatch.getPath()]);
     });
   }
@@ -137,8 +161,13 @@ export default class MultiFilePatchController extends React.Component {
   async toggleRows(rowSet, nextSelectionMode) {
     let chosenRows = rowSet;
     if (chosenRows) {
-      const nextMultipleFileSelections = this.props.multiFilePatch.spansMultipleFiles(chosenRows);
-      await this.selectedRowsChanged(chosenRows, nextSelectionMode, nextMultipleFileSelections);
+      const nextMultipleFileSelections =
+        this.props.multiFilePatch.spansMultipleFiles(chosenRows);
+      await this.selectedRowsChanged(
+        chosenRows,
+        nextSelectionMode,
+        nextMultipleFileSelections
+      );
     } else {
       chosenRows = this.state.selectedRows;
     }
@@ -149,8 +178,10 @@ export default class MultiFilePatchController extends React.Component {
 
     return this.stagingOperation(() => {
       const patch = this.withStagingStatus({
-        staged: () => this.props.multiFilePatch.getUnstagePatchForLines(chosenRows),
-        unstaged: () => this.props.multiFilePatch.getStagePatchForLines(chosenRows),
+        staged: () =>
+          this.props.multiFilePatch.getUnstagePatchForLines(chosenRows),
+        unstaged: () =>
+          this.props.multiFilePatch.getStagePatchForLines(chosenRows),
       });
       return this.props.repository.applyPatchToIndex(patch);
     });
@@ -162,7 +193,10 @@ export default class MultiFilePatchController extends React.Component {
         unstaged: filePatch.getNewMode(),
         staged: filePatch.getOldMode(),
       });
-      return this.props.repository.stageFileModeChange(filePatch.getPath(), targetMode);
+      return this.props.repository.stageFileModeChange(
+        filePatch.getPath(),
+        targetMode
+      );
     });
   }
 
@@ -179,7 +213,10 @@ export default class MultiFilePatchController extends React.Component {
           return repository.stageFiles([relPath]);
         },
         staged: () => {
-          if (filePatch.hasTypechange() && filePatch.getStatus() === 'deleted') {
+          if (
+            filePatch.hasTypechange() &&
+            filePatch.getStatus() === 'deleted'
+          ) {
             return repository.stageFileSymlinkChange(relPath);
           }
 
@@ -189,7 +226,7 @@ export default class MultiFilePatchController extends React.Component {
     });
   }
 
-  async discardRows(rowSet, nextSelectionMode, {eventSource} = {}) {
+  async discardRows(rowSet, nextSelectionMode, { eventSource } = {}) {
     // (kuychaco) For now we only support discarding rows for MultiFilePatches that contain a single file patch
     // The only way to access this method from the UI is to be in a ChangedFileItem, which only has a single file patch
     // This check is duplicated in RootController#discardLines. We also want it here to prevent us from sending metrics
@@ -200,8 +237,13 @@ export default class MultiFilePatchController extends React.Component {
 
     let chosenRows = rowSet;
     if (chosenRows) {
-      const nextMultipleFileSelections = this.props.multiFilePatch.spansMultipleFiles(chosenRows);
-      await this.selectedRowsChanged(chosenRows, nextSelectionMode, nextMultipleFileSelections);
+      const nextMultipleFileSelections =
+        this.props.multiFilePatch.spansMultipleFiles(chosenRows);
+      await this.selectedRowsChanged(
+        chosenRows,
+        nextSelectionMode,
+        nextMultipleFileSelections
+      );
     } else {
       chosenRows = this.state.selectedRows;
     }
@@ -213,7 +255,11 @@ export default class MultiFilePatchController extends React.Component {
       eventSource,
     });
 
-    return this.props.discardLines(this.props.multiFilePatch, chosenRows, this.props.repository);
+    return this.props.discardLines(
+      this.props.multiFilePatch,
+      chosenRows,
+      this.props.repository
+    );
   }
 
   selectedRowsChanged(rows, nextSelectionMode, nextMultipleFileSelections) {
@@ -225,12 +271,15 @@ export default class MultiFilePatchController extends React.Component {
       return Promise.resolve();
     }
 
-    return new Promise(resolve => {
-      this.setState({
-        selectedRows: rows,
-        selectionMode: nextSelectionMode,
-        hasMultipleFileSelections: nextMultipleFileSelections,
-      }, resolve);
+    return new Promise((resolve) => {
+      this.setState(
+        {
+          selectedRows: rows,
+          selectionMode: nextSelectionMode,
+          hasMultipleFileSelections: nextMultipleFileSelections,
+        },
+        resolve
+      );
     });
   }
 

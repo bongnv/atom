@@ -1,4 +1,4 @@
-@import "variables";
+@import 'variables';
 
 @default-padding: @component-padding;
 @avatar-dimensions: 16px;
@@ -20,7 +20,7 @@
   }
 
   &-title {
-    margin: 0 0 .25em 0;
+    margin: 0 0 0.25em 0;
     font-size: 1.4em;
     line-height: 1.3;
     color: @text-color-highlight;
@@ -29,14 +29,14 @@
   &-avatar {
     border-radius: @component-border-radius;
     height: @avatar-dimensions;
-    margin-right: .4em;
+    margin-right: 0.4em;
     width: @avatar-dimensions;
   }
 
   &-meta {
     display: flex;
     align-items: center;
-    margin:  @default-padding/2 0 @default-padding*2 0;
+    margin: @default-padding / 2 0 @default-padding*2 0;
   }
 
   &-metaText {
@@ -50,7 +50,7 @@
     position: absolute;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 0em .4em;
+    padding: 0em 0.4em;
     color: @text-color-subtle;
     font-style: italic;
     border: 1px solid @button-border-color;
@@ -58,7 +58,7 @@
     background-color: @button-background-color;
 
     &:hover {
-      background-color: @button-background-color-hover
+      background-color: @button-background-color-hover;
     }
   }
 

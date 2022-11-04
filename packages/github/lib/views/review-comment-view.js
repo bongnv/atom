@@ -7,7 +7,7 @@ import Timeago from './timeago';
 import Octicon from '../atom/octicon';
 import GithubDotcomMarkdown from './github-dotcom-markdown';
 import EmojiReactionsController from '../controllers/emoji-reactions-controller';
-import {GHOST_USER} from '../helpers';
+import { GHOST_USER } from '../helpers';
 import ActionableReviewView from './actionable-review-view';
 
 export default class ReviewCommentView extends React.Component {
@@ -30,7 +30,7 @@ export default class ReviewCommentView extends React.Component {
     openIssueishLinkInNewTab: PropTypes.func.isRequired,
     updateComment: PropTypes.func.isRequired,
     reportRelayError: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -46,30 +46,38 @@ export default class ReviewCommentView extends React.Component {
         commands={this.props.commands}
         contentUpdater={this.props.updateComment}
         render={this.renderComment}
-      />);
+      />
+    );
   }
 
-  renderComment = showActionsMenu => {
+  renderComment = (showActionsMenu) => {
     const comment = this.props.comment;
 
     if (comment.isMinimized) {
       return (
-        <div className="github-Review-comment github-Review-comment--hidden" key={comment.id}>
+        <div
+          className="github-Review-comment github-Review-comment--hidden"
+          key={comment.id}
+        >
           <Octicon icon={'fold'} className="github-Review-icon" />
           <em>This comment was hidden</em>
         </div>
       );
     }
 
-    const commentClass = cx('github-Review-comment', {'github-Review-comment--pending': comment.state === 'PENDING'});
+    const commentClass = cx('github-Review-comment', {
+      'github-Review-comment--pending': comment.state === 'PENDING',
+    });
     const author = comment.author || GHOST_USER;
 
     return (
       <div className={commentClass}>
         <header className="github-Review-header">
           <div className="github-Review-header-authorData">
-            <img className="github-Review-avatar"
-              src={author.avatarUrl} alt={author.login}
+            <img
+              className="github-Review-avatar"
+              src={author.avatarUrl}
+              alt={author.login}
             />
             <a className="github-Review-username" href={author.url}>
               {author.login}
@@ -80,13 +88,15 @@ export default class ReviewCommentView extends React.Component {
             {this.props.renderEditedLink(comment)}
             {this.props.renderAuthorAssociation(comment)}
             {comment.state === 'PENDING' && (
-              <span className="github-Review-pendingBadge badge badge-warning">pending</span>
+              <span className="github-Review-pendingBadge badge badge-warning">
+                pending
+              </span>
             )}
           </div>
           <Octicon
             icon="ellipses"
             className="github-Review-actionsMenu"
-            onClick={event => showActionsMenu(event, comment, author)}
+            onClick={(event) => showActionsMenu(event, comment, author)}
           />
         </header>
         <div className="github-Review-text">
@@ -103,6 +113,5 @@ export default class ReviewCommentView extends React.Component {
         </div>
       </div>
     );
-  }
-
+  };
 }

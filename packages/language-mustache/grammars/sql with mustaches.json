@@ -1,1 +1,9 @@
-{"scopeName":"source.sql.mustache","name":"SQL (Mustache)","fileTypes":[],"patterns":[{"include":"text.html.mustache#mustache"},{"include":"source.sql"}]}
+{
+  "scopeName": "source.sql.mustache",
+  "name": "SQL (Mustache)",
+  "fileTypes": [],
+  "patterns": [
+    { "include": "text.html.mustache#mustache" },
+    { "include": "source.sql" }
+  ]
+}

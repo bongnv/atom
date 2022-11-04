@@ -1,11 +1,11 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {TextEditor} from 'atom';
-import {CompositeDisposable} from 'event-kit';
+import { TextEditor } from 'atom';
+import { CompositeDisposable } from 'event-kit';
 
 import RefHolder from '../models/ref-holder';
-import {RefHolderPropType} from '../prop-types';
-import {extractProps} from '../helpers';
+import { RefHolderPropType } from '../prop-types';
+import { extractProps } from '../helpers';
 
 const editorUpdateProps = {
   mini: PropTypes.bool,
@@ -44,7 +44,7 @@ export default class AtomTextEditor extends React.Component {
     refElement: RefHolderPropType,
 
     children: PropTypes.node,
-  }
+  };
 
   static defaultProps = {
     didChangeCursorPosition: () => {},
@@ -55,7 +55,7 @@ export default class AtomTextEditor extends React.Component {
     hideEmptiness: false,
     preselect: false,
     tabIndex: 0,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -70,7 +70,10 @@ export default class AtomTextEditor extends React.Component {
   render() {
     return (
       <Fragment>
-        <div className="github-AtomTextEditor-container" ref={this.refParent.setter} />
+        <div
+          className="github-AtomTextEditor-container"
+          ref={this.refParent.setter}
+        />
         <TextEditorContext.Provider value={this.getRefModel()}>
           {this.props.children}
         </TextEditorContext.Provider>
@@ -81,7 +84,7 @@ export default class AtomTextEditor extends React.Component {
   componentDidMount() {
     const modelProps = extractProps(this.props, editorCreationProps);
 
-    this.refParent.map(element => {
+    this.refParent.map((element) => {
       const editor = new TextEditor(modelProps);
       editor.getElement().tabIndex = this.props.tabIndex;
       if (this.props.className) {
@@ -97,7 +100,7 @@ export default class AtomTextEditor extends React.Component {
       this.subs.add(
         editor.onDidChangeCursorPosition(this.props.didChangeCursorPosition),
         editor.observeSelections(this.observeSelections),
-        editor.onDidChange(this.observeEmptiness),
+        editor.onDidChange(this.observeEmptiness)
       );
 
       if (editor.isEmpty() && this.props.hideEmptiness) {
@@ -110,47 +113,53 @@ export default class AtomTextEditor extends React.Component {
 
   componentDidUpdate() {
     const modelProps = extractProps(this.props, editorUpdateProps);
-    this.getRefModel().map(editor => editor.update(modelProps));
+    this.getRefModel().map((editor) => editor.update(modelProps));
 
     // When you look into the abyss, the abyss also looks into you
     this.observeEmptiness();
   }
 
   componentWillUnmount() {
-    this.getRefModel().map(editor => editor.destroy());
+    this.getRefModel().map((editor) => editor.destroy());
     this.subs.dispose();
   }
 
-  observeSelections = selection => {
+  observeSelections = (selection) => {
     const selectionSubs = new CompositeDisposable(
       selection.onDidChangeRange(this.props.didChangeSelectionRange),
       selection.onDidDestroy(() => {
         selectionSubs.dispose();
         this.subs.remove(selectionSubs);
         this.props.didDestroySelection(selection);
-      }),
+      })
     );
     this.subs.add(selectionSubs);
     this.props.didAddSelection(selection);
-  }
+  };
 
   observeEmptiness = () => {
-    this.getRefModel().map(editor => {
+    this.getRefModel().map((editor) => {
       if (editor.isEmpty() && this.props.hideEmptiness) {
-        this.getRefElement().map(element => element.classList.add(EMPTY_CLASS));
+        this.getRefElement().map((element) =>
+          element.classList.add(EMPTY_CLASS)
+        );
       } else {
-        this.getRefElement().map(element => element.classList.remove(EMPTY_CLASS));
+        this.getRefElement().map((element) =>
+          element.classList.remove(EMPTY_CLASS)
+        );
       }
       return null;
     });
-  }
+  };
 
   contains(element) {
-    return this.getRefElement().map(e => e.contains(element)).getOr(false);
+    return this.getRefElement()
+      .map((e) => e.contains(element))
+      .getOr(false);
   }
 
   focus() {
-    this.getRefElement().map(e => e.focus());
+    this.getRefElement().map((e) => e.focus());
   }
 
   getRefModel() {

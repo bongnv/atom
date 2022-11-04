@@ -16,11 +16,11 @@ We want to focus on the basics - fundamental, primitive git operations that can 
 
 We will extend beyond this for features that are _uniquely useful in the context of an editor_:
 
-* Modifying diffs before staging or committing
-* Shaping commit history to tell a story
-* Visually exploring someone else's commit history
-* Enhanced debugging and troubleshooting backed by tools like `git bisect` and `git blame`.
-* Improve merge conflict resolution by taking advantage of tree-sitter ASTs
+- Modifying diffs before staging or committing
+- Shaping commit history to tell a story
+- Visually exploring someone else's commit history
+- Enhanced debugging and troubleshooting backed by tools like `git bisect` and `git blame`.
+- Improve merge conflict resolution by taking advantage of tree-sitter ASTs
 
 Or for those that provide richer visualizations of git's state, like a log view.
 

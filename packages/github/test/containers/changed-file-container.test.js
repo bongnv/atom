@@ -1,17 +1,17 @@
 import path from 'path';
 import fs from 'fs-extra';
 import React from 'react';
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
 import ChangedFileContainer from '../../lib/containers/changed-file-container';
 import ChangedFileItem from '../../lib/items/changed-file-item';
-import {DEFERRED, EXPANDED} from '../../lib/models/patch/patch';
-import {cloneRepository, buildRepository} from '../helpers';
+import { DEFERRED, EXPANDED } from '../../lib/models/patch/patch';
+import { cloneRepository, buildRepository } from '../helpers';
 
-describe('ChangedFileContainer', function() {
+describe('ChangedFileContainer', function () {
   let atomEnv, repository;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
 
     const workdirPath = await cloneRepository();
@@ -27,7 +27,7 @@ describe('ChangedFileContainer', function() {
     // c.txt: untouched
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -55,40 +55,70 @@ describe('ChangedFileContainer', function() {
     return <ChangedFileContainer {...props} />;
   }
 
-  it('renders a loading spinner before file patch data arrives', function() {
+  it('renders a loading spinner before file patch data arrives', function () {
     const wrapper = mount(buildApp());
     assert.isTrue(wrapper.find('LoadingView').exists());
   });
 
-  it('renders a ChangedFileController', async function() {
-    const wrapper = mount(buildApp({relPath: 'a.txt', stagingStatus: 'unstaged'}));
-    await assert.async.isTrue(wrapper.update().find('ChangedFileController').exists());
+  it('renders a ChangedFileController', async function () {
+    const wrapper = mount(
+      buildApp({ relPath: 'a.txt', stagingStatus: 'unstaged' })
+    );
+    await assert.async.isTrue(
+      wrapper.update().find('ChangedFileController').exists()
+    );
   });
 
-  it('uses a consistent TextBuffer', async function() {
-    const wrapper = mount(buildApp({relPath: 'a.txt', stagingStatus: 'unstaged'}));
-    await assert.async.isTrue(wrapper.update().find('ChangedFileController').exists());
+  it('uses a consistent TextBuffer', async function () {
+    const wrapper = mount(
+      buildApp({ relPath: 'a.txt', stagingStatus: 'unstaged' })
+    );
+    await assert.async.isTrue(
+      wrapper.update().find('ChangedFileController').exists()
+    );
 
-    const prevPatch = wrapper.find('ChangedFileController').prop('multiFilePatch');
+    const prevPatch = wrapper
+      .find('ChangedFileController')
+      .prop('multiFilePatch');
     const prevBuffer = prevPatch.getBuffer();
 
-    await fs.writeFile(path.join(repository.getWorkingDirectoryPath(), 'a.txt'), 'changed\nagain\n');
+    await fs.writeFile(
+      path.join(repository.getWorkingDirectoryPath(), 'a.txt'),
+      'changed\nagain\n'
+    );
     repository.refresh();
 
-    await assert.async.notStrictEqual(wrapper.update().find('ChangedFileController').prop('multiFilePatch'), prevPatch);
+    await assert.async.notStrictEqual(
+      wrapper.update().find('ChangedFileController').prop('multiFilePatch'),
+      prevPatch
+    );
 
-    const nextBuffer = wrapper.find('ChangedFileController').prop('multiFilePatch').getBuffer();
+    const nextBuffer = wrapper
+      .find('ChangedFileController')
+      .prop('multiFilePatch')
+      .getBuffer();
     assert.strictEqual(nextBuffer, prevBuffer);
   });
 
-  it('passes unrecognized props to the FilePatchView', async function() {
+  it('passes unrecognized props to the FilePatchView', async function () {
     const extra = Symbol('extra');
-    const wrapper = mount(buildApp({relPath: 'a.txt', stagingStatus: 'unstaged', extra}));
-    await assert.async.strictEqual(wrapper.update().find('MultiFilePatchView').prop('extra'), extra);
+    const wrapper = mount(
+      buildApp({ relPath: 'a.txt', stagingStatus: 'unstaged', extra })
+    );
+    await assert.async.strictEqual(
+      wrapper.update().find('MultiFilePatchView').prop('extra'),
+      extra
+    );
   });
 
-  it('remembers previously expanded large FilePatches', async function() {
-    const wrapper = mount(buildApp({relPath: 'a.txt', stagingStatus: 'unstaged', largeDiffThreshold: 2}));
+  it('remembers previously expanded large FilePatches', async function () {
+    const wrapper = mount(
+      buildApp({
+        relPath: 'a.txt',
+        stagingStatus: 'unstaged',
+        largeDiffThreshold: 2,
+      })
+    );
 
     await assert.async.isTrue(wrapper.update().exists('ChangedFileController'));
     const before = wrapper.find('ChangedFileController').prop('multiFilePatch');
@@ -98,22 +128,31 @@ describe('ChangedFileContainer', function() {
     assert.strictEqual(fp.getRenderStatus(), EXPANDED);
 
     repository.refresh();
-    await assert.async.notStrictEqual(wrapper.update().find('ChangedFileController').prop('multiFilePatch'), before);
+    await assert.async.notStrictEqual(
+      wrapper.update().find('ChangedFileController').prop('multiFilePatch'),
+      before
+    );
 
     const after = wrapper.find('ChangedFileController').prop('multiFilePatch');
     assert.notStrictEqual(after, before);
     assert.strictEqual(after.getFilePatches()[0].getRenderStatus(), EXPANDED);
   });
 
-  it('disposes its FilePatch subscription on unmount', async function() {
+  it('disposes its FilePatch subscription on unmount', async function () {
     const wrapper = mount(buildApp({}));
     await assert.async.isTrue(wrapper.update().exists('ChangedFileController'));
 
     const patch = wrapper.find('ChangedFileController').prop('multiFilePatch');
     const [fp] = patch.getFilePatches();
-    assert.strictEqual(fp.emitter.listenerCountForEventName('change-render-status'), 1);
+    assert.strictEqual(
+      fp.emitter.listenerCountForEventName('change-render-status'),
+      1
+    );
 
     wrapper.unmount();
-    assert.strictEqual(fp.emitter.listenerCountForEventName('change-render-status'), 0);
+    assert.strictEqual(
+      fp.emitter.listenerCountForEventName('change-render-status'),
+      0
+    );
   });
 });

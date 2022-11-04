@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 
-import {classNameForStatus} from '../helpers';
-import {MergeConflictItemPropType} from '../prop-types';
+import { classNameForStatus } from '../helpers';
+import { MergeConflictItemPropType } from '../prop-types';
 import RefHolder from '../models/ref-holder';
 
 export default class MergeConflictListItemView extends React.Component {
@@ -19,12 +19,14 @@ export default class MergeConflictListItemView extends React.Component {
 
     this.refItem = new RefHolder();
     this.subs = new CompositeDisposable(
-      this.refItem.observe(item => this.props.registerItemElement(this.props.mergeConflict, item)),
+      this.refItem.observe((item) =>
+        this.props.registerItemElement(this.props.mergeConflict, item)
+      )
     );
   }
 
   render() {
-    const {mergeConflict, selected, ...others} = this.props;
+    const { mergeConflict, selected, ...others } = this.props;
     delete others.remainingConflicts;
     delete others.registerItemElement;
     const fileStatus = classNameForStatus[mergeConflict.status.file];
@@ -36,13 +38,22 @@ export default class MergeConflictListItemView extends React.Component {
       <div
         ref={this.refItem.setter}
         {...others}
-        className={`github-MergeConflictListView-item is-${fileStatus} ${className}`}>
+        className={`github-MergeConflictListView-item is-${fileStatus} ${className}`}
+      >
         <div className="github-FilePatchListView-item github-FilePatchListView-pathItem">
-          <span className={`github-FilePatchListView-icon icon icon-diff-${fileStatus} status-${fileStatus}`} />
-          <span className="github-FilePatchListView-path">{mergeConflict.filePath}</span>
+          <span
+            className={`github-FilePatchListView-icon icon icon-diff-${fileStatus} status-${fileStatus}`}
+          />
+          <span className="github-FilePatchListView-path">
+            {mergeConflict.filePath}
+          </span>
           <span className={'github-FilePatchListView ours-theirs-info'}>
-            <span className={`github-FilePatchListView-icon icon icon-diff-${oursStatus}`} />
-            <span className={`github-FilePatchListView-icon icon icon-diff-${theirsStatus}`} />
+            <span
+              className={`github-FilePatchListView-icon icon icon-diff-${oursStatus}`}
+            />
+            <span
+              className={`github-FilePatchListView-icon icon icon-diff-${theirsStatus}`}
+            />
           </span>
         </div>
         <div className="github-FilePatchListView-item github-FilePatchListView-resolutionItem">
@@ -69,7 +80,9 @@ export default class MergeConflictListItemView extends React.Component {
       );
     } else {
       return (
-        <span className="github-RemainingConflicts text-subtle">calculating</span>
+        <span className="github-RemainingConflicts text-subtle">
+          calculating
+        </span>
       );
     }
   }

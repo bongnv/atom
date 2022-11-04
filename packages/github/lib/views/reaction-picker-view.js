@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import {reactionTypeToEmoji} from '../helpers';
+import { reactionTypeToEmoji } from '../helpers';
 
 const CONTENT_TYPES = Object.keys(reactionTypeToEmoji);
 const EMOJI_COUNT = CONTENT_TYPES.length;
@@ -12,13 +12,13 @@ const EMOJI_ROWS = Math.ceil(EMOJI_COUNT / EMOJI_PER_ROW);
 export default class ReactionPickerView extends React.Component {
   static propTypes = {
     viewerReacted: PropTypes.arrayOf(
-      PropTypes.oneOf(Object.keys(reactionTypeToEmoji)),
+      PropTypes.oneOf(Object.keys(reactionTypeToEmoji))
     ),
 
     // Action methods
     addReactionAndClose: PropTypes.func.isRequired,
     removeReactionAndClose: PropTypes.func.isRequired,
-  }
+  };
 
   render() {
     const viewerReactedSet = new Set(this.props.viewerReacted);
@@ -41,26 +41,24 @@ export default class ReactionPickerView extends React.Component {
           ? () => this.props.addReactionAndClose(content)
           : () => this.props.removeReactionAndClose(content);
 
-        const className = cx(
-          'github-ReactionPicker-reaction',
-          'btn',
-          {selected: viewerReactedSet.has(content)},
-        );
+        const className = cx('github-ReactionPicker-reaction', 'btn', {
+          selected: viewerReactedSet.has(content),
+        });
 
         emojiButtons.push(
           <button key={content} className={className} onClick={toggle}>
             {reactionTypeToEmoji[content]}
-          </button>,
+          </button>
         );
       }
 
-      emojiRows.push(<p key={row} className="github-ReactionPicker-row inline-block-tight">{emojiButtons}</p>);
+      emojiRows.push(
+        <p key={row} className="github-ReactionPicker-row inline-block-tight">
+          {emojiButtons}
+        </p>
+      );
     }
 
-    return (
-      <div className="github-ReactionPicker">
-        {emojiRows}
-      </div>
-    );
+    return <div className="github-ReactionPicker">{emojiRows}</div>;
   }
 }

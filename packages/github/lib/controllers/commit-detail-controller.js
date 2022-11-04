@@ -8,7 +8,7 @@ export default class CommitDetailController extends React.Component {
     ...CommitDetailView.drilledPropTypes,
 
     commit: PropTypes.object.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -31,8 +31,11 @@ export default class CommitDetailController extends React.Component {
   }
 
   toggleMessage = () => {
-    return new Promise(resolve => {
-      this.setState(prevState => ({messageOpen: !prevState.messageOpen}), resolve);
+    return new Promise((resolve) => {
+      this.setState(
+        (prevState) => ({ messageOpen: !prevState.messageOpen }),
+        resolve
+      );
     });
-  }
+  };
 }

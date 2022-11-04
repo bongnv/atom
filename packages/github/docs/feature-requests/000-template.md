@@ -23,12 +23,11 @@ Explain the proposal as if it was already implemented in the GitHub package and 
 - Explaining any changes to existing workflows.
 - Design mock-ups or diagrams depicting any new UI that will be introduced.
 
-
 **_Part 2 - Additional information_**
 
 ## :anchor: Drawbacks
 
-Why should we *not* do this?
+Why should we _not_ do this?
 
 ## :thinking: Rationale and alternatives
 

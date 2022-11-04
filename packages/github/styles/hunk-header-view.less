@@ -1,4 +1,4 @@
-@import "variables";
+@import 'variables';
 
 @hunk-fg-color: @text-color-subtle;
 @hunk-bg-color: mix(@syntax-text-color, @syntax-background-color, 0%);
@@ -23,8 +23,12 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     -webkit-font-smoothing: antialiased;
-    &:hover  { background-color: @hunk-bg-color-hover; }
-    &:active { background-color: @hunk-bg-color-active; }
+    &:hover {
+      background-color: @hunk-bg-color-hover;
+    }
+    &:active {
+      background-color: @hunk-bg-color-active;
+    }
   }
 
   &-stageButton,
@@ -37,8 +41,12 @@
     border-left: inherit;
     background-color: transparent;
     cursor: default;
-    &:hover  { background-color: @hunk-bg-color-hover; }
-    &:active { background-color: @hunk-bg-color-active; }
+    &:hover {
+      background-color: @hunk-bg-color-hover;
+    }
+    &:active {
+      background-color: @hunk-bg-color-active;
+    }
 
     .keystroke {
       margin-right: 1em;
@@ -61,8 +69,12 @@
   &-title,
   &-stageButton,
   &-discardButton {
-    &:hover  { background-color: @hunk-bg-color-hover; }
-    &:active { background-color: @hunk-bg-color-active; }
+    &:hover {
+      background-color: @hunk-bg-color-hover;
+    }
+    &:active {
+      background-color: @hunk-bg-color-active;
+    }
   }
 }
 
@@ -77,11 +89,14 @@
   .github-HunkHeaderView-title,
   .github-HunkHeaderView-stageButton,
   .github-HunkHeaderView-discardButton {
-    &:hover  { background-color: @background-color-highlight; }
-    &:active { background-color: @background-color-selected; }
+    &:hover {
+      background-color: @background-color-highlight;
+    }
+    &:active {
+      background-color: @background-color-selected;
+    }
   }
 }
-
 
 // Selected + focused
 .github-FilePatchView:focus-within {
@@ -91,8 +106,12 @@
     .github-HunkHeaderView-title,
     .github-HunkHeaderView-stageButton,
     .github-HunkHeaderView-discardButton {
-      &:hover  { background-color: lighten(@button-background-color-selected, 4%); }
-      &:active { background-color: darken(@button-background-color-selected, 4%); }
+      &:hover {
+        background-color: lighten(@button-background-color-selected, 4%);
+      }
+      &:active {
+        background-color: darken(@button-background-color-selected, 4%);
+      }
     }
   }
 }

@@ -1,19 +1,19 @@
 import React from 'react';
-import {shallow} from 'enzyme';
+import { shallow } from 'enzyme';
 
 import CommitPreviewController from '../../lib/controllers/commit-preview-controller';
 import MultiFilePatch from '../../lib/models/patch/multi-file-patch';
-import {cloneRepository, buildRepository} from '../helpers';
+import { cloneRepository, buildRepository } from '../helpers';
 
-describe('CommitPreviewController', function() {
+describe('CommitPreviewController', function () {
   let atomEnv, repository;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
     repository = await buildRepository(await cloneRepository('three-files'));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -40,16 +40,19 @@ describe('CommitPreviewController', function() {
     return <CommitPreviewController {...props} />;
   }
 
-  it('passes unrecognized props to a MultiFilePatchController', function() {
+  it('passes unrecognized props to a MultiFilePatchController', function () {
     const extra = Symbol('extra');
-    const wrapper = shallow(buildApp({extra}));
+    const wrapper = shallow(buildApp({ extra }));
 
-    assert.strictEqual(wrapper.find('MultiFilePatchController').prop('extra'), extra);
+    assert.strictEqual(
+      wrapper.find('MultiFilePatchController').prop('extra'),
+      extra
+    );
   });
 
-  it('calls surfaceToCommitPreviewButton', function() {
+  it('calls surfaceToCommitPreviewButton', function () {
     const surfaceToCommitPreviewButton = sinon.spy();
-    const wrapper = shallow(buildApp({surfaceToCommitPreviewButton}));
+    const wrapper = shallow(buildApp({ surfaceToCommitPreviewButton }));
     wrapper.find('MultiFilePatchController').prop('surface')();
 
     assert.isTrue(surfaceToCommitPreviewButton.called);

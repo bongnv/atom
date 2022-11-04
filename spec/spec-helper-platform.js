@@ -24,7 +24,7 @@ module.exports = {
       filenames = [
         'a_file_with_utf8.txt',
         'file with spaces.txt',
-        'utfa\u0306.md'
+        'utfa\u0306.md',
       ];
     } else {
       filenames = [
@@ -32,14 +32,14 @@ module.exports = {
         'file with spaces.txt',
         'goddam\nnewlines',
         'quote".txt',
-        'utfa\u0306.md'
+        'utfa\u0306.md',
       ];
     }
 
-    filenames.map(filename =>
+    filenames.map((filename) =>
       fs.writeFileSync(path.join(evilFilesPath, filename), 'evil file!', {
-        flag: 'w'
+        flag: 'w',
       })
     );
-  }
+  },
 };

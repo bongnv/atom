@@ -1,4 +1,4 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import BranchView from '../views/branch-view';
@@ -7,7 +7,7 @@ import PushPullView from '../views/push-pull-view';
 import ChangedFilesCountView from '../views/changed-files-count-view';
 import GithubTileView from '../views/github-tile-view';
 import Tooltip from '../atom/tooltip';
-import Commands, {Command} from '../atom/commands';
+import Commands, { Command } from '../atom/commands';
 import ObserveModel from '../views/observe-model';
 import RefHolder from '../models/ref-holder';
 import yubikiri from 'yubikiri';
@@ -22,7 +22,7 @@ export default class StatusBarTileController extends React.Component {
     repository: PropTypes.object.isRequired,
     toggleGitTab: PropTypes.func,
     toggleGithubTab: PropTypes.func,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -31,7 +31,8 @@ export default class StatusBarTileController extends React.Component {
   }
 
   getChangedFilesCount(data) {
-    const {stagedFiles, unstagedFiles, mergeConflictFiles} = data.statusesForChangedFiles;
+    const { stagedFiles, unstagedFiles, mergeConflictFiles } =
+      data.statusesForChangedFiles;
     const changedFiles = new Set();
 
     for (const filePath in unstagedFiles) {
@@ -47,22 +48,26 @@ export default class StatusBarTileController extends React.Component {
     return changedFiles.size;
   }
 
-  fetchData = repository => {
+  fetchData = (repository) => {
     return yubikiri({
       currentBranch: repository.getCurrentBranch(),
       branches: repository.getBranches(),
       statusesForChangedFiles: repository.getStatusesForChangedFiles(),
-      currentRemote: async query => repository.getRemoteForBranch((await query.currentBranch).getName()),
-      aheadCount: async query => repository.getAheadCount((await query.currentBranch).getName()),
-      behindCount: async query => repository.getBehindCount((await query.currentBranch).getName()),
-      originExists: async () => (await repository.getRemotes()).withName('origin').isPresent(),
+      currentRemote: async (query) =>
+        repository.getRemoteForBranch((await query.currentBranch).getName()),
+      aheadCount: async (query) =>
+        repository.getAheadCount((await query.currentBranch).getName()),
+      behindCount: async (query) =>
+        repository.getBehindCount((await query.currentBranch).getName()),
+      originExists: async () =>
+        (await repository.getRemotes()).withName('origin').isPresent(),
     });
-  }
+  };
 
   render() {
     return (
       <ObserveModel model={this.props.repository} fetchData={this.fetchData}>
-        {data => (data ? this.renderWithData(data) : null)}
+        {(data) => (data ? this.renderWithData(data) : null)}
       </ObserveModel>
     );
   }
@@ -71,7 +76,8 @@ export default class StatusBarTileController extends React.Component {
     let changedFilesCount, mergeConflictsPresent;
     if (data.statusesForChangedFiles) {
       changedFilesCount = this.getChangedFilesCount(data);
-      mergeConflictsPresent = Object.keys(data.statusesForChangedFiles.mergeConflictFiles).length > 0;
+      mergeConflictsPresent =
+        Object.keys(data.statusesForChangedFiles.mergeConflictFiles).length > 0;
     }
 
     const repoProps = {
@@ -116,11 +122,21 @@ export default class StatusBarTileController extends React.Component {
           <Command command="github:pull" callback={this.pull(repoProps)} />
           <Command
             command="github:push"
-            callback={() => this.push(repoProps)({force: false, setUpstream: !repoProps.currentRemote.isPresent()})}
+            callback={() =>
+              this.push(repoProps)({
+                force: false,
+                setUpstream: !repoProps.currentRemote.isPresent(),
+              })
+            }
           />
           <Command
             command="github:force-push"
-            callback={() => this.push(repoProps)({force: true, setUpstream: !repoProps.currentRemote.isPresent()})}
+            callback={() =>
+              this.push(repoProps)({
+                force: true,
+                setUpstream: !repoProps.currentRemote.isPresent(),
+              })
+            }
           />
         </Commands>
         <BranchView
@@ -133,7 +149,8 @@ export default class StatusBarTileController extends React.Component {
           manager={this.props.tooltips}
           target={this.refBranchViewRoot}
           trigger="click"
-          className="github-StatusBarTileController-tooltipMenu">
+          className="github-StatusBarTileController-tooltipMenu"
+        >
           <BranchMenuView
             workspace={this.props.workspace}
             notificationManager={this.props.notificationManager}
@@ -162,17 +179,17 @@ export default class StatusBarTileController extends React.Component {
     );
   }
 
-  handleOpenGitTimingsView = e => {
+  handleOpenGitTimingsView = (e) => {
     e && e.preventDefault();
     this.props.workspace.open('atom-github://debug/timings');
-  }
+  };
 
   checkout = (branchName, options) => {
     return this.props.repository.checkout(branchName, options);
-  }
+  };
 
   push(data) {
-    return ({force, setUpstream} = {}) => {
+    return ({ force, setUpstream } = {}) => {
       return this.props.repository.push(data.currentBranch.getName(), {
         force,
         setUpstream,

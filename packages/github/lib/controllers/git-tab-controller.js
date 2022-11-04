@@ -2,13 +2,17 @@ import path from 'path';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {TextBuffer} from 'atom';
+import { TextBuffer } from 'atom';
 
 import GitTabView from '../views/git-tab-view';
 import UserStore from '../models/user-store';
 import RefHolder from '../models/ref-holder';
 import {
-  CommitPropType, BranchPropType, FilePatchItemPropType, MergeConflictItemPropType, RefHolderPropType,
+  CommitPropType,
+  BranchPropType,
+  FilePatchItemPropType,
+  MergeConflictItemPropType,
+  RefHolderPropType,
 } from '../prop-types';
 
 export default class GitTabController extends React.Component {
@@ -76,9 +80,9 @@ export default class GitTabController extends React.Component {
       editingIdentity: false,
     };
 
-    this.usernameBuffer = new TextBuffer({text: props.username});
+    this.usernameBuffer = new TextBuffer({ text: props.username });
     this.usernameBuffer.retain();
-    this.emailBuffer = new TextBuffer({text: props.email});
+    this.emailBuffer = new TextBuffer({ text: props.email });
     this.emailBuffer.retain();
 
     this.userStore = new UserStore({
@@ -90,9 +94,12 @@ export default class GitTabController extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     return {
-      editingIdentity: state.editingIdentity ||
-        (!props.fetchInProgress && props.repository.isPresent() && !props.repositoryDrift) &&
-        (props.username === '' || props.email === ''),
+      editingIdentity:
+        state.editingIdentity ||
+        (!props.fetchInProgress &&
+          props.repository.isPresent() &&
+          !props.repositoryDrift &&
+          (props.username === '' || props.email === '')),
     };
   }
 
@@ -102,11 +109,9 @@ export default class GitTabController extends React.Component {
         ref={this.refView.setter}
         refRoot={this.refRoot}
         refStagingView={this.refStagingView}
-
         isLoading={this.props.fetchInProgress}
         editingIdentity={this.state.editingIdentity}
         repository={this.props.repository}
-
         usernameBuffer={this.usernameBuffer}
         emailBuffer={this.emailBuffer}
         lastCommit={this.props.lastCommit}
@@ -118,12 +123,13 @@ export default class GitTabController extends React.Component {
         unstagedChanges={this.props.unstagedChanges}
         stagedChanges={this.props.stagedChanges}
         mergeConflicts={this.props.mergeConflicts}
-        workingDirectoryPath={this.props.workingDirectoryPath || this.props.currentWorkDir}
+        workingDirectoryPath={
+          this.props.workingDirectoryPath || this.props.currentWorkDir
+        }
         mergeMessage={this.props.mergeMessage}
         userStore={this.userStore}
         selectedCoAuthors={this.state.selectedCoAuthors}
         updateSelectedCoAuthors={this.updateSelectedCoAuthors}
-
         resolutionProgress={this.props.resolutionProgress}
         workspace={this.props.workspace}
         commands={this.props.commands}
@@ -133,7 +139,6 @@ export default class GitTabController extends React.Component {
         project={this.props.project}
         confirm={this.props.confirm}
         config={this.props.config}
-
         toggleIdentityEditor={this.toggleIdentityEditor}
         closeIdentityEditor={this.closeIdentityEditor}
         setLocalIdentity={this.setLocalIdentity}
@@ -147,7 +152,6 @@ export default class GitTabController extends React.Component {
         setContextLock={this.props.setContextLock}
         getCurrentWorkDirs={this.props.getCurrentWorkDirs}
         onDidChangeWorkDirs={this.props.onDidChangeWorkDirs}
-
         attemptFileStageOperation={this.attemptFileStageOperation}
         attemptStageAllOperation={this.attemptStageAllOperation}
         prepareToCommit={this.prepareToCommit}
@@ -166,7 +170,9 @@ export default class GitTabController extends React.Component {
 
   componentDidMount() {
     this.refreshResolutionProgress(false, false);
-    this.refRoot.map(root => root.addEventListener('focusin', this.rememberLastFocus));
+    this.refRoot.map((root) =>
+      root.addEventListener('focusin', this.rememberLastFocus)
+    );
 
     if (this.props.controllerRef) {
       this.props.controllerRef.setter(this);
@@ -188,7 +194,9 @@ export default class GitTabController extends React.Component {
   }
 
   componentWillUnmount() {
-    this.refRoot.map(root => root.removeEventListener('focusin', this.rememberLastFocus));
+    this.refRoot.map((root) =>
+      root.removeEventListener('focusin', this.rememberLastFocus)
+    );
   }
 
   /*
@@ -204,20 +212,23 @@ export default class GitTabController extends React.Component {
     }
 
     const openPaths = new Set(
-      this.props.workspace.getTextEditors().map(editor => editor.getPath()),
+      this.props.workspace.getTextEditors().map((editor) => editor.getPath())
     );
 
     for (let i = 0; i < this.props.mergeConflicts.length; i++) {
       const conflictPath = path.join(
         this.props.workingDirectoryPath,
-        this.props.mergeConflicts[i].filePath,
+        this.props.mergeConflicts[i].filePath
       );
 
       if (!includeOpen && openPaths.has(conflictPath)) {
         continue;
       }
 
-      if (!includeCounted && this.props.resolutionProgress.getRemaining(conflictPath) !== undefined) {
+      if (
+        !includeCounted &&
+        this.props.resolutionProgress.getRemaining(conflictPath) !== undefined
+      ) {
         continue;
       }
 
@@ -225,9 +236,9 @@ export default class GitTabController extends React.Component {
     }
   }
 
-  attemptStageAllOperation = stageStatus => {
+  attemptStageAllOperation = (stageStatus) => {
     return this.attemptFileStageOperation(['.'], stageStatus);
-  }
+  };
 
   attemptFileStageOperation = (filePaths, stageStatus) => {
     if (this.stagingOperationInProgress) {
@@ -239,9 +250,11 @@ export default class GitTabController extends React.Component {
 
     this.stagingOperationInProgress = true;
 
-    const fileListUpdatePromise = this.refStagingView.map(view => {
-      return view.getNextListUpdatePromise();
-    }).getOr(Promise.resolve());
+    const fileListUpdatePromise = this.refStagingView
+      .map((view) => {
+        return view.getNextListUpdatePromise();
+      })
+      .getOr(Promise.resolve());
     let stageOperationPromise;
     if (stageStatus === 'staged') {
       stageOperationPromise = this.unstageFiles(filePaths);
@@ -252,29 +265,31 @@ export default class GitTabController extends React.Component {
       this.stagingOperationInProgress = false;
     });
 
-    return {stageOperationPromise, selectionUpdatePromise};
-  }
+    return { stageOperationPromise, selectionUpdatePromise };
+  };
 
   async stageFiles(filePaths) {
     const pathsToStage = new Set(filePaths);
 
     const mergeMarkers = await Promise.all(
-      filePaths.map(async filePath => {
+      filePaths.map(async (filePath) => {
         return {
           filePath,
           hasMarkers: await this.props.repository.pathHasMergeMarkers(filePath),
         };
-      }),
+      })
     );
 
-    for (const {filePath, hasMarkers} of mergeMarkers) {
+    for (const { filePath, hasMarkers } of mergeMarkers) {
       if (hasMarkers) {
         const choice = this.props.confirm({
           message: 'File contains merge markers: ',
           detailedMessage: `Do you still want to stage this file?\n${filePath}`,
           buttons: ['Stage', 'Cancel'],
         });
-        if (choice !== 0) { pathsToStage.delete(filePath); }
+        if (choice !== 0) {
+          pathsToStage.delete(filePath);
+        }
       }
     }
 
@@ -286,32 +301,34 @@ export default class GitTabController extends React.Component {
   }
 
   prepareToCommit = async () => {
-    return !await this.props.ensureGitTab();
-  }
+    return !(await this.props.ensureGitTab());
+  };
 
   commit = (message, options) => {
     return this.props.repository.commit(message, options);
-  }
+  };
 
   updateSelectedCoAuthors = (selectedCoAuthors, newAuthor) => {
     if (newAuthor) {
       this.userStore.addUsers([newAuthor]);
       selectedCoAuthors = selectedCoAuthors.concat([newAuthor]);
     }
-    this.setState({selectedCoAuthors});
-  }
+    this.setState({ selectedCoAuthors });
+  };
 
   undoLastCommit = async () => {
     const repo = this.props.repository;
     const lastCommit = await repo.getLastCommit();
-    if (lastCommit.isUnbornRef()) { return null; }
+    if (lastCommit.isUnbornRef()) {
+      return null;
+    }
 
     await repo.undoLastCommit();
     repo.setCommitMessage(lastCommit.getFullMessage());
     this.updateSelectedCoAuthors(lastCommit.getCoAuthors());
 
     return null;
-  }
+  };
 
   abortMerge = async () => {
     const choice = this.props.confirm({
@@ -319,7 +336,9 @@ export default class GitTabController extends React.Component {
       detailedMessage: 'Are you sure?',
       buttons: ['Abort', 'Cancel'],
     });
-    if (choice !== 0) { return; }
+    if (choice !== 0) {
+      return;
+    }
 
     try {
       await this.props.repository.abortMerge();
@@ -327,15 +346,15 @@ export default class GitTabController extends React.Component {
       if (e.code === 'EDIRTYSTAGED') {
         this.props.notificationManager.addError(
           `Cannot abort because ${e.path} is both dirty and staged.`,
-          {dismissable: true},
+          { dismissable: true }
         );
       } else {
         throw e;
       }
     }
-  }
+  };
 
-  resolveAsOurs = async paths => {
+  resolveAsOurs = async (paths) => {
     if (this.props.fetchInProgress) {
       return;
     }
@@ -343,9 +362,9 @@ export default class GitTabController extends React.Component {
     const side = this.props.isRebasing ? 'theirs' : 'ours';
     await this.props.repository.checkoutSide(side, paths);
     this.refreshResolutionProgress(false, true);
-  }
+  };
 
-  resolveAsTheirs = async paths => {
+  resolveAsTheirs = async (paths) => {
     if (this.props.fetchInProgress) {
       return;
     }
@@ -353,23 +372,26 @@ export default class GitTabController extends React.Component {
     const side = this.props.isRebasing ? 'ours' : 'theirs';
     await this.props.repository.checkoutSide(side, paths);
     this.refreshResolutionProgress(false, true);
-  }
+  };
 
   checkout = (branchName, options) => {
     return this.props.repository.checkout(branchName, options);
-  }
+  };
 
-  rememberLastFocus = event => {
-    this.lastFocus = this.refView.map(view => view.getFocus(event.target)).getOr(null) || GitTabView.focus.STAGING;
-  }
+  rememberLastFocus = (event) => {
+    this.lastFocus =
+      this.refView.map((view) => view.getFocus(event.target)).getOr(null) ||
+      GitTabView.focus.STAGING;
+  };
 
-  toggleIdentityEditor = () => this.setState(before => ({editingIdentity: !before.editingIdentity}))
+  toggleIdentityEditor = () =>
+    this.setState((before) => ({ editingIdentity: !before.editingIdentity }));
 
-  closeIdentityEditor = () => this.setState({editingIdentity: false})
+  closeIdentityEditor = () => this.setState({ editingIdentity: false });
 
   setLocalIdentity = () => this.setIdentity({});
 
-  setGlobalIdentity = () => this.setIdentity({global: true});
+  setGlobalIdentity = () => this.setIdentity({ global: true });
 
   async setIdentity(options) {
     const newUsername = this.usernameBuffer.getText();
@@ -390,11 +412,13 @@ export default class GitTabController extends React.Component {
   }
 
   restoreFocus() {
-    this.refView.map(view => view.setFocus(this.lastFocus));
+    this.refView.map((view) => view.setFocus(this.lastFocus));
   }
 
   hasFocus() {
-    return this.refRoot.map(root => root.contains(document.activeElement)).getOr(false);
+    return this.refRoot
+      .map((root) => root.contains(document.activeElement))
+      .getOr(false);
   }
 
   wasActivated(isStillActive) {
@@ -404,18 +428,22 @@ export default class GitTabController extends React.Component {
   }
 
   focusAndSelectStagingItem(filePath, stagingStatus) {
-    return this.refView.map(view => view.focusAndSelectStagingItem(filePath, stagingStatus)).getOr(null);
+    return this.refView
+      .map((view) => view.focusAndSelectStagingItem(filePath, stagingStatus))
+      .getOr(null);
   }
 
   focusAndSelectCommitPreviewButton() {
-    return this.refView.map(view => view.focusAndSelectCommitPreviewButton());
+    return this.refView.map((view) => view.focusAndSelectCommitPreviewButton());
   }
 
   focusAndSelectRecentCommit() {
-    return this.refView.map(view => view.focusAndSelectRecentCommit());
+    return this.refView.map((view) => view.focusAndSelectRecentCommit());
   }
 
   quietlySelectItem(filePath, stagingStatus) {
-    return this.refView.map(view => view.quietlySelectItem(filePath, stagingStatus)).getOr(null);
+    return this.refView
+      .map((view) => view.quietlySelectItem(filePath, stagingStatus))
+      .getOr(null);
   }
 }

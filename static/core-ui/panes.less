@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 // Pane-items are things that go inside a pane. Like the UI-Demo, the
 // settings-view. Etc. Basically a non-
@@ -20,7 +20,7 @@ atom-pane-container {
     & > atom-pane-resize-handle {
       position: relative;
       &:before {
-        content: "";
+        content: '';
         position: absolute;
         z-index: 11;
       }
@@ -78,7 +78,8 @@ atom-pane-container {
         background-color: @pane-item-background-color;
       }
 
-      > *, > atom-text-editor.react > * {
+      > *,
+      > atom-text-editor.react > * {
         position: absolute;
         top: 0;
         right: 0;

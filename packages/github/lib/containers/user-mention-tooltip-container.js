@@ -1,5 +1,5 @@
 import React from 'react';
-import {graphql, createFragmentContainer} from 'react-relay';
+import { graphql, createFragmentContainer } from 'react-relay';
 import PropTypes from 'prop-types';
 
 import Octicon from '../atom/octicon';
@@ -21,11 +21,11 @@ export class BareUserMentionTooltipContainer extends React.Component {
         totalCount: PropTypes.number.isRequired,
       }),
     }).isRequired,
-  }
+  };
 
   render() {
     const owner = this.props.repositoryOwner;
-    const {login, company, repositories, membersWithRole} = owner;
+    const { login, company, repositories, membersWithRole } = owner;
     return (
       <div className="github-UserMentionTooltip">
         <div className="github-UserMentionTooltip-avatar">
@@ -33,15 +33,27 @@ export class BareUserMentionTooltipContainer extends React.Component {
         </div>
         <div className="github-UserMentionTooltip-info">
           <div className="github-UserMentionTooltip-info-username">
-            <Octicon icon="mention" /><strong>{login}</strong>
+            <Octicon icon="mention" />
+            <strong>{login}</strong>
           </div>
-          {company && <div><Octicon icon="briefcase" /><span>{company}</span></div>}
-          {membersWithRole && (
-            <div><Octicon icon="organization" /><span>{membersWithRole.totalCount} members</span></div>
+          {company && (
+            <div>
+              <Octicon icon="briefcase" />
+              <span>{company}</span>
+            </div>
           )}
-          <div><Octicon icon="repo" /><span>{repositories.totalCount} repositories</span></div>
+          {membersWithRole && (
+            <div>
+              <Octicon icon="organization" />
+              <span>{membersWithRole.totalCount} members</span>
+            </div>
+          )}
+          <div>
+            <Octicon icon="repo" />
+            <span>{repositories.totalCount} repositories</span>
+          </div>
         </div>
-        <div style={{clear: 'both'}} />
+        <div style={{ clear: 'both' }} />
       </div>
     );
   }
@@ -52,7 +64,9 @@ export default createFragmentContainer(BareUserMentionTooltipContainer, {
     fragment userMentionTooltipContainer_repositoryOwner on RepositoryOwner {
       login
       avatarUrl
-      repositories { totalCount }
+      repositories {
+        totalCount
+      }
       ... on User {
         company
       }

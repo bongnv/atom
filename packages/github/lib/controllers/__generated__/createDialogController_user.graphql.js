@@ -24,51 +24,50 @@ export type createDialogController_user$key = {
 };
 */
 
-
-const node/*: ReaderFragment*/ = {
-  "kind": "Fragment",
-  "name": "createDialogController_user",
-  "type": "User",
-  "metadata": null,
-  "argumentDefinitions": [
+const node /*: ReaderFragment*/ = {
+  kind: 'Fragment',
+  name: 'createDialogController_user',
+  type: 'User',
+  metadata: null,
+  argumentDefinitions: [
     {
-      "kind": "LocalArgument",
-      "name": "organizationCount",
-      "type": "Int!",
-      "defaultValue": null
+      kind: 'LocalArgument',
+      name: 'organizationCount',
+      type: 'Int!',
+      defaultValue: null,
     },
     {
-      "kind": "LocalArgument",
-      "name": "organizationCursor",
-      "type": "String",
-      "defaultValue": null
-    }
+      kind: 'LocalArgument',
+      name: 'organizationCursor',
+      type: 'String',
+      defaultValue: null,
+    },
   ],
-  "selections": [
+  selections: [
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
+      kind: 'ScalarField',
+      alias: null,
+      name: 'id',
+      args: null,
+      storageKey: null,
     },
     {
-      "kind": "FragmentSpread",
-      "name": "repositoryHomeSelectionView_user",
-      "args": [
+      kind: 'FragmentSpread',
+      name: 'repositoryHomeSelectionView_user',
+      args: [
         {
-          "kind": "Variable",
-          "name": "organizationCount",
-          "variableName": "organizationCount"
+          kind: 'Variable',
+          name: 'organizationCount',
+          variableName: 'organizationCount',
         },
         {
-          "kind": "Variable",
-          "name": "organizationCursor",
-          "variableName": "organizationCursor"
-        }
-      ]
-    }
-  ]
+          kind: 'Variable',
+          name: 'organizationCursor',
+          variableName: 'organizationCursor',
+        },
+      ],
+    },
+  ],
 };
 // prettier-ignore
 (node/*: any*/).hash = '729f5d41fc5444c5f12632127f89ed21';

@@ -1,10 +1,10 @@
 import React from 'react';
-import {createFragmentContainer, graphql} from 'react-relay';
+import { createFragmentContainer, graphql } from 'react-relay';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
 import Octicon from '../atom/octicon';
-import {GHOST_USER} from '../helpers';
+import { GHOST_USER } from '../helpers';
 
 const typeAndStateToIcon = {
   Issue: {
@@ -24,19 +24,22 @@ export class BareIssueishTooltipContainer extends React.Component {
       issue: PropTypes.shape({}),
       pullRequest: PropTypes.shape({}),
     }).isRequired,
-  }
+  };
 
   render() {
     const resource = this.props.resource;
     const author = resource.author || GHOST_USER;
 
-    const {repository, state, number, title, __typename} = resource;
+    const { repository, state, number, title, __typename } = resource;
     const icons = typeAndStateToIcon[__typename] || {};
     const icon = icons[state] || '';
     return (
       <div className="github-IssueishTooltip">
         <div className="issueish-avatar-and-title">
-          <img className="author-avatar" src={author.avatarUrl} title={author.login}
+          <img
+            className="author-avatar"
+            src={author.avatarUrl}
+            title={author.login}
             alt={author.login}
           />
           <h3 className="issueish-title">{title}</h3>
@@ -61,14 +64,34 @@ export default createFragmentContainer(BareIssueishTooltipContainer, {
       __typename
 
       ... on Issue {
-        state number title
-        repository { name owner { login } }
-        author { login avatarUrl }
+        state
+        number
+        title
+        repository {
+          name
+          owner {
+            login
+          }
+        }
+        author {
+          login
+          avatarUrl
+        }
       }
       ... on PullRequest {
-        state number title
-        repository { name owner { login } }
-        author { login avatarUrl }
+        state
+        number
+        title
+        repository {
+          name
+          owner {
+            login
+          }
+        }
+        author {
+          login
+          avatarUrl
+        }
       }
     }
   `,

@@ -1,14 +1,14 @@
 import React from 'react';
-import {mount} from 'enzyme';
-import {TextBuffer} from 'atom';
+import { mount } from 'enzyme';
+import { TextBuffer } from 'atom';
 
 import AtomTextEditor from '../../lib/atom/atom-text-editor';
 import Gutter from '../../lib/atom/gutter';
 
-describe('Gutter', function() {
+describe('Gutter', function () {
   let atomEnv, domRoot;
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
 
     domRoot = document.createElement('div');
@@ -19,17 +19,15 @@ describe('Gutter', function() {
     domRoot.appendChild(workspaceElement);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
     document.body.removeChild(domRoot);
   });
 
-  it('adds a custom gutter to an editor supplied by prop', async function() {
+  it('adds a custom gutter to an editor supplied by prop', async function () {
     const editor = await atomEnv.workspace.open(__filename);
 
-    const app = (
-      <Gutter editor={editor} name="aaa" priority={10} />
-    );
+    const app = <Gutter editor={editor} name="aaa" priority={10} />;
     const wrapper = mount(app);
 
     const gutter = editor.gutterWithName('aaa');
@@ -42,7 +40,7 @@ describe('Gutter', function() {
     assert.isNull(editor.gutterWithName('aaa'));
   });
 
-  it('adds a custom gutter to an editor from a context', function() {
+  it('adds a custom gutter to an editor from a context', function () {
     const app = (
       <AtomTextEditor workspace={atomEnv.workspace}>
         <Gutter name="bbb" priority={20} />
@@ -57,9 +55,12 @@ describe('Gutter', function() {
     assert.strictEqual(gutter.priority, 20);
   });
 
-  it('uses a function to derive number labels', async function() {
-    const buffer = new TextBuffer({text: '000\n111\n222\n333\n444\n555\n666\n777\n888\n999\n'});
-    const labelFn = ({bufferRow, screenRow}) => `custom ${bufferRow} ${screenRow}`;
+  it('uses a function to derive number labels', async function () {
+    const buffer = new TextBuffer({
+      text: '000\n111\n222\n333\n444\n555\n666\n777\n888\n999\n',
+    });
+    const labelFn = ({ bufferRow, screenRow }) =>
+      `custom ${bufferRow} ${screenRow}`;
 
     const app = (
       <AtomTextEditor workspace={atomEnv.workspace} buffer={buffer}>
@@ -72,10 +73,13 @@ describe('Gutter', function() {
         />
       </AtomTextEditor>
     );
-    const wrapper = mount(app, {attachTo: domRoot});
+    const wrapper = mount(app, { attachTo: domRoot });
 
     const editorRoot = wrapper.getDOMNode();
-    await assert.async.lengthOf(editorRoot.querySelectorAll('.yyy .line-number'), 12);
+    await assert.async.lengthOf(
+      editorRoot.querySelectorAll('.yyy .line-number'),
+      12
+    );
 
     const lineNumbers = editorRoot.querySelectorAll('.yyy .line-number');
     assert.strictEqual(lineNumbers[1].innerText, 'custom 0 0');

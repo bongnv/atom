@@ -1,5 +1,5 @@
 import React from 'react';
-import {graphql, createFragmentContainer} from 'react-relay';
+import { graphql, createFragmentContainer } from 'react-relay';
 import PropTypes from 'prop-types';
 
 import Octicon from '../../atom/octicon';
@@ -27,7 +27,7 @@ export class BareCrossReferencedEventView extends React.Component {
         }).isRequired,
       }).isRequired,
     }).isRequired,
-  }
+  };
 
   render() {
     const xref = this.props.item;
@@ -36,47 +36,73 @@ export class BareCrossReferencedEventView extends React.Component {
     return (
       <div className="cross-referenced-event">
         <div className="cross-referenced-event-label">
-          <span className="cross-referenced-event-label-title">{xref.source.title}</span>
-          <IssueishLink url={xref.source.url} className="cross-referenced-event-label-number">
+          <span className="cross-referenced-event-label-title">
+            {xref.source.title}
+          </span>
+          <IssueishLink
+            url={xref.source.url}
+            className="cross-referenced-event-label-number"
+          >
             {this.getIssueishNumberDisplay(xref)}
           </IssueishLink>
         </div>
-        {repo.isPrivate
-          ? (
-            <div className="cross-referenced-event-private">
-              <Octicon icon="lock" title={`Only people who can see ${repoLabel} will see this reference.`} />
-            </div>
-          ) : ''}
+        {repo.isPrivate ? (
+          <div className="cross-referenced-event-private">
+            <Octicon
+              icon="lock"
+              title={`Only people who can see ${repoLabel} will see this reference.`}
+            />
+          </div>
+        ) : (
+          ''
+        )}
         <div className="cross-referenced-event-state">
-          <IssueishBadge type={xref.source.__typename} state={xref.source.issueState || xref.source.prState} />
+          <IssueishBadge
+            type={xref.source.__typename}
+            state={xref.source.issueState || xref.source.prState}
+          />
         </div>
       </div>
     );
   }
 
   getIssueishNumberDisplay(xref) {
-    const {source} = xref;
+    const { source } = xref;
     if (!xref.isCrossRepository) {
       return `#${source.number}`;
     } else {
-      const {repository} = source;
+      const { repository } = source;
       return `${repository.owner.login}/${repository.name}#${source.number}`;
     }
   }
-
 }
 
 export default createFragmentContainer(BareCrossReferencedEventView, {
   item: graphql`
     fragment crossReferencedEventView_item on CrossReferencedEvent {
-      id isCrossRepository
+      id
+      isCrossRepository
       source {
         __typename
-        ... on Issue { number title url issueState:state }
-        ... on PullRequest { number title url prState:state }
+        ... on Issue {
+          number
+          title
+          url
+          issueState: state
+        }
+        ... on PullRequest {
+          number
+          title
+          url
+          prState: state
+        }
         ... on RepositoryNode {
           repository {
-            name isPrivate owner { login }
+            name
+            isPrivate
+            owner {
+              login
+            }
           }
         }
       }

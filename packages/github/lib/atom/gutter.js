@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Disposable} from 'event-kit';
+import { Disposable } from 'event-kit';
 
-import {autobind, extractProps} from '../helpers';
-import {RefHolderPropType} from '../prop-types';
-import {TextEditorContext} from './atom-text-editor';
+import { autobind, extractProps } from '../helpers';
+import { RefHolderPropType } from '../prop-types';
+import { TextEditorContext } from './atom-text-editor';
 import RefHolder from '../models/ref-holder';
 
 const gutterProps = {
@@ -22,13 +22,13 @@ class BareGutter extends React.Component {
     editorHolder: RefHolderPropType.isRequired,
     className: PropTypes.string,
     ...gutterProps,
-  }
+  };
 
   static defaultProps = {
     visible: true,
     type: 'decorated',
     labelFn: () => {},
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -75,7 +75,7 @@ class BareGutter extends React.Component {
 
       const options = extractProps(props, gutterProps);
       options.class = props.className;
-      return {gutter: editor.addGutter(options)};
+      return { gutter: editor.addGutter(options) };
     });
   }
 }
@@ -83,7 +83,7 @@ class BareGutter extends React.Component {
 export default class Gutter extends React.Component {
   static propTypes = {
     editor: PropTypes.object,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -93,18 +93,22 @@ export default class Gutter extends React.Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const editorChanged = state.editorHolder.map(editor => editor !== props.editor).getOr(props.editor !== undefined);
+    const editorChanged = state.editorHolder
+      .map((editor) => editor !== props.editor)
+      .getOr(props.editor !== undefined);
     return editorChanged ? RefHolder.on(props.editor) : null;
   }
 
   render() {
     if (!this.state.editorHolder.isEmpty()) {
-      return <BareGutter {...this.props} editorHolder={this.state.editorHolder} />;
+      return (
+        <BareGutter {...this.props} editorHolder={this.state.editorHolder} />
+      );
     }
 
     return (
       <TextEditorContext.Consumer>
-        {editorHolder => (
+        {(editorHolder) => (
           <BareGutter {...this.props} editorHolder={editorHolder} />
         )}
       </TextEditorContext.Consumer>

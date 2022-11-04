@@ -104,16 +104,16 @@ The clone destination path is pre-populated with the directory specified as `cor
 
 The "Clone" button is enabled when:
 
-* A clone source is uniquely identified, by GitHub `name/owner` or git URL;
-* The "source remote name" input is populated with a valid git remote name;
-* A valid path is entered within the clone destination path input.
+- A clone source is uniquely identified, by GitHub `name/owner` or git URL;
+- The "source remote name" input is populated with a valid git remote name;
+- A valid path is entered within the clone destination path input.
 
 Clicking the "Clone" button:
 
-* Clones the repository from the chosen clone source to the clone destination path.
-* Adds the clone destination path as a project root.
-* Ensures that the clone destination is the active GitHub package context.
-* Closes the "Clone repository" dialog.
+- Clones the repository from the chosen clone source to the clone destination path.
+- Adds the clone destination path as a project root.
+- Ensures that the clone destination is the active GitHub package context.
+- Closes the "Clone repository" dialog.
 
 ## Create repository dialog
 
@@ -129,11 +129,11 @@ Clicking the "advanced" arrow expands controls to customize cloning protocol and
 
 Clicking the "Create" button:
 
-* Creates a repository on GitHub with the chosen owner and name.
-* Clones the newly created repository to the clone destination path with its source remote set to the source remote name.
-* Adds the clone destination path as a project root.
-* Ensures that the clone destination path is the active GitHub package context.
-* Closes the "Create repository" dialog.
+- Creates a repository on GitHub with the chosen owner and name.
+- Clones the newly created repository to the clone destination path with its source remote set to the source remote name.
+- Adds the clone destination path as a project root.
+- Ensures that the clone destination path is the active GitHub package context.
+- Closes the "Create repository" dialog.
 
 ## Publish repository dialog
 
@@ -141,17 +141,17 @@ Clicking the "Create" button:
 
 The major difference between this dialog and the [Create repository dialog](#create-repository-dialog) is that the local repository's path is displayed in a read-only input field and the directory selection button is disabled.
 
-* The "source remote" field is invalid if a remote with the given name is already present in the local repository.
+- The "source remote" field is invalid if a remote with the given name is already present in the local repository.
 
 Clicking the "Publish" button also behaves slightly differently from the "Create" button:
 
-* Initializes a git repository in the local repository path if it is not already a git repository.
-* Creates a repository on GitHub with the chosen owner and name.
-* Adds a remote with the specified "source remote name" and sets it to the clone URL of the newly created repository, respecting the https/ssh toggle.
-* If a branch called `master` is present in the local repository, its push and fetch upstreams are configured to be the source remote.
-* The local repository path is added as a project root if it is not already present.
-* Ensures that the clone destination path is the active GitHub package context.
-* Closes the "Publish repository" dialog.
+- Initializes a git repository in the local repository path if it is not already a git repository.
+- Creates a repository on GitHub with the chosen owner and name.
+- Adds a remote with the specified "source remote name" and sets it to the clone URL of the newly created repository, respecting the https/ssh toggle.
+- If a branch called `master` is present in the local repository, its push and fetch upstreams are configured to be the source remote.
+- The local repository path is added as a project root if it is not already present.
+- Ensures that the clone destination path is the active GitHub package context.
+- Closes the "Publish repository" dialog.
 
 ## Improved branch publish behavior
 
@@ -179,17 +179,17 @@ We could open dotcom for repository creation, but then we would have no way to s
 
 ## :question: Unresolved questions
 
-* Are there better ways to intelligently identify which remotes should be used to push branches and which should be queried for pull requests?
-* Are there different, common upstream-and-fork remote setups that these dialogs will support poorly?
-* Is the language used in these dialogs and controls familiar enough to git newcomers?
+- Are there better ways to intelligently identify which remotes should be used to push branches and which should be queried for pull requests?
+- Are there different, common upstream-and-fork remote setups that these dialogs will support poorly?
+- Is the language used in these dialogs and controls familiar enough to git newcomers?
 
 ## :warning: Out of Scope
 
 This effort should not include:
 
-* GitHub enterprise support. ( :sad: ) We have separate issues ([#270](https://github.com/atom/github/issues/270), [#919](https://github.com/atom/github/issues/919)) to track that, although this does complicate its eventual implementation, because the clone and create dialogs need to be Enterprise-aware.
-* Workflows related to fork creation and management.
-* General remote management ([#555](https://github.com/atom/github/issues/555)).
+- GitHub enterprise support. ( :sad: ) We have separate issues ([#270](https://github.com/atom/github/issues/270), [#919](https://github.com/atom/github/issues/919)) to track that, although this does complicate its eventual implementation, because the clone and create dialogs need to be Enterprise-aware.
+- Workflows related to fork creation and management.
+- General remote management ([#555](https://github.com/atom/github/issues/555)).
 
 ## :construction: Implementation phases
 

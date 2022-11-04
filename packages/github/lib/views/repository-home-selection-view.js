@@ -1,8 +1,8 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {createPaginationContainer, graphql} from 'react-relay';
+import { createPaginationContainer, graphql } from 'react-relay';
 
-import {TabbableTextEditor, TabbableSelect} from './tabbable';
+import { TabbableTextEditor, TabbableSelect } from './tabbable';
 
 const PAGE_DELAY = 500;
 
@@ -21,14 +21,16 @@ export class BareRepositoryHomeSelectionView extends React.Component {
       login: PropTypes.string.isRequired,
       avatarUrl: PropTypes.string.isRequired,
       organizations: PropTypes.shape({
-        edges: PropTypes.arrayOf(PropTypes.shape({
-          node: PropTypes.shape({
-            id: PropTypes.string.isRequired,
-            login: PropTypes.string.isRequired,
-            avatarUrl: PropTypes.string.isRequired,
-            viewerCanCreateRepositories: PropTypes.bool.isRequired,
-          }),
-        })),
+        edges: PropTypes.arrayOf(
+          PropTypes.shape({
+            node: PropTypes.shape({
+              id: PropTypes.string.isRequired,
+              login: PropTypes.string.isRequired,
+              avatarUrl: PropTypes.string.isRequired,
+              viewerCanCreateRepositories: PropTypes.bool.isRequired,
+            }),
+          })
+        ),
       }).isRequired,
     }),
 
@@ -45,16 +47,17 @@ export class BareRepositoryHomeSelectionView extends React.Component {
 
     // Atom environment
     commands: PropTypes.object.isRequired,
-  }
+  };
 
   static defaultProps = {
     autofocusOwner: false,
     autofocusName: false,
-  }
+  };
 
   render() {
     const owners = this.getOwners();
-    const currentOwner = owners.find(o => o.id === this.props.selectedOwnerID) || owners[0];
+    const currentOwner =
+      owners.find((o) => o.id === this.props.selectedOwnerID) || owners[0];
 
     return (
       <div className="github-RepositoryHome">
@@ -83,10 +86,14 @@ export class BareRepositoryHomeSelectionView extends React.Component {
     );
   }
 
-  renderOwner = owner => (
+  renderOwner = (owner) => (
     <Fragment>
       <div className="github-RepositoryHome-ownerOption">
-        <img alt="" src={owner.avatarURL} className="github-RepositoryHome-ownerAvatar" />
+        <img
+          alt=""
+          src={owner.avatarURL}
+          className="github-RepositoryHome-ownerAvatar"
+        />
         <span className="github-RepositoryHome-ownerName">{owner.login}</span>
       </div>
       {owner.disabled && !owner.placeholder && (
@@ -107,28 +114,32 @@ export class BareRepositoryHomeSelectionView extends React.Component {
 
   getOwners() {
     if (!this.props.user) {
-      return [{
-        id: 'loading',
-        login: 'loading...',
-        avatarURL: '',
-        disabled: true,
-        placeholder: true,
-      }];
+      return [
+        {
+          id: 'loading',
+          login: 'loading...',
+          avatarURL: '',
+          disabled: true,
+          placeholder: true,
+        },
+      ];
     }
 
-    const owners = [{
-      id: this.props.user.id,
-      login: this.props.user.login,
-      avatarURL: this.props.user.avatarUrl,
-      disabled: false,
-    }];
+    const owners = [
+      {
+        id: this.props.user.id,
+        login: this.props.user.login,
+        avatarURL: this.props.user.avatarUrl,
+        disabled: false,
+      },
+    ];
 
     /* istanbul ignore if */
     if (!this.props.user.organizations.edges) {
       return owners;
     }
 
-    for (const {node} of this.props.user.organizations.edges) {
+    for (const { node } of this.props.user.organizations.edges) {
       /* istanbul ignore if */
       if (!node) {
         continue;
@@ -155,7 +166,7 @@ export class BareRepositoryHomeSelectionView extends React.Component {
     return owners;
   }
 
-  didChangeOwner = owner => this.props.didChangeOwnerID(owner.id);
+  didChangeOwner = (owner) => this.props.didChangeOwnerID(owner.id);
 
   schedulePageLoad() {
     if (!this.props.relay.hasMore()) {
@@ -173,72 +184,75 @@ export class BareRepositoryHomeSelectionView extends React.Component {
     }
 
     this.props.relay.loadMore(PAGE_SIZE);
-  }
+  };
 }
 
-export default createPaginationContainer(BareRepositoryHomeSelectionView, {
-  user: graphql`
-    fragment repositoryHomeSelectionView_user on User
-    @argumentDefinitions(
-      organizationCount: {type: "Int!"}
-      organizationCursor: {type: "String"}
-    ) {
-      id
-      login
-      avatarUrl(size: 24)
-      organizations(
-        first: $organizationCount
-        after: $organizationCursor
-      ) @connection(key: "RepositoryHomeSelectionView_organizations") {
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
+export default createPaginationContainer(
+  BareRepositoryHomeSelectionView,
+  {
+    user: graphql`
+      fragment repositoryHomeSelectionView_user on User
+      @argumentDefinitions(
+        organizationCount: { type: "Int!" }
+        organizationCursor: { type: "String" }
+      ) {
+        id
+        login
+        avatarUrl(size: 24)
+        organizations(first: $organizationCount, after: $organizationCursor)
+          @connection(key: "RepositoryHomeSelectionView_organizations") {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
 
-        edges {
-          cursor
-          node {
-            id
-            login
-            avatarUrl(size: 24)
-            viewerCanCreateRepositories
+          edges {
+            cursor
+            node {
+              id
+              login
+              avatarUrl(size: 24)
+              viewerCanCreateRepositories
+            }
           }
         }
       }
-    }
-  `,
-}, {
-  direction: 'forward',
-  /* istanbul ignore next */
-  getConnectionFromProps(props) {
-    return props.user && props.user.organizations;
+    `,
   },
-  /* istanbul ignore next */
-  getFragmentVariables(prevVars, totalCount) {
-    return {...prevVars, totalCount};
-  },
-  /* istanbul ignore next */
-  getVariables(props, {count, cursor}) {
-    return {
-      id: props.user.id,
-      organizationCount: count,
-      organizationCursor: cursor,
-    };
-  },
-  query: graphql`
-    query repositoryHomeSelectionViewQuery(
-      $id: ID!
-      $organizationCount: Int!
-      $organizationCursor: String
-    ) {
-      node(id: $id) {
-        ... on User {
-          ...repositoryHomeSelectionView_user @arguments(
-            organizationCount: $organizationCount
-            organizationCursor: $organizationCursor
-          )
+  {
+    direction: 'forward',
+    /* istanbul ignore next */
+    getConnectionFromProps(props) {
+      return props.user && props.user.organizations;
+    },
+    /* istanbul ignore next */
+    getFragmentVariables(prevVars, totalCount) {
+      return { ...prevVars, totalCount };
+    },
+    /* istanbul ignore next */
+    getVariables(props, { count, cursor }) {
+      return {
+        id: props.user.id,
+        organizationCount: count,
+        organizationCursor: cursor,
+      };
+    },
+    query: graphql`
+      query repositoryHomeSelectionViewQuery(
+        $id: ID!
+        $organizationCount: Int!
+        $organizationCursor: String
+      ) {
+        node(id: $id) {
+          ... on User {
+            ...repositoryHomeSelectionView_user
+              @arguments(
+                organizationCount: $organizationCount
+                organizationCursor: $organizationCursor
+              )
+          }
         }
       }
-    }
-  `,
-});
+    `,
+  }
+);

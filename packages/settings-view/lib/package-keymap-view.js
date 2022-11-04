@@ -93,7 +93,7 @@ export default class PackageKeymapView {
       <section className="section">
         <div className="section-heading icon icon-keyboard">Keybindings</div>
         <div className="checkbox">
-          <label for="toggleKeybindings">
+          <label htmlFor="toggleKeybindings">
             <input
               id="toggleKeybindings"
               className="input-checkbox"

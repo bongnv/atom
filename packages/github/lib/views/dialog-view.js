@@ -1,10 +1,10 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import Commands, {Command} from '../atom/commands';
+import Commands, { Command } from '../atom/commands';
 import Panel from '../atom/panel';
-import {TabbableButton} from './tabbable';
+import { TabbableButton } from './tabbable';
 
 export default class DialogView extends React.Component {
   static propTypes = {
@@ -30,12 +30,12 @@ export default class DialogView extends React.Component {
 
     // Form content
     children: PropTypes.node.isRequired,
-  }
+  };
 
   static defaultProps = {
     acceptEnabled: true,
     acceptText: 'Accept',
-  }
+  };
 
   render() {
     return (
@@ -48,20 +48,22 @@ export default class DialogView extends React.Component {
           {this.props.prompt && (
             <header className="github-DialogPrompt">{this.props.prompt}</header>
           )}
-          <main className="github-DialogForm">
-            {this.props.children}
-          </main>
+          <main className="github-DialogForm">{this.props.children}</main>
           <footer className="github-DialogFooter">
             <div className="github-DialogInfo">
               {this.props.progressMessage && this.props.inProgress && (
                 <Fragment>
                   <span className="inline-block loading loading-spinner-small" />
-                  <span className="github-DialogProgress-message">{this.props.progressMessage}</span>
+                  <span className="github-DialogProgress-message">
+                    {this.props.progressMessage}
+                  </span>
                 </Fragment>
               )}
               {this.props.error && (
                 <ul className="error-messages">
-                  <li>{this.props.error.userMessage || this.props.error.message}</li>
+                  <li>
+                    {this.props.error.userMessage || this.props.error.message}
+                  </li>
                 </ul>
               )}
             </div>
@@ -70,15 +72,20 @@ export default class DialogView extends React.Component {
                 tabGroup={this.props.tabGroup}
                 commands={this.props.commands}
                 className="btn github-Dialog-cancelButton"
-                onClick={this.props.cancel}>
+                onClick={this.props.cancel}
+              >
                 Cancel
               </TabbableButton>
               <TabbableButton
                 tabGroup={this.props.tabGroup}
                 commands={this.props.commands}
-                className={cx('btn btn-primary github-Dialog-acceptButton', this.props.acceptClassName)}
+                className={cx(
+                  'btn btn-primary github-Dialog-acceptButton',
+                  this.props.acceptClassName
+                )}
                 onClick={this.props.accept}
-                disabled={this.props.inProgress || !this.props.acceptEnabled}>
+                disabled={this.props.inProgress || !this.props.acceptEnabled}
+              >
                 {this.props.acceptText}
               </TabbableButton>
             </div>

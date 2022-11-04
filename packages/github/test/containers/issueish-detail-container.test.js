@@ -1,15 +1,19 @@
 import React from 'react';
-import {shallow} from 'enzyme';
-import {QueryRenderer} from 'react-relay';
+import { shallow } from 'enzyme';
+import { QueryRenderer } from 'react-relay';
 
 import IssueishDetailContainer from '../../lib/containers/issueish-detail-container';
-import {cloneRepository, buildRepository} from '../helpers';
-import {queryBuilder} from '../builder/graphql/query';
-import {aggregatedReviewsBuilder} from '../builder/graphql/aggregated-reviews-builder';
+import { cloneRepository, buildRepository } from '../helpers';
+import { queryBuilder } from '../builder/graphql/query';
+import { aggregatedReviewsBuilder } from '../builder/graphql/aggregated-reviews-builder';
 import GithubLoginModel from '../../lib/models/github-login-model';
 import RefHolder from '../../lib/models/ref-holder';
-import {getEndpoint} from '../../lib/models/endpoint';
-import {InMemoryStrategy, UNAUTHENTICATED, INSUFFICIENT} from '../../lib/shared/keytar-strategy';
+import { getEndpoint } from '../../lib/models/endpoint';
+import {
+  InMemoryStrategy,
+  UNAUTHENTICATED,
+  INSUFFICIENT,
+} from '../../lib/shared/keytar-strategy';
 import ObserveModel from '../../lib/views/observe-model';
 import IssueishDetailItem from '../../lib/items/issueish-detail-item';
 import IssueishDetailController from '../../lib/controllers/issueish-detail-controller';
@@ -17,16 +21,16 @@ import AggregatedReviewsContainer from '../../lib/containers/aggregated-reviews-
 
 import rootQuery from '../../lib/containers/__generated__/issueishDetailContainerQuery.graphql';
 
-describe('IssueishDetailContainer', function() {
+describe('IssueishDetailContainer', function () {
   let atomEnv, loginModel, repository;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
     loginModel = new GithubLoginModel(InMemoryStrategy);
     repository = await buildRepository(await cloneRepository());
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -65,40 +69,50 @@ describe('IssueishDetailContainer', function() {
     return <IssueishDetailContainer {...props} />;
   }
 
-  it('renders a spinner while the token is being fetched', async function() {
+  it('renders a spinner while the token is being fetched', async function () {
     const wrapper = shallow(buildApp());
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')(null);
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')(
+      null
+    );
 
     const repoData = await tokenWrapper.find(ObserveModel).prop('fetchData')(
-      tokenWrapper.find(ObserveModel).prop('model'),
+      tokenWrapper.find(ObserveModel).prop('model')
     );
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(repoData);
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      repoData
+    );
 
     // Don't render the GraphQL query before the token is available
     assert.isTrue(repoWrapper.exists('LoadingView'));
   });
 
-  it('renders a login prompt if the user is unauthenticated', function() {
+  it('renders a login prompt if the user is unauthenticated', function () {
     const wrapper = shallow(buildApp());
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: UNAUTHENTICATED});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: UNAUTHENTICATED,
+    });
 
     assert.isTrue(tokenWrapper.exists('GithubLoginView'));
   });
 
-  it("renders a login prompt if the user's token has insufficient scopes", function() {
+  it("renders a login prompt if the user's token has insufficient scopes", function () {
     const wrapper = shallow(buildApp());
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: INSUFFICIENT});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: INSUFFICIENT,
+    });
 
     assert.isTrue(tokenWrapper.exists('GithubLoginView'));
     assert.match(tokenWrapper.find('p').text(), /re-authenticate/);
   });
 
-  it('renders an offline message if the user cannot connect to the Internet', function() {
+  it('renders an offline message if the user cannot connect to the Internet', function () {
     sinon.spy(loginModel, 'didUpdate');
 
     const wrapper = shallow(buildApp());
     const e = new Error('wat');
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: e});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: e,
+    });
 
     assert.isTrue(tokenWrapper.exists('QueryErrorView'));
 
@@ -106,72 +120,103 @@ describe('IssueishDetailContainer', function() {
     assert.isTrue(loginModel.didUpdate.called);
   });
 
-  it('passes the token to the login model on login', async function() {
+  it('passes the token to the login model on login', async function () {
     sinon.stub(loginModel, 'setToken').resolves();
 
-    const wrapper = shallow(buildApp({
-      endpoint: getEndpoint('github.enterprise.horse'),
-    }));
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: UNAUTHENTICATED});
+    const wrapper = shallow(
+      buildApp({
+        endpoint: getEndpoint('github.enterprise.horse'),
+      })
+    );
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: UNAUTHENTICATED,
+    });
 
     await tokenWrapper.find('GithubLoginView').prop('onLogin')('4321');
-    assert.isTrue(loginModel.setToken.calledWith('https://github.enterprise.horse', '4321'));
+    assert.isTrue(
+      loginModel.setToken.calledWith('https://github.enterprise.horse', '4321')
+    );
   });
 
-  it('passes an existing token from the login model', async function() {
+  it('passes an existing token from the login model', async function () {
     sinon.stub(loginModel, 'getToken').resolves('1234');
 
-    const wrapper = shallow(buildApp({
-      endpoint: getEndpoint('github.enterprise.horse'),
-    }));
-    assert.deepEqual(await wrapper.find(ObserveModel).prop('fetchData')(loginModel), {token: '1234'});
+    const wrapper = shallow(
+      buildApp({
+        endpoint: getEndpoint('github.enterprise.horse'),
+      })
+    );
+    assert.deepEqual(
+      await wrapper.find(ObserveModel).prop('fetchData')(loginModel),
+      { token: '1234' }
+    );
   });
 
-  it('renders a spinner while repository data is being fetched', function() {
+  it('renders a spinner while repository data is being fetched', function () {
     const wrapper = shallow(buildApp());
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: '1234'});
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(null);
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: '1234',
+    });
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      null
+    );
 
     const props = queryBuilder(rootQuery).build();
     const resultWrapper = repoWrapper.find(QueryRenderer).renderProp('render')({
-      error: null, props, retry: () => {},
+      error: null,
+      props,
+      retry: () => {},
     });
 
     assert.isTrue(resultWrapper.exists('LoadingView'));
   });
 
-  it('renders a spinner while the GraphQL query is being performed', async function() {
+  it('renders a spinner while the GraphQL query is being performed', async function () {
     const wrapper = shallow(buildApp());
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: '1234'});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: '1234',
+    });
 
     const repoData = await tokenWrapper.find(ObserveModel).prop('fetchData')(
-      tokenWrapper.find(ObserveModel).prop('model'),
+      tokenWrapper.find(ObserveModel).prop('model')
     );
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(repoData);
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      repoData
+    );
 
     const resultWrapper = repoWrapper.find(QueryRenderer).renderProp('render')({
-      error: null, props: null, retry: () => {},
+      error: null,
+      props: null,
+      retry: () => {},
     });
 
     assert.isTrue(resultWrapper.exists('LoadingView'));
   });
 
-  it('renders an error view if the GraphQL query fails', async function() {
-    const wrapper = shallow(buildApp({
-      endpoint: getEndpoint('github.enterprise.horse'),
-    }));
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: '1234'});
+  it('renders an error view if the GraphQL query fails', async function () {
+    const wrapper = shallow(
+      buildApp({
+        endpoint: getEndpoint('github.enterprise.horse'),
+      })
+    );
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: '1234',
+    });
 
     const repoData = await tokenWrapper.find(ObserveModel).prop('fetchData')(
-      tokenWrapper.find(ObserveModel).prop('model'),
+      tokenWrapper.find(ObserveModel).prop('model')
     );
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(repoData);
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      repoData
+    );
 
     const error = new Error('wat');
     error.rawStack = error.stack;
     const retry = sinon.spy();
     const resultWrapper = repoWrapper.find(QueryRenderer).renderProp('render')({
-      error, props: null, retry,
+      error,
+      props: null,
+      retry,
     });
 
     const errorView = resultWrapper.find('QueryErrorView');
@@ -182,26 +227,36 @@ describe('IssueishDetailContainer', function() {
 
     sinon.stub(loginModel, 'removeToken').resolves();
     await errorView.prop('logout')();
-    assert.isTrue(loginModel.removeToken.calledWith('https://github.enterprise.horse'));
+    assert.isTrue(
+      loginModel.removeToken.calledWith('https://github.enterprise.horse')
+    );
 
     sinon.stub(loginModel, 'setToken').resolves();
     await errorView.prop('login')('1234');
-    assert.isTrue(loginModel.setToken.calledWith('https://github.enterprise.horse', '1234'));
+    assert.isTrue(
+      loginModel.setToken.calledWith('https://github.enterprise.horse', '1234')
+    );
   });
 
-  it('renders an IssueishDetailContainer with GraphQL results for an issue', async function() {
-    const wrapper = shallow(buildApp({
-      owner: 'smashwilson',
-      repo: 'pushbot',
-      issueishNumber: 4000,
-    }));
+  it('renders an IssueishDetailContainer with GraphQL results for an issue', async function () {
+    const wrapper = shallow(
+      buildApp({
+        owner: 'smashwilson',
+        repo: 'pushbot',
+        issueishNumber: 4000,
+      })
+    );
 
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: '1234'});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: '1234',
+    });
 
     const repoData = await tokenWrapper.find(ObserveModel).prop('fetchData')(
-      tokenWrapper.find(ObserveModel).prop('model'),
+      tokenWrapper.find(ObserveModel).prop('model')
     );
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(repoData);
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      repoData
+    );
 
     const variables = repoWrapper.find(QueryRenderer).prop('variables');
     assert.strictEqual(variables.repoOwner, 'smashwilson');
@@ -209,10 +264,12 @@ describe('IssueishDetailContainer', function() {
     assert.strictEqual(variables.issueishNumber, 4000);
 
     const props = queryBuilder(rootQuery)
-      .repository(r => r.issueish(i => i.beIssue()))
+      .repository((r) => r.issueish((i) => i.beIssue()))
       .build();
     const resultWrapper = repoWrapper.find(QueryRenderer).renderProp('render')({
-      error: null, props, retry: () => {},
+      error: null,
+      props,
+      retry: () => {},
     });
 
     const controller = resultWrapper.find(IssueishDetailController);
@@ -231,36 +288,52 @@ describe('IssueishDetailContainer', function() {
 
     // The local repository, passed with a different name to not collide with the GraphQL result
     assert.strictEqual(controller.prop('localRepository'), repository);
-    assert.strictEqual(controller.prop('workdirPath'), repository.getWorkingDirectoryPath());
+    assert.strictEqual(
+      controller.prop('workdirPath'),
+      repository.getWorkingDirectoryPath()
+    );
 
     // The GitHub OAuth token
     assert.strictEqual(controller.prop('token'), '1234');
   });
 
-  it('renders an IssueishDetailController while aggregating reviews for a pull request', async function() {
-    const wrapper = shallow(buildApp({
-      owner: 'smashwilson',
-      repo: 'pushbot',
-      issueishNumber: 4000,
-    }));
+  it('renders an IssueishDetailController while aggregating reviews for a pull request', async function () {
+    const wrapper = shallow(
+      buildApp({
+        owner: 'smashwilson',
+        repo: 'pushbot',
+        issueishNumber: 4000,
+      })
+    );
 
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: '1234'});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: '1234',
+    });
 
     const repoData = await tokenWrapper.find(ObserveModel).prop('fetchData')(
-      tokenWrapper.find(ObserveModel).prop('model'),
+      tokenWrapper.find(ObserveModel).prop('model')
     );
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(repoData);
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      repoData
+    );
 
     const props = queryBuilder(rootQuery)
-      .repository(r => r.issueish(i => i.bePullRequest()))
+      .repository((r) => r.issueish((i) => i.bePullRequest()))
       .build();
     const resultWrapper = repoWrapper.find(QueryRenderer).renderProp('render')({
-      error: null, props, retry: () => {},
+      error: null,
+      props,
+      retry: () => {},
     });
 
     const reviews = aggregatedReviewsBuilder().loading(true).build();
-    assert.strictEqual(resultWrapper.find(AggregatedReviewsContainer).prop('pullRequest'), props.repository.issueish);
-    const reviewsWrapper = resultWrapper.find(AggregatedReviewsContainer).renderProp('children')(reviews);
+    assert.strictEqual(
+      resultWrapper.find(AggregatedReviewsContainer).prop('pullRequest'),
+      props.repository.issueish
+    );
+    const reviewsWrapper = resultWrapper
+      .find(AggregatedReviewsContainer)
+      .renderProp('children')(reviews);
 
     const controller = reviewsWrapper.find(IssueishDetailController);
 
@@ -278,30 +351,41 @@ describe('IssueishDetailContainer', function() {
 
     // The local repository, passed with a different name to not collide with the GraphQL result
     assert.strictEqual(controller.prop('localRepository'), repository);
-    assert.strictEqual(controller.prop('workdirPath'), repository.getWorkingDirectoryPath());
+    assert.strictEqual(
+      controller.prop('workdirPath'),
+      repository.getWorkingDirectoryPath()
+    );
 
     // The GitHub OAuth token
     assert.strictEqual(controller.prop('token'), '1234');
   });
 
-  it('renders an error view if the review aggregation fails', async function() {
-    const wrapper = shallow(buildApp({
-      endpoint: getEndpoint('github.enterprise.horse'),
-    }));
+  it('renders an error view if the review aggregation fails', async function () {
+    const wrapper = shallow(
+      buildApp({
+        endpoint: getEndpoint('github.enterprise.horse'),
+      })
+    );
 
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: '1234'});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: '1234',
+    });
 
     const repoData = await tokenWrapper.find(ObserveModel).prop('fetchData')(
-      tokenWrapper.find(ObserveModel).prop('model'),
+      tokenWrapper.find(ObserveModel).prop('model')
     );
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(repoData);
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      repoData
+    );
 
     const props = queryBuilder(rootQuery)
-      .repository(r => r.issueish(i => i.bePullRequest()))
+      .repository((r) => r.issueish((i) => i.bePullRequest()))
       .build();
     const retry = sinon.spy();
     const resultWrapper = repoWrapper.find(QueryRenderer).renderProp('render')({
-      error: null, props, retry,
+      error: null,
+      props,
+      retry,
     });
 
     const reviews = aggregatedReviewsBuilder()
@@ -309,10 +393,15 @@ describe('IssueishDetailContainer', function() {
       .addError(new Error("There's no way it's DNS"))
       .addError(new Error('It was DNS'))
       .build();
-    const reviewsWrapper = resultWrapper.find(AggregatedReviewsContainer).renderProp('children')(reviews);
+    const reviewsWrapper = resultWrapper
+      .find(AggregatedReviewsContainer)
+      .renderProp('children')(reviews);
 
     const errorView = reviewsWrapper.find('ErrorView');
-    assert.strictEqual(errorView.prop('title'), 'Unable to fetch review comments');
+    assert.strictEqual(
+      errorView.prop('title'),
+      'Unable to fetch review comments'
+    );
     assert.deepEqual(errorView.prop('descriptions'), [
       "Error: It's not DNS",
       "Error: There's no way it's DNS",
@@ -324,22 +413,30 @@ describe('IssueishDetailContainer', function() {
 
     sinon.stub(loginModel, 'removeToken').resolves();
     await errorView.prop('logout')();
-    assert.isTrue(loginModel.removeToken.calledWith('https://github.enterprise.horse'));
+    assert.isTrue(
+      loginModel.removeToken.calledWith('https://github.enterprise.horse')
+    );
   });
 
-  it('passes GraphQL query results and aggregated reviews to its IssueishDetailController', async function() {
-    const wrapper = shallow(buildApp({
-      owner: 'smashwilson',
-      repo: 'pushbot',
-      issueishNumber: 4000,
-    }));
+  it('passes GraphQL query results and aggregated reviews to its IssueishDetailController', async function () {
+    const wrapper = shallow(
+      buildApp({
+        owner: 'smashwilson',
+        repo: 'pushbot',
+        issueishNumber: 4000,
+      })
+    );
 
-    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({token: '1234'});
+    const tokenWrapper = wrapper.find(ObserveModel).renderProp('children')({
+      token: '1234',
+    });
 
     const repoData = await tokenWrapper.find(ObserveModel).prop('fetchData')(
-      tokenWrapper.find(ObserveModel).prop('model'),
+      tokenWrapper.find(ObserveModel).prop('model')
     );
-    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(repoData);
+    const repoWrapper = tokenWrapper.find(ObserveModel).renderProp('children')(
+      repoData
+    );
 
     const variables = repoWrapper.find(QueryRenderer).prop('variables');
     assert.strictEqual(variables.repoOwner, 'smashwilson');
@@ -347,20 +444,29 @@ describe('IssueishDetailContainer', function() {
     assert.strictEqual(variables.issueishNumber, 4000);
 
     const props = queryBuilder(rootQuery)
-      .repository(r => r.issueish(i => i.bePullRequest()))
+      .repository((r) => r.issueish((i) => i.bePullRequest()))
       .build();
     const resultWrapper = repoWrapper.find(QueryRenderer).renderProp('render')({
-      error: null, props, retry: () => {},
+      error: null,
+      props,
+      retry: () => {},
     });
 
     const reviews = aggregatedReviewsBuilder()
-      .addReviewThread(b => b.thread(t => t.isResolved(true)).addComment())
-      .addReviewThread(b => b.thread(t => t.isResolved(false)).addComment().addComment())
-      .addReviewThread(b => b.thread(t => t.isResolved(false)))
-      .addReviewThread(b => b.thread(t => t.isResolved(false)).addComment())
-      .addReviewThread(b => b.thread(t => t.isResolved(true)))
+      .addReviewThread((b) => b.thread((t) => t.isResolved(true)).addComment())
+      .addReviewThread((b) =>
+        b
+          .thread((t) => t.isResolved(false))
+          .addComment()
+          .addComment()
+      )
+      .addReviewThread((b) => b.thread((t) => t.isResolved(false)))
+      .addReviewThread((b) => b.thread((t) => t.isResolved(false)).addComment())
+      .addReviewThread((b) => b.thread((t) => t.isResolved(true)))
       .build();
-    const reviewsWrapper = resultWrapper.find(AggregatedReviewsContainer).renderProp('children')(reviews);
+    const reviewsWrapper = resultWrapper
+      .find(AggregatedReviewsContainer)
+      .renderProp('children')(reviews);
 
     const controller = reviewsWrapper.find(IssueishDetailController);
 
@@ -378,7 +484,10 @@ describe('IssueishDetailContainer', function() {
 
     // The local repository, passed with a different name to not collide with the GraphQL result
     assert.strictEqual(controller.prop('localRepository'), repository);
-    assert.strictEqual(controller.prop('workdirPath'), repository.getWorkingDirectoryPath());
+    assert.strictEqual(
+      controller.prop('workdirPath'),
+      repository.getWorkingDirectoryPath()
+    );
 
     // The GitHub OAuth token
     assert.strictEqual(controller.prop('token'), '1234');

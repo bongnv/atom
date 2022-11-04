@@ -1,9 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {shell} from 'electron';
+import { shell } from 'electron';
 
-import {incrementCounter} from '../reporter-proxy';
-import {RemotePropType, RemoteSetPropType, BranchSetPropType, EndpointPropType, TokenPropType} from '../prop-types';
+import { incrementCounter } from '../reporter-proxy';
+import {
+  RemotePropType,
+  RemoteSetPropType,
+  BranchSetPropType,
+  EndpointPropType,
+  TokenPropType,
+} from '../prop-types';
 import IssueishSearchesController from './issueish-searches-controller';
 
 export default class RemoteController extends React.Component {
@@ -32,24 +38,21 @@ export default class RemoteController extends React.Component {
 
     // Actions
     onPushBranch: PropTypes.func.isRequired,
-  }
+  };
 
   render() {
     return (
       <IssueishSearchesController
         endpoint={this.props.endpoint}
         token={this.props.token}
-
         workingDirectory={this.props.workingDirectory}
         repository={this.props.repository}
-
         workspace={this.props.workspace}
         remote={this.props.remote}
         remotes={this.props.remotes}
         branches={this.props.branches}
         aheadCount={this.props.aheadCount}
         pushInProgress={this.props.pushInProgress}
-
         onCreatePr={this.onCreatePr}
       />
     );
@@ -63,11 +66,12 @@ export default class RemoteController extends React.Component {
     }
 
     let createPrUrl = 'https://github.com/';
-    createPrUrl += this.props.remote.getOwner() + '/' + this.props.remote.getRepo();
+    createPrUrl +=
+      this.props.remote.getOwner() + '/' + this.props.remote.getRepo();
     createPrUrl += '/compare/' + encodeURIComponent(currentBranch.getName());
     createPrUrl += '?expand=1';
 
     await shell.openExternal(createPrUrl);
     incrementCounter('create-pull-request');
-  }
+  };
 }

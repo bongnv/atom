@@ -1,5 +1,5 @@
 import React from 'react';
-import {shallow, mount} from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import PropTypes from 'prop-types';
 
 import PaneItem from '../../lib/atom/pane-item';
@@ -9,16 +9,14 @@ class Component extends React.Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
     didFocus: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     didFocus: () => {},
-  }
+  };
 
   render() {
-    return (
-      <div>{this.props.text}</div>
-    );
+    return <div>{this.props.text}</div>;
   }
 
   getTitle() {
@@ -34,32 +32,32 @@ class Component extends React.Component {
   }
 }
 
-describe('PaneItem', function() {
+describe('PaneItem', function () {
   let atomEnv, workspace;
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
     workspace = atomEnv.workspace;
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
-  describe('opener', function() {
-    it('registers an opener on the workspace', function() {
+  describe('opener', function () {
+    it('registers an opener on the workspace', function () {
       sinon.spy(workspace, 'addOpener');
 
       shallow(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern">
           {() => <Component text="a prop" />}
-        </PaneItem>,
+        </PaneItem>
       );
 
       assert.isTrue(workspace.addOpener.called);
     });
 
-    it('disposes the opener on unmount', function() {
+    it('disposes the opener on unmount', function () {
       const sub = {
         dispose: sinon.spy(),
       };
@@ -68,26 +66,26 @@ describe('PaneItem', function() {
       const wrapper = shallow(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern">
           {() => <Component text="a prop" />}
-        </PaneItem>,
+        </PaneItem>
       );
       wrapper.unmount();
 
       assert.isTrue(sub.dispose.called);
     });
 
-    it('renders no children', function() {
+    it('renders no children', function () {
       const wrapper = shallow(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern">
           {() => <Component text="a prop" />}
-        </PaneItem>,
+        </PaneItem>
       );
 
       assert.lengthOf(wrapper.find('Component'), 0);
     });
   });
 
-  describe('when opened with a matching URI', function() {
-    it('calls its render prop', async function() {
+  describe('when opened with a matching URI', function () {
+    it('calls its render prop', async function () {
       let called = false;
       mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern">
@@ -95,7 +93,7 @@ describe('PaneItem', function() {
             called = true;
             return <Component text="a prop" />;
           }}
-        </PaneItem>,
+        </PaneItem>
       );
 
       assert.isFalse(called);
@@ -103,43 +101,51 @@ describe('PaneItem', function() {
       assert.isTrue(called);
     });
 
-    it('uses the child component as the workspace item', async function() {
+    it('uses the child component as the workspace item', async function () {
       mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern">
-          {({itemHolder}) => <Component ref={itemHolder.setter} text="a prop" />}
-        </PaneItem>,
+          {({ itemHolder }) => (
+            <Component ref={itemHolder.setter} text="a prop" />
+          )}
+        </PaneItem>
       );
 
       const item = await workspace.open('atom-github://pattern');
       assert.strictEqual(item.getTitle(), 'Component with: a prop');
     });
 
-    it('adds a CSS class to the root element', async function() {
+    it('adds a CSS class to the root element', async function () {
       mount(
-        <PaneItem workspace={workspace} uriPattern="atom-github://pattern" className="root">
-          {({itemHolder}) => <Component ref={itemHolder.setter} text="a prop" />}
-        </PaneItem>,
+        <PaneItem
+          workspace={workspace}
+          uriPattern="atom-github://pattern"
+          className="root"
+        >
+          {({ itemHolder }) => (
+            <Component ref={itemHolder.setter} text="a prop" />
+          )}
+        </PaneItem>
       );
 
       const item = await workspace.open('atom-github://pattern');
       assert.isTrue(item.getElement().classList.contains('root'));
     });
 
-    it('renders a child item', async function() {
+    it('renders a child item', async function () {
       const wrapper = mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern">
           {() => <Component text="a prop" />}
-        </PaneItem>,
+        </PaneItem>
       );
       await workspace.open('atom-github://pattern');
       assert.lengthOf(wrapper.update().find('Component'), 1);
     });
 
-    it('renders a different child item for each matching URI', async function() {
+    it('renders a different child item for each matching URI', async function () {
       const wrapper = mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern/{id}">
           {() => <Component text="a prop" />}
-        </PaneItem>,
+        </PaneItem>
       );
       await workspace.open('atom-github://pattern/1');
       await workspace.open('atom-github://pattern/2');
@@ -147,49 +153,49 @@ describe('PaneItem', function() {
       assert.lengthOf(wrapper.update().find('Component'), 2);
     });
 
-    it('renders a different child item for each item in a different Pane', async function() {
+    it('renders a different child item for each item in a different Pane', async function () {
       const wrapper = mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern/{id}">
           {() => <Component text="a prop" />}
-        </PaneItem>,
+        </PaneItem>
       );
 
       const item0 = await workspace.open('atom-github://pattern/1');
       const pane0 = workspace.paneForItem(item0);
-      pane0.splitRight({copyActiveItem: true});
+      pane0.splitRight({ copyActiveItem: true });
 
       assert.lengthOf(wrapper.update().find('Component'), 2);
     });
 
-    it('passes matched parameters to its render prop', async function() {
+    it('passes matched parameters to its render prop', async function () {
       let calledWith = null;
       mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern/{id}">
-          {({params}) => {
+          {({ params }) => {
             calledWith = params;
             return <Component text="a prop" />;
           }}
-        </PaneItem>,
+        </PaneItem>
       );
 
       assert.isNull(calledWith);
       await workspace.open('atom-github://pattern/123');
-      assert.deepEqual(calledWith, {id: '123'});
+      assert.deepEqual(calledWith, { id: '123' });
 
       calledWith = null;
       await workspace.open('atom-github://pattern/456');
-      assert.deepEqual(calledWith, {id: '456'});
+      assert.deepEqual(calledWith, { id: '456' });
     });
 
-    it('passes the URI itself', async function() {
+    it('passes the URI itself', async function () {
       let calledWith = null;
       mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern/{id}">
-          {({uri}) => {
+          {({ uri }) => {
             calledWith = uri;
             return <Component text="a prop" />;
           }}
-        </PaneItem>,
+        </PaneItem>
       );
 
       assert.isNull(calledWith);
@@ -201,12 +207,18 @@ describe('PaneItem', function() {
       assert.strictEqual(calledWith, 'atom-github://pattern/456');
     });
 
-    it('calls focus() on the child item when focus() is called', async function() {
+    it('calls focus() on the child item when focus() is called', async function () {
       const didFocus = sinon.spy();
       mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern">
-          {({itemHolder}) => <Component ref={itemHolder.setter} text="a prop" didFocus={didFocus} />}
-        </PaneItem>,
+          {({ itemHolder }) => (
+            <Component
+              ref={itemHolder.setter}
+              text="a prop"
+              didFocus={didFocus}
+            />
+          )}
+        </PaneItem>
       );
       const item = await workspace.open('atom-github://pattern');
       item.getElement().dispatchEvent(new FocusEvent('focus'));
@@ -214,11 +226,11 @@ describe('PaneItem', function() {
       assert.isTrue(didFocus.called);
     });
 
-    it('removes a child when its pane is destroyed', async function() {
+    it('removes a child when its pane is destroyed', async function () {
       const wrapper = mount(
         <PaneItem workspace={workspace} uriPattern="atom-github://pattern/{id}">
           {() => <Component text="a prop" />}
-        </PaneItem>,
+        </PaneItem>
       );
 
       await workspace.open('atom-github://pattern/0');
@@ -232,92 +244,124 @@ describe('PaneItem', function() {
     });
   });
 
-  describe('when StubItems are present', function() {
-    it('renders children into the stubs', function() {
+  describe('when StubItems are present', function () {
+    it('renders children into the stubs', function () {
       const stub0 = StubItem.create(
         'some-component',
-        {title: 'Component'},
-        'atom-github://pattern/root/10',
+        { title: 'Component' },
+        'atom-github://pattern/root/10'
       );
       workspace.getActivePane().addItem(stub0);
       const stub1 = StubItem.create(
         'other-component',
-        {title: 'Other Component'},
-        'atom-github://other/pattern',
+        { title: 'Other Component' },
+        'atom-github://other/pattern'
       );
       workspace.getActivePane().addItem(stub1);
 
       const wrapper = mount(
-        <PaneItem workspace={workspace} uriPattern="atom-github://pattern/root/{id}">
-          {({params}) => <Component text={params.id} />}
-        </PaneItem>,
+        <PaneItem
+          workspace={workspace}
+          uriPattern="atom-github://pattern/root/{id}"
+        >
+          {({ params }) => <Component text={params.id} />}
+        </PaneItem>
       );
 
       assert.lengthOf(wrapper.find('Component'), 1);
       assert.strictEqual(wrapper.find('Component').prop('text'), '10');
     });
 
-    it('adopts the real item into the stub', function() {
+    it('adopts the real item into the stub', function () {
       const stub = StubItem.create(
         'some-component',
-        {title: 'Component'},
-        'atom-github://pattern/root/10',
+        { title: 'Component' },
+        'atom-github://pattern/root/10'
       );
       workspace.getActivePane().addItem(stub);
 
       mount(
-        <PaneItem workspace={workspace} uriPattern="atom-github://pattern/root/{id}">
-          {({params, itemHolder}) => <Component ref={itemHolder.setter} text={params.id} />}
-        </PaneItem>,
+        <PaneItem
+          workspace={workspace}
+          uriPattern="atom-github://pattern/root/{id}"
+        >
+          {({ params, itemHolder }) => (
+            <Component ref={itemHolder.setter} text={params.id} />
+          )}
+        </PaneItem>
       );
 
       assert.strictEqual(stub.getText(), '10');
     });
 
-    it('passes additional props from the stub to the real component', function() {
+    it('passes additional props from the stub to the real component', function () {
       const extra = Symbol('extra');
       const stub = StubItem.create(
         'some-component',
-        {title: 'Component', extra},
-        'atom-github://pattern/root/10',
+        { title: 'Component', extra },
+        'atom-github://pattern/root/10'
       );
       workspace.getActivePane().addItem(stub);
 
       const wrapper = mount(
-        <PaneItem workspace={workspace} uriPattern="atom-github://pattern/root/{id}">
-          {({itemHolder, deserialized}) => <Component ref={itemHolder.setter} extra={deserialized.extra} text="nah" />}
-        </PaneItem>,
+        <PaneItem
+          workspace={workspace}
+          uriPattern="atom-github://pattern/root/{id}"
+        >
+          {({ itemHolder, deserialized }) => (
+            <Component
+              ref={itemHolder.setter}
+              extra={deserialized.extra}
+              text="nah"
+            />
+          )}
+        </PaneItem>
       );
 
       assert.lengthOf(wrapper.find('Component'), 1);
       assert.strictEqual(wrapper.find('Component').prop('extra'), extra);
     });
 
-    it('adds a CSS class to the stub root', function() {
+    it('adds a CSS class to the stub root', function () {
       const stub = StubItem.create(
         'some-component',
-        {title: 'Component'},
-        'atom-github://pattern/root/10',
+        { title: 'Component' },
+        'atom-github://pattern/root/10'
       );
       workspace.getActivePane().addItem(stub);
 
       mount(
-        <PaneItem workspace={workspace} uriPattern="atom-github://pattern/root/{id}" className="added">
-          {({params, itemHolder}) => <Component ref={itemHolder.setter} text={params.id} />}
-        </PaneItem>,
+        <PaneItem
+          workspace={workspace}
+          uriPattern="atom-github://pattern/root/{id}"
+          className="added"
+        >
+          {({ params, itemHolder }) => (
+            <Component ref={itemHolder.setter} text={params.id} />
+          )}
+        </PaneItem>
       );
 
       assert.isTrue(stub.getElement().classList.contains('added'));
     });
 
-    it('adopts StubItems that are deserialized after the package has been initialized', function() {
+    it('adopts StubItems that are deserialized after the package has been initialized', function () {
       const wrapper = mount(
-        <PaneItem workspace={workspace} uriPattern="atom-github://pattern/root/{id}">
-          {({params, itemHolder}) => <Component ref={itemHolder.setter} text={params.id} />}
-        </PaneItem>,
+        <PaneItem
+          workspace={workspace}
+          uriPattern="atom-github://pattern/root/{id}"
+        >
+          {({ params, itemHolder }) => (
+            <Component ref={itemHolder.setter} text={params.id} />
+          )}
+        </PaneItem>
       );
 
-      const stub = StubItem.create('some-component', {title: 'Component'}, 'atom-github://pattern/root/45');
+      const stub = StubItem.create(
+        'some-component',
+        { title: 'Component' },
+        'atom-github://pattern/root/45'
+      );
       workspace.getActivePane().addItem(stub);
       wrapper.update();
 

@@ -1,19 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Emitter} from 'event-kit';
-import {mount} from 'enzyme';
+import { Emitter } from 'event-kit';
+import { mount } from 'enzyme';
 
 import Panel from '../../lib/atom/panel';
 
 class Component extends React.Component {
   static propTypes = {
     text: PropTypes.string.isRequired,
-  }
+  };
 
   render() {
-    return (
-      <div>{this.props.text}</div>
-    );
+    return <div>{this.props.text}</div>;
   }
 
   getText() {
@@ -21,31 +19,31 @@ class Component extends React.Component {
   }
 }
 
-describe('Panel', function() {
+describe('Panel', function () {
   let emitter, workspace;
 
-  beforeEach(function() {
+  beforeEach(function () {
     emitter = new Emitter();
 
     workspace = {
       addLeftPanel: sinon.stub().returns({
         destroy: sinon.stub().callsFake(() => emitter.emit('destroy')),
-        onDidDestroy: cb => emitter.on('destroy', cb),
+        onDidDestroy: (cb) => emitter.on('destroy', cb),
         show: sinon.stub(),
         hide: sinon.stub(),
       }),
     };
   });
 
-  afterEach(function() {
+  afterEach(function () {
     emitter.dispose();
   });
 
-  it('renders a React component into an Atom panel', function() {
+  it('renders a React component into an Atom panel', function () {
     const wrapper = mount(
-      <Panel workspace={workspace} location="left" options={{some: 'option'}}>
+      <Panel workspace={workspace} location="left" options={{ some: 'option' }}>
         <Component text="hello" />
-      </Panel>,
+      </Panel>
     );
 
     assert.strictEqual(workspace.addLeftPanel.callCount, 1);
@@ -58,12 +56,16 @@ describe('Panel', function() {
     assert.strictEqual(panel.destroy.callCount, 1);
   });
 
-  it('calls props.onDidClosePanel when the panel is destroyed unexpectedly', function() {
+  it('calls props.onDidClosePanel when the panel is destroyed unexpectedly', function () {
     const onDidClosePanel = sinon.stub();
     const wrapper = mount(
-      <Panel workspace={workspace} location="left" onDidClosePanel={onDidClosePanel}>
+      <Panel
+        workspace={workspace}
+        location="left"
+        onDidClosePanel={onDidClosePanel}
+      >
         <Component text="hello" />
-      </Panel>,
+      </Panel>
     );
     wrapper.instance().getPanel().destroy();
     assert.strictEqual(onDidClosePanel.callCount, 1);

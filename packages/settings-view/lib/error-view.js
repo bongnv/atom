@@ -37,13 +37,13 @@ export default class ErrorView {
           <button
             ref="close"
             className="close icon icon-x"
-            onclick={() => this.destroy()}
+            onClick={() => this.destroy()}
           />
           <span ref="message" className="native-key-bindings" />
           <a
             ref="detailsLink"
             className="alert-link error-link"
-            onclick={() => this.toggleOutput()}
+            onClick={() => this.toggleOutput()}
           >
             {'Show output\u2026'}
           </a>

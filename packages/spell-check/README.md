@@ -1,4 +1,5 @@
 # Spell Check package
+
 [![OS X Build Status](https://travis-ci.org/atom/spell-check.svg?branch=master)](https://travis-ci.org/atom/spell-check) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/1620a5reqw6kdolv/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/spell-check/branch/master) [![Dependency Status](https://david-dm.org/atom/spell-check.svg)](https://david-dm.org/atom/spell-check)
 
 Highlights misspelling in Atom and shows possible corrections.
@@ -7,11 +8,11 @@ Use <kbd>cmd-shift-:</kbd> for Mac or <kbd>ctrl-shift-:</kbd> for Windows or Lin
 
 By default spell check is enabled for the following files:
 
-* Plain Text
-* GitHub Markdown
-* Git Commit Message
-* AsciiDoc
-* reStructuredText
+-   Plain Text
+-   GitHub Markdown
+-   Git Commit Message
+-   AsciiDoc
+-   reStructuredText
 
 You can override this from the _Spell Check_ settings in the Settings View (<kbd>cmd-,</kbd>). The Grammars config option is a list of scopes for which the package will check for spelling errors.
 
@@ -104,21 +105,21 @@ For all platforms, a Hunspell-compatible dictionary is also supported. To use th
 
 For example, if the following is set, then `/usr/share/hunspell/en_US.dic` will be used:
 
-- Use Locales: checked
-- Locales: `en-US`
-- Locale Paths: `/usr/share/hunspell`
+-   Use Locales: checked
+-   Locales: `en-US`
+-   Locale Paths: `/usr/share/hunspell`
 
 If "Locales" is not provided, then the user's current language will be inferred from environmental settings.
 
 In addition to what is provided, the following paths are checked:
 
-- `/usr/share/hunspell` (Linux only)
-- `/usr/share/myspell` (Linux only)
-- `/usr/share/myspell/dicts` (Linux only)
-- `/` (Mac only)
-- `/System/Library/Spelling` (Mac only)
-- `C:\` (Windows only)
+-   `/usr/share/hunspell` (Linux only)
+-   `/usr/share/myspell` (Linux only)
+-   `/usr/share/myspell/dicts` (Linux only)
+-   `/` (Mac only)
+-   `/System/Library/Spelling` (Mac only)
+-   `C:\` (Windows only)
 
 Dictionaries can be downloaded from various sites (such as [wooorm's repository](https://github.com/wooorm/dictionaries) or [LibreOffice's](https://github.com/LibreOffice/dictionaries)), but the file has to be renamed `locale.dic` and `locale.aff`.
 
-*Example locations to download are not an endorsement.*
+_Example locations to download are not an endorsement._

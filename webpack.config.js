@@ -3,16 +3,16 @@ const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CopyPlugin = require("copy-webpack-plugin");
+const CopyPlugin = require('copy-webpack-plugin');
 
-const isDev = process.env.NODE_ENV === "development"
+const isDev = process.env.NODE_ENV === 'development';
 
 const webpackDir = path.resolve(__dirname, '.webpack');
 const commonConfig = {
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'source-map' : 'inline-source-map',
   resolve: {
-    extensions: ['.js', '.json', '.wasm', ".coffee", ".node", '.ts', '.tsx'],
+    extensions: ['.js', '.json', '.wasm', '.coffee', '.node', '.ts', '.tsx'],
   },
   module: {
     parser: {
@@ -23,7 +23,7 @@ const commonConfig = {
     rules: [
       {
         test: /\.coffee$/,
-        loader: "coffee-loader",
+        loader: 'coffee-loader',
       },
       {
         test: /\.node$/,
@@ -39,17 +39,14 @@ const commonConfig = {
       },
     ],
   },
-  externals: [
-    'atom',
-    nodeExternals(),
-  ],
+  externals: ['atom', nodeExternals()],
   externalsType: 'commonjs',
   externalsPresets: {
     node: true,
     electron: true,
   },
   output: {
-    path: path.resolve(__dirname, ".webpack"),
+    path: path.resolve(__dirname, '.webpack'),
     library: {
       type: 'commonjs2',
     },
@@ -66,7 +63,7 @@ const commonConfig = {
   optimization: {
     minimize: false,
   },
-}
+};
 
 module.exports = [
   // main
@@ -130,25 +127,7 @@ module.exports = [
           use: {
             loader: 'babel-loader',
             options: {
-              retainLines: true,
-              sourceMaps: true,
-              presets: [
-                [
-                  '@babel/preset-env',
-                  {
-                    targets: {
-                      electron: "13",
-                    },
-                    modules: "commonjs",
-                  },
-                ],
-                '@babel/preset-react',
-              ],
-              plugins: [
-                "babel-plugin-relay",
-                "babel-plugin-add-module-exports",
-              ],
-              sourceType: "unambiguous",
+              babelrc: true,
             },
           },
         },
@@ -159,9 +138,7 @@ module.exports = [
         template: './src/renderer/index.html',
       }),
       new CopyPlugin({
-        patterns: [
-          { from: "static" },
-        ],
+        patterns: [{ from: 'static' }],
       }),
     ],
   }),

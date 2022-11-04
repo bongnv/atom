@@ -1,8 +1,9 @@
 ##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
- # Atom GitHub Package
 
-| Build | Code Coverage |
-|-------|---------------|
+# Atom GitHub Package
+
+| Build                                                                                                                                                | Code Coverage                                                                                                    |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | [![Build Status](https://github.com/atom/github/workflows/ci/badge.svg)](https://github.com/atom/github/actions?query=workflow%3Aci+branch%3Amaster) | [![codecov](https://codecov.io/gh/atom/github/branch/master/graph/badge.svg)](https://codecov.io/gh/atom/github) |
 
 The Atom GitHub package provides Git and GitHub integration for Atom. Check out [github.atom.io](https://github.atom.io) for more information.

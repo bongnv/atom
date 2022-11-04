@@ -1,9 +1,9 @@
 import React from 'react';
-import {createFragmentContainer, graphql} from 'react-relay';
+import { createFragmentContainer, graphql } from 'react-relay';
 import PropTypes from 'prop-types';
 
 import Octicon from '../atom/octicon';
-import {buildStatusFromStatusContext} from '../models/build-status';
+import { buildStatusFromStatusContext } from '../models/build-status';
 
 export class BarePrStatusContextView extends React.Component {
   static propTypes = {
@@ -13,15 +13,18 @@ export class BarePrStatusContextView extends React.Component {
       state: PropTypes.string.isRequired,
       targetUrl: PropTypes.string,
     }).isRequired,
-  }
+  };
 
   render() {
-    const {context, description, state, targetUrl} = this.props.context;
-    const {icon, classSuffix} = buildStatusFromStatusContext({state});
+    const { context, description, state, targetUrl } = this.props.context;
+    const { icon, classSuffix } = buildStatusFromStatusContext({ state });
     return (
       <li className="github-PrStatuses-list-item">
         <span className="github-PrStatuses-list-item-icon">
-          <Octicon icon={icon} className={`github-PrStatuses--${classSuffix}`} />
+          <Octicon
+            icon={icon}
+            className={`github-PrStatuses--${classSuffix}`}
+          />
         </span>
         <span className="github-PrStatuses-list-item-context">
           <strong>{context}</strong> {description}

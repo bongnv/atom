@@ -23,20 +23,19 @@ export type reviewsController_repository$key = {
 };
 */
 
-
-const node/*: ReaderFragment*/ = {
-  "kind": "Fragment",
-  "name": "reviewsController_repository",
-  "type": "Repository",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
+const node /*: ReaderFragment*/ = {
+  kind: 'Fragment',
+  name: 'reviewsController_repository',
+  type: 'Repository',
+  metadata: null,
+  argumentDefinitions: [],
+  selections: [
     {
-      "kind": "FragmentSpread",
-      "name": "prCheckoutController_repository",
-      "args": null
-    }
-  ]
+      kind: 'FragmentSpread',
+      name: 'prCheckoutController_repository',
+      args: null,
+    },
+  ],
 };
 // prettier-ignore
 (node/*: any*/).hash = '1e0016aed6db6035651ff6213eb38ff6';

@@ -1,3 +1,3 @@
-    function duplicate() {
-      return false;
-    }
+function duplicate() {
+  return false;
+}

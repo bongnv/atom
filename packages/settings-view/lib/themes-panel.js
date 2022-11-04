@@ -149,7 +149,7 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
               <span className="icon icon-question">
                 You can also style Atom by editing{' '}
               </span>
-              <a className="link" onclick={this.didClickOpenUserStyleSheet}>
+              <a className="link" onClick={this.didClickOpenUserStyleSheet}>
                 your stylesheet
               </a>
             </div>
@@ -169,12 +169,12 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
                     <select
                       ref="uiMenu"
                       className="form-control"
-                      onchange={this.didChangeUiMenu.bind(this)}
+                      onChange={this.didChangeUiMenu.bind(this)}
                     />
                     <button
                       ref="activeUiThemeSettings"
                       className="btn icon icon-gear active-theme-settings"
-                      onclick={this.didClickActiveUiThemeSettings.bind(this)}
+                      onClick={this.didClickActiveUiThemeSettings.bind(this)}
                     />
                   </div>
                 </div>
@@ -194,12 +194,12 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
                     <select
                       ref="syntaxMenu"
                       className="form-control"
-                      onchange={this.didChangeSyntaxMenu.bind(this)}
+                      onChange={this.didChangeSyntaxMenu.bind(this)}
                     />
                     <button
                       ref="activeSyntaxThemeSettings"
                       className="btn icon icon-gear active-syntax-settings"
-                      onclick={this.didClickActiveSyntaxThemeSettings.bind(
+                      onClick={this.didClickActiveSyntaxThemeSettings.bind(
                         this
                       )}
                     />

@@ -6,14 +6,14 @@ const params = {
   config: atom.config,
   confirm: atom.confirm.bind(atom),
   viewRegistry: atom.views,
-  applicationDelegate: atom.applicationDelegate
+  applicationDelegate: atom.applicationDelegate,
 };
 
-describe('PaneContainerElement', function() {
-  describe('when panes are added or removed', function() {
-    it('inserts or removes resize elements', function() {
+describe('PaneContainerElement', function () {
+  describe('when panes are added or removed', function () {
+    it('inserts or removes resize elements', function () {
       const childTagNames = () =>
-        Array.from(paneAxisElement.children).map(child =>
+        Array.from(paneAxisElement.children).map((child) =>
           child.nodeName.toLowerCase()
         );
 
@@ -29,7 +29,7 @@ describe('PaneContainerElement', function() {
       expect(childTagNames()).toEqual([
         'atom-pane-axis',
         'atom-pane-resize-handle',
-        'atom-pane-axis'
+        'atom-pane-axis',
       ]);
 
       paneAxis.addChild(new PaneAxis({}, atom.views));
@@ -38,18 +38,18 @@ describe('PaneContainerElement', function() {
         'atom-pane-resize-handle',
         'atom-pane-axis',
         'atom-pane-resize-handle',
-        'atom-pane-axis'
+        'atom-pane-axis',
       ]);
 
       paneAxis.removeChild(paneAxis.getChildren()[2]);
       expect(childTagNames()).toEqual([
         'atom-pane-axis',
         'atom-pane-resize-handle',
-        'atom-pane-axis'
+        'atom-pane-axis',
       ]);
     });
 
-    it('transfers focus to the next pane if a focused pane is removed', function() {
+    it('transfers focus to the next pane if a focused pane is removed', function () {
       const container = new PaneContainer(params);
       const containerElement = container.getElement();
       const leftPane = container.getActivePane();
@@ -68,7 +68,7 @@ describe('PaneContainerElement', function() {
   });
 
   describe('when a pane is split', () =>
-    it('builds appropriately-oriented atom-pane-axis elements', function() {
+    it('builds appropriately-oriented atom-pane-axis elements', function () {
       const container = new PaneContainer(params);
       const containerElement = container.getElement();
 
@@ -98,21 +98,21 @@ describe('PaneContainerElement', function() {
       expect(verticalPanes[1]).toBe(pane3.getElement());
     }));
 
-  describe('when the resize element is dragged ', function() {
+  describe('when the resize element is dragged ', function () {
     let [container, containerElement] = [];
 
-    beforeEach(function() {
+    beforeEach(function () {
       container = new PaneContainer(params);
       containerElement = container.getElement();
       document.querySelector('#jasmine-content').appendChild(containerElement);
     });
 
-    const dragElementToPosition = function(element, clientX) {
+    const dragElementToPosition = function (element, clientX) {
       element.dispatchEvent(
         new MouseEvent('mousedown', {
           view: window,
           bubbles: true,
-          button: 0
+          button: 0,
         })
       );
 
@@ -120,7 +120,7 @@ describe('PaneContainerElement', function() {
         new MouseEvent('mousemove', {
           view: window,
           bubbles: true,
-          clientX
+          clientX,
         })
       );
 
@@ -128,12 +128,12 @@ describe('PaneContainerElement', function() {
         new MouseEvent('mouseup', {
           iew: window,
           bubbles: true,
-          button: 0
+          button: 0,
         })
       );
     };
 
-    const getElementWidth = element => element.getBoundingClientRect().width;
+    const getElementWidth = (element) => element.getBoundingClientRect().width;
 
     const expectPaneScale = (...pairs) =>
       (() => {
@@ -146,13 +146,13 @@ describe('PaneContainerElement', function() {
         return result;
       })();
 
-    const getResizeElement = i =>
+    const getResizeElement = (i) =>
       containerElement.querySelectorAll('atom-pane-resize-handle')[i];
 
-    const getPaneElement = i =>
+    const getPaneElement = (i) =>
       containerElement.querySelectorAll('atom-pane')[i];
 
-    it('adds and removes panes in the direction that the pane is being dragged', function() {
+    it('adds and removes panes in the direction that the pane is being dragged', function () {
       const leftPane = container.getActivePane();
       expectPaneScale([leftPane, 1]);
 
@@ -182,7 +182,7 @@ describe('PaneContainerElement', function() {
       runs(() => expectPaneScale([rightPane, 1]));
     });
 
-    it('splits or closes panes in orthogonal direction that the pane is being dragged', function() {
+    it('splits or closes panes in orthogonal direction that the pane is being dragged', function () {
       const leftPane = container.getActivePane();
       expectPaneScale([leftPane, 1]);
 
@@ -208,7 +208,7 @@ describe('PaneContainerElement', function() {
       runs(() => expectPaneScale([leftPane, 0.5], [rightPane, 1.5]));
     });
 
-    it('unsubscribes from mouse events when the pane is detached', function() {
+    it('unsubscribes from mouse events when the pane is detached', function () {
       container.getActivePane().splitRight();
       const element = getResizeElement(0);
       spyOn(document, 'addEventListener').andCallThrough();
@@ -219,13 +219,13 @@ describe('PaneContainerElement', function() {
         new MouseEvent('mousedown', {
           view: window,
           bubbles: true,
-          button: 0
+          button: 0,
         })
       );
 
       waitsFor(() => document.addEventListener.callCount === 2);
 
-      runs(function() {
+      runs(function () {
         expect(element.resizeStopped.callCount).toBe(0);
         container.destroy();
         expect(element.resizeStopped.callCount).toBe(1);
@@ -233,7 +233,7 @@ describe('PaneContainerElement', function() {
       });
     });
 
-    it('does not throw an error when resized to fit content in a detached state', function() {
+    it('does not throw an error when resized to fit content in a detached state', function () {
       container.getActivePane().splitRight();
       const element = getResizeElement(0);
       element.remove();
@@ -241,17 +241,17 @@ describe('PaneContainerElement', function() {
     });
   });
 
-  describe('pane resizing', function() {
+  describe('pane resizing', function () {
     let [leftPane, rightPane] = [];
 
-    beforeEach(function() {
+    beforeEach(function () {
       const container = new PaneContainer(params);
       leftPane = container.getActivePane();
       rightPane = leftPane.splitRight();
     });
 
     describe('when pane:increase-size is triggered', () =>
-      it('increases the size of the pane', function() {
+      it('increases the size of the pane', function () {
         expect(leftPane.getFlexScale()).toBe(1);
         expect(rightPane.getFlexScale()).toBe(1);
 
@@ -265,7 +265,7 @@ describe('PaneContainerElement', function() {
       }));
 
     describe('when pane:decrease-size is triggered', () =>
-      it('decreases the size of the pane', function() {
+      it('decreases the size of the pane', function () {
         expect(leftPane.getFlexScale()).toBe(1);
         expect(rightPane.getFlexScale()).toBe(1);
 
@@ -279,16 +279,16 @@ describe('PaneContainerElement', function() {
       }));
   });
 
-  describe('when only a single pane is present', function() {
+  describe('when only a single pane is present', function () {
     let [singlePane] = [];
 
-    beforeEach(function() {
+    beforeEach(function () {
       const container = new PaneContainer(params);
       singlePane = container.getActivePane();
     });
 
     describe('when pane:increase-size is triggered', () =>
-      it('does not increases the size of the pane', function() {
+      it('does not increases the size of the pane', function () {
         expect(singlePane.getFlexScale()).toBe(1);
 
         atom.commands.dispatch(singlePane.getElement(), 'pane:increase-size');
@@ -299,7 +299,7 @@ describe('PaneContainerElement', function() {
       }));
 
     describe('when pane:decrease-size is triggered', () =>
-      it('does not decreases the size of the pane', function() {
+      it('does not decreases the size of the pane', function () {
         expect(singlePane.getFlexScale()).toBe(1);
 
         atom.commands.dispatch(singlePane.getElement(), 'pane:decrease-size');

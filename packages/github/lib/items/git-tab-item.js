@@ -7,9 +7,9 @@ import GitTabContainer from '../containers/git-tab-container';
 export default class GitTabItem extends React.Component {
   static propTypes = {
     repository: PropTypes.object.isRequired,
-  }
+  };
 
-  static uriPattern = 'atom-github://dock-item/git'
+  static uriPattern = 'atom-github://dock-item/git';
 
   static buildURI() {
     return this.uriPattern;
@@ -23,10 +23,7 @@ export default class GitTabItem extends React.Component {
 
   render() {
     return (
-      <GitTabContainer
-        controllerRef={this.refController}
-        {...this.props}
-      />
+      <GitTabContainer controllerRef={this.refController} {...this.props} />
     );
   }
 
@@ -64,34 +61,34 @@ export default class GitTabItem extends React.Component {
   // Forwarded to the controller instance when one is present
 
   rememberLastFocus(...args) {
-    return this.refController.map(c => c.rememberLastFocus(...args));
+    return this.refController.map((c) => c.rememberLastFocus(...args));
   }
 
   restoreFocus(...args) {
-    return this.refController.map(c => c.restoreFocus(...args));
+    return this.refController.map((c) => c.restoreFocus(...args));
   }
 
   hasFocus(...args) {
-    return this.refController.map(c => c.hasFocus(...args));
+    return this.refController.map((c) => c.hasFocus(...args));
   }
 
   focus() {
-    return this.refController.map(c => c.restoreFocus());
+    return this.refController.map((c) => c.restoreFocus());
   }
 
   focusAndSelectStagingItem(...args) {
-    return this.refController.map(c => c.focusAndSelectStagingItem(...args));
+    return this.refController.map((c) => c.focusAndSelectStagingItem(...args));
   }
 
   focusAndSelectCommitPreviewButton() {
-    return this.refController.map(c => c.focusAndSelectCommitPreviewButton());
+    return this.refController.map((c) => c.focusAndSelectCommitPreviewButton());
   }
 
   quietlySelectItem(...args) {
-    return this.refController.map(c => c.quietlySelectItem(...args));
+    return this.refController.map((c) => c.quietlySelectItem(...args));
   }
 
   focusAndSelectRecentCommit() {
-    return this.refController.map(c => c.focusAndSelectRecentCommit());
+    return this.refController.map((c) => c.focusAndSelectRecentCommit());
   }
 }

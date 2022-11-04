@@ -1,16 +1,16 @@
 import path from 'path';
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 
-import {EnableableOperationPropType} from '../prop-types';
+import { EnableableOperationPropType } from '../prop-types';
 import Tooltip from '../atom/tooltip';
-import Commands, {Command} from '../atom/commands';
+import Commands, { Command } from '../atom/commands';
 import AtomTextEditor from '../atom/atom-text-editor';
-import {getDataFromGithubUrl} from './issueish-link';
+import { getDataFromGithubUrl } from './issueish-link';
 import EmojiReactionsController from '../controllers/emoji-reactions-controller';
-import {checkoutStates} from '../controllers/pr-checkout-controller';
+import { checkoutStates } from '../controllers/pr-checkout-controller';
 import GithubDotcomMarkdown from './github-dotcom-markdown';
 import PatchPreviewView from './patch-preview-view';
 import ReviewCommentView from './review-comment-view';
@@ -19,8 +19,8 @@ import CheckoutButton from './checkout-button';
 import Octicon from '../atom/octicon';
 import Timeago from './timeago';
 import RefHolder from '../models/ref-holder';
-import {toNativePathSep, GHOST_USER} from '../helpers';
-import {addEvent} from '../reporter-proxy';
+import { toNativePathSep, GHOST_USER } from '../helpers';
+import { addEvent } from '../reporter-proxy';
 
 const authorAssociationText = {
   MEMBER: 'Member',
@@ -41,10 +41,12 @@ export default class ReviewsView extends React.Component {
     repository: PropTypes.object.isRequired,
     pullRequest: PropTypes.object.isRequired,
     summaries: PropTypes.array.isRequired,
-    commentThreads: PropTypes.arrayOf(PropTypes.shape({
-      thread: PropTypes.object.isRequired,
-      comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-    })),
+    commentThreads: PropTypes.arrayOf(
+      PropTypes.shape({
+        thread: PropTypes.object.isRequired,
+        comments: PropTypes.arrayOf(PropTypes.object).isRequired,
+      })
+    ),
     refetch: PropTypes.func.isRequired,
 
     // Package models
@@ -101,7 +103,7 @@ export default class ReviewsView extends React.Component {
     updateComment: PropTypes.func.isRequired,
     updateSummary: PropTypes.func.isRequired,
     reportRelayError: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -116,14 +118,14 @@ export default class ReviewsView extends React.Component {
   }
 
   componentDidMount() {
-    const {scrollToThreadID} = this.props;
+    const { scrollToThreadID } = this.props;
     if (scrollToThreadID) {
       this.scrollToThread(scrollToThreadID);
     }
   }
 
   componentDidUpdate(prevProps) {
-    const {scrollToThreadID} = this.props;
+    const { scrollToThreadID } = this.props;
     if (scrollToThreadID && scrollToThreadID !== prevProps.scrollToThreadID) {
       this.scrollToThread(scrollToThreadID);
     }
@@ -150,11 +152,20 @@ export default class ReviewsView extends React.Component {
     return (
       <Fragment>
         <Commands registry={this.props.commands} target={this.rootHolder}>
-          <Command command="github:more-context" callback={this.props.moreContext} />
-          <Command command="github:less-context" callback={this.props.lessContext} />
+          <Command
+            command="github:more-context"
+            callback={this.props.moreContext}
+          />
+          <Command
+            command="github:less-context"
+            callback={this.props.lessContext}
+          />
         </Commands>
         <Commands registry={this.props.commands} target=".github-Review-reply">
-          <Command command="github:submit-comment" callback={this.submitCurrentComment} />
+          <Command
+            command="github:submit-comment"
+            callback={this.submitCurrentComment}
+          />
         </Commands>
       </Fragment>
     );
@@ -165,10 +176,10 @@ export default class ReviewsView extends React.Component {
       if (this.state.isRefreshing) {
         return;
       }
-      this.setState({isRefreshing: true});
+      this.setState({ isRefreshing: true });
       const sub = this.props.refetch(() => {
         this.subs.remove(sub);
-        this.setState({isRefreshing: false});
+        this.setState({ isRefreshing: false });
       });
       this.subs.add(sub);
     };
@@ -177,14 +188,17 @@ export default class ReviewsView extends React.Component {
         <span className="icon icon-comment-discussion" />
         <span className="github-Reviews-headerTitle">
           Reviews for&nbsp;
-          <span className="github-Reviews-clickable" onClick={this.props.openPR}>
+          <span
+            className="github-Reviews-clickable"
+            onClick={this.props.openPR}
+          >
             {this.props.owner}/{this.props.repo}#{this.props.number}
           </span>
         </span>
         <button
           className={cx(
             'github-Reviews-headerButton github-Reviews-clickable icon icon-repo-sync',
-            {refreshing: this.state.isRefreshing},
+            { refreshing: this.state.isRefreshing }
           )}
           onClick={refresh}
         />
@@ -198,16 +212,23 @@ export default class ReviewsView extends React.Component {
   }
 
   logStartReviewClick = () => {
-    addEvent('start-pr-review', {package: 'github', component: this.constructor.name});
-  }
+    addEvent('start-pr-review', {
+      package: 'github',
+      component: this.constructor.name,
+    });
+  };
 
   renderEmptyState() {
-    const {number, repo, owner} = this.props;
+    const { number, repo, owner } = this.props;
     // todo: make this open the review flow in Atom instead of dotcom
     const pullRequestURL = `https://www.github.com/${owner}/${repo}/pull/${number}/files/`;
     return (
       <div className="github-Reviews-emptyState">
-        <img src="atom://github/img/mona.svg" alt="Mona the octocat in spaaaccee" className="github-Reviews-emptyImg" />
+        <img
+          src="atom://github/img/mona.svg"
+          alt="Mona the octocat in spaaaccee"
+          className="github-Reviews-emptyImg"
+        />
         <div className="github-Reviews-emptyText">
           This pull request has no reviews
         </div>
@@ -225,7 +246,7 @@ export default class ReviewsView extends React.Component {
       return this.renderEmptyState();
     }
 
-    const toggle = evt => {
+    const toggle = (evt) => {
       evt.preventDefault();
       if (this.props.summarySectionOpen) {
         this.props.hideSummaries();
@@ -237,32 +258,36 @@ export default class ReviewsView extends React.Component {
     return (
       <details
         className="github-Reviews-section summaries"
-        open={this.props.summarySectionOpen}>
-
+        open={this.props.summarySectionOpen}
+      >
         <summary className="github-Reviews-header" onClick={toggle}>
           <span className="github-Reviews-title">Summaries</span>
         </summary>
         <main className="github-Reviews-container">
           {this.props.summaries.map(this.renderReviewSummary)}
         </main>
-
       </details>
     );
   }
 
-  renderReviewSummary = review => {
-    const reviewTypes = type => {
-      return {
-        APPROVED: {icon: 'icon-check', copy: 'approved these changes'},
-        COMMENTED: {icon: 'icon-comment', copy: 'commented'},
-        CHANGES_REQUESTED: {icon: 'icon-alert', copy: 'requested changes'},
-      }[type] || {icon: '', copy: ''};
+  renderReviewSummary = (review) => {
+    const reviewTypes = (type) => {
+      return (
+        {
+          APPROVED: { icon: 'icon-check', copy: 'approved these changes' },
+          COMMENTED: { icon: 'icon-comment', copy: 'commented' },
+          CHANGES_REQUESTED: { icon: 'icon-alert', copy: 'requested changes' },
+        }[type] || { icon: '', copy: '' }
+      );
     };
 
-    const {icon, copy} = reviewTypes(review.state);
+    const { icon, copy } = reviewTypes(review.state);
 
     // filter non actionable empty summary comments from this view
-    if (review.state === 'PENDING' || (review.state === 'COMMENTED' && review.bodyHTML === '')) {
+    if (
+      review.state === 'PENDING' ||
+      (review.state === 'COMMENTED' && review.bodyHTML === '')
+    ) {
       return null;
     }
 
@@ -275,25 +300,38 @@ export default class ReviewsView extends React.Component {
           confirm={this.props.confirm}
           commands={this.props.commands}
           contentUpdater={this.props.updateSummary}
-          render={showActionsMenu => {
+          render={(showActionsMenu) => {
             return (
               <Fragment>
                 <header className="github-Review-header">
                   <div className="github-Review-header-authorData">
-                    <span className={`github-ReviewSummary-icon icon ${icon}`} />
-                    <img className="github-ReviewSummary-avatar"
-                      src={author.avatarUrl} alt={author.login}
+                    <span
+                      className={`github-ReviewSummary-icon icon ${icon}`}
                     />
-                    <a className="github-ReviewSummary-username" href={author.url}>{author.login}</a>
+                    <img
+                      className="github-ReviewSummary-avatar"
+                      src={author.avatarUrl}
+                      alt={author.login}
+                    />
+                    <a
+                      className="github-ReviewSummary-username"
+                      href={author.url}
+                    >
+                      {author.login}
+                    </a>
                     <span className="github-ReviewSummary-type">{copy}</span>
                     {this.renderEditedLink(review)}
                     {this.renderAuthorAssociation(review)}
                   </div>
-                  <Timeago className="github-ReviewSummary-timeAgo" time={review.submittedAt} displayStyle="short" />
+                  <Timeago
+                    className="github-ReviewSummary-timeAgo"
+                    time={review.submittedAt}
+                    displayStyle="short"
+                  />
                   <Octicon
                     icon="ellipses"
                     className="github-Review-actionsMenu"
-                    onClick={event => showActionsMenu(event, review, author)}
+                    onClick={(event) => showActionsMenu(event, review, author)}
                   />
                 </header>
                 <main className="github-ReviewSummary-comment">
@@ -314,7 +352,7 @@ export default class ReviewsView extends React.Component {
         />
       </div>
     );
-  }
+  };
 
   renderReviewCommentThreads() {
     const commentThreads = this.props.commentThreads;
@@ -322,10 +360,14 @@ export default class ReviewsView extends React.Component {
       return null;
     }
 
-    const resolvedThreads = commentThreads.filter(pair => pair.thread.isResolved);
-    const unresolvedThreads = commentThreads.filter(pair => !pair.thread.isResolved);
+    const resolvedThreads = commentThreads.filter(
+      (pair) => pair.thread.isResolved
+    );
+    const unresolvedThreads = commentThreads.filter(
+      (pair) => !pair.thread.isResolved
+    );
 
-    const toggleComments = evt => {
+    const toggleComments = (evt) => {
       evt.preventDefault();
       if (this.props.commentSectionOpen) {
         this.props.hideComments();
@@ -337,42 +379,50 @@ export default class ReviewsView extends React.Component {
     return (
       <details
         className="github-Reviews-section comments"
-        open={this.props.commentSectionOpen}>
-
+        open={this.props.commentSectionOpen}
+      >
         <summary className="github-Reviews-header" onClick={toggleComments}>
           <span className="github-Reviews-title">Comments</span>
           <span className="github-Reviews-progress">
             <span className="github-Reviews-count">
-              Resolved
-              {' '}<span className="github-Reviews-countNr">{resolvedThreads.length}</span>{' '}
-              of
-              {' '}<span className="github-Reviews-countNr">{resolvedThreads.length + unresolvedThreads.length}</span>
+              Resolved{' '}
+              <span className="github-Reviews-countNr">
+                {resolvedThreads.length}
+              </span>{' '}
+              of{' '}
+              <span className="github-Reviews-countNr">
+                {resolvedThreads.length + unresolvedThreads.length}
+              </span>
             </span>
             <progress
-              className="github-Reviews-progessBar" value={resolvedThreads.length}
+              className="github-Reviews-progessBar"
+              value={resolvedThreads.length}
               max={resolvedThreads.length + unresolvedThreads.length}
             />
           </span>
         </summary>
 
-        {unresolvedThreads.length > 0 && <main className="github-Reviews-container">
-          {unresolvedThreads.map(this.renderReviewCommentThread)}
-        </main>}
-        {resolvedThreads.length > 0 && <details className="github-Reviews-section resolved-comments" open>
-          <summary className="github-Reviews-header">
-            <span className="github-Reviews-title">Resolved</span>
-          </summary>
+        {unresolvedThreads.length > 0 && (
           <main className="github-Reviews-container">
-            {resolvedThreads.map(this.renderReviewCommentThread)}
+            {unresolvedThreads.map(this.renderReviewCommentThread)}
           </main>
-        </details>}
-
+        )}
+        {resolvedThreads.length > 0 && (
+          <details className="github-Reviews-section resolved-comments" open>
+            <summary className="github-Reviews-header">
+              <span className="github-Reviews-title">Resolved</span>
+            </summary>
+            <main className="github-Reviews-container">
+              {resolvedThreads.map(this.renderReviewCommentThread)}
+            </main>
+          </details>
+        )}
       </details>
     );
   }
 
-  renderReviewCommentThread = commentThread => {
-    const {comments, thread} = commentThread;
+  renderReviewCommentThread = (commentThread) => {
+    const { comments, thread } = commentThread;
     const rootComment = comments[0];
     if (!rootComment) {
       return null;
@@ -385,21 +435,27 @@ export default class ReviewsView extends React.Component {
     }
 
     const nativePath = toNativePathSep(rootComment.path);
-    const {dir, base} = path.parse(nativePath);
-    const {lineNumber, positionText} = this.getTranslatedPosition(rootComment);
+    const { dir, base } = path.parse(nativePath);
+    const { lineNumber, positionText } =
+      this.getTranslatedPosition(rootComment);
 
     const refJumpToFileButton = new RefHolder();
-    const jumpToFileDisabledLabel = 'Checkout this pull request to enable Jump To File.';
+    const jumpToFileDisabledLabel =
+      'Checkout this pull request to enable Jump To File.';
 
     const elementId = `review-thread-${thread.id}`;
 
-    const navButtonClasses = ['github-Review-navButton', 'icon', {outdated: !lineNumber}];
+    const navButtonClasses = [
+      'github-Review-navButton',
+      'icon',
+      { outdated: !lineNumber },
+    ];
     const openFileClasses = cx('icon-code', ...navButtonClasses);
     const openDiffClasses = cx('icon-diff', ...navButtonClasses);
 
     const isOpen = this.props.threadIDsOpen.has(thread.id);
     const isHighlighted = this.props.highlightedThreadIDs.has(thread.id);
-    const toggle = evt => {
+    const toggle = (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
 
@@ -415,40 +471,59 @@ export default class ReviewsView extends React.Component {
     return (
       <details
         ref={threadHolder.setter}
-        className={cx('github-Review', {'resolved': thread.isResolved, 'github-Review--highlight': isHighlighted})}
+        className={cx('github-Review', {
+          resolved: thread.isResolved,
+          'github-Review--highlight': isHighlighted,
+        })}
         key={elementId}
         id={elementId}
-        open={isOpen}>
-
+        open={isOpen}
+      >
         <summary className="github-Review-reference" onClick={toggle}>
           {dir && <span className="github-Review-path">{dir}</span>}
-          <span className="github-Review-file">{dir ? path.sep : ''}{base}</span>
+          <span className="github-Review-file">
+            {dir ? path.sep : ''}
+            {base}
+          </span>
           <span className="github-Review-lineNr">{positionText}</span>
-          <img className="github-Review-referenceAvatar"
-            src={author.avatarUrl} alt={author.login}
+          <img
+            className="github-Review-referenceAvatar"
+            src={author.avatarUrl}
+            alt={author.login}
           />
-          <Timeago className="github-Review-referenceTimeAgo" time={rootComment.createdAt} displayStyle="short" />
+          <Timeago
+            className="github-Review-referenceTimeAgo"
+            time={rootComment.createdAt}
+            displayStyle="short"
+          />
         </summary>
         <nav className="github-Review-nav">
-          <button className={openFileClasses}
-            data-path={nativePath} data-line={lineNumber}
-            onClick={this.openFile} disabled={this.props.checkoutOp.isEnabled()}
-            ref={refJumpToFileButton.setter}>
+          <button
+            className={openFileClasses}
+            data-path={nativePath}
+            data-line={lineNumber}
+            onClick={this.openFile}
+            disabled={this.props.checkoutOp.isEnabled()}
+            ref={refJumpToFileButton.setter}
+          >
             Jump To File
           </button>
-          <button className={openDiffClasses}
-            data-path={nativePath} data-line={rootComment.position}
-            onClick={this.openDiff}>
+          <button
+            className={openDiffClasses}
+            data-path={nativePath}
+            data-line={rootComment.position}
+            onClick={this.openDiff}
+          >
             Open Diff
           </button>
-          {this.props.checkoutOp.isEnabled() &&
+          {this.props.checkoutOp.isEnabled() && (
             <Tooltip
               manager={this.props.tooltips}
               target={refJumpToFileButton}
               title={jumpToFileDisabledLabel}
               showDelay={200}
             />
-          }
+          )}
         </nav>
 
         {rootComment.position !== null && (
@@ -461,13 +536,12 @@ export default class ReviewsView extends React.Component {
           />
         )}
 
-        {this.renderThread({thread, comments})}
-
+        {this.renderThread({ thread, comments })}
       </details>
     );
-  }
+  };
 
-  renderThread = ({thread, comments}) => {
+  renderThread = ({ thread, comments }) => {
     let replyHolder = this.replyHolders.get(thread.id);
     if (!replyHolder) {
       replyHolder = new RefHolder();
@@ -480,8 +554,7 @@ export default class ReviewsView extends React.Component {
     return (
       <Fragment>
         <main className="github-Review-comments">
-
-          {comments.map(comment => {
+          {comments.map((comment) => {
             return (
               <ReviewCommentView
                 key={comment.id}
@@ -501,9 +574,11 @@ export default class ReviewsView extends React.Component {
           })}
 
           <div
-            className={cx('github-Review-reply', {'github-Review-reply--disabled': isPosting})}
-            data-thread-id={thread.id}>
-
+            className={cx('github-Review-reply', {
+              'github-Review-reply--disabled': isPosting,
+            })}
+            data-thread-id={thread.id}
+          >
             <AtomTextEditor
               placeholderText="Reply..."
               lineNumberGutterVisible={false}
@@ -512,33 +587,37 @@ export default class ReviewsView extends React.Component {
               readOnly={isPosting}
               refModel={replyHolder}
             />
-
           </div>
         </main>
-        {thread.isResolved && <div className="github-Review-resolvedText">
-          This conversation was marked as resolved by @{thread.resolvedBy.login}
-        </div>}
+        {thread.isResolved && (
+          <div className="github-Review-resolvedText">
+            This conversation was marked as resolved by @
+            {thread.resolvedBy.login}
+          </div>
+        )}
         <footer className="github-Review-footer">
           <button
             className="github-Review-replyButton btn btn-primary"
             title="Add your comment"
             disabled={isPosting}
-            onClick={() => this.submitReply(replyHolder, thread, lastComment)}>
+            onClick={() => this.submitReply(replyHolder, thread, lastComment)}
+          >
             Comment
           </button>
           {this.renderResolveButton(thread)}
         </footer>
       </Fragment>
     );
-  }
+  };
 
-  renderResolveButton = thread => {
+  renderResolveButton = (thread) => {
     if (thread.isResolved) {
       return (
         <button
           className="github-Review-resolveButton btn icon icon-check"
           title="Unresolve conversation"
-          onClick={() => this.resolveUnresolveThread(thread)}>
+          onClick={() => this.resolveUnresolveThread(thread)}
+        >
           Unresolve conversation
         </button>
       );
@@ -547,12 +626,13 @@ export default class ReviewsView extends React.Component {
         <button
           className="github-Review-resolveButton btn icon icon-check"
           title="Resolve conversation"
-          onClick={() => this.resolveUnresolveThread(thread)}>
+          onClick={() => this.resolveUnresolveThread(thread)}
+        >
           Resolve conversation
         </button>
       );
     }
-  }
+  };
 
   renderEditedLink(entity) {
     if (!entity.lastEditedAt) {
@@ -560,8 +640,10 @@ export default class ReviewsView extends React.Component {
     } else {
       return (
         <span className="github-Review-edited">
-        &nbsp;•&nbsp;
-          <a className="github-Review-edited" href={entity.url}>edited</a>
+          &nbsp;•&nbsp;
+          <a className="github-Review-edited" href={entity.url}>
+            edited
+          </a>
         </span>
       );
     }
@@ -569,57 +651,73 @@ export default class ReviewsView extends React.Component {
 
   renderAuthorAssociation(entity) {
     const text = authorAssociationText[entity.authorAssociation];
-    if (!text) { return null; }
+    if (!text) {
+      return null;
+    }
     return (
       <span className="github-Review-authorAssociationBadge badge">{text}</span>
     );
   }
 
-  openFile = evt => {
+  openFile = (evt) => {
     if (!this.props.checkoutOp.isEnabled()) {
       const target = evt.currentTarget;
       this.props.openFile(target.dataset.path, target.dataset.line);
     }
-  }
+  };
 
-  openDiff = evt => {
+  openDiff = (evt) => {
     const target = evt.currentTarget;
     this.props.openDiff(target.dataset.path, parseInt(target.dataset.line, 10));
-  }
+  };
 
-  openIssueishLinkInNewTab = evt => {
-    const {repoOwner, repoName, issueishNumber} = getDataFromGithubUrl(evt.target.dataset.url);
+  openIssueishLinkInNewTab = (evt) => {
+    const { repoOwner, repoName, issueishNumber } = getDataFromGithubUrl(
+      evt.target.dataset.url
+    );
     return this.props.openIssueish(repoOwner, repoName, issueishNumber);
-  }
+  };
 
   submitReply(replyHolder, thread, lastComment) {
-    const body = replyHolder.map(editor => editor.getText()).getOr('');
-    const didSubmitComment = () => replyHolder.map(editor => editor.setText('', {bypassReadOnly: true}));
-    const didFailComment = () => replyHolder.map(editor => editor.setText(body, {bypassReadOnly: true}));
+    const body = replyHolder.map((editor) => editor.getText()).getOr('');
+    const didSubmitComment = () =>
+      replyHolder.map((editor) => editor.setText('', { bypassReadOnly: true }));
+    const didFailComment = () =>
+      replyHolder.map((editor) =>
+        editor.setText(body, { bypassReadOnly: true })
+      );
 
     return this.props.addSingleComment(
-      body, thread.id, lastComment.id, lastComment.path, lastComment.position, {didSubmitComment, didFailComment},
+      body,
+      thread.id,
+      lastComment.id,
+      lastComment.path,
+      lastComment.position,
+      { didSubmitComment, didFailComment }
     );
   }
 
-  submitCurrentComment = evt => {
+  submitCurrentComment = (evt) => {
     const threadID = evt.currentTarget.dataset.threadId;
     /* istanbul ignore if */
     if (!threadID) {
       return null;
     }
 
-    const {thread, comments} = this.props.commentThreads.find(each => each.thread.id === threadID);
+    const { thread, comments } = this.props.commentThreads.find(
+      (each) => each.thread.id === threadID
+    );
     const replyHolder = this.replyHolders.get(threadID);
 
     return this.submitReply(replyHolder, thread, comments[comments.length - 1]);
-  }
+  };
 
   getTranslatedPosition(rootComment) {
     let lineNumber, positionText;
     const translations = this.props.commentTranslations;
 
-    const isCheckedOutPullRequest = this.props.checkoutOp.why() === checkoutStates.CURRENT;
+    const isCheckedOutPullRequest =
+      this.props.checkoutOp.why() === checkoutStates.CURRENT;
     if (translations === null) {
       lineNumber = null;
       positionText = '';
@@ -627,22 +725,27 @@ export default class ReviewsView extends React.Component {
       lineNumber = null;
       positionText = 'outdated';
     } else {
-      const translationsForFile = translations.get(path.normalize(rootComment.path));
-      lineNumber = translationsForFile.diffToFilePosition.get(parseInt(rootComment.position, 10));
+      const translationsForFile = translations.get(
+        path.normalize(rootComment.path)
+      );
+      lineNumber = translationsForFile.diffToFilePosition.get(
+        parseInt(rootComment.position, 10)
+      );
       if (translationsForFile.fileTranslations && isCheckedOutPullRequest) {
-        lineNumber = translationsForFile.fileTranslations.get(lineNumber).newPosition;
+        lineNumber =
+          translationsForFile.fileTranslations.get(lineNumber).newPosition;
       }
       positionText = lineNumber;
     }
 
-    return {lineNumber, positionText};
+    return { lineNumber, positionText };
   }
 
   /* istanbul ignore next */
   scrollToThread(threadID) {
     const threadHolder = this.threadHolders.get(threadID);
     if (threadHolder) {
-      threadHolder.map(element => {
+      threadHolder.map((element) => {
         element.scrollIntoViewIfNeeded();
         return null; // shh, eslint
       });

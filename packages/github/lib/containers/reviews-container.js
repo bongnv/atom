@@ -1,11 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import yubikiri from 'yubikiri';
-import {QueryRenderer, graphql} from 'react-relay';
+import { QueryRenderer, graphql } from 'react-relay';
 
-import {PAGE_SIZE} from '../helpers';
-import {GithubLoginModelPropType, EndpointPropType, WorkdirContextPoolPropType} from '../prop-types';
-import {UNAUTHENTICATED, INSUFFICIENT} from '../shared/keytar-strategy';
+import { PAGE_SIZE } from '../helpers';
+import {
+  GithubLoginModelPropType,
+  EndpointPropType,
+  WorkdirContextPoolPropType,
+} from '../prop-types';
+import { UNAUTHENTICATED, INSUFFICIENT } from '../shared/keytar-strategy';
 import PullRequestPatchContainer from './pr-patch-container';
 import ObserveModel from '../views/observe-model';
 import LoadingView from '../views/loading-view';
@@ -44,7 +48,7 @@ export default class ReviewsContainer extends React.Component {
 
     // Action methods
     reportRelayError: PropTypes.func.isRequired,
-  }
+  };
 
   render() {
     return (
@@ -54,7 +58,7 @@ export default class ReviewsContainer extends React.Component {
     );
   }
 
-  renderWithToken = token => {
+  renderWithToken = (token) => {
     if (!token) {
       return <LoadingView />;
     }
@@ -78,7 +82,8 @@ export default class ReviewsContainer extends React.Component {
       return (
         <GithubLoginView onLogin={this.handleLogin}>
           <p>
-            Your token no longer has sufficient authorizations. Please re-authenticate and generate a new one.
+            Your token no longer has sufficient authorizations. Please
+            re-authenticate and generate a new one.
           </p>
         </GithubLoginView>
       );
@@ -91,29 +96,37 @@ export default class ReviewsContainer extends React.Component {
         number={this.props.number}
         endpoint={this.props.endpoint}
         token={token}
-        largeDiffThreshold={Infinity}>
-        {(error, patch) => this.renderWithPatch(error, {token, patch})}
+        largeDiffThreshold={Infinity}
+      >
+        {(error, patch) => this.renderWithPatch(error, { token, patch })}
       </PullRequestPatchContainer>
     );
-  }
+  };
 
-  renderWithPatch(error, {token, patch}) {
+  renderWithPatch(error, { token, patch }) {
     if (error) {
       return <ErrorView descriptions={[error]} />;
     }
 
     return (
-      <ObserveModel model={this.props.repository} fetchData={this.fetchRepositoryData}>
-        {repoData => this.renderWithRepositoryData(repoData, {token, patch})}
+      <ObserveModel
+        model={this.props.repository}
+        fetchData={this.fetchRepositoryData}
+      >
+        {(repoData) =>
+          this.renderWithRepositoryData(repoData, { token, patch })
+        }
       </ObserveModel>
     );
   }
 
-  renderWithRepositoryData(repoData, {token, patch}) {
-    const environment = RelayNetworkLayerManager.getEnvironmentForHost(this.props.endpoint, token);
+  renderWithRepositoryData(repoData, { token, patch }) {
+    const environment = RelayNetworkLayerManager.getEnvironmentForHost(
+      this.props.endpoint,
+      token
+    );
     const query = graphql`
-      query reviewsContainerQuery
-      (
+      query reviewsContainerQuery(
         $repoOwner: String!
         $repoName: String!
         $prNumber: Int!
@@ -128,14 +141,15 @@ export default class ReviewsContainer extends React.Component {
           ...reviewsController_repository
           pullRequest(number: $prNumber) {
             headRefOid
-            ...aggregatedReviewsContainer_pullRequest @arguments(
-              reviewCount: $reviewCount
-              reviewCursor: $reviewCursor
-              threadCount: $threadCount
-              threadCursor: $threadCursor
-              commentCount: $commentCount
-              commentCursor: $commentCursor
-            )
+            ...aggregatedReviewsContainer_pullRequest
+              @arguments(
+                reviewCount: $reviewCount
+                reviewCursor: $reviewCursor
+                threadCount: $threadCount
+                threadCursor: $threadCursor
+                commentCount: $commentCount
+                commentCursor: $commentCursor
+              )
             ...reviewsController_pullRequest
           }
         }
@@ -163,13 +177,15 @@ export default class ReviewsContainer extends React.Component {
           environment={environment}
           query={query}
           variables={variables}
-          render={queryResult => this.renderWithQuery(queryResult, {repoData, patch})}
+          render={(queryResult) =>
+            this.renderWithQuery(queryResult, { repoData, patch })
+          }
         />
       </RelayEnvironment.Provider>
     );
   }
 
-  renderWithQuery({error, props, retry}, {repoData, patch}) {
+  renderWithQuery({ error, props, retry }, { repoData, patch }) {
     if (error) {
       return (
         <QueryErrorView
@@ -188,8 +204,9 @@ export default class ReviewsContainer extends React.Component {
     return (
       <AggregatedReviewsContainer
         pullRequest={props.repository.pullRequest}
-        reportRelayError={this.props.reportRelayError}>
-        {({errors, summaries, commentThreads, refetch}) => {
+        reportRelayError={this.props.reportRelayError}
+      >
+        {({ errors, summaries, commentThreads, refetch }) => {
           if (errors && errors.length > 0) {
             return errors.map((err, i) => (
               <ErrorView
@@ -199,7 +216,7 @@ export default class ReviewsContainer extends React.Component {
               />
             ));
           }
-          const aggregationResult = {summaries, commentThreads, refetch};
+          const aggregationResult = { summaries, commentThreads, refetch };
 
           return this.renderWithResult({
             aggregationResult,
@@ -213,14 +230,15 @@ export default class ReviewsContainer extends React.Component {
     );
   }
 
-  renderWithResult({aggregationResult, queryProps, repoData, patch}) {
+  renderWithResult({ aggregationResult, queryProps, repoData, patch }) {
     return (
       <CommentPositioningContainer
         multiFilePatch={patch}
         {...aggregationResult}
         prCommitSha={queryProps.repository.pullRequest.headRefOid}
-        localRepository={this.props.repository}>
-        {commentTranslations => {
+        localRepository={this.props.repository}
+      >
+        {(commentTranslations) => {
           return (
             <ReviewsController
               {...this.props}
@@ -239,9 +257,10 @@ export default class ReviewsContainer extends React.Component {
     );
   }
 
-  fetchToken = loginModel => loginModel.getToken(this.props.endpoint.getLoginAccount());
+  fetchToken = (loginModel) =>
+    loginModel.getToken(this.props.endpoint.getLoginAccount());
 
-  fetchRepositoryData = repository => {
+  fetchRepositoryData = (repository) => {
     return yubikiri({
       branches: repository.getBranches(),
       remotes: repository.getRemotes(),
@@ -251,11 +270,16 @@ export default class ReviewsContainer extends React.Component {
       isMerging: repository.isMerging(),
       isRebasing: repository.isRebasing(),
     });
-  }
+  };
 
-  handleLogin = token => this.props.loginModel.setToken(this.props.endpoint.getLoginAccount(), token);
+  handleLogin = (token) =>
+    this.props.loginModel.setToken(
+      this.props.endpoint.getLoginAccount(),
+      token
+    );
 
-  handleLogout = () => this.props.loginModel.removeToken(this.props.endpoint.getLoginAccount());
+  handleLogout = () =>
+    this.props.loginModel.removeToken(this.props.endpoint.getLoginAccount());
 
   handleTokenRetry = () => this.props.loginModel.didUpdate();
 }

@@ -1,14 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {shell} from 'electron';
+import { shell } from 'electron';
 
-import {RemotePropType, RemoteSetPropType, BranchSetPropType, EndpointPropType} from '../prop-types';
+import {
+  RemotePropType,
+  RemoteSetPropType,
+  BranchSetPropType,
+  EndpointPropType,
+} from '../prop-types';
 import Search from '../models/search';
 import IssueishSearchContainer from '../containers/issueish-search-container';
 import CurrentPullRequestContainer from '../containers/current-pull-request-container';
 import IssueishDetailItem from '../items/issueish-detail-item';
 import ReviewsItem from '../items/reviews-item';
-import {addEvent} from '../reporter-proxy';
+import { addEvent } from '../reporter-proxy';
 
 export default class IssueishSearchesController extends React.Component {
   static propTypes = {
@@ -38,14 +43,18 @@ export default class IssueishSearchesController extends React.Component {
 
     // Actions
     onCreatePr: PropTypes.func.isRequired,
-  }
+  };
 
   state = {};
 
   static getDerivedStateFromProps(props) {
     return {
       searches: [
-        Search.inRemote(props.remote, 'Open pull requests', 'type:pr state:open'),
+        Search.inRemote(
+          props.remote,
+          'Open pull requests',
+          'type:pr state:open'
+        ),
       ],
     };
   }
@@ -68,14 +77,12 @@ export default class IssueishSearchesController extends React.Component {
           onOpenReviews={this.onOpenReviews}
           onCreatePr={this.props.onCreatePr}
         />
-        {this.state.searches.map(search => (
+        {this.state.searches.map((search) => (
           <IssueishSearchContainer
             key={search.getName()}
-
             token={this.props.token}
             endpoint={this.props.endpoint}
             search={search}
-
             onOpenIssueish={this.onOpenIssueish}
             onOpenSearch={this.onOpenSearch}
             onOpenReviews={this.onOpenReviews}
@@ -85,7 +92,7 @@ export default class IssueishSearchesController extends React.Component {
     );
   }
 
-  onOpenReviews = issueish => {
+  onOpenReviews = (issueish) => {
     const uri = ReviewsItem.buildURI({
       host: this.props.endpoint.getHost(),
       owner: this.props.remote.getOwner(),
@@ -94,27 +101,35 @@ export default class IssueishSearchesController extends React.Component {
       workdir: this.props.workingDirectory,
     });
     return this.props.workspace.open(uri).then(() => {
-      addEvent('open-reviews-tab', {package: 'github', from: this.constructor.name});
+      addEvent('open-reviews-tab', {
+        package: 'github',
+        from: this.constructor.name,
+      });
     });
-  }
+  };
 
-  onOpenIssueish = issueish => {
-    return this.props.workspace.open(
-      IssueishDetailItem.buildURI({
-        host: this.props.endpoint.getHost(),
-        owner: this.props.remote.getOwner(),
-        repo: this.props.remote.getRepo(),
-        number: issueish.getNumber(),
-        workdir: this.props.workingDirectory,
-      }),
-      {pending: true, searchAllPanes: true},
-    ).then(() => {
-      addEvent('open-issueish-in-pane', {package: 'github', from: 'issueish-list'});
-    });
-  }
+  onOpenIssueish = (issueish) => {
+    return this.props.workspace
+      .open(
+        IssueishDetailItem.buildURI({
+          host: this.props.endpoint.getHost(),
+          owner: this.props.remote.getOwner(),
+          repo: this.props.remote.getRepo(),
+          number: issueish.getNumber(),
+          workdir: this.props.workingDirectory,
+        }),
+        { pending: true, searchAllPanes: true }
+      )
+      .then(() => {
+        addEvent('open-issueish-in-pane', {
+          package: 'github',
+          from: 'issueish-list',
+        });
+      });
+  };
 
-  onOpenSearch = async search => {
+  onOpenSearch = async (search) => {
     const searchURL = search.getWebURL(this.props.remote);
     await shell.openExternal(searchURL);
-  }
+  };
 }

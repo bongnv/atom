@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import ReactionPickerView from '../views/reaction-picker-view';
-import {RefHolderPropType} from '../prop-types';
-import {addEvent} from '../reporter-proxy';
+import { RefHolderPropType } from '../prop-types';
+import { addEvent } from '../reporter-proxy';
 
 export default class ReactionPickerController extends React.Component {
   static propTypes = {
@@ -11,7 +11,7 @@ export default class ReactionPickerController extends React.Component {
     removeReaction: PropTypes.func.isRequired,
 
     tooltipHolder: RefHolderPropType.isRequired,
-  }
+  };
 
   render() {
     return (
@@ -23,15 +23,15 @@ export default class ReactionPickerController extends React.Component {
     );
   }
 
-  addReactionAndClose = async content => {
+  addReactionAndClose = async (content) => {
     await this.props.addReaction(content);
-    addEvent('add-emoji-reaction', {package: 'github'});
-    this.props.tooltipHolder.map(tooltip => tooltip.dispose());
-  }
+    addEvent('add-emoji-reaction', { package: 'github' });
+    this.props.tooltipHolder.map((tooltip) => tooltip.dispose());
+  };
 
-  removeReactionAndClose = async content => {
+  removeReactionAndClose = async (content) => {
     await this.props.removeReaction(content);
-    addEvent('remove-emoji-reaction', {package: 'github'});
-    this.props.tooltipHolder.map(tooltip => tooltip.dispose());
-  }
+    addEvent('remove-emoji-reaction', { package: 'github' });
+    this.props.tooltipHolder.map((tooltip) => tooltip.dispose());
+  };
 }

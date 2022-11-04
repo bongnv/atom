@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "octicon-mixins";
+@import 'ui-variables';
+@import 'octicon-mixins';
 
 @close-icon-size: 12px;
 
@@ -17,7 +17,7 @@
     flex: 1;
     max-width: 175px;
     min-width: 40px;
-    transition: max-width .25s ease-in-out;
+    transition: max-width 0.25s ease-in-out;
 
     &.active {
       flex: 2;
@@ -56,7 +56,9 @@
     }
 
     &.modified:not(:hover) .close-icon {
-      &:before { display: none; }
+      &:before {
+        display: none;
+      }
       top: 11px;
       right: 11px;
       width: 8px;
@@ -79,17 +81,18 @@
 
     // bar
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       width: 2px;
-      margin: -1px; padding: 0;
+      margin: -1px;
+      padding: 0;
       height: inherit;
       background: inherit;
     }
 
     // dot
     &:after {
-      content: "";
+      content: '';
       position: absolute;
       top: @tab-height;
       margin-top: -1px;

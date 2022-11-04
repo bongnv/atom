@@ -24,27 +24,26 @@ export type emojiReactionsController_reactable$key = {
 };
 */
 
-
-const node/*: ReaderFragment*/ = {
-  "kind": "Fragment",
-  "name": "emojiReactionsController_reactable",
-  "type": "Reactable",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
+const node /*: ReaderFragment*/ = {
+  kind: 'Fragment',
+  name: 'emojiReactionsController_reactable',
+  type: 'Reactable',
+  metadata: null,
+  argumentDefinitions: [],
+  selections: [
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "id",
-      "args": null,
-      "storageKey": null
+      kind: 'ScalarField',
+      alias: null,
+      name: 'id',
+      args: null,
+      storageKey: null,
     },
     {
-      "kind": "FragmentSpread",
-      "name": "emojiReactionsView_reactable",
-      "args": null
-    }
-  ]
+      kind: 'FragmentSpread',
+      name: 'emojiReactionsView_reactable',
+      args: null,
+    },
+  ],
 };
 // prettier-ignore
 (node/*: any*/).hash = 'cfdd39cd7aa02bce0bdcd52bc0154223';

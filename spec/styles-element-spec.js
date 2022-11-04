@@ -1,30 +1,30 @@
 const { createStylesElement } = require('../src/styles-element');
 
-describe('StylesElement', function() {
+describe('StylesElement', function () {
   let [
     element,
     addedStyleElements,
     removedStyleElements,
-    updatedStyleElements
+    updatedStyleElements,
   ] = [];
 
-  beforeEach(function() {
+  beforeEach(function () {
     element = createStylesElement();
     element.initialize(atom.styles);
     document.querySelector('#jasmine-content').appendChild(element);
     addedStyleElements = [];
     removedStyleElements = [];
     updatedStyleElements = [];
-    element.onDidAddStyleElement(element => addedStyleElements.push(element));
-    element.onDidRemoveStyleElement(element =>
+    element.onDidAddStyleElement((element) => addedStyleElements.push(element));
+    element.onDidRemoveStyleElement((element) =>
       removedStyleElements.push(element)
     );
-    element.onDidUpdateStyleElement(element =>
+    element.onDidUpdateStyleElement((element) =>
       updatedStyleElements.push(element)
     );
   });
 
-  it('renders a style tag for all currently active stylesheets in the style manager', function() {
+  it('renders a style tag for all currently active stylesheets in the style manager', function () {
     const initialChildCount = element.children.length;
 
     const disposable1 = atom.styles.addStyleSheet('a {color: red;}');
@@ -41,7 +41,7 @@ describe('StylesElement', function() {
     );
     expect(addedStyleElements).toEqual([
       element.children[initialChildCount],
-      element.children[initialChildCount + 1]
+      element.children[initialChildCount + 1],
     ]);
 
     disposable1.dispose();
@@ -52,7 +52,7 @@ describe('StylesElement', function() {
     expect(removedStyleElements).toEqual([addedStyleElements[0]]);
   });
 
-  it('orders style elements by priority', function() {
+  it('orders style elements by priority', function () {
     const initialChildCount = element.children.length;
 
     atom.styles.addStyleSheet('a {color: red}', { priority: 1 });
@@ -74,7 +74,7 @@ describe('StylesElement', function() {
     );
   });
 
-  it('updates existing style nodes when style elements are updated', function() {
+  it('updates existing style nodes when style elements are updated', function () {
     const initialChildCount = element.children.length;
 
     atom.styles.addStyleSheet('a {color: red;}', { sourcePath: '/foo/bar' });
@@ -87,7 +87,7 @@ describe('StylesElement', function() {
     expect(updatedStyleElements).toEqual([element.children[initialChildCount]]);
   });
 
-  it("only includes style elements matching the 'context' attribute", function() {
+  it("only includes style elements matching the 'context' attribute", function () {
     const initialChildCount = element.children.length;
 
     atom.styles.addStyleSheet('a {color: red;}', { context: 'test-context' });

@@ -1,15 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {graphql, createFragmentContainer} from 'react-relay';
-import {EndpointPropType} from '../prop-types';
+import { graphql, createFragmentContainer } from 'react-relay';
+import { EndpointPropType } from '../prop-types';
 import IssueishListView from '../views/issueish-list-view';
 import Issueish from '../models/issueish';
-import {shell} from 'electron';
+import { shell } from 'electron';
 import * as remote from '@electron/remote';
-const {Menu, MenuItem} = remote;
-import {addEvent} from '../reporter-proxy';
+const { Menu, MenuItem } = remote;
+import { addEvent } from '../reporter-proxy';
 
-const StatePropType = PropTypes.oneOf(['EXPECTED', 'PENDING', 'SUCCESS', 'ERROR', 'FAILURE']);
+const StatePropType = PropTypes.oneOf([
+  'EXPECTED',
+  'PENDING',
+  'SUCCESS',
+  'ERROR',
+  'FAILURE',
+]);
 
 export class BareIssueishListController extends React.Component {
   static propTypes = {
@@ -32,19 +38,21 @@ export class BareIssueishListController extends React.Component {
           }).isRequired,
         }).isRequired,
         commits: PropTypes.shape({
-          nodes: PropTypes.arrayOf(PropTypes.shape({
-            commit: PropTypes.shape({
-              status: PropTypes.shape({
-                contexts: PropTypes.arrayOf(
-                  PropTypes.shape({
-                    state: StatePropType.isRequired,
-                  }).isRequired,
-                ).isRequired,
+          nodes: PropTypes.arrayOf(
+            PropTypes.shape({
+              commit: PropTypes.shape({
+                status: PropTypes.shape({
+                  contexts: PropTypes.arrayOf(
+                    PropTypes.shape({
+                      state: StatePropType.isRequired,
+                    }).isRequired
+                  ).isRequired,
+                }),
               }),
-            }),
-          })),
+            })
+          ),
         }),
-      }),
+      })
     ),
     total: PropTypes.number.isRequired,
     isLoading: PropTypes.bool.isRequired,
@@ -65,7 +73,7 @@ export class BareIssueishListController extends React.Component {
     results: [],
     total: 0,
     resultFilter: () => true,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -84,33 +92,42 @@ export class BareIssueishListController extends React.Component {
     if (props.results !== state.lastResults) {
       return {
         lastResults: props.results,
-        issueishes: props.results.map(node => new Issueish(node)).filter(props.resultFilter),
+        issueishes: props.results
+          .map((node) => new Issueish(node))
+          .filter(props.resultFilter),
       };
     }
 
     return null;
   }
 
-  openOnGitHub = async url => {
+  openOnGitHub = async (url) => {
     await shell.openExternal(url);
-    addEvent('open-issueish-in-browser', {package: 'github', component: this.constructor.name});
-  }
+    addEvent('open-issueish-in-browser', {
+      package: 'github',
+      component: this.constructor.name,
+    });
+  };
 
-  showActionsMenu = /* istanbul ignore next */ issueish => {
+  showActionsMenu = /* istanbul ignore next */ (issueish) => {
     const menu = new Menu();
 
-    menu.append(new MenuItem({
-      label: 'See reviews',
-      click: () => this.props.onOpenReviews(issueish),
-    }));
+    menu.append(
+      new MenuItem({
+        label: 'See reviews',
+        click: () => this.props.onOpenReviews(issueish),
+      })
+    );
 
-    menu.append(new MenuItem({
-      label: 'Open on GitHub',
-      click: () => this.openOnGitHub(issueish.getGitHubURL()),
-    }));
+    menu.append(
+      new MenuItem({
+        label: 'Open on GitHub',
+        click: () => this.openOnGitHub(issueish.getGitHubURL()),
+      })
+    );
 
     menu.popup(remote.getCurrentWindow());
-  }
+  };
 
   render() {
     return (
@@ -137,10 +154,10 @@ export default createFragmentContainer(BareIssueishListController, {
     fragment issueishListController_results on PullRequest
     @relay(plural: true)
     @argumentDefinitions(
-      checkSuiteCount: {type: "Int!"}
-      checkSuiteCursor: {type: "String"}
-      checkRunCount: {type: "Int!"}
-      checkRunCursor: {type: "String"}
+      checkSuiteCount: { type: "Int!" }
+      checkSuiteCursor: { type: "String" }
+      checkRunCount: { type: "Int!" }
+      checkRunCursor: { type: "String" }
     ) {
       number
       title
@@ -160,7 +177,7 @@ export default createFragmentContainer(BareIssueishListController, {
         }
       }
 
-      commits(last:1) {
+      commits(last: 1) {
         nodes {
           commit {
             status {
@@ -170,12 +187,13 @@ export default createFragmentContainer(BareIssueishListController, {
               }
             }
 
-            ...checkSuitesAccumulator_commit @arguments(
-              checkSuiteCount: $checkSuiteCount
-              checkSuiteCursor: $checkSuiteCursor
-              checkRunCount: $checkRunCount
-              checkRunCursor: $checkRunCursor
-            )
+            ...checkSuitesAccumulator_commit
+              @arguments(
+                checkSuiteCount: $checkSuiteCount
+                checkSuiteCursor: $checkSuiteCursor
+                checkRunCount: $checkRunCount
+                checkRunCursor: $checkRunCursor
+              )
           }
         }
       }

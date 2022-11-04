@@ -1,18 +1,15 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import {RemotePropType, BranchPropType} from '../prop-types';
+import { RemotePropType, BranchPropType } from '../prop-types';
 import Tooltip from '../atom/tooltip';
 import RefHolder from '../models/ref-holder';
 
 function getIconClass(icon, animation) {
-  return cx(
-    'github-PushPull-icon',
-    'icon',
-    `icon-${icon}`,
-    {[`animate-${animation}`]: !!animation},
-  );
+  return cx('github-PushPull-icon', 'icon', `icon-${icon}`, {
+    [`animate-${animation}`]: !!animation,
+  });
 }
 
 export default class PushPullView extends React.Component {
@@ -30,7 +27,7 @@ export default class PushPullView extends React.Component {
     fetch: PropTypes.func.isRequired,
     originExists: PropTypes.bool,
     tooltipManager: PropTypes.object.isRequired,
-  }
+  };
 
   static defaultProps = {
     isSyncing: false,
@@ -39,7 +36,7 @@ export default class PushPullView extends React.Component {
     isPushing: false,
     behindCount: 0,
     aheadCount: 0,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -47,7 +44,7 @@ export default class PushPullView extends React.Component {
     this.refTileNode = new RefHolder();
   }
 
-  onClickPush = clickEvent => {
+  onClickPush = (clickEvent) => {
     if (this.props.isSyncing) {
       return;
     }
@@ -55,16 +52,16 @@ export default class PushPullView extends React.Component {
       force: clickEvent.metaKey || clickEvent.ctrlKey,
       setUpstream: !this.props.currentRemote.isPresent(),
     });
-  }
+  };
 
-  onClickPull = clickEvent => {
+  onClickPull = (clickEvent) => {
     if (this.props.isSyncing) {
       return;
     }
     this.props.pull();
-  }
+  };
 
-  onClickPushPull = clickEvent => {
+  onClickPushPull = (clickEvent) => {
     if (this.props.isSyncing) {
       return;
     }
@@ -75,23 +72,23 @@ export default class PushPullView extends React.Component {
     } else {
       this.props.pull();
     }
-  }
+  };
 
-  onClickPublish = clickEvent => {
+  onClickPublish = (clickEvent) => {
     if (this.props.isSyncing) {
       return;
     }
     this.props.push({
       setUpstream: !this.props.currentRemote.isPresent(),
     });
-  }
+  };
 
-  onClickFetch = clickEvent => {
+  onClickFetch = (clickEvent) => {
     if (this.props.isSyncing) {
       return;
     }
     this.props.fetch();
-  }
+  };
 
   getTileStates() {
     const modKey = process.platform === 'darwin' ? 'Cmd' : 'Ctrl';
@@ -142,7 +139,8 @@ export default class PushPullView extends React.Component {
       },
       unpublished: {
         onClick: this.onClickPublish,
-        tooltip: 'Click to set up a remote tracking branch<br />Right-click for more',
+        tooltip:
+          'Click to set up a remote tracking branch<br />Right-click for more',
         icon: 'cloud-upload',
         text: 'Publish',
       },
@@ -199,7 +197,10 @@ export default class PushPullView extends React.Component {
       <div
         onClick={tileState.onClick}
         ref={this.refTileNode.setter}
-        className={cx('github-PushPull', 'inline-block', {'github-branch-detached': isDetached})}>
+        className={cx('github-PushPull', 'inline-block', {
+          'github-branch-detached': isDetached,
+        })}
+      >
         {tileState && (
           <Fragment>
             <span>
@@ -209,7 +210,12 @@ export default class PushPullView extends React.Component {
                   {tileState.secondaryText}
                 </span>
               )}
-              <span className={getIconClass(tileState.icon, tileState.iconAnimation)} />
+              <span
+                className={getIconClass(
+                  tileState.icon,
+                  tileState.iconAnimation
+                )}
+              />
               {tileState.text}
             </span>
             <Tooltip

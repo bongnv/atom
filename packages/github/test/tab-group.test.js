@@ -1,37 +1,52 @@
 import React from 'react';
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
 import TabGroup from '../lib/tab-group';
-import {TabbableInput} from '../lib/views/tabbable';
+import { TabbableInput } from '../lib/views/tabbable';
 
-describe('TabGroup', function() {
+describe('TabGroup', function () {
   let atomEnv, root;
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
 
     root = document.createElement('div');
     document.body.appendChild(root);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     root.remove();
     atomEnv.destroy();
   });
 
-  describe('with tabbable elements', function() {
+  describe('with tabbable elements', function () {
     let group, zero, one, two, currentFocus, skip;
 
-    beforeEach(function() {
+    beforeEach(function () {
       group = new TabGroup();
 
       mount(
         <div>
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} type="text" id="zero" />
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} type="text" id="one" />
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} type="text" id="two" />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            type="text"
+            id="zero"
+          />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            type="text"
+            id="one"
+          />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            type="text"
+            id="two"
+          />
         </div>,
-        {attachTo: root},
+        { attachTo: root }
       );
 
       zero = root.querySelector('#zero');
@@ -59,7 +74,7 @@ describe('TabGroup', function() {
       sinon.stub(group, 'getCurrentFocus').callsFake(() => currentFocus);
     });
 
-    it('appends elements into a doubly-linked circular list', function() {
+    it('appends elements into a doubly-linked circular list', function () {
       let current = zero;
 
       current = group.after(current);
@@ -79,7 +94,7 @@ describe('TabGroup', function() {
       assert.strictEqual(current.id, 'two');
     });
 
-    it('brings focus to a successor element, wrapping around at the end', function() {
+    it('brings focus to a successor element, wrapping around at the end', function () {
       group.focusAfter(zero);
       assert.strictEqual(one.focus.callCount, 1);
 
@@ -90,14 +105,14 @@ describe('TabGroup', function() {
       assert.strictEqual(zero.focus.callCount, 1);
     });
 
-    it('skips elements that do not receive focus when moving forward', function() {
+    it('skips elements that do not receive focus when moving forward', function () {
       skip.add(one);
 
       group.focusAfter(zero);
       assert.strictEqual(two.focus.callCount, 1);
     });
 
-    it('is a no-op with unregistered elements', function() {
+    it('is a no-op with unregistered elements', function () {
       const unregistered = document.createElement('div');
 
       group.focusAfter(unregistered);
@@ -108,7 +123,7 @@ describe('TabGroup', function() {
       assert.isFalse(two.focus.called);
     });
 
-    it('brings focus to a predecessor element, wrapping around at the beginning', function() {
+    it('brings focus to a predecessor element, wrapping around at the beginning', function () {
       group.focusBefore(zero);
       assert.strictEqual(two.focus.callCount, 1);
 
@@ -119,20 +134,20 @@ describe('TabGroup', function() {
       assert.strictEqual(zero.focus.callCount, 1);
     });
 
-    it('skips elements that do not receive focus when moving backwards', function() {
+    it('skips elements that do not receive focus when moving backwards', function () {
       skip.add(one);
 
       group.focusBefore(two);
       assert.strictEqual(zero.focus.callCount, 1);
     });
 
-    describe('removing elements', function() {
-      it('is a no-op for elements that are not present', function() {
+    describe('removing elements', function () {
+      it('is a no-op for elements that are not present', function () {
         const unregistered = document.createElement('div');
         group.removeElement(unregistered);
       });
 
-      it('removes the first element', function() {
+      it('removes the first element', function () {
         group.removeElement(zero);
 
         // No-op
@@ -154,7 +169,7 @@ describe('TabGroup', function() {
         assert.strictEqual(two.focus.callCount, 2);
       });
 
-      it('removes an interior element', function() {
+      it('removes an interior element', function () {
         group.removeElement(one);
 
         group.focusAfter(zero);
@@ -170,7 +185,7 @@ describe('TabGroup', function() {
         assert.strictEqual(two.focus.callCount, 2);
       });
 
-      it('removes the final element', function() {
+      it('removes the final element', function () {
         group.removeElement(two);
 
         group.focusAfter(zero);
@@ -188,22 +203,54 @@ describe('TabGroup', function() {
     });
   });
 
-  describe('autofocus', function() {
-    it('brings focus to the first rendered element with autofocus', function() {
+  describe('autofocus', function () {
+    it('brings focus to the first rendered element with autofocus', function () {
       const group = new TabGroup();
 
       mount(
         <div>
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} type="text" id="zero" />
-          {false && <TabbableInput tabGroup={group} commands={atomEnv.commands} autofocus type="text" id="missing" />}
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} type="text" id="one" />
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} autofocus type="text" id="two" />
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} autofocus type="text" id="three" />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            type="text"
+            id="zero"
+          />
+          {false && (
+            <TabbableInput
+              tabGroup={group}
+              commands={atomEnv.commands}
+              autofocus
+              type="text"
+              id="missing"
+            />
+          )}
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            type="text"
+            id="one"
+          />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            autofocus
+            type="text"
+            id="two"
+          />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            autofocus
+            type="text"
+            id="three"
+          />
         </div>,
-        {attachTo: root},
+        { attachTo: root }
       );
 
-      const elements = ['zero', 'one', 'two', 'three'].map(id => document.getElementById(id));
+      const elements = ['zero', 'one', 'two', 'three'].map((id) =>
+        document.getElementById(id)
+      );
       for (const element of elements) {
         sinon.stub(element, 'focus');
       }
@@ -216,18 +263,28 @@ describe('TabGroup', function() {
       assert.isFalse(elements[3].focus.called);
     });
 
-    it('is a no-op if no elements are autofocusable', function() {
+    it('is a no-op if no elements are autofocusable', function () {
       const group = new TabGroup();
 
       mount(
         <div>
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} type="text" id="zero" />
-          <TabbableInput tabGroup={group} commands={atomEnv.commands} type="text" id="one" />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            type="text"
+            id="zero"
+          />
+          <TabbableInput
+            tabGroup={group}
+            commands={atomEnv.commands}
+            type="text"
+            id="one"
+          />
         </div>,
-        {attachTo: root},
+        { attachTo: root }
       );
 
-      const elements = ['zero', 'one'].map(id => document.getElementById(id));
+      const elements = ['zero', 'one'].map((id) => document.getElementById(id));
       for (const element of elements) {
         sinon.stub(element, 'focus');
       }

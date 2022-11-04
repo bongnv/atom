@@ -16,11 +16,11 @@ If your problem is related to specific git operations or interactions - like pro
 
 To enable git diagnostic collection:
 
-* Open your [Settings tab](https://flight-manual.atom.io/getting-started/sections/atom-basics/#settings-and-preferences).
-* Navigate to the "Packages" section on the lefthand side.
-* Search for "github" in the search box.
-* Click "settings" on the "github" package result.
-* Check the checkbox labelled "Git diagnostics".
+- Open your [Settings tab](https://flight-manual.atom.io/getting-started/sections/atom-basics/#settings-and-preferences).
+- Navigate to the "Packages" section on the lefthand side.
+- Search for "github" in the search box.
+- Click "settings" on the "github" package result.
+- Check the checkbox labelled "Git diagnostics".
 
 Now, reproduce your problem. Every git command that's executed by this package will be logged to the developer console, including input, stdout and stderr, and exit codes, with full verbose tracing. Expand the collapsed sections corresponding to the relevant commands and copy-and-paste the results in your issue.
 

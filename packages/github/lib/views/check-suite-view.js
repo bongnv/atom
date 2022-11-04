@@ -1,10 +1,10 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {graphql, createFragmentContainer} from 'react-relay';
+import { graphql, createFragmentContainer } from 'react-relay';
 
 import Octicon from '../atom/octicon';
 import CheckRunView from './check-run-view';
-import {buildStatusFromCheckResult} from '../models/build-status';
+import { buildStatusFromCheckResult } from '../models/build-status';
 
 export class BareCheckSuiteView extends React.Component {
   static propTypes = {
@@ -14,14 +14,22 @@ export class BareCheckSuiteView extends React.Component {
         name: PropTypes.string.isRequired,
       }),
       status: PropTypes.oneOf([
-        'QUEUED', 'IN_PROGRESS', 'COMPLETED', 'REQUESTED',
+        'QUEUED',
+        'IN_PROGRESS',
+        'COMPLETED',
+        'REQUESTED',
       ]).isRequired,
       conclusion: PropTypes.oneOf([
-        'ACTION_REQUIRED', 'TIMED_OUT', 'CANCELLED', 'FAILURE', 'SUCCESS', 'NEUTRAL',
+        'ACTION_REQUIRED',
+        'TIMED_OUT',
+        'CANCELLED',
+        'FAILURE',
+        'SUCCESS',
+        'NEUTRAL',
       ]),
     }).isRequired,
     checkRuns: PropTypes.arrayOf(
-      PropTypes.shape({id: PropTypes.string.isRequired}),
+      PropTypes.shape({ id: PropTypes.string.isRequired })
     ).isRequired,
 
     // Actions
@@ -29,13 +37,18 @@ export class BareCheckSuiteView extends React.Component {
   };
 
   render() {
-    const {icon, classSuffix} = buildStatusFromCheckResult(this.props.checkSuite);
+    const { icon, classSuffix } = buildStatusFromCheckResult(
+      this.props.checkSuite
+    );
 
     return (
       <Fragment>
         <li className="github-PrStatuses-list-item">
           <span className="github-PrStatuses-list-item-icon">
-            <Octicon icon={icon} className={`github-PrStatuses--${classSuffix}`} />
+            <Octicon
+              icon={icon}
+              className={`github-PrStatuses--${classSuffix}`}
+            />
           </span>
           {this.props.checkSuite.app && (
             <span className="github-PrStatuses-list-item-context">
@@ -43,8 +56,12 @@ export class BareCheckSuiteView extends React.Component {
             </span>
           )}
         </li>
-        {this.props.checkRuns.map(run => (
-          <CheckRunView key={run.id} checkRun={run} switchToIssueish={this.props.switchToIssueish} />
+        {this.props.checkRuns.map((run) => (
+          <CheckRunView
+            key={run.id}
+            checkRun={run}
+            switchToIssueish={this.props.switchToIssueish}
+          />
         ))}
       </Fragment>
     );

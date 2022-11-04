@@ -51,7 +51,7 @@ export default class GuideView {
                 <p>
                   <button
                     ref="projectButton"
-                    onclick={this.didClickProjectButton}
+                    onClick={this.didClickProjectButton}
                     className="btn btn-primary"
                   >
                     Open a Project
@@ -68,7 +68,7 @@ export default class GuideView {
             <details className="welcome-card" {...this.getSectionProps('git')}>
               <summary className="welcome-summary icon icon-mark-github">
                 Version control with{' '}
-                <span class="welcome-highlight">Git and GitHub</span>
+                <span className="welcome-highlight">Git and GitHub</span>
               </summary>
               <div className="welcome-detail">
                 <p>
@@ -84,13 +84,13 @@ export default class GuideView {
                 </p>
                 <p>
                   <button
-                    onclick={this.didClickGitButton}
+                    onClick={this.didClickGitButton}
                     className="btn btn-primary inline-block"
                   >
                     Open the Git panel
                   </button>
                   <button
-                    onclick={this.didClickGitHubButton}
+                    onClick={this.didClickGitHubButton}
                     className="btn btn-primary inline-block"
                   >
                     Open the GitHub panel
@@ -110,7 +110,7 @@ export default class GuideView {
             >
               <summary className="welcome-summary icon icon-radio-tower">
                 Collaborate in real time with{' '}
-                <span class="welcome-highlight">Teletype</span>
+                <span className="welcome-highlight">Teletype</span>
               </summary>
               <div className="welcome-detail">
                 <p>
@@ -125,7 +125,7 @@ export default class GuideView {
                 </p>
                 <p>
                   <button
-                    onclick={this.didClickTeletypeButton}
+                    onClick={this.didClickTeletypeButton}
                     className="btn btn-primary inline-block"
                   >
                     Install Teletype for Atom
@@ -156,7 +156,7 @@ export default class GuideView {
                 <p>
                   <button
                     ref="packagesButton"
-                    onclick={this.didClickPackagesButton}
+                    onClick={this.didClickPackagesButton}
                     className="btn btn-primary"
                   >
                     Open Installer
@@ -174,7 +174,7 @@ export default class GuideView {
               {...this.getSectionProps('themes')}
             >
               <summary className="welcome-summary icon icon-paintcan">
-                Choose a <span class="welcome-highlight">Theme</span>
+                Choose a <span className="welcome-highlight">Theme</span>
               </summary>
               <div className="welcome-detail">
                 <p>
@@ -187,7 +187,7 @@ export default class GuideView {
                 <p>
                   <button
                     ref="themesButton"
-                    onclick={this.didClickThemesButton}
+                    onClick={this.didClickThemesButton}
                     className="btn btn-primary"
                   >
                     Open the theme picker
@@ -210,7 +210,7 @@ export default class GuideView {
               {...this.getSectionProps('styling')}
             >
               <summary className="welcome-summary icon icon-paintcan">
-                Customize the <span class="welcome-highlight">Styling</span>
+                Customize the <span className="welcome-highlight">Styling</span>
               </summary>
               <div className="welcome-detail">
                 <p>
@@ -225,7 +225,7 @@ export default class GuideView {
                 <p>
                   <button
                     ref="stylingButton"
-                    onclick={this.didClickStylingButton}
+                    onClick={this.didClickStylingButton}
                     className="btn btn-primary"
                   >
                     Open your Stylesheet
@@ -244,7 +244,8 @@ export default class GuideView {
               {...this.getSectionProps('init-script')}
             >
               <summary className="welcome-summary icon icon-code">
-                Hack on the <span class="welcome-highlight">Init Script</span>
+                Hack on the{' '}
+                <span className="welcome-highlight">Init Script</span>
               </summary>
               <div className="welcome-detail">
                 <p>
@@ -261,7 +262,7 @@ export default class GuideView {
                 <p>
                   <button
                     ref="initScriptButton"
-                    onclick={this.didClickInitScriptButton}
+                    onClick={this.didClickInitScriptButton}
                     className="btn btn-primary"
                   >
                     Open your Init Script
@@ -280,7 +281,7 @@ export default class GuideView {
               {...this.getSectionProps('snippets')}
             >
               <summary className="welcome-summary icon icon-code">
-                Add a <span class="welcome-highlight">Snippet</span>
+                Add a <span className="welcome-highlight">Snippet</span>
               </summary>
               <div className="welcome-detail">
                 <p>
@@ -297,7 +298,7 @@ export default class GuideView {
                 <p>
                   <button
                     ref="snippetsButton"
-                    onclick={this.didClickSnippetsButton}
+                    onClick={this.didClickSnippetsButton}
                     className="btn btn-primary"
                   >
                     Open your Snippets
@@ -320,7 +321,8 @@ export default class GuideView {
               {...this.getSectionProps('shortcuts')}
             >
               <summary className="welcome-summary icon icon-keyboard">
-                Learn <span class="welcome-highlight">Keyboard Shortcuts</span>
+                Learn{' '}
+                <span className="welcome-highlight">Keyboard Shortcuts</span>
               </summary>
               <div className="welcome-detail">
                 <p>

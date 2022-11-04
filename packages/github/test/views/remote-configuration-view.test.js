@@ -1,19 +1,19 @@
 import React from 'react';
-import {shallow} from 'enzyme';
-import {TextBuffer} from 'atom';
+import { shallow } from 'enzyme';
+import { TextBuffer } from 'atom';
 
 import RemoteConfigurationView from '../../lib/views/remote-configuration-view';
 import TabGroup from '../../lib/tab-group';
-import {TabbableTextEditor} from '../../lib/views/tabbable';
+import { TabbableTextEditor } from '../../lib/views/tabbable';
 
-describe('RemoteConfigurationView', function() {
+describe('RemoteConfigurationView', function () {
   let atomEnv;
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -31,22 +31,34 @@ describe('RemoteConfigurationView', function() {
     );
   }
 
-  it('passes models to the appropriate controls', function() {
+  it('passes models to the appropriate controls', function () {
     const sourceRemoteBuffer = new TextBuffer();
     const currentProtocol = 'ssh';
 
-    const wrapper = shallow(buildApp({currentProtocol, sourceRemoteBuffer}));
-    assert.strictEqual(wrapper.find(TabbableTextEditor).prop('buffer'), sourceRemoteBuffer);
-    assert.isFalse(wrapper.find('.github-RemoteConfiguration-protocolOption--https .input-radio').prop('checked'));
-    assert.isTrue(wrapper.find('.github-RemoteConfiguration-protocolOption--ssh .input-radio').prop('checked'));
+    const wrapper = shallow(buildApp({ currentProtocol, sourceRemoteBuffer }));
+    assert.strictEqual(
+      wrapper.find(TabbableTextEditor).prop('buffer'),
+      sourceRemoteBuffer
+    );
+    assert.isFalse(
+      wrapper
+        .find('.github-RemoteConfiguration-protocolOption--https .input-radio')
+        .prop('checked')
+    );
+    assert.isTrue(
+      wrapper
+        .find('.github-RemoteConfiguration-protocolOption--ssh .input-radio')
+        .prop('checked')
+    );
   });
 
-  it('calls a callback when the protocol is changed', function() {
+  it('calls a callback when the protocol is changed', function () {
     const didChangeProtocol = sinon.spy();
 
-    const wrapper = shallow(buildApp({didChangeProtocol}));
-    wrapper.find('.github-RemoteConfiguration-protocolOption--ssh .input-radio')
-      .prop('onChange')({target: {value: 'ssh'}});
+    const wrapper = shallow(buildApp({ didChangeProtocol }));
+    wrapper
+      .find('.github-RemoteConfiguration-protocolOption--ssh .input-radio')
+      .prop('onChange')({ target: { value: 'ssh' } });
 
     assert.isTrue(didChangeProtocol.calledWith('ssh'));
   });

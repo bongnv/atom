@@ -16,7 +16,7 @@ if (typeof atom === 'undefined') {
     },
     inDevMode() {
       return false;
-    }
+    },
   };
 }
 
@@ -84,7 +84,7 @@ class SecurityBinaryStrategy {
         service,
         '-a',
         account,
-        '-w'
+        '-w',
       ]);
       return password.trim() || UNAUTHENTICATED;
     } catch (err) {
@@ -101,7 +101,7 @@ class SecurityBinaryStrategy {
       account,
       '-w',
       newPassword,
-      '-U'
+      '-U',
     ]);
   }
 
@@ -257,7 +257,7 @@ const strategies = [
   FileStrategy,
   KeytarStrategy,
   SecurityBinaryStrategy,
-  InMemoryStrategy
+  InMemoryStrategy,
 ];
 let ValidStrategy = null;
 
@@ -290,5 +290,5 @@ module.exports = {
   SecurityBinaryStrategy,
   InMemoryStrategy,
   FileStrategy,
-  createStrategy
+  createStrategy,
 };

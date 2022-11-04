@@ -1,4 +1,5 @@
 # Autocomplete+ package
+
 [![macOS Build Status](https://travis-ci.org/atom/autocomplete-plus.svg?branch=master)](https://travis-ci.org/atom/autocomplete-plus) [![Windows Build status](https://ci.appveyor.com/api/projects/status/9bpokrud2apgqsq0/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/autocomplete-plus/branch/master) [![Dependency Status](https://david-dm.org/atom/autocomplete-plus.svg)](https://david-dm.org/atom/autocomplete-plus)
 
 Displays possible autocomplete suggestions on keystroke (or manually by typing `ctrl-space`) and inserts a suggestion in the editor if confirmed.
@@ -15,14 +16,14 @@ Displays possible autocomplete suggestions on keystroke (or manually by typing `
 
 `autocomplete+` has a powerful autocomplete provider API, allowing provider authors to add language-specific behavior to this package.
 
-You should *definitely* install additional providers (the default provider bundled with this package is somewhat crude): https://github.com/atom/autocomplete-plus/wiki/Autocomplete-Providers
+You should _definitely_ install additional providers (the default provider bundled with this package is somewhat crude): https://github.com/atom/autocomplete-plus/wiki/Autocomplete-Providers
 
 ## Usage
 
 Just type some stuff, and autocomplete+ will automatically show you some suggestions.
 Press `UP` and `DOWN` to select another suggestion, press `TAB` or `ENTER` to confirm your selection. You can change the default keymap in `Preferences`:
 
-* Keymap For Confirming A Suggestion
+- Keymap For Confirming A Suggestion
 
 Additionally, the confirm keymap can be customized in your keymap.cson:
 
@@ -64,15 +65,15 @@ Then add these to your keymap file:
 
 ## Features
 
-* Shows suggestions while typing
-* Includes a default provider (`SymbolProvider`):
-  * Wordlist generation happens when you open a file, while editing the file, and on save
-  * Suggestions are calculated using `fuzzaldrin`
-* Exposes a provider API which can be used to extend the functionality of the package and provide targeted / contextually correct suggestions
-* Disable autocomplete for file(s) via blacklisting, e.g. `*.md` to blacklist Markdown files
-* Disable autocomplete for editor scope(s) via blacklisting
-* Expands a snippet if an autocomplete+ provider includes one in a suggestion
-* Allows external editors to register for autocompletions
+- Shows suggestions while typing
+- Includes a default provider (`SymbolProvider`):
+  - Wordlist generation happens when you open a file, while editing the file, and on save
+  - Suggestions are calculated using `fuzzaldrin`
+- Exposes a provider API which can be used to extend the functionality of the package and provide targeted / contextually correct suggestions
+- Disable autocomplete for file(s) via blacklisting, e.g. `*.md` to blacklist Markdown files
+- Disable autocomplete for editor scope(s) via blacklisting
+- Expands a snippet if an autocomplete+ provider includes one in a suggestion
+- Allows external editors to register for autocompletions
 
 ## Provider API
 
@@ -89,6 +90,7 @@ If the default `SymbolProvider` is missing useful information for the language /
 The `watchEditor` method on the `AutocompleteManager` object is exposed as a [provided service](http://flight-manual.atom.io/behind-atom/sections/interacting-with-other-packages-via-services/), named `autocomplete.watchEditor`. The method allows external editors to register for autocompletions from providers with a given set of labels. Disposing the returned object will undo this request. External packages can access this service with the following code.
 
 In `package.json`:
+
 ```
 {
   "consumedServices": {
@@ -100,7 +102,9 @@ In `package.json`:
   }
 }
 ```
+
 In the main module file:
+
 ```
 consumeAutocompleteWatchEditor(watchEditor) {
   this.autocompleteDisposable = watchEditor(

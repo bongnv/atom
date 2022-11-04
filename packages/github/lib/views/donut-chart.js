@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {autobind} from '../helpers';
+import { autobind } from '../helpers';
 
 export default class DonutChart extends React.Component {
   static propTypes = {
@@ -11,13 +11,13 @@ export default class DonutChart extends React.Component {
         type: PropTypes.string,
         className: PropTypes.string,
         count: PropTypes.number,
-      }),
+      })
     ),
-  }
+  };
 
   static defaultProps = {
     baseOffset: 25,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -25,23 +25,19 @@ export default class DonutChart extends React.Component {
   }
 
   render() {
-    const {slices, baseOffset, ...others} = this.props; // eslint-disable-line no-unused-vars
+    const { slices, baseOffset, ...others } = this.props; // eslint-disable-line no-unused-vars
     const arcs = this.calculateArcs(slices);
 
-    return (
-      <svg {...others}>
-        {arcs.map(this.renderArc)}
-      </svg>
-    );
+    return <svg {...others}>{arcs.map(this.renderArc)}</svg>;
   }
 
   calculateArcs(slices) {
     const total = slices.reduce((acc, item) => acc + item.count, 0);
     let lengthSoFar = 0;
 
-    return slices.map(({count, ...others}) => {
+    return slices.map(({ count, ...others }) => {
       const piece = {
-        length: count / total * 100,
+        length: (count / total) * 100,
         position: lengthSoFar,
         ...others,
       };
@@ -50,7 +46,7 @@ export default class DonutChart extends React.Component {
     });
   }
 
-  renderArc({length, position, type, className}) {
+  renderArc({ length, position, type, className }) {
     return (
       <circle
         key={type}

@@ -1,7 +1,7 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import {CompositeDisposable} from 'atom';
+import { CompositeDisposable } from 'atom';
 
 import StagingView from './staging-view';
 import GitIdentityView from './git-identity-view';
@@ -9,8 +9,12 @@ import GitTabHeaderController from '../controllers/git-tab-header-controller';
 import CommitController from '../controllers/commit-controller';
 import RecentCommitsController from '../controllers/recent-commits-controller';
 import RefHolder from '../models/ref-holder';
-import {isValidWorkdir, autobind} from '../helpers';
-import {AuthorPropType, UserStorePropType, RefHolderPropType} from '../prop-types';
+import { isValidWorkdir, autobind } from '../helpers';
+import {
+  AuthorPropType,
+  UserStorePropType,
+  RefHolderPropType,
+} from '../prop-types';
 
 export default class GitTabView extends React.Component {
   static focus = {
@@ -78,7 +82,14 @@ export default class GitTabView extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    autobind(this, 'initializeRepo', 'blur', 'advanceFocus', 'retreatFocus', 'quietlySelectItem');
+    autobind(
+      this,
+      'initializeRepo',
+      'blur',
+      'advanceFocus',
+      'retreatFocus',
+      'quietlySelectItem'
+    );
 
     this.subscriptions = new CompositeDisposable();
 
@@ -87,13 +98,13 @@ export default class GitTabView extends React.Component {
   }
 
   componentDidMount() {
-    this.props.refRoot.map(root => {
+    this.props.refRoot.map((root) => {
       return this.subscriptions.add(
         this.props.commands.add(root, {
           'tool-panel:unfocus': this.blur,
           'core:focus-next': this.advanceFocus,
           'core:focus-previous': this.retreatFocus,
-        }),
+        })
       );
     });
   }
@@ -107,22 +118,31 @@ export default class GitTabView extends React.Component {
     } else if (this.props.repository.isTooLarge()) {
       renderMethod = 'renderTooLarge';
       isEmpty = true;
-    } else if (this.props.repository.hasDirectory() &&
-      !isValidWorkdir(this.props.repository.getWorkingDirectoryPath())) {
+    } else if (
+      this.props.repository.hasDirectory() &&
+      !isValidWorkdir(this.props.repository.getWorkingDirectoryPath())
+    ) {
       renderMethod = 'renderUnsupportedDir';
       isEmpty = true;
     } else if (this.props.repository.showGitTabInit()) {
       renderMethod = 'renderNoRepo';
       isEmpty = true;
-    } else if (this.props.isLoading || this.props.repository.showGitTabLoading()) {
+    } else if (
+      this.props.isLoading ||
+      this.props.repository.showGitTabLoading()
+    ) {
       isLoading = true;
     }
 
     return (
       <div
-        className={cx('github-Git', {'is-empty': isEmpty, 'is-loading': !isEmpty && isLoading})}
+        className={cx('github-Git', {
+          'is-empty': isEmpty,
+          'is-loading': !isEmpty && isLoading,
+        })}
         tabIndex="-1"
-        ref={this.props.refRoot.setter}>
+        ref={this.props.refRoot.setter}
+      >
         {this.renderHeader()}
         {this[renderMethod]()}
       </div>
@@ -130,18 +150,16 @@ export default class GitTabView extends React.Component {
   }
 
   renderHeader() {
-    const {repository} = this.props;
+    const { repository } = this.props;
     return (
       <GitTabHeaderController
         getCommitter={repository.getCommitter.bind(repository)}
-
         // Workspace
         currentWorkDir={this.props.workingDirectoryPath}
         getCurrentWorkDirs={this.props.getCurrentWorkDirs}
         contextLocked={this.props.contextLocked}
         changeWorkingDirectory={this.props.changeWorkingDirectory}
         setContextLock={this.props.setContextLock}
-
         // Event Handlers
         onDidClickAvatar={this.props.toggleIdentityEditor}
         onDidChangeWorkDirs={this.props.onDidChangeWorkDirs}
@@ -164,7 +182,9 @@ export default class GitTabView extends React.Component {
           workingDirectoryPath={this.props.workingDirectoryPath}
           resolutionProgress={this.props.resolutionProgress}
           openFiles={this.props.openFiles}
-          discardWorkDirChangesForPaths={this.props.discardWorkDirChangesForPaths}
+          discardWorkDirChangesForPaths={
+            this.props.discardWorkDirChangesForPaths
+          }
           attemptFileStageOperation={this.props.attemptFileStageOperation}
           attemptStageAllOperation={this.props.attemptStageAllOperation}
           undoLastDiscard={this.props.undoLastDiscard}
@@ -218,8 +238,9 @@ export default class GitTabView extends React.Component {
         <div className="github-Git-LargeIcon icon icon-diff" />
         <h1>Too many changes</h1>
         <div className="initialize-repo-description">
-          The repository at <strong>{this.props.workingDirectoryPath}</strong> has too many changed files
-          to display in Atom. Ensure that you have set up an appropriate <code>.gitignore</code> file.
+          The repository at <strong>{this.props.workingDirectoryPath}</strong>{' '}
+          has too many changed files to display in Atom. Ensure that you have
+          set up an appropriate <code>.gitignore</code> file.
         </div>
       </div>
     );
@@ -231,7 +252,8 @@ export default class GitTabView extends React.Component {
         <div className="github-Git-LargeIcon icon icon-alert" />
         <h1>Unsupported directory</h1>
         <div className="initialize-repo-description">
-          Atom does not support managing Git repositories in your home or root directories.
+          Atom does not support managing Git repositories in your home or root
+          directories.
         </div>
       </div>
     );
@@ -243,22 +265,25 @@ export default class GitTabView extends React.Component {
         <div className="github-Git-LargeIcon icon icon-repo" />
         <h1>Create Repository</h1>
         <div className="initialize-repo-description">
-          {
-            this.props.repository.hasDirectory()
-              ?
-              (
-                <span>Initialize <strong>{this.props.workingDirectoryPath}</strong> with a
-                Git repository</span>
-              )
-              : <span>Initialize a new project directory with a Git repository</span>
-          }
+          {this.props.repository.hasDirectory() ? (
+            <span>
+              Initialize <strong>{this.props.workingDirectoryPath}</strong> with
+              a Git repository
+            </span>
+          ) : (
+            <span>
+              Initialize a new project directory with a Git repository
+            </span>
+          )}
         </div>
         <button
           onClick={this.initializeRepo}
           disabled={this.props.repository.showGitTabInitInProgress()}
-          className="btn btn-primary">
+          className="btn btn-primary"
+        >
           {this.props.repository.showGitTabInitInProgress()
-            ? 'Creating repository...' : 'Create repository'}
+            ? 'Creating repository...'
+            : 'Create repository'}
         </button>
       </div>
     );
@@ -284,13 +309,19 @@ export default class GitTabView extends React.Component {
   initializeRepo(event) {
     event.preventDefault();
 
-    const workdir = this.props.repository.isAbsent() ? null : this.props.repository.getWorkingDirectoryPath();
+    const workdir = this.props.repository.isAbsent()
+      ? null
+      : this.props.repository.getWorkingDirectoryPath();
     return this.props.openInitializeDialog(workdir);
   }
 
   getFocus(element) {
-    for (const ref of [this.props.refStagingView, this.refCommitController, this.refRecentCommitsController]) {
-      const focus = ref.map(sub => sub.getFocus(element)).getOr(null);
+    for (const ref of [
+      this.props.refStagingView,
+      this.refCommitController,
+      this.refRecentCommitsController,
+    ]) {
+      const focus = ref.map((sub) => sub.getFocus(element)).getOr(null);
       if (focus !== null) {
         return focus;
       }
@@ -299,8 +330,12 @@ export default class GitTabView extends React.Component {
   }
 
   setFocus(focus) {
-    for (const ref of [this.props.refStagingView, this.refCommitController, this.refRecentCommitsController]) {
-      if (ref.map(sub => sub.setFocus(focus)).getOr(false)) {
+    for (const ref of [
+      this.props.refStagingView,
+      this.refCommitController,
+      this.refRecentCommitsController,
+    ]) {
+      if (ref.map((sub) => sub.setFocus(focus)).getOr(false)) {
         return true;
       }
     }
@@ -315,8 +350,14 @@ export default class GitTabView extends React.Component {
     const currentFocus = this.getFocus(document.activeElement);
     let nextSeen = false;
 
-    for (const subHolder of [this.props.refStagingView, this.refCommitController, this.refRecentCommitsController]) {
-      const next = await subHolder.map(sub => sub.advanceFocusFrom(currentFocus)).getOr(null);
+    for (const subHolder of [
+      this.props.refStagingView,
+      this.refCommitController,
+      this.refRecentCommitsController,
+    ]) {
+      const next = await subHolder
+        .map((sub) => sub.advanceFocusFrom(currentFocus))
+        .getOr(null);
       if (next !== null && !nextSeen) {
         nextSeen = true;
         evt.stopPropagation();
@@ -331,8 +372,14 @@ export default class GitTabView extends React.Component {
     const currentFocus = this.getFocus(document.activeElement);
     let previousSeen = false;
 
-    for (const subHolder of [this.refRecentCommitsController, this.refCommitController, this.props.refStagingView]) {
-      const previous = await subHolder.map(sub => sub.retreatFocusFrom(currentFocus)).getOr(null);
+    for (const subHolder of [
+      this.refRecentCommitsController,
+      this.refCommitController,
+      this.props.refStagingView,
+    ]) {
+      const previous = await subHolder
+        .map((sub) => sub.retreatFocusFrom(currentFocus))
+        .getOr(null);
       if (previous !== null && !previousSeen) {
         previousSeen = true;
         evt.stopPropagation();
@@ -357,10 +404,14 @@ export default class GitTabView extends React.Component {
   }
 
   quietlySelectItem(filePath, stagingStatus) {
-    return this.props.refStagingView.map(view => view.quietlySelectItem(filePath, stagingStatus)).getOr(false);
+    return this.props.refStagingView
+      .map((view) => view.quietlySelectItem(filePath, stagingStatus))
+      .getOr(false);
   }
 
   hasFocus() {
-    return this.props.refRoot.map(root => root.contains(document.activeElement)).getOr(false);
+    return this.props.refRoot
+      .map((root) => root.contains(document.activeElement))
+      .getOr(false);
   }
 }

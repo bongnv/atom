@@ -1,37 +1,44 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable} from 'event-kit';
-import {graphql, createFragmentContainer} from 'react-relay';
+import { CompositeDisposable } from 'event-kit';
+import { graphql, createFragmentContainer } from 'react-relay';
 import path from 'path';
 
 import EditorCommentDecorationsController from './editor-comment-decorations-controller';
 import ReviewsItem from '../items/reviews-item';
 import Gutter from '../atom/gutter';
-import Commands, {Command} from '../atom/commands';
-import {EndpointPropType, BranchSetPropType, RemoteSetPropType, RemotePropType} from '../prop-types';
-import {toNativePathSep} from '../helpers';
+import Commands, { Command } from '../atom/commands';
+import {
+  EndpointPropType,
+  BranchSetPropType,
+  RemoteSetPropType,
+  RemotePropType,
+} from '../prop-types';
+import { toNativePathSep } from '../helpers';
 
 export class BareCommentDecorationsController extends React.Component {
   static propTypes = {
     // Relay response
     relay: PropTypes.object.isRequired,
-    pullRequests: PropTypes.arrayOf(PropTypes.shape({
-      number: PropTypes.number.isRequired,
-      headRefName: PropTypes.string.isRequired,
-      headRefOid: PropTypes.string.isRequired,
-      headRepository: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        owner: PropTypes.shape({
-          login: PropTypes.string.isRequired,
+    pullRequests: PropTypes.arrayOf(
+      PropTypes.shape({
+        number: PropTypes.number.isRequired,
+        headRefName: PropTypes.string.isRequired,
+        headRefOid: PropTypes.string.isRequired,
+        headRepository: PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          owner: PropTypes.shape({
+            login: PropTypes.string.isRequired,
+          }).isRequired,
+        }),
+        repository: PropTypes.shape({
+          name: PropTypes.string.isRequired,
+          owner: PropTypes.shape({
+            login: PropTypes.string.isRequired,
+          }).isRequired,
         }).isRequired,
-      }),
-      repository: PropTypes.shape({
-        name: PropTypes.string.isRequired,
-        owner: PropTypes.shape({
-          login: PropTypes.string.isRequired,
-        }).isRequired,
-      }).isRequired,
-    })),
+      })
+    ),
 
     // Connection information
     endpoint: EndpointPropType.isRequired,
@@ -49,12 +56,14 @@ export class BareCommentDecorationsController extends React.Component {
       currentRemote: RemotePropType.isRequired,
       workingDirectoryPath: PropTypes.string.isRequired,
     }).isRequired,
-    commentThreads: PropTypes.arrayOf(PropTypes.shape({
-      comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-      thread: PropTypes.shape({
-        id: PropTypes.string.isRequired,
-      }).isRequired,
-    })).isRequired,
+    commentThreads: PropTypes.arrayOf(
+      PropTypes.shape({
+        comments: PropTypes.arrayOf(PropTypes.object).isRequired,
+        thread: PropTypes.shape({
+          id: PropTypes.string.isRequired,
+        }).isRequired,
+      })
+    ).isRequired,
     commentTranslations: PropTypes.shape({
       get: PropTypes.func.isRequired,
     }).isRequired,
@@ -64,13 +73,13 @@ export class BareCommentDecorationsController extends React.Component {
     super(props, context);
 
     this.subscriptions = new CompositeDisposable();
-    this.state = {openEditors: this.props.workspace.getTextEditors()};
+    this.state = { openEditors: this.props.workspace.getTextEditors() };
   }
 
   componentDidMount() {
     this.subscriptions.add(
       this.props.workspace.observeTextEditors(this.updateOpenEditors),
-      this.props.workspace.onDidDestroyPaneItem(this.updateOpenEditors),
+      this.props.workspace.onDidDestroyPaneItem(this.updateOpenEditors)
     );
   }
 
@@ -90,7 +99,7 @@ export class BareCommentDecorationsController extends React.Component {
       !this.isCheckedOutPullRequest(
         this.props.repoData.branches,
         this.props.repoData.remotes,
-        pullRequest,
+        pullRequest
       )
     ) {
       return null;
@@ -99,9 +108,9 @@ export class BareCommentDecorationsController extends React.Component {
     const threadDataByPath = new Map();
     const workdirPath = this.props.repoData.workingDirectoryPath;
 
-    for (const {comments, thread} of this.props.commentThreads) {
+    for (const { comments, thread } of this.props.commentThreads) {
       // Skip comment threads that are entirely minimized.
-      if (comments.every(comment => comment.isMinimized)) {
+      if (comments.every((comment) => comment.isMinimized)) {
         continue;
       }
 
@@ -122,15 +131,21 @@ export class BareCommentDecorationsController extends React.Component {
       }
     }
 
-    const openEditorsWithCommentThreads = this.getOpenEditorsWithCommentThreads(threadDataByPath);
+    const openEditorsWithCommentThreads =
+      this.getOpenEditorsWithCommentThreads(threadDataByPath);
     return (
       <Fragment>
         <Commands registry={this.props.commands} target="atom-workspace">
-          <Command command="github:open-reviews-tab" callback={this.openReviewsTab} />
+          <Command
+            command="github:open-reviews-tab"
+            callback={this.openReviewsTab}
+          />
         </Commands>
-        {openEditorsWithCommentThreads.map(editor => {
+        {openEditorsWithCommentThreads.map((editor) => {
           const threadData = threadDataByPath.get(editor.getPath());
-          const translations = this.props.commentTranslations.get(threadData[0].nativeRelPath);
+          const translations = this.props.commentTranslations.get(
+            threadData[0].nativeRelPath
+          );
 
           return (
             <Fragment key={`github-editor-decoration-${editor.id}`}>
@@ -157,7 +172,8 @@ export class BareCommentDecorationsController extends React.Component {
             </Fragment>
           );
         })}
-      </Fragment>);
+      </Fragment>
+    );
   }
 
   getOpenEditorsWithCommentThreads(threadDataByPath) {
@@ -180,22 +196,22 @@ export class BareCommentDecorationsController extends React.Component {
       return false;
     }
 
-    const {repository} = pullRequest;
+    const { repository } = pullRequest;
 
     const headPush = branches.getHeadBranch().getPush();
     const headRemote = remotes.withName(headPush.getRemoteName());
 
     // (detect checkout from pull/### refspec)
     const fromPullRefspec =
-        headRemote.getOwner() === repository.owner.login &&
-        headRemote.getRepo() === repository.name &&
-        headPush.getShortRemoteRef() === `pull/${pullRequest.number}/head`;
+      headRemote.getOwner() === repository.owner.login &&
+      headRemote.getRepo() === repository.name &&
+      headPush.getShortRemoteRef() === `pull/${pullRequest.number}/head`;
 
     // (detect checkout from head repository)
     const fromHeadRepo =
-        headRemote.getOwner() === pullRequest.headRepository.owner.login &&
-        headRemote.getRepo() === pullRequest.headRepository.name &&
-        headPush.getShortRemoteRef() === pullRequest.headRefName;
+      headRemote.getOwner() === pullRequest.headRepository.owner.login &&
+      headRemote.getRepo() === pullRequest.headRepository.name &&
+      headPush.getShortRemoteRef() === pullRequest.headRefName;
 
     if (fromPullRefspec || fromHeadRepo) {
       return true;
@@ -204,10 +220,13 @@ export class BareCommentDecorationsController extends React.Component {
   }
 
   updateOpenEditors = () => {
-    return new Promise(resolve => {
-      this.setState({openEditors: this.props.workspace.getTextEditors()}, resolve);
+    return new Promise((resolve) => {
+      this.setState(
+        { openEditors: this.props.workspace.getTextEditors() },
+        resolve
+      );
     });
-  }
+  };
 
   openReviewsTab = () => {
     const [pullRequest] = this.props.pullRequests;
@@ -223,15 +242,14 @@ export class BareCommentDecorationsController extends React.Component {
       number: pullRequest.number,
       workdir: this.props.repoData.workingDirectoryPath,
     });
-    return this.props.workspace.open(uri, {searchAllPanes: true});
-  }
+    return this.props.workspace.open(uri, { searchAllPanes: true });
+  };
 }
 
 export default createFragmentContainer(BareCommentDecorationsController, {
   pullRequests: graphql`
     fragment commentDecorationsController_pullRequests on PullRequest
-    @relay(plural: true)
-    {
+    @relay(plural: true) {
       number
       headRefName
       headRefOid

@@ -66,13 +66,13 @@ export default class SystemPanel {
                 <div className="control-group">
                   <div className="controls">
                     <div className="checkbox">
-                      <label for="system.windows.file-handler">
+                      <label htmlFor="system.windows.file-handler">
                         <input
                           ref="fileHandlerCheckbox"
                           id="system.windows.file-handler"
                           className="input-checkbox"
                           type="checkbox"
-                          onclick={(e) => {
+                          onClick={(e) => {
                             this.setRegistration(
                               WinShell.fileHandler,
                               e.target.checked
@@ -93,13 +93,13 @@ export default class SystemPanel {
                 <div className="control-group">
                   <div className="controls">
                     <div className="checkbox">
-                      <label for="system.windows.shell-menu-files">
+                      <label htmlFor="system.windows.shell-menu-files">
                         <input
                           ref="fileContextMenuCheckbox"
                           id="system.windows.shell-menu-files"
                           className="input-checkbox"
                           type="checkbox"
-                          onclick={(e) => {
+                          onClick={(e) => {
                             this.setRegistration(
                               WinShell.fileContextMenu,
                               e.target.checked
@@ -120,13 +120,13 @@ export default class SystemPanel {
                 <div className="control-group">
                   <div className="controls">
                     <div className="checkbox">
-                      <label for="system.windows.shell-menu-folders">
+                      <label htmlFor="system.windows.shell-menu-folders">
                         <input
                           ref="folderContextMenuCheckbox"
                           id="system.windows.shell-menu-folders"
                           className="input-checkbox"
                           type="checkbox"
-                          onclick={(e) => {
+                          onClick={(e) => {
                             this.setRegistration(
                               WinShell.folderContextMenu,
                               e.target.checked

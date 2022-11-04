@@ -17,8 +17,8 @@ Depending on the timing, all of this can take a month and a half to two months, 
 
 Instead of living at the end of the line way out on stable, you could switch to the beta or nightly channels of Atom releases.
 
-* The [beta channel](https://atom.io/beta) updates a little more frequently than the stable channel, but it's about a month ahead. This means that you'll have access to GitHub package work as soon as the next time the railcars are rolled (step 5 up above) - about a month sooner than you would if you stayed on stable.
-* The [nightly channel](https://atom.io/nightly) is updated about daily with the latest and greatest Atom build, including everything that was merged into Atom core up to that point. If you use the nightly channel, you'll have access to GitHub package work as soon as it's published in a release and merged into Atom core (step 4 up above).
+- The [beta channel](https://atom.io/beta) updates a little more frequently than the stable channel, but it's about a month ahead. This means that you'll have access to GitHub package work as soon as the next time the railcars are rolled (step 5 up above) - about a month sooner than you would if you stayed on stable.
+- The [nightly channel](https://atom.io/nightly) is updated about daily with the latest and greatest Atom build, including everything that was merged into Atom core up to that point. If you use the nightly channel, you'll have access to GitHub package work as soon as it's published in a release and merged into Atom core (step 4 up above).
 
 ### Benefits
 
@@ -26,8 +26,8 @@ By using a "fresher" Atom channel, you'll have access to features and bug-fixes 
 
 What's more, if you _do_ experience a serious regression - with the GitHub package or any other core behavior - you can:
 
-* File an issue to let us know, then:
-* Switch to the next channel (from nightly to beta, or beta to stable).
+- File an issue to let us know, then:
+- Switch to the next channel (from nightly to beta, or beta to stable).
 
 That gives us a chance to respond to the issue, determine if it's serious enough to warrant delaying a release for if we can't fix it in time, and could prevent an order of magnitude more users from encountering the same problem... _and_ gives you a route to _immediately_ revert to an Atom version that unblocks you!
 

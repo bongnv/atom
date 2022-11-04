@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 // Dock overrides
 // Allows settings to be used in left/right dock
@@ -17,7 +17,7 @@ atom-dock.right .settings-view {
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    padding: @component-padding/2;
+    padding: @component-padding / 2;
     min-width: 0;
     max-width: none;
     border: none;
@@ -29,7 +29,7 @@ atom-dock.right .settings-view {
       display: contents; // hide from DOM
 
       & > li > a {
-        padding: 0 .5em;
+        padding: 0 0.5em;
         border-radius: @component-border-radius;
       }
 
@@ -44,8 +44,8 @@ atom-dock.right .settings-view {
       .icon-link-external {
         font-size: 0;
         width: auto;
-        margin: 0 @component-padding/2;
-        padding: @component-padding/4 @component-padding/2;
+        margin: 0 @component-padding / 2;
+        padding: @component-padding / 4 @component-padding / 2;
         overflow: hidden;
         &:before {
           font-size: 16px;
@@ -60,7 +60,8 @@ atom-dock.right .settings-view {
   }
 
   .section,
-  .section:first-child, .settings-view .section:last-child {
+  .section:first-child,
+  .settings-view .section:last-child {
     padding: @component-padding*1.5;
   }
 
@@ -95,10 +96,18 @@ atom-dock.right .settings-view {
   .package-card {
     padding: @component-padding;
     font-size: inherit;
-    background-color: mix(@tool-panel-background-color, @base-background-color, 25%);
+    background-color: mix(
+      @tool-panel-background-color,
+      @base-background-color,
+      25%
+    );
 
     &:hover {
-      background-color: mix(@tool-panel-background-color, @base-background-color, 75%);
+      background-color: mix(
+        @tool-panel-background-color,
+        @base-background-color,
+        75%
+      );
     }
 
     .package-name {
@@ -107,7 +116,7 @@ atom-dock.right .settings-view {
     }
 
     .package-version {
-      font-size: .9em;
+      font-size: 0.9em;
       color: @text-color-subtle;
       font-weight: 400;
     }
@@ -121,7 +130,7 @@ atom-dock.right .settings-view {
       height: 20px;
     }
     .meta-user .author {
-      margin-left: .5em;
+      margin-left: 0.5em;
     }
 
     .btn-toolbar {
@@ -138,7 +147,6 @@ atom-dock.right .settings-view {
         }
       }
     }
-
   }
 
   .themes-panel {
@@ -146,9 +154,7 @@ atom-dock.right .settings-view {
       margin-top: @component-padding*1.5;
     }
     .theme-description {
-      margin: @component-padding/2 0;
+      margin: @component-padding / 2 0;
     }
   }
-
-
 }

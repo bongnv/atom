@@ -1,25 +1,25 @@
 import path from 'path';
-import {TextBuffer} from 'atom';
+import { TextBuffer } from 'atom';
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 import fs from 'fs-extra';
 
 import CommitView from '../views/commit-view';
 import RefHolder from '../models/ref-holder';
 import CommitPreviewItem from '../items/commit-preview-item';
-import {AuthorPropType, UserStorePropType} from '../prop-types';
-import {watchWorkspaceItem} from '../watch-workspace-item';
-import {autobind} from '../helpers';
-import {addEvent} from '../reporter-proxy';
+import { AuthorPropType, UserStorePropType } from '../prop-types';
+import { watchWorkspaceItem } from '../watch-workspace-item';
+import { autobind } from '../helpers';
+import { addEvent } from '../reporter-proxy';
 
 export const COMMIT_GRAMMAR_SCOPE = 'text.git-commit';
 
 export default class CommitController extends React.Component {
   static focus = {
     ...CommitView.focus,
-  }
+  };
 
   static propTypes = {
     workspace: PropTypes.object.isRequired,
@@ -40,53 +40,75 @@ export default class CommitController extends React.Component {
     prepareToCommit: PropTypes.func.isRequired,
     commit: PropTypes.func.isRequired,
     abortMerge: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
-    autobind(this, 'commit', 'handleMessageChange', 'toggleExpandedCommitMessageEditor', 'grammarAdded',
-      'toggleCommitPreview');
+    autobind(
+      this,
+      'commit',
+      'handleMessageChange',
+      'toggleExpandedCommitMessageEditor',
+      'grammarAdded',
+      'toggleCommitPreview'
+    );
 
     this.subscriptions = new CompositeDisposable();
     this.refCommitView = new RefHolder();
 
-    this.commitMessageBuffer = new TextBuffer({text: this.props.repository.getCommitMessage()});
+    this.commitMessageBuffer = new TextBuffer({
+      text: this.props.repository.getCommitMessage(),
+    });
     this.subscriptions.add(
-      this.commitMessageBuffer.onDidChange(this.handleMessageChange),
+      this.commitMessageBuffer.onDidChange(this.handleMessageChange)
     );
 
     this.previewWatcher = watchWorkspaceItem(
       this.props.workspace,
-      CommitPreviewItem.buildURI(this.props.repository.getWorkingDirectoryPath()),
+      CommitPreviewItem.buildURI(
+        this.props.repository.getWorkingDirectoryPath()
+      ),
       this,
-      'commitPreviewActive',
+      'commitPreviewActive'
     );
     this.subscriptions.add(this.previewWatcher);
   }
 
   componentDidMount() {
     this.subscriptions.add(
-      this.props.workspace.onDidAddTextEditor(({textEditor}) => {
-        if (this.props.repository.isPresent() && textEditor.getPath() === this.getCommitMessagePath()) {
-          const grammar = this.props.grammars.grammarForScopeName(COMMIT_GRAMMAR_SCOPE);
+      this.props.workspace.onDidAddTextEditor(({ textEditor }) => {
+        if (
+          this.props.repository.isPresent() &&
+          textEditor.getPath() === this.getCommitMessagePath()
+        ) {
+          const grammar =
+            this.props.grammars.grammarForScopeName(COMMIT_GRAMMAR_SCOPE);
           if (grammar) {
             textEditor.setGrammar(grammar);
           }
         }
       }),
-      this.props.workspace.onDidDestroyPaneItem(async ({item}) => {
-        if (this.props.repository.isPresent() && item.getPath && item.getPath() === this.getCommitMessagePath() &&
-          this.getCommitMessageEditors().length === 0) {
+      this.props.workspace.onDidDestroyPaneItem(async ({ item }) => {
+        if (
+          this.props.repository.isPresent() &&
+          item.getPath &&
+          item.getPath() === this.getCommitMessagePath() &&
+          this.getCommitMessageEditors().length === 0
+        ) {
           // we closed the last editor pointing to the commit message file
           try {
-            this.commitMessageBuffer.setText(await fs.readFile(this.getCommitMessagePath(), {encoding: 'utf8'}));
+            this.commitMessageBuffer.setText(
+              await fs.readFile(this.getCommitMessagePath(), {
+                encoding: 'utf8',
+              })
+            );
           } catch (e) {
             if (e.code !== 'ENOENT') {
               throw e;
             }
           }
         }
-      }),
+      })
     );
   }
 
@@ -111,7 +133,9 @@ export default class CommitController extends React.Component {
         isCommitting={operationStates.isCommitInProgress()}
         lastCommit={this.props.lastCommit}
         currentBranch={this.props.currentBranch}
-        toggleExpandedCommitMessageEditor={this.toggleExpandedCommitMessageEditor}
+        toggleExpandedCommitMessageEditor={
+          this.toggleExpandedCommitMessageEditor
+        }
         deactivateCommitBox={this.isCommitMessageEditorExpanded()}
         userStore={this.props.userStore}
         selectedCoAuthors={this.props.selectedCoAuthors}
@@ -128,7 +152,9 @@ export default class CommitController extends React.Component {
 
     if (prevProps.repository !== this.props.repository) {
       this.previewWatcher.setPattern(
-        CommitPreviewItem.buildURI(this.props.repository.getWorkingDirectoryPath()),
+        CommitPreviewItem.buildURI(
+          this.props.repository.getWorkingDirectoryPath()
+        )
       );
     }
   }
@@ -143,16 +169,20 @@ export default class CommitController extends React.Component {
       msg = this.getCommitMessageEditors()[0].getText();
       verbatim = false;
     } else {
-      const wrapMessage = this.props.config.get('github.automaticCommitMessageWrapping');
+      const wrapMessage = this.props.config.get(
+        'github.automaticCommitMessageWrapping'
+      );
       msg = wrapMessage ? wrapCommitMessage(message) : message;
       verbatim = true;
     }
 
-    return this.props.commit(msg.trim(), {amend, coAuthors, verbatim});
+    return this.props.commit(msg.trim(), { amend, coAuthors, verbatim });
   }
 
   setCommitMessage(message, options) {
-    if (!this.props.repository.isPresent()) { return; }
+    if (!this.props.repository.isPresent()) {
+      return;
+    }
     this.props.repository.setCommitMessage(message, options);
   }
 
@@ -161,21 +191,28 @@ export default class CommitController extends React.Component {
   }
 
   getCommitMessagePath() {
-    return path.join(this.props.repository.getGitDirectoryPath(), 'ATOM_COMMIT_EDITMSG');
+    return path.join(
+      this.props.repository.getGitDirectoryPath(),
+      'ATOM_COMMIT_EDITMSG'
+    );
   }
 
   handleMessageChange() {
     if (!this.props.repository.isPresent()) {
       return;
     }
-    this.setCommitMessage(this.commitMessageBuffer.getText(), {suppressUpdate: true});
+    this.setCommitMessage(this.commitMessageBuffer.getText(), {
+      suppressUpdate: true,
+    });
   }
 
   getCommitMessageEditors() {
     if (!this.props.repository.isPresent()) {
       return [];
     }
-    return this.props.workspace.getTextEditors().filter(editor => editor.getPath() === this.getCommitMessagePath());
+    return this.props.workspace
+      .getTextEditors()
+      .filter((editor) => editor.getPath() === this.getCommitMessagePath());
   }
 
   async toggleExpandedCommitMessageEditor(messageFromBox) {
@@ -197,17 +234,26 @@ export default class CommitController extends React.Component {
   }
 
   commitMessageEditorIsInForeground() {
-    const commitMessageEditorsInForeground = this.props.workspace.getPanes()
-      .map(pane => pane.getActiveItem())
-      .filter(item => item && item.getPath && item.getPath() === this.getCommitMessagePath());
+    const commitMessageEditorsInForeground = this.props.workspace
+      .getPanes()
+      .map((pane) => pane.getActiveItem())
+      .filter(
+        (item) =>
+          item && item.getPath && item.getPath() === this.getCommitMessagePath()
+      );
     return commitMessageEditorsInForeground.length > 0;
   }
 
   activateCommitMessageEditor() {
     const panes = this.props.workspace.getPanes();
     let editor;
-    const paneWithEditor = panes.find(pane => {
-      editor = pane.getItems().find(item => item.getPath && item.getPath() === this.getCommitMessagePath());
+    const paneWithEditor = panes.find((pane) => {
+      editor = pane
+        .getItems()
+        .find(
+          (item) =>
+            item.getPath && item.getPath() === this.getCommitMessagePath()
+        );
       return !!editor;
     });
     paneWithEditor.activate();
@@ -216,72 +262,100 @@ export default class CommitController extends React.Component {
 
   closeAllOpenCommitMessageEditors() {
     return Promise.all(
-      this.props.workspace.getPanes().map(pane => {
+      this.props.workspace.getPanes().map((pane) => {
         return Promise.all(
-          pane.getItems().map(async item => {
-            if (item && item.getPath && item.getPath() === this.getCommitMessagePath()) {
+          pane.getItems().map(async (item) => {
+            if (
+              item &&
+              item.getPath &&
+              item.getPath() === this.getCommitMessagePath()
+            ) {
               const destroyed = await pane.destroyItem(item);
               if (!destroyed) {
                 pane.activateItem(item);
               }
             }
-          }),
+          })
         );
-      }),
+      })
     );
   }
 
   async openCommitMessageEditor(messageFromBox) {
     await fs.writeFile(this.getCommitMessagePath(), messageFromBox, 'utf8');
-    const commitEditor = await this.props.workspace.open(this.getCommitMessagePath());
-    addEvent('open-commit-message-editor', {package: 'github'});
+    const commitEditor = await this.props.workspace.open(
+      this.getCommitMessagePath()
+    );
+    addEvent('open-commit-message-editor', { package: 'github' });
 
-    const grammar = this.props.grammars.grammarForScopeName(COMMIT_GRAMMAR_SCOPE);
+    const grammar =
+      this.props.grammars.grammarForScopeName(COMMIT_GRAMMAR_SCOPE);
     if (grammar) {
       commitEditor.setGrammar(grammar);
     } else {
-      this.grammarSubscription = this.props.grammars.onDidAddGrammar(this.grammarAdded);
+      this.grammarSubscription = this.props.grammars.onDidAddGrammar(
+        this.grammarAdded
+      );
       this.subscriptions.add(this.grammarSubscription);
     }
   }
 
   grammarAdded(grammar) {
-    if (grammar.scopeName !== COMMIT_GRAMMAR_SCOPE) { return; }
+    if (grammar.scopeName !== COMMIT_GRAMMAR_SCOPE) {
+      return;
+    }
 
-    this.getCommitMessageEditors().forEach(editor => editor.setGrammar(grammar));
+    this.getCommitMessageEditors().forEach((editor) =>
+      editor.setGrammar(grammar)
+    );
     this.grammarSubscription.dispose();
   }
 
   getFocus(element) {
-    return this.refCommitView.map(view => view.getFocus(element)).getOr(null);
+    return this.refCommitView.map((view) => view.getFocus(element)).getOr(null);
   }
 
   setFocus(focus) {
-    return this.refCommitView.map(view => view.setFocus(focus)).getOr(false);
+    return this.refCommitView.map((view) => view.setFocus(focus)).getOr(false);
   }
 
   advanceFocusFrom(...args) {
-    return this.refCommitView.map(view => view.advanceFocusFrom(...args)).getOr(false);
+    return this.refCommitView
+      .map((view) => view.advanceFocusFrom(...args))
+      .getOr(false);
   }
 
   retreatFocusFrom(...args) {
-    return this.refCommitView.map(view => view.retreatFocusFrom(...args)).getOr(false);
+    return this.refCommitView
+      .map((view) => view.retreatFocusFrom(...args))
+      .getOr(false);
   }
 
   toggleCommitPreview() {
-    addEvent('toggle-commit-preview', {package: 'github'});
-    const uri = CommitPreviewItem.buildURI(this.props.repository.getWorkingDirectoryPath());
+    addEvent('toggle-commit-preview', { package: 'github' });
+    const uri = CommitPreviewItem.buildURI(
+      this.props.repository.getWorkingDirectoryPath()
+    );
     if (this.props.workspace.hide(uri)) {
       return Promise.resolve();
     } else {
-      return this.props.workspace.open(uri, {searchAllPanes: true, pending: true});
+      return this.props.workspace.open(uri, {
+        searchAllPanes: true,
+        pending: true,
+      });
     }
   }
 
   activateCommitPreview = () => {
-    const uri = CommitPreviewItem.buildURI(this.props.repository.getWorkingDirectoryPath());
-    return this.props.workspace.open(uri, {searchAllPanes: true, pending: true, activate: true});
-  }
+    const uri = CommitPreviewItem.buildURI(
+      this.props.repository.getWorkingDirectoryPath()
+    );
+    return this.props.workspace.open(uri, {
+      searchAllPanes: true,
+      pending: true,
+      activate: true,
+    });
+  };
 }
 
 function wrapCommitMessage(message) {
@@ -291,10 +365,9 @@ function wrapCommitMessage(message) {
     if (line.length <= 72 || index === 0) {
       results.push(line);
     } else {
-      const matches = line.match(/.{1,72}(\s|$)|\S+?(\s|$)/g)
-        .map(match => {
-          return match.endsWith('\n') ? match.substr(0, match.length - 1) : match;
-        });
+      const matches = line.match(/.{1,72}(\s|$)|\S+?(\s|$)/g).map((match) => {
+        return match.endsWith('\n') ? match.substr(0, match.length - 1) : match;
+      });
       results = results.concat(matches);
     }
   });

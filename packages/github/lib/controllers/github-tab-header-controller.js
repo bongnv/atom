@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {AuthorPropType} from '../prop-types';
+import { AuthorPropType } from '../prop-types';
 import GithubTabHeaderView from '../views/github-tab-header-view';
 
 export default class GithubTabHeaderController extends React.Component {
@@ -16,7 +16,7 @@ export default class GithubTabHeaderController extends React.Component {
 
     // Event Handlers
     onDidChangeWorkDirs: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -51,14 +51,12 @@ export default class GithubTabHeaderController extends React.Component {
     return (
       <GithubTabHeaderView
         user={this.props.user}
-
         // Workspace
         workdir={this.getWorkDir()}
         workdirs={this.state.currentWorkDirs}
         contextLocked={this.getContextLocked()}
         changingWorkDir={this.state.changingWorkDir !== null}
         changingLock={this.state.changingLock !== null}
-
         handleWorkDirChange={this.handleWorkDirChange}
         handleLockToggle={this.handleLockToggle}
       />
@@ -69,7 +67,7 @@ export default class GithubTabHeaderController extends React.Component {
     this.setState(() => ({
       currentWorkDirs: [],
     }));
-  }
+  };
 
   handleLockToggle = async () => {
     if (this.state.changingLock !== null) {
@@ -78,33 +76,44 @@ export default class GithubTabHeaderController extends React.Component {
 
     const nextLock = !this.props.contextLocked;
     try {
-      this.setState({changingLock: nextLock});
-      await this.props.setContextLock(this.state.changingWorkDir || this.props.currentWorkDir, nextLock);
+      this.setState({ changingLock: nextLock });
+      await this.props.setContextLock(
+        this.state.changingWorkDir || this.props.currentWorkDir,
+        nextLock
+      );
     } finally {
-      await new Promise(resolve => this.setState({changingLock: null}, resolve));
+      await new Promise((resolve) =>
+        this.setState({ changingLock: null }, resolve)
+      );
     }
-  }
+  };
 
-  handleWorkDirChange = async e => {
+  handleWorkDirChange = async (e) => {
     if (this.state.changingWorkDir !== null) {
       return;
     }
 
     const nextWorkDir = e.target.value;
     try {
-      this.setState({changingWorkDir: nextWorkDir});
+      this.setState({ changingWorkDir: nextWorkDir });
       await this.props.changeWorkingDirectory(nextWorkDir);
     } finally {
-      await new Promise(resolve => this.setState({changingWorkDir: null}, resolve));
+      await new Promise((resolve) =>
+        this.setState({ changingWorkDir: null }, resolve)
+      );
     }
-  }
+  };
 
   getWorkDir() {
-    return this.state.changingWorkDir !== null ? this.state.changingWorkDir : this.props.currentWorkDir;
+    return this.state.changingWorkDir !== null
+      ? this.state.changingWorkDir
+      : this.props.currentWorkDir;
   }
 
   getContextLocked() {
-    return this.state.changingLock !== null ? this.state.changingLock : this.props.contextLocked;
+    return this.state.changingLock !== null
+      ? this.state.changingLock
+      : this.props.contextLocked;
   }
 
   componentWillUnmount() {

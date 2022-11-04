@@ -42,7 +42,7 @@ export default class GeneralPanel {
 
   render() {
     return (
-      <div tabIndex="0" className="panels-item" onclick={this.didClick}>
+      <div tabIndex="0" className="panels-item" onClick={this.didClick}>
         <SettingsPanel
           ref="panel"
           namespace="core"

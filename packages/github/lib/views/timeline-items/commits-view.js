@@ -1,5 +1,5 @@
 import React from 'react';
-import {graphql, createFragmentContainer} from 'react-relay';
+import { graphql, createFragmentContainer } from 'react-relay';
 import PropTypes from 'prop-types';
 
 import Octicon from '../../atom/octicon';
@@ -17,11 +17,11 @@ export class BareCommitsView extends React.Component {
             }),
           }).isRequired,
         }).isRequired,
-      }).isRequired,
+      }).isRequired
     ).isRequired,
     onBranch: PropTypes.bool.isRequired,
     openCommit: PropTypes.func.isRequired,
-  }
+  };
 
   render() {
     return (
@@ -49,9 +49,10 @@ export class BareCommitsView extends React.Component {
   }
 
   renderCommits() {
-    return this.getCommits().map(commit => {
+    return this.getCommits().map((commit) => {
       return (
-        <CommitView key={commit.id}
+        <CommitView
+          key={commit.id}
           commit={commit}
           onBranch={this.props.onBranch}
           openCommit={this.props.openCommit}
@@ -61,12 +62,12 @@ export class BareCommitsView extends React.Component {
   }
 
   getCommits() {
-    return this.props.nodes.map(n => n.commit);
+    return this.props.nodes.map((n) => n.commit);
   }
 
   calculateNames(commits) {
     let names = new Set();
-    commits.forEach(commit => {
+    commits.forEach((commit) => {
       let name = null;
       if (commit.author.user) {
         name = commit.author.user.login;
@@ -96,7 +97,13 @@ export default createFragmentContainer(BareCommitsView, {
   nodes: graphql`
     fragment commitsView_nodes on PullRequestCommit @relay(plural: true) {
       commit {
-        id author { name user { login } }
+        id
+        author {
+          name
+          user {
+            login
+          }
+        }
         ...commitView_commit
       }
     }

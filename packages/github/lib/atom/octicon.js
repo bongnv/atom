@@ -16,13 +16,18 @@ const SVG = {
 };
 /* eslint-enable max-len */
 
-export default function Octicon({icon, ...others}) {
+export default function Octicon({ icon, ...others }) {
   const classes = cx('icon', `icon-${icon}`, others.className);
 
   const svgContent = SVG[icon];
   if (svgContent) {
     return (
-      <svg {...others} viewBox={svgContent.viewBox} xmlns="http://www.w3.org/2000/svg" className={classes}>
+      <svg
+        {...others}
+        viewBox={svgContent.viewBox}
+        xmlns="http://www.w3.org/2000/svg"
+        className={classes}
+      >
         {svgContent.element}
       </svg>
     );

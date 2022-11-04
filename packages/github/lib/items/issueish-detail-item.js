@@ -1,12 +1,15 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
-import {autobind} from '../helpers';
-import {GithubLoginModelPropType, WorkdirContextPoolPropType} from '../prop-types';
-import {addEvent} from '../reporter-proxy';
+import { autobind } from '../helpers';
+import {
+  GithubLoginModelPropType,
+  WorkdirContextPoolPropType,
+} from '../prop-types';
+import { addEvent } from '../reporter-proxy';
 import Repository from '../models/repository';
-import {getEndpoint} from '../models/endpoint';
+import { getEndpoint } from '../models/endpoint';
 import IssueishDetailContainer from '../containers/issueish-detail-container';
 import RefHolder from '../models/ref-holder';
 
@@ -16,7 +19,7 @@ export default class IssueishDetailItem extends Component {
     BUILD_STATUS: 1,
     COMMITS: 2,
     FILES: 3,
-  }
+  };
 
   static propTypes = {
     // Issueish selection criteria
@@ -31,7 +34,9 @@ export default class IssueishDetailItem extends Component {
     workdirContextPool: WorkdirContextPoolPropType.isRequired,
     loginModel: GithubLoginModelPropType.isRequired,
     initSelectedTab: PropTypes.oneOf(
-      Object.keys(IssueishDetailItem.tabs).map(k => IssueishDetailItem.tabs[k]),
+      Object.keys(IssueishDetailItem.tabs).map(
+        (k) => IssueishDetailItem.tabs[k]
+      )
     ),
 
     // Atom environment
@@ -43,23 +48,31 @@ export default class IssueishDetailItem extends Component {
 
     // Action methods
     reportRelayError: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
     initSelectedTab: IssueishDetailItem.tabs.OVERVIEW,
-  }
+  };
 
-  static uriPattern = 'atom-github://issueish/{host}/{owner}/{repo}/{issueishNumber}?workdir={workingDirectory}'
+  static uriPattern =
+    'atom-github://issueish/{host}/{owner}/{repo}/{issueishNumber}?workdir={workingDirectory}';
 
-  static buildURI({host, owner, repo, number, workdir}) {
-    const encodeOptionalParam = param => (param ? encodeURIComponent(param) : '');
+  static buildURI({ host, owner, repo, number, workdir }) {
+    const encodeOptionalParam = (param) =>
+      param ? encodeURIComponent(param) : '';
 
-    return 'atom-github://issueish/' +
-      encodeURIComponent(host) + '/' +
-      encodeURIComponent(owner) + '/' +
-      encodeURIComponent(repo) + '/' +
+    return (
+      'atom-github://issueish/' +
+      encodeURIComponent(host) +
+      '/' +
+      encodeURIComponent(owner) +
+      '/' +
+      encodeURIComponent(repo) +
+      '/' +
       encodeURIComponent(number) +
-      '?workdir=' + encodeOptionalParam(workdir);
+      '?workdir=' +
+      encodeOptionalParam(workdir)
+    );
   }
 
   constructor(props) {
@@ -70,9 +83,12 @@ export default class IssueishDetailItem extends Component {
     this.title = `${this.props.owner}/${this.props.repo}#${this.props.issueishNumber}`;
     this.hasTerminatedPendingState = false;
 
-    const repository = this.props.workingDirectory === ''
-      ? Repository.absent()
-      : this.props.workdirContextPool.add(this.props.workingDirectory).getRepository();
+    const repository =
+      this.props.workingDirectory === ''
+        ? Repository.absent()
+        : this.props.workdirContextPool
+            .add(this.props.workingDirectory)
+            .getRepository();
 
     this.state = {
       host: this.props.host,
@@ -86,11 +102,15 @@ export default class IssueishDetailItem extends Component {
     };
 
     if (repository.isAbsent()) {
-      this.switchToIssueish(this.props.owner, this.props.repo, this.props.issueishNumber);
+      this.switchToIssueish(
+        this.props.owner,
+        this.props.repo,
+        this.props.issueishNumber
+      );
     }
 
     this.refEditor = new RefHolder();
-    this.refEditor.observe(editor => {
+    this.refEditor.observe((editor) => {
       if (editor.isAlive()) {
         this.emitter.emit('did-change-embedded-text-editor', editor);
       }
@@ -109,18 +129,15 @@ export default class IssueishDetailItem extends Component {
         selectedTab={this.state.selectedTab}
         onTabSelected={this.onTabSelected}
         onOpenFilesTab={this.onOpenFilesTab}
-
         repository={this.state.repository}
         workspace={this.props.workspace}
         loginModel={this.props.loginModel}
-
         onTitleChange={this.handleTitleChanged}
         switchToIssueish={this.switchToIssueish}
         commands={this.props.commands}
         keymaps={this.props.keymaps}
         tooltips={this.props.tooltips}
         config={this.props.config}
-
         destroy={this.destroy}
         itemType={this.constructor}
         refEditor={this.refEditor}
@@ -137,11 +154,17 @@ export default class IssueishDetailItem extends Component {
       issueishNumber: this.state.issueishNumber,
     };
 
-    const nextRepository = await this.state.repository.hasGitHubRemote(this.state.host, owner, repo)
+    const nextRepository = (await this.state.repository.hasGitHubRemote(
+      this.state.host,
+      owner,
+      repo
+    ))
       ? this.state.repository
-      : (await pool.getMatchingContext(this.state.host, owner, repo)).getRepository();
+      : (
+          await pool.getMatchingContext(this.state.host, owner, repo)
+        ).getRepository();
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       this.setState((prevState, props) => {
         if (
           pool === props.workdirContextPool &&
@@ -149,7 +172,11 @@ export default class IssueishDetailItem extends Component {
           prevState.repo === prev.repo &&
           prevState.issueishNumber === prev.issueishNumber
         ) {
-          addEvent('open-issueish-in-pane', {package: 'github', from: 'issueish-link', target: 'current-tab'});
+          addEvent('open-issueish-in-pane', {
+            package: 'github',
+            from: 'issueish-link',
+            target: 'current-tab',
+          });
           return {
             owner,
             repo,
@@ -191,7 +218,7 @@ export default class IssueishDetailItem extends Component {
       this.emitter.emit('did-destroy');
       this.isDestroyed = true;
     }
-  }
+  };
 
   onDidDestroy(callback) {
     return this.emitter.on('did-destroy', callback);
@@ -216,27 +243,37 @@ export default class IssueishDetailItem extends Component {
   }
 
   observeEmbeddedTextEditor(cb) {
-    this.refEditor.map(editor => editor.isAlive() && cb(editor));
+    this.refEditor.map((editor) => editor.isAlive() && cb(editor));
     return this.emitter.on('did-change-embedded-text-editor', cb);
   }
 
-  openFilesTab({changedFilePath, changedFilePosition}) {
-    this.setState({
-      selectedTab: IssueishDetailItem.tabs.FILES,
-      initChangedFilePath: changedFilePath,
-      initChangedFilePosition: changedFilePosition,
-    }, () => {
-      this.emitter.emit('on-open-files-tab', {changedFilePath, changedFilePosition});
-    });
+  openFilesTab({ changedFilePath, changedFilePosition }) {
+    this.setState(
+      {
+        selectedTab: IssueishDetailItem.tabs.FILES,
+        initChangedFilePath: changedFilePath,
+        initChangedFilePosition: changedFilePosition,
+      },
+      () => {
+        this.emitter.emit('on-open-files-tab', {
+          changedFilePath,
+          changedFilePosition,
+        });
+      }
+    );
   }
 
-  onTabSelected = index => new Promise(resolve => {
-    this.setState({
-      selectedTab: index,
-      initChangedFilePath: '',
-      initChangedFilePosition: 0,
-    }, resolve);
-  });
+  onTabSelected = (index) =>
+    new Promise((resolve) => {
+      this.setState(
+        {
+          selectedTab: index,
+          initChangedFilePath: '',
+          initChangedFilePosition: 0,
+        },
+        resolve
+      );
+    });
 
-  onOpenFilesTab = callback => this.emitter.on('on-open-files-tab', callback);
+  onOpenFilesTab = (callback) => this.emitter.on('on-open-files-tab', callback);
 }

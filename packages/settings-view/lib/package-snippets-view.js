@@ -60,7 +60,7 @@ export default class PackageSnippetsView {
       <section className="section">
         <div className="section-heading icon icon-code">Snippets</div>
         <div className="checkbox">
-          <label for="toggleSnippets">
+          <label htmlFor="toggleSnippets">
             <input
               id="toggleSnippets"
               className="input-checkbox"

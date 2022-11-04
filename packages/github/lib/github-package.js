@@ -1,4 +1,4 @@
-import {CompositeDisposable, Disposable} from 'event-kit';
+import { CompositeDisposable, Disposable } from 'event-kit';
 
 import path from 'path';
 import fs from 'fs-extra';
@@ -6,7 +6,7 @@ import fs from 'fs-extra';
 import React from 'react';
 import ReactDom from 'react-dom';
 
-import {fileExists, autobind} from './helpers';
+import { fileExists, autobind } from './helpers';
 import WorkdirCache from './models/workdir-cache';
 import WorkdirContext from './models/workdir-context';
 import WorkdirContextPool from './models/workdir-context-pool';
@@ -22,7 +22,7 @@ import ContextMenuInterceptor from './context-menu-interceptor';
 import AsyncQueue from './async-queue';
 import WorkerManager from './worker-manager';
 import getRepoPipelineManager from './get-repo-pipeline-manager';
-import {reporterProxy} from './reporter-proxy';
+import { reporterProxy } from './reporter-proxy';
 
 const defaultState = {
   newProject: true,
@@ -32,17 +32,34 @@ const defaultState = {
 
 export default class GithubPackage {
   constructor({
-    workspace, project, commands, notificationManager, tooltips, styles, grammars,
-    keymaps, config, deserializers,
-    confirm, getLoadSettings, currentWindow,
+    workspace,
+    project,
+    commands,
+    notificationManager,
+    tooltips,
+    styles,
+    grammars,
+    keymaps,
+    config,
+    deserializers,
+    confirm,
+    getLoadSettings,
+    currentWindow,
     configDirPath,
-    renderFn, loginModel,
+    renderFn,
+    loginModel,
   }) {
     autobind(
       this,
-      'consumeStatusBar', 'createGitTimingsView', 'createIssueishPaneItemStub', 'createDockItemStub',
-      'createFilePatchControllerStub', 'destroyGitTabItem', 'destroyGithubTabItem',
-      'getRepositoryForWorkdir', 'scheduleActiveContextUpdate',
+      'consumeStatusBar',
+      'createGitTimingsView',
+      'createIssueishPaneItemStub',
+      'createDockItemStub',
+      'createFilePatchControllerStub',
+      'destroyGitTabItem',
+      'destroyGithubTabItem',
+      'getRepositoryForWorkdir',
+      'scheduleActiveContextUpdate'
     );
 
     this.workspace = workspace;
@@ -68,7 +85,11 @@ export default class GithubPackage {
       initPathCount: (getLoadSettings().initialPaths || []).length,
     };
 
-    this.pipelineManager = getRepoPipelineManager({confirm, notificationManager, workspace});
+    this.pipelineManager = getRepoPipelineManager({
+      confirm,
+      notificationManager,
+      workspace,
+    });
 
     this.activeContextQueue = new AsyncQueue();
     this.guessedContext = WorkdirContext.guess(criteria, this.pipelineManager);
@@ -78,42 +99,51 @@ export default class GithubPackage {
     this.contextPool = new WorkdirContextPool({
       window,
       workspace,
-      promptCallback: query => this.controller.openCredentialsDialog(query),
+      promptCallback: (query) => this.controller.openCredentialsDialog(query),
       pipelineManager: this.pipelineManager,
     });
 
     this.switchboard = new Switchboard();
 
     this.loginModel = loginModel || new GithubLoginModel();
-    this.renderFn = renderFn || ((component, node, callback) => {
-      return ReactDom.render(component, node, callback);
-    });
+    this.renderFn =
+      renderFn ||
+      ((component, node, callback) => {
+        return ReactDom.render(component, node, callback);
+      });
 
     // Handle events from all resident contexts.
     this.subscriptions = new CompositeDisposable(
-      this.contextPool.onDidChangeWorkdirOrHead(context => {
+      this.contextPool.onDidChangeWorkdirOrHead((context) => {
         this.refreshAtomGitRepository(context.getWorkingDirectory());
       }),
-      this.contextPool.onDidUpdateRepository(context => {
+      this.contextPool.onDidUpdateRepository((context) => {
         this.switchboard.didUpdateRepository(context.getRepository());
       }),
-      this.contextPool.onDidDestroyRepository(context => {
+      this.contextPool.onDidDestroyRepository((context) => {
         if (context === this.activeContext) {
-          this.setActiveContext(WorkdirContext.absent({pipelineManager: this.pipelineManager}));
+          this.setActiveContext(
+            WorkdirContext.absent({ pipelineManager: this.pipelineManager })
+          );
         }
       }),
-      ContextMenuInterceptor,
+      ContextMenuInterceptor
     );
 
     this.setupYardstick();
   }
 
   setupYardstick() {
-    const stagingSeries = ['stageLine', 'stageHunk', 'unstageLine', 'unstageHunk'];
+    const stagingSeries = [
+      'stageLine',
+      'stageHunk',
+      'unstageLine',
+      'unstageHunk',
+    ];
 
     this.subscriptions.add(
       // Staging and unstaging operations
-      this.switchboard.onDidBeginStageOperation(payload => {
+      this.switchboard.onDidBeginStageOperation((payload) => {
         if (payload.stage && payload.line) {
           yardstick.begin('stageLine');
         } else if (payload.stage && payload.hunk) {
@@ -139,7 +169,7 @@ export default class GithubPackage {
       this.switchboard.onDidUpdateRepository(() => {
         yardstick.mark(stagingSeries, 'update-repository');
       }),
-      this.switchboard.onDidFinishRender(context => {
+      this.switchboard.onDidFinishRender((context) => {
         if (context === 'RootController.showFilePatchForPath') {
           yardstick.finish(stagingSeries);
         }
@@ -157,40 +187,56 @@ export default class GithubPackage {
       }),
       this.switchboard.onDidFinishActiveContextUpdate(() => {
         yardstick.finish('activeContextChange');
-      }),
+      })
     );
   }
 
   async activate(state = {}) {
-    const savedState = {...defaultState, ...state};
+    const savedState = { ...defaultState, ...state };
 
-    const firstRun = !await fileExists(this.configPath);
-    const newProject = savedState.firstRun !== undefined ? savedState.firstRun : savedState.newProject;
+    const firstRun = !(await fileExists(this.configPath));
+    const newProject =
+      savedState.firstRun !== undefined
+        ? savedState.firstRun
+        : savedState.newProject;
 
     this.startOpen = firstRun || newProject;
     this.startRevealed = firstRun && !this.config.get('welcome.showOnStartup');
 
     if (firstRun) {
-      await fs.writeFile(this.configPath, '# Store non-visible GitHub package state.\n', {encoding: 'utf8'});
+      await fs.writeFile(
+        this.configPath,
+        '# Store non-visible GitHub package state.\n',
+        { encoding: 'utf8' }
+      );
     }
 
-    const hasSelectedFiles = event => {
-      return !!event.target.closest('.github-FilePatchListView').querySelector('.is-selected');
+    const hasSelectedFiles = (event) => {
+      return !!event.target
+        .closest('.github-FilePatchListView')
+        .querySelector('.is-selected');
     };
 
     this.subscriptions.add(
-      this.workspace.getCenter().onDidChangeActivePaneItem(this.handleActivePaneItemChange),
+      this.workspace
+        .getCenter()
+        .onDidChangeActivePaneItem(this.handleActivePaneItemChange),
       this.project.onDidChangePaths(this.handleProjectPathsChange),
       this.styleCalculator.startWatching(
         'github-package-styles',
-        ['editor.fontSize', 'editor.fontFamily', 'editor.lineHeight', 'editor.tabLength'],
-        config => `
+        [
+          'editor.fontSize',
+          'editor.fontFamily',
+          'editor.lineHeight',
+          'editor.tabLength',
+        ],
+        (config) => `
           .github-HunkView-line {
             font-family: ${config.get('editor.fontFamily')};
             line-height: ${config.get('editor.lineHeight')};
             tab-size: ${config.get('editor.tabLength')}
           }
-        `,
+        `
       ),
       atom.contextMenu.add({
         '.github-UnstagedChanges .github-FilePatchListView': [
@@ -237,7 +283,7 @@ export default class GithubPackage {
             shouldDisplay: hasSelectedFiles,
           },
         ],
-      }),
+      })
     );
 
     this.activated = true;
@@ -253,16 +299,18 @@ export default class GithubPackage {
       return;
     }
 
-    const itemPath = pathForPaneItem(this.workspace.getCenter().getActivePaneItem());
+    const itemPath = pathForPaneItem(
+      this.workspace.getCenter().getActivePaneItem()
+    );
     this.scheduleActiveContextUpdate({
       usePath: itemPath,
       lock: false,
     });
-  }
+  };
 
   handleProjectPathsChange = () => {
     this.scheduleActiveContextUpdate();
-  }
+  };
 
   serialize() {
     return {
@@ -283,23 +331,30 @@ export default class GithubPackage {
 
     if (!this.element) {
       this.element = document.createElement('div');
-      this.subscriptions.add(new Disposable(() => {
-        ReactDom.unmountComponentAtNode(this.element);
-        delete this.element;
-      }));
+      this.subscriptions.add(
+        new Disposable(() => {
+          ReactDom.unmountComponentAtNode(this.element);
+          delete this.element;
+        })
+      );
     }
 
-    const changeWorkingDirectory = workingDirectory => {
-      return this.scheduleActiveContextUpdate({usePath: workingDirectory});
+    const changeWorkingDirectory = (workingDirectory) => {
+      return this.scheduleActiveContextUpdate({ usePath: workingDirectory });
     };
 
     const setContextLock = (workingDirectory, lock) => {
-      return this.scheduleActiveContextUpdate({usePath: workingDirectory, lock});
+      return this.scheduleActiveContextUpdate({
+        usePath: workingDirectory,
+        lock,
+      });
     };
 
     this.renderFn(
       <RootController
-        ref={c => { this.controller = c; }}
+        ref={(c) => {
+          this.controller = c;
+        }}
         workspace={this.workspace}
         deserializers={this.deserializers}
         commands={this.commands}
@@ -326,7 +381,9 @@ export default class GithubPackage {
         contextLocked={this.lockedContext !== null}
         changeWorkingDirectory={changeWorkingDirectory}
         setContextLock={setContextLock}
-      />, this.element, callback,
+      />,
+      this.element,
+      callback
     );
   }
 
@@ -351,34 +408,42 @@ export default class GithubPackage {
   }
 
   createGitTimingsView() {
-    return StubItem.create('git-timings-view', {
-      title: 'GitHub Package Timings View',
-    }, GitTimingsView.buildURI());
+    return StubItem.create(
+      'git-timings-view',
+      {
+        title: 'GitHub Package Timings View',
+      },
+      GitTimingsView.buildURI()
+    );
   }
 
-  createIssueishPaneItemStub({uri, selectedTab}) {
-    return StubItem.create('issueish-detail-item', {
-      title: 'Issueish',
-      initSelectedTab: selectedTab,
-    }, uri);
+  createIssueishPaneItemStub({ uri, selectedTab }) {
+    return StubItem.create(
+      'issueish-detail-item',
+      {
+        title: 'Issueish',
+        initSelectedTab: selectedTab,
+      },
+      uri
+    );
   }
 
-  createDockItemStub({uri}) {
+  createDockItemStub({ uri }) {
     let item;
     switch (uri) {
-    // always return an empty stub
-    // but only set it as the active item for a tab type
-    // if it doesn't already exist
-    case 'atom-github://dock-item/git':
-      item = this.createGitStub(uri);
-      this.gitTabStubItem = this.gitTabStubItem || item;
-      break;
-    case 'atom-github://dock-item/github':
-      item = this.createGitHubStub(uri);
-      this.githubTabStubItem = this.githubTabStubItem || item;
-      break;
-    default:
-      throw new Error(`Invalid DockItem stub URI: ${uri}`);
+      // always return an empty stub
+      // but only set it as the active item for a tab type
+      // if it doesn't already exist
+      case 'atom-github://dock-item/git':
+        item = this.createGitStub(uri);
+        this.gitTabStubItem = this.gitTabStubItem || item;
+        break;
+      case 'atom-github://dock-item/github':
+        item = this.createGitHubStub(uri);
+        this.githubTabStubItem = this.githubTabStubItem || item;
+        break;
+      default:
+        throw new Error(`Invalid DockItem stub URI: ${uri}`);
     }
 
     if (this.controller) {
@@ -388,51 +453,75 @@ export default class GithubPackage {
   }
 
   createGitStub(uri) {
-    return StubItem.create('git', {
-      title: 'Git',
-    }, uri);
+    return StubItem.create(
+      'git',
+      {
+        title: 'Git',
+      },
+      uri
+    );
   }
 
   createGitHubStub(uri) {
-    return StubItem.create('github', {
-      title: 'GitHub',
-    }, uri);
+    return StubItem.create(
+      'github',
+      {
+        title: 'GitHub',
+      },
+      uri
+    );
   }
 
-  createFilePatchControllerStub({uri} = {}) {
-    const item = StubItem.create('git-file-patch-controller', {
-      title: 'Diff',
-    }, uri);
+  createFilePatchControllerStub({ uri } = {}) {
+    const item = StubItem.create(
+      'git-file-patch-controller',
+      {
+        title: 'Diff',
+      },
+      uri
+    );
     if (this.controller) {
       this.rerender();
     }
     return item;
   }
 
-  createCommitPreviewStub({uri}) {
-    const item = StubItem.create('git-commit-preview', {
-      title: 'Commit preview',
-    }, uri);
+  createCommitPreviewStub({ uri }) {
+    const item = StubItem.create(
+      'git-commit-preview',
+      {
+        title: 'Commit preview',
+      },
+      uri
+    );
     if (this.controller) {
       this.rerender();
     }
     return item;
   }
 
-  createCommitDetailStub({uri}) {
-    const item = StubItem.create('git-commit-detail', {
-      title: 'Commit',
-    }, uri);
+  createCommitDetailStub({ uri }) {
+    const item = StubItem.create(
+      'git-commit-detail',
+      {
+        title: 'Commit',
+      },
+      uri
+    );
     if (this.controller) {
       this.rerender();
     }
     return item;
   }
 
-  createReviewsStub({uri}) {
-    const item = StubItem.create('github-reviews', {
-      title: 'Reviews',
-    }, uri);
+  createReviewsStub({ uri }) {
+    const item = StubItem.create(
+      'github-reviews',
+      {
+        title: 'Reviews',
+      },
+      uri
+    );
     if (this.controller) {
       this.rerender();
     }
@@ -459,7 +548,7 @@ export default class GithubPackage {
     }
   }
 
-  initialize = async projectPath => {
+  initialize = async (projectPath) => {
     await fs.mkdirs(projectPath);
 
     const repository = this.contextPool.add(projectPath).getRepository();
@@ -472,7 +561,7 @@ export default class GithubPackage {
 
     await this.refreshAtomGitRepository(projectPath);
     await this.scheduleActiveContextUpdate();
-  }
+  };
 
   clone = async (remoteUrl, projectPath, sourceRemoteName = 'origin') => {
     const context = this.contextPool.getContext(projectPath);
@@ -482,7 +571,9 @@ export default class GithubPackage {
       await repository.clone(remoteUrl, sourceRemoteName);
       repository.destroy();
     } else {
-      repository = new Repository(projectPath, null, {pipelineManager: this.pipelineManager});
+      repository = new Repository(projectPath, null, {
+        pipelineManager: this.pipelineManager,
+      });
       await repository.clone(remoteUrl, sourceRemoteName);
     }
 
@@ -490,12 +581,16 @@ export default class GithubPackage {
     this.project.addPath(projectPath);
     await this.scheduleActiveContextUpdate();
 
-    reporterProxy.addEvent('clone-repository', {project: 'github'});
-  }
+    reporterProxy.addEvent('clone-repository', { project: 'github' });
+  };
 
   getRepositoryForWorkdir(projectPath) {
-    const loadingGuessRepo = Repository.loadingGuess({pipelineManager: this.pipelineManager});
-    return this.guessedContext ? loadingGuessRepo : this.contextPool.getContext(projectPath).getRepository();
+    const loadingGuessRepo = Repository.loadingGuess({
+      pipelineManager: this.pipelineManager,
+    });
+    return this.guessedContext
+      ? loadingGuessRepo
+      : this.contextPool.getContext(projectPath).getRepository();
   }
 
   getActiveWorkdir() {
@@ -531,7 +626,10 @@ export default class GithubPackage {
    */
   async scheduleActiveContextUpdate(options = {}) {
     this.switchboard.didScheduleActiveContextUpdate();
-    await this.activeContextQueue.push(this.updateActiveContext.bind(this, options), {parallel: false});
+    await this.activeContextQueue.push(
+      this.updateActiveContext.bind(this, options),
+      { parallel: false }
+    );
   }
 
   /**
@@ -551,11 +649,13 @@ export default class GithubPackage {
   async getNextContext(usePath = null) {
     // Internal utility function to normalize paths not contained within a git
     // working tree.
-    const workdirForNonGitPath = async sourcePath => {
-      const containingRoot = this.project.getDirectories().find(root => root.contains(sourcePath));
+    const workdirForNonGitPath = async (sourcePath) => {
+      const containingRoot = this.project
+        .getDirectories()
+        .find((root) => root.contains(sourcePath));
       if (containingRoot) {
         return containingRoot.getPath();
-      /* istanbul ignore else */
+        /* istanbul ignore else */
       } else if (!(await fs.stat(sourcePath)).isDirectory()) {
         return path.dirname(sourcePath);
       } else {
@@ -565,11 +665,13 @@ export default class GithubPackage {
 
     // Internal utility function to identify the working directory to use for
     // an arbitrary (file or directory) path.
-    const workdirForPath = async sourcePath => {
-      return (await Promise.all([
-        this.workdirCache.find(sourcePath),
-        workdirForNonGitPath(sourcePath),
-      ])).find(Boolean);
+    const workdirForPath = async (sourcePath) => {
+      return (
+        await Promise.all([
+          this.workdirCache.find(sourcePath),
+          workdirForNonGitPath(sourcePath),
+        ])
+      ).find(Boolean);
     };
 
     // Identify paths that *could* contribute a git working directory to the pool. This is drawn from
@@ -583,7 +685,9 @@ export default class GithubPackage {
         candidatePaths.add(lockedRepo.getWorkingDirectoryPath());
       }
     }
-    const activeItemPath = pathForPaneItem(this.workspace.getCenter().getActivePaneItem());
+    const activeItemPath = pathForPaneItem(
+      this.workspace.getCenter().getActivePaneItem()
+    );
     if (activeItemPath) {
       candidatePaths.add(activeItemPath);
     }
@@ -596,7 +700,7 @@ export default class GithubPackage {
     // be preserved as-is within the pool, to allow users to initialize them.
     const workdirs = new Set(
       await Promise.all(
-        Array.from(candidatePaths, async candidatePath => {
+        Array.from(candidatePaths, async (candidatePath) => {
           const workdir = await workdirForPath(candidatePath);
 
           // Note the workdirs associated with the active pane item and the first open project so we can
@@ -608,8 +712,8 @@ export default class GithubPackage {
           }
 
           return workdir;
-        }),
-      ),
+        })
+      )
     );
 
     // Update pool with the identified projects.
@@ -650,8 +754,11 @@ export default class GithubPackage {
     }
 
     // No projects. Revert to the absent context unless we've guessed that more projects are on the way.
-    if (this.project.getPaths().length === 0 && !this.activeContext.getRepository().isUndetermined()) {
-      return WorkdirContext.absent({pipelineManager: this.pipelineManager});
+    if (
+      this.project.getPaths().length === 0 &&
+      !this.activeContext.getRepository().isUndetermined()
+    ) {
+      return WorkdirContext.absent({ pipelineManager: this.pipelineManager });
     }
 
     // It is only possible to reach here if there there was no preferred directory, there are no project paths, and the
@@ -686,7 +793,10 @@ export default class GithubPackage {
         this.switchboard.didFinishContextChangeRender();
         this.switchboard.didFinishActiveContextUpdate();
       });
-    } else if ((lock === true || lock === false) && lock !== (this.lockedContext !== null)) {
+    } else if (
+      (lock === true || lock === false) &&
+      lock !== (this.lockedContext !== null)
+    ) {
       if (lock) {
         this.lockedContext = this.activeContext;
       } else {

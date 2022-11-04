@@ -1,10 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {QueryRenderer, graphql} from 'react-relay';
+import { QueryRenderer, graphql } from 'react-relay';
 
 import {
-  RemotePropType, RemoteSetPropType, BranchSetPropType, RefresherPropType,
-  EndpointPropType, TokenPropType,
+  RemotePropType,
+  RemoteSetPropType,
+  BranchSetPropType,
+  RefresherPropType,
+  EndpointPropType,
+  TokenPropType,
 } from '../prop-types';
 import RelayNetworkLayerManager from '../relay-network-layer-manager';
 import RemoteController from '../controllers/remote-controller';
@@ -31,10 +35,13 @@ export default class RemoteContainer extends React.Component {
     handleLogin: PropTypes.func.isRequired,
     handleLogout: PropTypes.func.isRequired,
     onPushBranch: PropTypes.func.isRequired,
-  }
+  };
 
   render() {
-    const environment = RelayNetworkLayerManager.getEnvironmentForHost(this.props.endpoint, this.props.token);
+    const environment = RelayNetworkLayerManager.getEnvironmentForHost(
+      this.props.endpoint,
+      this.props.token
+    );
     const query = graphql`
       query remoteContainerQuery($owner: String!, $name: String!) {
         repository(owner: $owner, name: $name) {
@@ -61,7 +68,7 @@ export default class RemoteContainer extends React.Component {
     );
   }
 
-  renderWithResult = ({error, props, retry}) => {
+  renderWithResult = ({ error, props, retry }) => {
     this.props.refresher.setRetryCallback(this, retry);
 
     if (error) {
@@ -83,20 +90,16 @@ export default class RemoteContainer extends React.Component {
       <RemoteController
         endpoint={this.props.endpoint}
         token={this.props.token}
-
         repository={props.repository}
-
         workingDirectory={this.props.workingDirectory}
         workspace={this.props.workspace}
         remote={this.props.remote}
         remotes={this.props.remotes}
         branches={this.props.branches}
-
         aheadCount={this.props.aheadCount}
         pushInProgress={this.props.pushInProgress}
-
         onPushBranch={this.props.onPushBranch}
       />
     );
-  }
+  };
 }

@@ -28,47 +28,46 @@ export type checkSuiteView_checkSuite$key = {
 };
 */
 
-
-const node/*: ReaderFragment*/ = {
-  "kind": "Fragment",
-  "name": "checkSuiteView_checkSuite",
-  "type": "CheckSuite",
-  "metadata": null,
-  "argumentDefinitions": [],
-  "selections": [
+const node /*: ReaderFragment*/ = {
+  kind: 'Fragment',
+  name: 'checkSuiteView_checkSuite',
+  type: 'CheckSuite',
+  metadata: null,
+  argumentDefinitions: [],
+  selections: [
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "app",
-      "storageKey": null,
-      "args": null,
-      "concreteType": "App",
-      "plural": false,
-      "selections": [
+      kind: 'LinkedField',
+      alias: null,
+      name: 'app',
+      storageKey: null,
+      args: null,
+      concreteType: 'App',
+      plural: false,
+      selections: [
         {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "name",
-          "args": null,
-          "storageKey": null
-        }
-      ]
+          kind: 'ScalarField',
+          alias: null,
+          name: 'name',
+          args: null,
+          storageKey: null,
+        },
+      ],
     },
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "status",
-      "args": null,
-      "storageKey": null
+      kind: 'ScalarField',
+      alias: null,
+      name: 'status',
+      args: null,
+      storageKey: null,
     },
     {
-      "kind": "ScalarField",
-      "alias": null,
-      "name": "conclusion",
-      "args": null,
-      "storageKey": null
-    }
-  ]
+      kind: 'ScalarField',
+      alias: null,
+      name: 'conclusion',
+      args: null,
+      storageKey: null,
+    },
+  ],
 };
 // prettier-ignore
 (node/*: any*/).hash = 'ab1475671a1bc4196d67bfa75ad41446';

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import {QueryRenderer, graphql} from 'react-relay';
+import { QueryRenderer, graphql } from 'react-relay';
 
 import UserMentionTooltipContainer from '../containers/user-mention-tooltip-container';
 
@@ -30,7 +30,7 @@ export default class UserMentionTooltipItem {
           variables={{
             username: this.username,
           }}
-          render={({error, props, retry}) => {
+          render={({ error, props, retry }) => {
             if (error) {
               return <div>Could not load information</div>;
             } else if (props) {

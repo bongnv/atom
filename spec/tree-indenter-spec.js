@@ -22,7 +22,7 @@ const jsScopes = {
     jsx_opening_element: true,
     jsx_expression: true,
     switch_body: true,
-    comment: true
+    comment: true,
   },
   indentExceptFirst: {
     member_expression: true,
@@ -31,18 +31,18 @@ const jsScopes = {
     variable_declarator: true,
     lexical_declaration: true,
     binary_expression: true,
-    jsx_self_closing_element: true
+    jsx_self_closing_element: true,
   },
   indentExceptFirstOrBlock: {
     if_statement: true,
-    while_statement: true
+    while_statement: true,
   },
   types: {
     indent: {},
     outdent: {
-      else: true
-    }
-  }
+      else: true,
+    },
+  },
 };
 
 describe('TreeIndenter', () => {
@@ -55,7 +55,7 @@ describe('TreeIndenter', () => {
     editor.displayLayer.reset({ foldCharacter: '…' });
 
     grammar = new TreeSitterGrammar(atom.grammars, jsGrammarPath, {
-      parser: 'tree-sitter-javascript'
+      parser: 'tree-sitter-javascript',
     });
   });
 
@@ -85,8 +85,9 @@ describe('TreeIndenter', () => {
       // verify
       if (indent !== currentIndentation) {
         throw Error(
-          `failure in file row ${row +
-            1}: suggested ${indent} but ${currentIndentation} is correct (${line})`
+          `failure in file row ${
+            row + 1
+          }: suggested ${indent} but ${currentIndentation} is correct (${line})`
         );
       } else {
         expect(indent).toEqual(currentIndentation);
@@ -119,9 +120,7 @@ describe('TreeIndenter', () => {
         if (indent !== correct[row]) {
           const line = buffer.lineForRow(row).trim();
           throw Error(
-            `failure in row ${row}: suggested ${indent} but ${
-              correct[row]
-            } is correct (${line})`
+            `failure in row ${row}: suggested ${indent} but ${correct[row]} is correct (${line})`
           );
         } else {
           expect(indent).toEqual(correct[row]);
@@ -133,7 +132,7 @@ describe('TreeIndenter', () => {
       path.join(__dirname, 'fixtures', 'indentation')
     );
 
-    fixtures.forEach(filename => {
+    fixtures.forEach((filename) => {
       it(`suggests correct indentations for ${filename}`, () => {
         compareFile(path.join(__dirname, 'fixtures', 'indentation', filename));
       });

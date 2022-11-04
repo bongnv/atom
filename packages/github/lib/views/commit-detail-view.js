@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {emojify} from 'node-emoji';
+import { emojify } from 'node-emoji';
 import moment from 'moment';
 
 import MultiFilePatchController from '../controllers/multi-file-patch-controller';
-import Commands, {Command} from '../atom/commands';
+import Commands, { Command } from '../atom/commands';
 import RefHolder from '../models/ref-holder';
 
 export default class CommitDetailView extends React.Component {
@@ -26,7 +26,7 @@ export default class CommitDetailView extends React.Component {
     // Action functions
     destroy: PropTypes.func.isRequired,
     surfaceCommit: PropTypes.func.isRequired,
-  }
+  };
 
   static propTypes = {
     ...CommitDetailView.drilledPropTypes,
@@ -37,7 +37,7 @@ export default class CommitDetailView extends React.Component {
 
     // Action functions
     toggleMessage: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -51,7 +51,10 @@ export default class CommitDetailView extends React.Component {
     return (
       <div className="github-CommitDetailView" ref={this.refRoot.setter}>
         {this.renderCommands()}
-        <div className="github-CommitDetailView-header native-key-bindings" tabIndex="-1">
+        <div
+          className="github-CommitDetailView-header native-key-bindings"
+          tabIndex="-1"
+        >
           <div className="github-CommitDetailView-commit">
             <h3 className="github-CommitDetailView-title">
               {emojify(commit.getMessageSubject())}
@@ -59,7 +62,8 @@ export default class CommitDetailView extends React.Component {
             <div className="github-CommitDetailView-meta">
               {this.renderAuthors()}
               <span className="github-CommitDetailView-metaText">
-                {this.getAuthorInfo()} committed {this.humanizeTimeSince(commit.getAuthorDate())}
+                {this.getAuthorInfo()} committed{' '}
+                {this.humanizeTimeSince(commit.getAuthorDate())}
               </span>
               <div className="github-CommitDetailView-sha">
                 {this.renderDotComLink()}
@@ -91,7 +95,9 @@ export default class CommitDetailView extends React.Component {
 
     return (
       <pre className="github-CommitDetailView-moreText">
-        {collapsed ? this.props.commit.abbreviatedBody() : this.props.commit.getMessageBody()}
+        {collapsed
+          ? this.props.commit.abbreviatedBody()
+          : this.props.commit.getMessageBody()}
       </pre>
     );
   }
@@ -103,7 +109,12 @@ export default class CommitDetailView extends React.Component {
 
     const buttonText = this.props.messageOpen ? 'Show Less' : 'Show More';
     return (
-      <button className="github-CommitDetailView-moreButton" onClick={this.props.toggleMessage}>{buttonText}</button>
+      <button
+        className="github-CommitDetailView-moreButton"
+        onClick={this.props.toggleMessage}
+      >
+        {buttonText}
+      </button>
     );
   }
 
@@ -117,13 +128,15 @@ export default class CommitDetailView extends React.Component {
     if (remote.isGithubRepo() && this.props.isCommitPushed) {
       const repoUrl = `https://github.com/${remote.getOwner()}/${remote.getRepo()}`;
       return (
-        <a href={`${repoUrl}/commit/${sha}`}
-          title={`open commit ${sha} on GitHub.com`}>
+        <a
+          href={`${repoUrl}/commit/${sha}`}
+          title={`open commit ${sha} on GitHub.com`}
+        >
           {sha}
         </a>
       );
     } else {
-      return (<span>{sha}</span>);
+      return <span>{sha}</span>;
     }
   }
 
@@ -133,7 +146,9 @@ export default class CommitDetailView extends React.Component {
     if (coAuthorCount === 0) {
       return commit.getAuthorName();
     } else if (coAuthorCount === 1) {
-      return `${commit.getAuthorName()} and ${commit.getCoAuthors()[0].getFullName()}`;
+      return `${commit.getAuthorName()} and ${commit
+        .getCoAuthors()[0]
+        .getFullName()}`;
     } else {
       return `${commit.getAuthorName()} and ${coAuthorCount} others`;
     }
@@ -144,7 +159,8 @@ export default class CommitDetailView extends React.Component {
     const avatarUrl = author.getAvatarUrl();
 
     return (
-      <img className="github-CommitDetailView-avatar github-RecentCommit-avatar"
+      <img
+        className="github-CommitDetailView-avatar github-RecentCommit-avatar"
         key={email}
         src={avatarUrl}
         title={email}

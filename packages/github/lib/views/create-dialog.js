@@ -4,8 +4,8 @@ import fs from 'fs-extra';
 
 import CreateDialogContainer from '../containers/create-dialog-container';
 import createRepositoryMutation from '../mutations/create-repository';
-import {GithubLoginModelPropType} from '../prop-types';
-import {addEvent} from '../reporter-proxy';
+import { GithubLoginModelPropType } from '../prop-types';
+import { addEvent } from '../reporter-proxy';
 
 export default class CreateDialog extends React.Component {
   static propTypes = {
@@ -20,7 +20,7 @@ export default class CreateDialog extends React.Component {
     workspace: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
-  }
+  };
 
   render() {
     return <CreateDialogContainer {...this.props} />;
@@ -28,19 +28,24 @@ export default class CreateDialog extends React.Component {
 }
 
 export async function createRepository(
-  {ownerID, name, visibility, localPath, protocol, sourceRemoteName},
-  {clone, relayEnvironment},
+  { ownerID, name, visibility, localPath, protocol, sourceRemoteName },
+  { clone, relayEnvironment }
 ) {
   await fs.ensureDir(localPath, 0o755);
-  const result = await createRepositoryMutation(relayEnvironment, {name, ownerID, visibility});
-  const sourceURL = result.createRepository.repository[protocol === 'ssh' ? 'sshUrl' : 'url'];
+  const result = await createRepositoryMutation(relayEnvironment, {
+    name,
+    ownerID,
+    visibility,
+  });
+  const sourceURL =
+    result.createRepository.repository[protocol === 'ssh' ? 'sshUrl' : 'url'];
   await clone(sourceURL, localPath, sourceRemoteName);
-  addEvent('create-github-repository', {package: 'github'});
+  addEvent('create-github-repository', { package: 'github' });
 }
 
 export async function publishRepository(
-  {ownerID, name, visibility, protocol, sourceRemoteName},
-  {repository, relayEnvironment},
+  { ownerID, name, visibility, protocol, sourceRemoteName },
+  { repository, relayEnvironment }
 ) {
   let defaultBranchName, wasEmpty;
   if (repository.isEmpty()) {
@@ -61,16 +66,23 @@ export async function publishRepository(
     }
   }
   if (!defaultBranchName) {
-    throw new Error('Unable to determine the desired default branch from the repository');
+    throw new Error(
+      'Unable to determine the desired default branch from the repository'
+    );
   }
 
-  const result = await createRepositoryMutation(relayEnvironment, {name, ownerID, visibility});
-  const sourceURL = result.createRepository.repository[protocol === 'ssh' ? 'sshUrl' : 'url'];
+  const result = await createRepositoryMutation(relayEnvironment, {
+    name,
+    ownerID,
+    visibility,
+  });
+  const sourceURL =
+    result.createRepository.repository[protocol === 'ssh' ? 'sshUrl' : 'url'];
   const remote = await repository.addRemote(sourceRemoteName, sourceURL);
   if (wasEmpty) {
-    addEvent('publish-github-repository', {package: 'github'});
+    addEvent('publish-github-repository', { package: 'github' });
   } else {
-    await repository.push(defaultBranchName, {remote, setUpstream: true});
-    addEvent('init-publish-github-repository', {package: 'github'});
+    await repository.push(defaultBranchName, { remote, setUpstream: true });
+    addEvent('init-publish-github-repository', { package: 'github' });
   }
 }

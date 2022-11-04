@@ -1,6 +1,6 @@
-@import "variables";
-@import "octicon-utf-codes";
-@import "octicon-mixins";
+@import 'variables';
+@import 'octicon-utf-codes';
+@import 'octicon-mixins';
 
 @header-bg-color: mix(@syntax-text-color, @syntax-background-color, 6%);
 
@@ -37,7 +37,8 @@
   }
 
   &-controlBlock + &-controlBlock {
-    .github-FilePatchView-header , .github-HunkHeaderView {
+    .github-FilePatchView-header,
+    .github-HunkHeaderView {
       margin-top: 0;
     }
   }
@@ -53,16 +54,16 @@
     cursor: default;
 
     .btn {
-      font-size: .9em;
+      font-size: 0.9em;
       &.icon-move-up::before,
       &.icon-move-down::before {
         font-size: 1em;
-        margin-right: .5em;
+        margin-right: 0.5em;
       }
     }
 
     .btn-group {
-      margin: @component-padding/2;
+      margin: @component-padding / 2;
     }
   }
 
@@ -88,14 +89,14 @@
     margin-bottom: 15px;
 
     &:hover {
-        color: @gh-background-color-blue;
-      }
+      color: @gh-background-color-blue;
+    }
   }
 
   &-collapseButton {
     background: transparent;
     border: none;
-    padding: @component-padding/1.5;
+    padding: @component-padding / 1.5;
 
     & + .github-FilePatchView-title {
       margin-left: 0; // chevron already has margin
@@ -151,7 +152,7 @@
   &-metaHeader {
     display: flex;
     align-items: center;
-    font-size: .9em;
+    font-size: 0.9em;
     border-bottom: 1px solid @base-border-color;
   }
 
@@ -177,13 +178,17 @@
     border-left: 1px solid @base-border-color;
     background-color: transparent;
     cursor: default;
-    &:hover  { background-color: mix(@syntax-text-color, @syntax-background-color, 4%); }
-    &:active { background-color: mix(@syntax-text-color, @syntax-background-color, 2%); }
+    &:hover {
+      background-color: mix(@syntax-text-color, @syntax-background-color, 4%);
+    }
+    &:active {
+      background-color: mix(@syntax-text-color, @syntax-background-color, 2%);
+    }
 
     &.icon-move-up::before,
     &.icon-move-down::before {
       font-size: 1em;
-      margin-right: .25em;
+      margin-right: 0.25em;
       vertical-align: baseline;
     }
   }
@@ -193,30 +198,38 @@
   }
 
   &-metaDiff {
-    margin: 0 .2em;
-    padding: .2em .4em;
+    margin: 0 0.2em;
+    padding: 0.2em 0.4em;
     line-height: 1.6;
     border-radius: @component-border-radius;
     &--added {
       color: mix(@text-color-highlight, @text-color-success, 40%);
-      background-color: mix(@base-background-color, @background-color-success, 80%);
+      background-color: mix(
+        @base-background-color,
+        @background-color-success,
+        80%
+      );
     }
     &--removed {
       color: mix(@text-color-highlight, @text-color-error, 40%);
-      background-color: mix(@base-background-color, @background-color-error, 80%);
+      background-color: mix(
+        @base-background-color,
+        @background-color-error,
+        80%
+      );
     }
     &--fullWidth {
       display: block;
-      margin: @component-padding/2 0 0 0;
+      margin: @component-padding / 2 0 0 0;
       &:first-child {
         margin-top: 0;
       }
     }
 
     code {
-      margin: 0 .2em;
-      padding: 0 .2em;
-      font-size: .9em;
+      margin: 0 0.2em;
+      padding: 0 0.2em;
+      font-size: 0.9em;
       color: inherit;
       line-height: 1;
       vertical-align: middle;
@@ -242,7 +255,6 @@
     }
   }
 
-
   // Gutter
 
   .gutter {
@@ -250,7 +262,8 @@
       display: none; // remove fold icon
     }
 
-    &.old .line-number, &.new .line-number {
+    &.old .line-number,
+    &.new .line-number {
       min-width: 6ch; // Fit up to 4 characters (+1 padding on each side)
       opacity: 1;
       padding: 0 1ch 0 0;
@@ -271,11 +284,11 @@
       }
 
       &.github-FilePatchView-line--added:before {
-        content: "+";
+        content: '+';
       }
 
       &.github-FilePatchView-line--deleted:before {
-        content: "-";
+        content: '-';
       }
 
       &.github-FilePatchView-line--nonewline:before {
@@ -302,7 +315,6 @@
   }
 }
 
-
 // States
 
 // Selected
@@ -311,7 +323,7 @@
     &.old .line-number,
     &.new .line-number,
     &.icons .line-number,
-    &[gutter-name="github-comment-icon"] .github-editorCommentGutterIcon {
+    &[gutter-name='github-comment-icon'] .github-editorCommentGutterIcon {
       &.github-FilePatchView-line--selected {
         color: @text-color-selected;
         background: @background-color-selected;
@@ -335,7 +347,7 @@
     &.old .line-number,
     &.new .line-number,
     &.icons .line-number,
-    &[gutter-name="github-comment-icon"] .github-editorCommentGutterIcon {
+    &[gutter-name='github-comment-icon'] .github-editorCommentGutterIcon {
       &.github-FilePatchView-line--selected {
         color: contrast(@button-background-color-selected);
         background: @button-background-color-selected;
@@ -348,17 +360,24 @@
 
   atom-text-editor {
     .selection .region {
-      background-color: mix(@button-background-color-selected, @syntax-background-color, 25%);
+      background-color: mix(
+        @button-background-color-selected,
+        @syntax-background-color,
+        25%
+      );
     }
   }
 }
 
 // Selected + focused hunkmode
 .github-FilePatchView.github-FilePatchView--hunkMode:focus-within {
-
   atom-text-editor {
     .selection .region {
-      background-color: mix(@button-background-color-selected, @syntax-background-color, 8%);
+      background-color: mix(
+        @button-background-color-selected,
+        @syntax-background-color,
+        8%
+      );
     }
   }
 }

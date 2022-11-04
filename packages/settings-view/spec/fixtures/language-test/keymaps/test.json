@@ -1,1 +1,4 @@
-{".platform-n64":{"cmd-g":"language-test:run"},"test":{"cmd-g":"language-test:run"}}
+{
+  ".platform-n64": { "cmd-g": "language-test:run" },
+  "test": { "cmd-g": "language-test:run" }
+}

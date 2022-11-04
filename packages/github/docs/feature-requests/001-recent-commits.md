@@ -10,12 +10,12 @@ Display the most recent few commits in a chronologically-ordered list beneath th
 
 ## Motivation
 
-* Provide useful context about recent work and where you left off.
-* Allow user to easily revert and reset to recent commits.
-* Make it easy to undo most recent commit action, supersede amend check box.
-* Reinforce the visual "flow" of changes through being unstaged, staged, and now committed.
-* Provide a discoverable launch point for an eventual log feature to explore the full history.
-* Achieve greater consistency with GitHub desktop:
+- Provide useful context about recent work and where you left off.
+- Allow user to easily revert and reset to recent commits.
+- Make it easy to undo most recent commit action, supersede amend check box.
+- Reinforce the visual "flow" of changes through being unstaged, staged, and now committed.
+- Provide a discoverable launch point for an eventual log feature to explore the full history.
+- Achieve greater consistency with GitHub desktop:
 
 ![desktop](https://user-images.githubusercontent.com/7910250/36570484-1754fb3c-17e7-11e8-8da3-b658d404fd2c.png)
 
@@ -29,9 +29,9 @@ If the active repository has no commits yet, display a short panel with a backgr
 
 Otherwise, display a **recent commits** section containing a sequence of horizontal bars for ten **relevant** commits with the most recently created commit on top. The commits that are considered **relevant** include:
 
-* Commits reachable by the remote tracking branch that is the current upstream of `HEAD`. If more than three of these commits are not reachable by `HEAD`, they will be hidden behind an expandable accordion divider.
-* Commits reachable by `HEAD` that are not reachable by any local ref in the git repository.
-* The single commit at the tip of the branch that was branched from.
+- Commits reachable by the remote tracking branch that is the current upstream of `HEAD`. If more than three of these commits are not reachable by `HEAD`, they will be hidden behind an expandable accordion divider.
+- Commits reachable by `HEAD` that are not reachable by any local ref in the git repository.
+- The single commit at the tip of the branch that was branched from.
 
 The most recent three commits are visible by default and the user can scroll to see up to the most recent ten commits. The user can also drag a handle to resize the recent commits section and show more of the available ten.
 
@@ -39,10 +39,10 @@ The most recent three commits are visible by default and the user can scroll to 
 
 Each **recent commit** within the recent commits section summarizes that commit's metadata, to include:
 
-* GitHub avatar for both the committer and (if applicable) author. If either do not exist, show a placeholder.
-* The commit message (first line of the commit body) elided if it would be too wide.
-* A relative timestamp indicating how long ago the commit was created.
-* A background highlight for commits that haven't been pushed yet to the remote tracking branch.
+- GitHub avatar for both the committer and (if applicable) author. If either do not exist, show a placeholder.
+- The commit message (first line of the commit body) elided if it would be too wide.
+- A relative timestamp indicating how long ago the commit was created.
+- A background highlight for commits that haven't been pushed yet to the remote tracking branch.
 
 ![metadata](https://user-images.githubusercontent.com/378023/39227929-4326d5ac-4896-11e8-9bbd-114d64335fad.png)
 
@@ -54,21 +54,21 @@ On the most recent commit, display an "undo" button. Clicking "undo" performs a 
 
 Right-clicking a recent commit reveals a context menu offering interactions with the chosen commit. The context menu contains:
 
-* For the most recent commit only, an "Amend" option. "Amend" is enabled if changes have been staged or the commit message mini-editor contains text. Choosing this applies the staged changes and modified commit message to the most recent commit, in a direct analogue to using `git commit --amend` from the command line.
-* A "Revert" option. Choosing this performs a `git revert` on the chosen commit.
-* A "Hard reset" option. Choosing this performs a `git reset --hard` which moves `HEAD` and the working copy to the chosen commit. When chosen, display a modal explaining that this action will discard commits and unstaged working directory context. Extra security: If there are unstaged working directory contents, artificially perform a dangling commit, disabling GPG if configured, before enacting the reset. This will record the dangling commit in the reflog for `HEAD` but not the branch itself.
-* A "Mixed reset" option. Choosing this performs a `git reset` on the chosen commit.
-* A "Soft reset" option. Choosing this performs a `git reset --soft` which moves `HEAD` to the chosen commit and populates the staged changes list with all of the cumulative changes from all commits between the chosen one and the previous `HEAD`.
+- For the most recent commit only, an "Amend" option. "Amend" is enabled if changes have been staged or the commit message mini-editor contains text. Choosing this applies the staged changes and modified commit message to the most recent commit, in a direct analogue to using `git commit --amend` from the command line.
+- A "Revert" option. Choosing this performs a `git revert` on the chosen commit.
+- A "Hard reset" option. Choosing this performs a `git reset --hard` which moves `HEAD` and the working copy to the chosen commit. When chosen, display a modal explaining that this action will discard commits and unstaged working directory context. Extra security: If there are unstaged working directory contents, artificially perform a dangling commit, disabling GPG if configured, before enacting the reset. This will record the dangling commit in the reflog for `HEAD` but not the branch itself.
+- A "Mixed reset" option. Choosing this performs a `git reset` on the chosen commit.
+- A "Soft reset" option. Choosing this performs a `git reset --soft` which moves `HEAD` to the chosen commit and populates the staged changes list with all of the cumulative changes from all commits between the chosen one and the previous `HEAD`.
 
 ### Balloon
 
 On click, select the commit and reveal a balloon containing:
 
-* Additional user information consistently with the GitHub integration's user mention item.
-* The full commit message and body.
-* The absolute timestamp of the commit.
-* Navigation button ("open" to a git show-ish pane item)
-* Action buttons ("amend" on the most recent commit, "revert", and "reset" with "hard", "mixed", and "soft" suboptions)
+- Additional user information consistently with the GitHub integration's user mention item.
+- The full commit message and body.
+- The absolute timestamp of the commit.
+- Navigation button ("open" to a git show-ish pane item)
+- Action buttons ("amend" on the most recent commit, "revert", and "reset" with "hard", "mixed", and "soft" suboptions)
 
 ![ballon](https://user-images.githubusercontent.com/378023/39232628-deb144b4-48a8-11e8-916b-f15e6d032cba.png)
 

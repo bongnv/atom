@@ -1,19 +1,19 @@
 import React from 'react';
-import {shallow} from 'enzyme';
-import {shell} from 'electron';
+import { shallow } from 'enzyme';
+import { shell } from 'electron';
 
 import BranchSet from '../../lib/models/branch-set';
-import Branch, {nullBranch} from '../../lib/models/branch';
+import Branch, { nullBranch } from '../../lib/models/branch';
 import Remote from '../../lib/models/remote';
 import RemoteSet from '../../lib/models/remote-set';
-import {getEndpoint} from '../../lib/models/endpoint';
+import { getEndpoint } from '../../lib/models/endpoint';
 import RemoteController from '../../lib/controllers/remote-controller';
 import * as reporterProxy from '../../lib/reporter-proxy';
 
-describe('RemoteController', function() {
+describe('RemoteController', function () {
   let atomEnv, remote, remoteSet, currentBranch, branchSet;
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
 
     remote = new Remote('origin', 'git@github.com:atom/github');
@@ -23,7 +23,7 @@ describe('RemoteController', function() {
     branchSet.add(currentBranch);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -31,10 +31,8 @@ describe('RemoteController', function() {
     return (
       <RemoteController
         repository={null}
-
         endpoint={getEndpoint('github.com')}
         token="1234"
-
         workingDirectory={__dirname}
         workspace={atomEnv.workspace}
         remote={remote}
@@ -42,25 +40,25 @@ describe('RemoteController', function() {
         branches={branchSet}
         aheadCount={0}
         pushInProgress={false}
-
         onPushBranch={() => {}}
-
         {...props}
       />
     );
   }
 
-  it('increments a counter when onCreatePr is called', async function() {
+  it('increments a counter when onCreatePr is called', async function () {
     const wrapper = shallow(createApp());
     sinon.stub(shell, 'openExternal').callsFake(() => {});
     sinon.stub(reporterProxy, 'incrementCounter');
 
     await wrapper.instance().onCreatePr();
     assert.equal(reporterProxy.incrementCounter.callCount, 1);
-    assert.deepEqual(reporterProxy.incrementCounter.lastCall.args, ['create-pull-request']);
+    assert.deepEqual(reporterProxy.incrementCounter.lastCall.args, [
+      'create-pull-request',
+    ]);
   });
 
-  it('handles error when onCreatePr fails', async function() {
+  it('handles error when onCreatePr fails', async function () {
     const wrapper = shallow(createApp());
     sinon.stub(shell, 'openExternal').throws(new Error('oh noes'));
     sinon.stub(reporterProxy, 'incrementCounter');
@@ -73,7 +71,7 @@ describe('RemoteController', function() {
     assert.equal(reporterProxy.incrementCounter.callCount, 0);
   });
 
-  it('renders issueish searches', function() {
+  it('renders issueish searches', function () {
     const wrapper = shallow(createApp());
 
     const controller = wrapper.update().find('IssueishSearchesController');

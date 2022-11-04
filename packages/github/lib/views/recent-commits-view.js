@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import cx from 'classnames';
-import {emojify} from 'node-emoji';
+import { emojify } from 'node-emoji';
 
-import Commands, {Command} from '../atom/commands';
+import Commands, { Command } from '../atom/commands';
 import RefHolder from '../models/ref-holder';
 
 import CommitView from './commit-view';
@@ -29,13 +29,13 @@ class RecentCommitView extends React.Component {
 
   componentDidMount() {
     if (this.props.isSelected) {
-      this.refRoot.map(root => root.scrollIntoViewIfNeeded(false));
+      this.refRoot.map((root) => root.scrollIntoViewIfNeeded(false));
     }
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.isSelected && !prevProps.isSelected) {
-      this.refRoot.map(root => root.scrollIntoViewIfNeeded(false));
+      this.refRoot.map((root) => root.scrollIntoViewIfNeeded(false));
     }
   }
 
@@ -50,21 +50,30 @@ class RecentCommitView extends React.Component {
           'most-recent': this.props.isMostRecent,
           'is-selected': this.props.isSelected,
         })}
-        onClick={this.props.openCommit}>
+        onClick={this.props.openCommit}
+      >
         <Commands registry={this.props.commands} target={this.refRoot}>
-          <Command command="github:copy-commit-sha" callback={this.copyCommitSha} />
-          <Command command="github:copy-commit-subject" callback={this.copyCommitSubject} />
+          <Command
+            command="github:copy-commit-sha"
+            callback={this.copyCommitSha}
+          />
+          <Command
+            command="github:copy-commit-subject"
+            callback={this.copyCommitSubject}
+          />
         </Commands>
         {this.renderAuthors()}
         <span
           className="github-RecentCommit-message"
-          title={emojify(fullMessage)}>
+          title={emojify(fullMessage)}
+        >
           {emojify(this.props.commit.getMessageSubject())}
         </span>
         {this.props.isMostRecent && (
           <button
             className="btn github-RecentCommit-undoButton"
-            onClick={this.undoLastCommit}>
+            onClick={this.undoLastCommit}
+          >
             Undo
           </button>
         )}
@@ -84,7 +93,8 @@ class RecentCommitView extends React.Component {
     const avatarUrl = author.getAvatarUrl();
 
     return (
-      <img className="github-RecentCommit-avatar"
+      <img
+        className="github-RecentCommit-avatar"
         key={email}
         src={avatarUrl}
         title={email}
@@ -104,22 +114,22 @@ class RecentCommitView extends React.Component {
     );
   }
 
-  copyCommitSha = event => {
+  copyCommitSha = (event) => {
     event.stopPropagation();
-    const {commit, clipboard} = this.props;
+    const { commit, clipboard } = this.props;
     clipboard.write(commit.sha);
-  }
+  };
 
-  copyCommitSubject = event => {
+  copyCommitSubject = (event) => {
     event.stopPropagation();
-    const {commit, clipboard} = this.props;
+    const { commit, clipboard } = this.props;
     clipboard.write(commit.messageSubject);
-  }
+  };
 
-  undoLastCommit = event => {
+  undoLastCommit = (event) => {
     event.stopPropagation();
     this.props.undoLastCommit();
-  }
+  };
 }
 
 export default class RecentCommitsView extends React.Component {
@@ -155,27 +165,39 @@ export default class RecentCommitsView extends React.Component {
 
   setFocus(focus) {
     if (focus === this.constructor.focus.RECENT_COMMIT) {
-      return this.refRoot.map(element => {
-        element.focus();
-        return true;
-      }).getOr(false);
+      return this.refRoot
+        .map((element) => {
+          element.focus();
+          return true;
+        })
+        .getOr(false);
     }
 
     return false;
   }
 
   getFocus(element) {
-    return this.refRoot.map(e => e.contains(element)).getOr(false)
+    return this.refRoot.map((e) => e.contains(element)).getOr(false)
       ? this.constructor.focus.RECENT_COMMIT
       : null;
   }
 
   render() {
     return (
-      <div className="github-RecentCommits" tabIndex="-1" ref={this.refRoot.setter}>
+      <div
+        className="github-RecentCommits"
+        tabIndex="-1"
+        ref={this.refRoot.setter}
+      >
         <Commands registry={this.props.commands} target={this.refRoot}>
-          <Command command="core:move-down" callback={this.props.selectNextCommit} />
-          <Command command="core:move-up" callback={this.props.selectPreviousCommit} />
+          <Command
+            command="core:move-down"
+            callback={this.props.selectNextCommit}
+          />
+          <Command
+            command="core:move-up"
+            callback={this.props.selectPreviousCommit}
+          />
           <Command command="github:dive" callback={this.openSelectedCommit} />
         </Commands>
         {this.renderCommits()}
@@ -187,9 +209,7 @@ export default class RecentCommitsView extends React.Component {
     if (this.props.commits.length === 0) {
       if (this.props.isLoading) {
         return (
-          <div className="github-RecentCommits-message">
-            Recent commits
-          </div>
+          <div className="github-RecentCommits-message">Recent commits</div>
         );
       } else {
         return (
@@ -210,7 +230,12 @@ export default class RecentCommitsView extends React.Component {
                 isMostRecent={i === 0}
                 commit={commit}
                 undoLastCommit={this.props.undoLastCommit}
-                openCommit={() => this.props.openCommit({sha: commit.getSha(), preserveFocus: true})}
+                openCommit={() =>
+                  this.props.openCommit({
+                    sha: commit.getSha(),
+                    preserveFocus: true,
+                  })
+                }
                 isSelected={this.props.selectedCommitSha === commit.getSha()}
               />
             );
@@ -220,7 +245,11 @@ export default class RecentCommitsView extends React.Component {
     }
   }
 
-  openSelectedCommit = () => this.props.openCommit({sha: this.props.selectedCommitSha, preserveFocus: false})
+  openSelectedCommit = () =>
+    this.props.openCommit({
+      sha: this.props.selectedCommitSha,
+      preserveFocus: false,
+    });
 
   advanceFocusFrom(focus) {
     if (focus === this.constructor.focus.RECENT_COMMIT) {

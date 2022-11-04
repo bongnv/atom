@@ -1,12 +1,12 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 
-import URIPattern, {nonURIMatch} from './uri-pattern';
+import URIPattern, { nonURIMatch } from './uri-pattern';
 import RefHolder from '../models/ref-holder';
 import StubItem from '../items/stub-item';
-import {createItem, autobind} from '../helpers';
+import { createItem, autobind } from '../helpers';
 
 /**
  * PaneItem registers an opener with the current Atom workspace as long as this component is mounted. The opener will
@@ -35,17 +35,20 @@ export default class PaneItem extends React.Component {
     children: PropTypes.func.isRequired,
     uriPattern: PropTypes.string.isRequired,
     className: PropTypes.string,
-  }
+  };
 
   constructor(props) {
     super(props);
     autobind(this, 'opener');
 
     const uriPattern = new URIPattern(this.props.uriPattern);
-    const currentlyOpen = this.props.workspace.getPaneItems()
+    const currentlyOpen = this.props.workspace
+      .getPaneItems()
       .reduce((arr, item) => {
         const element = item.getElement ? item.getElement() : null;
-        const match = item.getURI ? uriPattern.matches(item.getURI()) : nonURIMatch;
+        const match = item.getURI
+          ? uriPattern.matches(item.getURI())
+          : nonURIMatch;
         const stub = item.setRealItem ? item : null;
 
         if (element && match.ok()) {
@@ -57,7 +60,7 @@ export default class PaneItem extends React.Component {
       }, []);
 
     this.subs = new CompositeDisposable();
-    this.state = {uriPattern, currentlyOpen};
+    this.state = { uriPattern, currentlyOpen };
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -73,34 +76,36 @@ export default class PaneItem extends React.Component {
   componentDidMount() {
     // Listen for and adopt StubItems that are added after this component has
     // already been mounted.
-    this.subs.add(this.props.workspace.onDidAddPaneItem(({item}) => {
-      if (!item._getStub) {
-        return;
-      }
-      const stub = item._getStub();
+    this.subs.add(
+      this.props.workspace.onDidAddPaneItem(({ item }) => {
+        if (!item._getStub) {
+          return;
+        }
+        const stub = item._getStub();
 
-      if (stub.getRealItem() !== null) {
-        return;
-      }
+        if (stub.getRealItem() !== null) {
+          return;
+        }
 
-      const match = this.state.uriPattern.matches(item.getURI());
-      if (!match.ok()) {
-        return;
-      }
+        const match = this.state.uriPattern.matches(item.getURI());
+        if (!match.ok()) {
+          return;
+        }
 
-      const openItem = new OpenItem(match, stub.getElement(), stub);
-      openItem.hydrateStub({
-        copy: () => this.copyOpenItem(openItem),
-      });
-      if (this.props.className) {
-        openItem.addClassName(this.props.className);
-      }
-      this.registerCloseListener(item, openItem);
+        const openItem = new OpenItem(match, stub.getElement(), stub);
+        openItem.hydrateStub({
+          copy: () => this.copyOpenItem(openItem),
+        });
+        if (this.props.className) {
+          openItem.addClassName(this.props.className);
+        }
+        this.registerCloseListener(item, openItem);
 
-      this.setState(prevState => ({
-        currentlyOpen: [...prevState.currentlyOpen, openItem],
-      }));
-    }));
+        this.setState((prevState) => ({
+          currentlyOpen: [...prevState.currentlyOpen, openItem],
+        }));
+      })
+    );
 
     for (const openItem of this.state.currentlyOpen) {
       this.registerCloseListener(openItem.stubItem, openItem);
@@ -117,7 +122,7 @@ export default class PaneItem extends React.Component {
   }
 
   render() {
-    return this.state.currentlyOpen.map(item => {
+    return this.state.currentlyOpen.map((item) => {
       return (
         <Fragment key={item.getKey()}>
           {item.renderPortal(this.props.children)}
@@ -141,16 +146,19 @@ export default class PaneItem extends React.Component {
       openItem.addClassName(this.props.className);
     }
 
-    return new Promise(resolve => {
-      this.setState(prevState => ({
-        currentlyOpen: [...prevState.currentlyOpen, openItem],
-      }), () => {
-        const paneItem = openItem.create({
-          copy: () => this.copyOpenItem(openItem),
-        });
-        this.registerCloseListener(paneItem, openItem);
-        resolve(paneItem);
-      });
+    return new Promise((resolve) => {
+      this.setState(
+        (prevState) => ({
+          currentlyOpen: [...prevState.currentlyOpen, openItem],
+        }),
+        () => {
+          const paneItem = openItem.create({
+            copy: () => this.copyOpenItem(openItem),
+          });
+          this.registerCloseListener(paneItem, openItem);
+          resolve(paneItem);
+        }
+      );
     });
   }
 
@@ -160,28 +168,37 @@ export default class PaneItem extends React.Component {
       return null;
     }
 
-    const stub = StubItem.create('generic', openItem.getStubProps(), openItem.getURI());
+    const stub = StubItem.create(
+      'generic',
+      openItem.getStubProps(),
+      openItem.getURI()
+    );
 
     const copiedItem = new OpenItem(m, stub.getElement(), stub);
-    this.setState(prevState => ({
-      currentlyOpen: [...prevState.currentlyOpen, copiedItem],
-    }), () => {
-      this.registerCloseListener(stub, copiedItem);
-      copiedItem.hydrateStub({
-        copy: () => this.copyOpenItem(copiedItem),
-      });
-    });
+    this.setState(
+      (prevState) => ({
+        currentlyOpen: [...prevState.currentlyOpen, copiedItem],
+      }),
+      () => {
+        this.registerCloseListener(stub, copiedItem);
+        copiedItem.hydrateStub({
+          copy: () => this.copyOpenItem(copiedItem),
+        });
+      }
+    );
 
     return stub;
   }
 
   registerCloseListener(paneItem, openItem) {
-    const sub = this.props.workspace.onDidDestroyPaneItem(({item}) => {
+    const sub = this.props.workspace.onDidDestroyPaneItem(({ item }) => {
       if (item === paneItem) {
         sub.dispose();
         this.subs.remove(sub);
-        this.setState(prevState => ({
-          currentlyOpen: prevState.currentlyOpen.filter(each => each !== openItem),
+        this.setState((prevState) => ({
+          currentlyOpen: prevState.currentlyOpen.filter(
+            (each) => each !== openItem
+          ),
         }));
       }
     });
@@ -194,7 +211,7 @@ export default class PaneItem extends React.Component {
  * A subtree rendered through a portal onto a detached DOM node for use as the root as a PaneItem.
  */
 class OpenItem {
-  static nextID = 0
+  static nextID = 0;
 
   constructor(match, element = null, stub = null) {
     this.id = this.constructor.nextID;
@@ -234,7 +251,7 @@ class OpenItem {
   }
 
   getStubProps() {
-    const itemProps = this.itemHolder.map(item => ({
+    const itemProps = this.itemHolder.map((item) => ({
       title: item.getTitle ? item.getTitle() : null,
       iconName: item.getIconName ? item.getIconName() : null,
     }));
@@ -246,7 +263,7 @@ class OpenItem {
   }
 
   onFocus() {
-    return this.itemHolder.map(item => item.focus && item.focus());
+    return this.itemHolder.map((item) => item.focus && item.focus());
   }
 
   renderPortal(renderProp) {
@@ -257,7 +274,7 @@ class OpenItem {
         params: this.match.getParams(),
         uri: this.match.getURI(),
       }),
-      this.domNode,
+      this.domNode
     );
   }
 }

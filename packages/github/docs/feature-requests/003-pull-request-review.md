@@ -20,13 +20,13 @@ Peer review is also a critical part of the path to acceptance for pull requests 
 
 ![image](https://user-images.githubusercontent.com/378023/51304737-4658c380-1a7c-11e9-8edb-7ceafeedabe5.png)
 
-* Review progress is indicated for open pull requests listed in the GitHub panel.
-* The pull request corresponding to the checked out branch gets special treatment in its own section at the top of the list.
+- Review progress is indicated for open pull requests listed in the GitHub panel.
+- The pull request corresponding to the checked out branch gets special treatment in its own section at the top of the list.
 
 ![center pane](https://user-images.githubusercontent.com/378023/51305096-45746180-1a7d-11e9-801b-37b3ab0c862a.png)
 
-* Clicking a pull request in the list opens a `PullRequestDetailItem` in the workspace center.
-* Clicking the progress bar opens a `PullRequestReviewsItem` in the left dock.
+- Clicking a pull request in the list opens a `PullRequestDetailItem` in the workspace center.
+- Clicking the progress bar opens a `PullRequestReviewsItem` in the left dock.
 
 ### PullRequestDetailItem
 
@@ -57,14 +57,13 @@ Clicking on the "Files Changed" tab displays the full, multi-file diff associate
 
 ![files](https://user-images.githubusercontent.com/378023/51305826-43ab9d80-1a7f-11e9-8b41-42bc4812d214.png)
 
-
 Diffs are editable, but _only_ if the pull request branch is checked out and the local branch history has not diverged incompatibly from the remote branch history.
 
 For large diffs, the files can be collapsed to get a better overview.
 
-Uncollapsed (default) | Collapsed
---- | ---
-![files](https://user-images.githubusercontent.com/378023/46536560-d3bb4200-c8e9-11e8-9764-dca0b84245cf.png) | ![collapsed files](https://user-images.githubusercontent.com/378023/46931273-7069a680-d085-11e8-9ea7-c96a1772fe27.png)
+| Uncollapsed (default)                                                                                        | Collapsed                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| ![files](https://user-images.githubusercontent.com/378023/46536560-d3bb4200-c8e9-11e8-9764-dca0b84245cf.png) | ![collapsed files](https://user-images.githubusercontent.com/378023/46931273-7069a680-d085-11e8-9ea7-c96a1772fe27.png) |
 
 #### Create a new review
 
@@ -74,15 +73,15 @@ Hovering along the gutter within a pull request diff region in a `TextEditor` or
 
 ![new review](https://user-images.githubusercontent.com/378023/46926996-49ec4100-d06e-11e8-9fb7-86607861efdd.png)
 
-* Clicking "Add single comment" submits a diff comment and does not create a draft review.
-* Clicking "Start a review" creates a draft review and attaches the authored comment to it.
+- Clicking "Add single comment" submits a diff comment and does not create a draft review.
+- Clicking "Start a review" creates a draft review and attaches the authored comment to it.
 
 ##### Pending comments
 
 ![pending review](https://user-images.githubusercontent.com/378023/46927357-e06d3200-d06f-11e8-9eae-b4c289fe16ae.png)
 
-* If a draft review is already in progress, the "Start a review" button reads "Add review comment".
-* An additional row is added with options to "Start a new conversation" or "Finish your review".
+- If a draft review is already in progress, the "Start a review" button reads "Add review comment".
+- An additional row is added with options to "Start a new conversation" or "Finish your review".
 
 ##### Submit a review
 
@@ -94,26 +93,26 @@ Clicking "Finish your review" from a comment or clicking "Review Changes" in the
 
 ![submit review](https://user-images.githubusercontent.com/378023/46927736-ef54e400-d071-11e8-99d9-0ea1001fc50d.png)
 
-* The review summary is a TextEditor that may be used to compose a summary comment.
-* Files with pending review comments are listed and make it possible to navigate between them.
-* A review can be marked as "Comment", "Approve" or "Recommend changes" (.com's "Request changes").
-* Choosing "Cancel" dismisses the review and any comments made. If there are local review comments that will be lost, a confirmation prompt is shown first.
-* Choosing "Submit review" submits the drafted review to GitHub.
+- The review summary is a TextEditor that may be used to compose a summary comment.
+- Files with pending review comments are listed and make it possible to navigate between them.
+- A review can be marked as "Comment", "Approve" or "Recommend changes" (.com's "Request changes").
+- Choosing "Cancel" dismisses the review and any comments made. If there are local review comments that will be lost, a confirmation prompt is shown first.
+- Choosing "Submit review" submits the drafted review to GitHub.
 
 ##### Resolve a comment
 
 ![resolve a review](https://user-images.githubusercontent.com/378023/46927875-c08b3d80-d072-11e8-978b-024111312d79.png)
 
-* Review comments can be resolved by clicking on the "Mark as resolved" buttons.
-* If the "reply..." editor has non-whitespace content, it is submitted as a final comment first.
+- Review comments can be resolved by clicking on the "Mark as resolved" buttons.
+- If the "reply..." editor has non-whitespace content, it is submitted as a final comment first.
 
 ### PullRequestReviewsItem
 
 This item is opened in the workspace's right dock when the user:
 
-* Clicks the review progress bar in the GitHub tab.
-* Clicks the "open reviews" button on the review summary footer of a `PullRequestDetailItem`.
-* Clicks the "<>" button on a review comment in the "Files Changed" tab of a `PullRequestDetailItem`.
+- Clicks the review progress bar in the GitHub tab.
+- Clicks the "open reviews" button on the review summary footer of a `PullRequestDetailItem`.
+- Clicks the "<>" button on a review comment in the "Files Changed" tab of a `PullRequestDetailItem`.
 
 It shows a scrollable view of all of the reviews and comments associated with a specific pull request,
 
@@ -131,12 +130,11 @@ Clicking on a review summary comment expands or collapses the associated review 
 
 <img width="429" alt="screen shot 2019-02-28 at 6 03 50 pm" src="https://user-images.githubusercontent.com/3781742/53611421-5a1b3d80-3b83-11e9-9e50-ac4c54a67c13.png">
 
-In addition to the comment, users see an abbreviated version of the diff, with 4 context lines. 
+In addition to the comment, users see an abbreviated version of the diff, with 4 context lines.
 
 Clicking on the "Jump To File" button opens a `TextEditor` on the corresponding position of the file under review. The clicked review comment is highlighted as the "current" one.
 
-Clicking on the "View Changes" button opens the "Files" tab of the `PullRequestDetailsView`, so the user can see the full diff. 
-
+Clicking on the "View Changes" button opens the "Files" tab of the `PullRequestDetailsView`, so the user can see the full diff.
 
 #### Within an open TextEditor
 
@@ -150,32 +148,30 @@ Clicking on the gutter icon reveals the `PullRequestReviewsItem` and highlights 
 
 Review comments are shown in 3 different places. The comments themselves have the same functionality, but allow the comment to be seen in a different context, depending on different use cases. For example "reviewing a pull request", "addressing feedback", "editing the entire file".
 
-Files | Reviews | Single file
---- | --- | ---
-![files](https://user-images.githubusercontent.com/378023/46932382-6bf3bc80-d08a-11e8-83ce-af2ec99c3610.png) | ![reviews](https://user-images.githubusercontent.com/378023/46535563-c81a4c00-c8e6-11e8-9c0b-6ea575556101.png) | ![single file](https://user-images.githubusercontent.com/378023/46928308-e9accd80-d074-11e8-8de3-a16140e74907.png)
+| Files                                                                                                        | Reviews                                                                                                        | Single file                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| ![files](https://user-images.githubusercontent.com/378023/46932382-6bf3bc80-d08a-11e8-83ce-af2ec99c3610.png) | ![reviews](https://user-images.githubusercontent.com/378023/46535563-c81a4c00-c8e6-11e8-9c0b-6ea575556101.png) | ![single file](https://user-images.githubusercontent.com/378023/46928308-e9accd80-d074-11e8-8de3-a16140e74907.png) |
 
 In order to navigate between comments or switch context, each comment has the following controls:
 
 ![image](https://user-images.githubusercontent.com/378023/46934191-c6444b80-d091-11e8-9405-b93bd2aecc90.png)
 
-* Clicking on the `<>` button in a review comment shows the comment in the entire file. If possible, the scroll-position is retained. This allows to quickly get more context about the code.
-  * If the current pull request is not checked out, the `<>` button is disabled, and a tooltip prompts the user to check out the pull request to edit the source.
-* Clicking on the "sandwich" button shows the comment in the corresponding `PullRequestReviewsItem`.
-* Clicking on the "file-+" button (not shown in above screenshot) shows the comment under the "Files Changed" tab.
-* The up and down arrow buttons navigate to the next and previous unresolved review comments.
-* Reaction emoji may be added to each comment with the "emoji" button. Existing emoji reaction tallies are included beneath each comment.
+- Clicking on the `<>` button in a review comment shows the comment in the entire file. If possible, the scroll-position is retained. This allows to quickly get more context about the code.
+  - If the current pull request is not checked out, the `<>` button is disabled, and a tooltip prompts the user to check out the pull request to edit the source.
+- Clicking on the "sandwich" button shows the comment in the corresponding `PullRequestReviewsItem`.
+- Clicking on the "file-+" button (not shown in above screenshot) shows the comment under the "Files Changed" tab.
+- The up and down arrow buttons navigate to the next and previous unresolved review comments.
+- Reaction emoji may be added to each comment with the "emoji" button. Existing emoji reaction tallies are included beneath each comment.
 
 Another way to navigate between unresolved comments is to collapse all files first. Files that contain unresolved comments have a "[n] unresolved" button on the right, making it easy to find them.
 
 ![files with unresolved comments](https://user-images.githubusercontent.com/378023/46986769-022bef00-d12c-11e8-8839-279fb0d03fb1.png)
 
-* Clicking that button uncollapses the file (if needed) and scrolls to the position of the comment.
-
+- Clicking that button uncollapses the file (if needed) and scrolls to the position of the comment.
 
 ## Drawbacks
 
 This adds a substantial amount of complexity to the UI, which is only justified for users that use GitHub pull request reviews.
-
 
 ## Rationale and alternatives
 
@@ -203,44 +199,43 @@ It was a great improvement, but filtering the diff with radio buttons and checkb
 
 #### Third iteration
 
-Long comments can disrupt the code editing experience.  Our third iteration keeps the review comments in a dock, a la Google Docs.  This helps code authors more easily address comments, because they can see the comments and also get them out of the way.
+Long comments can disrupt the code editing experience. Our third iteration keeps the review comments in a dock, a la Google Docs. This helps code authors more easily address comments, because they can see the comments and also get them out of the way.
 
 Since this approach different from previous approaches, we performed a series of [usability studies](https://github.com/github/pe-editor-tools/blob/master/community/usability-testing/atom_rcid_research_summary.md) to validate that users would find this approach useful.
 
-We may at some point want to migrate the entire PullRequestDetailView from the pane item to the dock, so as not to duplicate information.  However, in the interest of getting code review in the editor shipped, we'll keep the pane item around in the short term.
-
+We may at some point want to migrate the entire PullRequestDetailView from the pane item to the dock, so as not to duplicate information. However, in the interest of getting code review in the editor shipped, we'll keep the pane item around in the short term.
 
 ## Unresolved questions
 
 ### Questions I expect to address before this is merged
 
-* Can we access "draft" reviews from the GitHub API, to unify them between Atom and GitHub?
-  * _Yes, the `reviews` object includes it in a `PENDING` state._
-* How do we represent the resolution of a comment thread? Where can we reveal this progress through each review, and of all required reviews?
-  * _We'll show a progress bar in the footer of the `PullRequestDetailItem`._
-* Are there any design choices we can make to lessen the emotional weight of a "requests changes" review? Peer review has the most value when it discovers issues for the pull request author to address, but accepting criticism is a vulnerable moment.
-  * _Choosing phrasing and iconography carefully for "recommend changes"._
-* Similarly, are there any ways we can encourage empathy within the review authoring process? Can we encourage reviewers to make positive comments or demonstrate humility and open-mindedness?
-  * _Emoji reactions on comments :cake: :tada:_
-  * _Enable integration with Teletype for smoother jumping to a synchronous review_
+- Can we access "draft" reviews from the GitHub API, to unify them between Atom and GitHub?
+  - _Yes, the `reviews` object includes it in a `PENDING` state._
+- How do we represent the resolution of a comment thread? Where can we reveal this progress through each review, and of all required reviews?
+  - _We'll show a progress bar in the footer of the `PullRequestDetailItem`._
+- Are there any design choices we can make to lessen the emotional weight of a "requests changes" review? Peer review has the most value when it discovers issues for the pull request author to address, but accepting criticism is a vulnerable moment.
+  - _Choosing phrasing and iconography carefully for "recommend changes"._
+- Similarly, are there any ways we can encourage empathy within the review authoring process? Can we encourage reviewers to make positive comments or demonstrate humility and open-mindedness?
+  - _Emoji reactions on comments :cake: :tada:_
+  - _Enable integration with Teletype for smoother jumping to a synchronous review_
 
 ### Questions I expect to resolve throughout the implementation process
 
-* When there are working directory changes or local commits on the PR branch, how do we clearly indicate them within the diff view? Do we need to make them visually distinct from the PR changes? Things might get confusing for the user when the diff in the editor gets out of sync with the diff on dotcom. For example: a pull request author reads a comment pointing out a typo in an added line. The author edits text within the multi-file diff which modifies the working directory. Should this line now be styled differently to indicate that it has deviated from the original diff?
-* Review comment positioning within live TextEditors will be a tricky problem to address satisfactorily. What are the edge cases we need to handle there?
-  * _Review comments on deleted lines._
-  * _Review comments on deleted files._
-* The GraphQL API paths we need to interact with all involve multiple levels of pagination: pull requests, pull request reviews, review comments. How do we handle these within Relay? Or do we interact directly with GraphQL requests?
-* How do we handle comment threads?
-* When editing diffs:
-  * Do we edit the underlying buffer or file directly, or do we mark the `PullRequestDetailItem` as "modified" and require a "save" action to persist changes?
-  * Do we disallow edits of removed lines, or do we re-introduce the removed line as an addition on modification?
-* When clicking on the `<>` button, should there be a way to turn of the diff? Or when opening the same file from the tree-view, should we show review comments? Or only an icon in the gutter?
+- When there are working directory changes or local commits on the PR branch, how do we clearly indicate them within the diff view? Do we need to make them visually distinct from the PR changes? Things might get confusing for the user when the diff in the editor gets out of sync with the diff on dotcom. For example: a pull request author reads a comment pointing out a typo in an added line. The author edits text within the multi-file diff which modifies the working directory. Should this line now be styled differently to indicate that it has deviated from the original diff?
+- Review comment positioning within live TextEditors will be a tricky problem to address satisfactorily. What are the edge cases we need to handle there?
+  - _Review comments on deleted lines._
+  - _Review comments on deleted files._
+- The GraphQL API paths we need to interact with all involve multiple levels of pagination: pull requests, pull request reviews, review comments. How do we handle these within Relay? Or do we interact directly with GraphQL requests?
+- How do we handle comment threads?
+- When editing diffs:
+  - Do we edit the underlying buffer or file directly, or do we mark the `PullRequestDetailItem` as "modified" and require a "save" action to persist changes?
+  - Do we disallow edits of removed lines, or do we re-introduce the removed line as an addition on modification?
+- When clicking on the `<>` button, should there be a way to turn of the diff? Or when opening the same file from the tree-view, should we show review comments? Or only an icon in the gutter?
 
 ### Questions I consider out of scope of this Feature Request
 
-* What other pull request information can we add to the GitHub pane item?
-* How can we notify users when new information, including reviews, is available, preferably without being intrusive or disruptive?
+- What other pull request information can we add to the GitHub pane item?
+- How can we notify users when new information, including reviews, is available, preferably without being intrusive or disruptive?
 
 ## Implementation phases
 
@@ -248,4 +243,4 @@ We may at some point want to migrate the entire PullRequestDetailView from the p
 
 ## Related features out of scope of this Feature Request
 
-* "Find" input field for filtering based on search term (which could be a file name, an author, a variable name, etc)
+- "Find" input field for filtering based on search term (which could be a file name, an author, a variable name, etc)

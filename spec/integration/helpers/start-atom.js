@@ -28,10 +28,10 @@ const ChromedriverPort = 8082;
 const ChromedriverURLBase = '/wd/hub';
 const ChromedriverStatusURL = `http://localhost:${ChromedriverPort}${ChromedriverURLBase}/status`;
 
-const chromeDriverUp = done => {
+const chromeDriverUp = (done) => {
   const checkStatus = () =>
     http
-      .get(ChromedriverStatusURL, response => {
+      .get(ChromedriverStatusURL, (response) => {
         if (response.statusCode === 200) {
           done();
         } else {
@@ -43,10 +43,10 @@ const chromeDriverUp = done => {
   setTimeout(checkStatus, 100);
 };
 
-const chromeDriverDown = done => {
+const chromeDriverDown = (done) => {
   const checkStatus = () =>
     http
-      .get(ChromedriverStatusURL, response => chromeDriverDown(done))
+      .get(ChromedriverStatusURL, (response) => chromeDriverDown(done))
       .on('error', done);
 
   setTimeout(checkStatus, 100);
@@ -69,31 +69,31 @@ const buildAtomClient = async (args, env) => {
             .join(' ')}`,
           'dev',
           'safe',
-          `user-data-dir=${userDataDir}`
-        ]
-      }
-    }
+          `user-data-dir=${userDataDir}`,
+        ],
+      },
+    },
   });
 
-  client.addCommand('waitForPaneItemCount', async function(count, timeout) {
+  client.addCommand('waitForPaneItemCount', async function (count, timeout) {
     await this.waitUntil(
       () =>
         this.execute(() => atom.workspace.getActivePane().getItems().length),
       timeout
     );
   });
-  client.addCommand('treeViewRootDirectories', async function() {
+  client.addCommand('treeViewRootDirectories', async function () {
     const treeViewElement = await this.$('.tree-view');
     await treeViewElement.waitForExist(10000);
     return this.execute(() =>
       Array.from(
         document.querySelectorAll('.tree-view .project-root > .header .name')
-      ).map(element => element.dataset.path)
+      ).map((element) => element.dataset.path)
     );
   });
-  client.addCommand('dispatchCommand', async function(command) {
+  client.addCommand('dispatchCommand', async function (command) {
     return this.execute(
-      command => atom.commands.dispatch(document.activeElement, command),
+      (command) => atom.commands.dispatch(document.activeElement, command),
       command
     );
   });
@@ -101,25 +101,25 @@ const buildAtomClient = async (args, env) => {
   return client;
 };
 
-module.exports = function(args, env, fn) {
+module.exports = function (args, env, fn) {
   let chromedriver, chromedriverLogs, chromedriverExit;
 
   runs(() => {
     chromedriver = spawn(ChromedriverPath, [
       '--verbose',
       `--port=${ChromedriverPort}`,
-      `--url-base=${ChromedriverURLBase}`
+      `--url-base=${ChromedriverURLBase}`,
     ]);
 
     chromedriverLogs = [];
-    chromedriverExit = new Promise(resolve => {
+    chromedriverExit = new Promise((resolve) => {
       let errorCode = null;
       chromedriver.on('exit', (code, signal) => {
         if (signal == null) {
           errorCode = code;
         }
       });
-      chromedriver.stderr.on('data', log =>
+      chromedriver.stderr.on('data', (log) =>
         chromedriverLogs.push(log.toString())
       );
       chromedriver.stderr.on('close', () => resolve(errorCode));
@@ -130,7 +130,7 @@ module.exports = function(args, env, fn) {
 
   waitsFor(
     'tests to run',
-    async done => {
+    async (done) => {
       const finish = once(async () => {
         await client.deleteSession();
         chromedriver.kill();
@@ -156,7 +156,7 @@ Logs:\n${chromedriverLogs.join('\n')}`);
       }
 
       try {
-        await client.waitUntil(async function() {
+        await client.waitUntil(async function () {
           const handles = await this.getWindowHandles();
           return handles.length > 0;
         }, 10000);

@@ -1,23 +1,25 @@
 import React from 'react';
-import {shallow} from 'enzyme';
+import { shallow } from 'enzyme';
 import dedent from 'dedent-js';
 
-import {cloneRepository, buildRepository} from '../helpers';
+import { cloneRepository, buildRepository } from '../helpers';
 import CommitDetailItem from '../../lib/items/commit-detail-item';
 import CommitDetailController from '../../lib/controllers/commit-detail-controller';
 
 const VALID_SHA = '18920c900bfa6e4844853e7e246607a31c3e2e8c';
 
-describe('CommitDetailController', function() {
+describe('CommitDetailController', function () {
   let atomEnv, repository, commit;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
-    repository = await buildRepository(await cloneRepository('multiple-commits'));
+    repository = await buildRepository(
+      await cloneRepository('multiple-commits')
+    );
     commit = await repository.getCommit(VALID_SHA);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -40,7 +42,7 @@ describe('CommitDetailController', function() {
     return <CommitDetailController {...props} />;
   }
 
-  it('forwards props to its CommitDetailView', function() {
+  it('forwards props to its CommitDetailView', function () {
     const wrapper = shallow(buildApp());
     const view = wrapper.find('CommitDetailView');
 
@@ -49,13 +51,13 @@ describe('CommitDetailController', function() {
     assert.strictEqual(view.prop('itemType'), CommitDetailItem);
   });
 
-  it('passes unrecognized props to its CommitDetailView', function() {
+  it('passes unrecognized props to its CommitDetailView', function () {
     const extra = Symbol('extra');
-    const wrapper = shallow(buildApp({extra}));
+    const wrapper = shallow(buildApp({ extra }));
     assert.strictEqual(wrapper.find('CommitDetailView').prop('extra'), extra);
   });
 
-  describe('commit body collapsing', function() {
+  describe('commit body collapsing', function () {
     const LONG_MESSAGE = dedent`
       Lorem ipsum dolor sit amet, et his justo deleniti, omnium fastidii adversarium at has. Mazim alterum sea ea,
       essent malorum persius ne mei. Nam ea tempor qualisque, modus doming te has. Affert dolore albucius te vis, eam
@@ -76,7 +78,7 @@ describe('CommitDetailController', function() {
       offendit evertitur.
     `;
 
-    it('is uncollapsible if the commit message is short', function() {
+    it('is uncollapsible if the commit message is short', function () {
       sinon.stub(commit, 'getMessageBody').returns('short');
       const wrapper = shallow(buildApp());
       const view = wrapper.find('CommitDetailView');
@@ -84,7 +86,7 @@ describe('CommitDetailController', function() {
       assert.isTrue(view.prop('messageOpen'));
     });
 
-    it('is collapsible and begins collapsed if the commit message is long', function() {
+    it('is collapsible and begins collapsed if the commit message is long', function () {
       sinon.stub(commit, 'getMessageBody').returns(LONG_MESSAGE);
 
       const wrapper = shallow(buildApp());
@@ -93,7 +95,7 @@ describe('CommitDetailController', function() {
       assert.isFalse(view.prop('messageOpen'));
     });
 
-    it('toggles collapsed state', async function() {
+    it('toggles collapsed state', async function () {
       sinon.stub(commit, 'getMessageBody').returns(LONG_MESSAGE);
 
       const wrapper = shallow(buildApp());

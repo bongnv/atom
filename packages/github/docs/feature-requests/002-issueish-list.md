@@ -34,11 +34,11 @@ If either list exceeds 20 items, truncate the list and render a "More" link afte
 
 Each list item renders a tile containing a compact set of information about that pull request:
 
-* Mini author avatar
-* Title, truncated if necessary
-* PR number (`#1503`)
-* Status check summary
-* Terse relative timestamp (1d, 2h, 30m)
+- Mini author avatar
+- Title, truncated if necessary
+- PR number (`#1503`)
+- Status check summary
+- Terse relative timestamp (1d, 2h, 30m)
 
 ![list item](https://user-images.githubusercontent.com/378023/41136622-1102db54-6b12-11e8-8b9b-49ecc45ac98f.png)
 
@@ -48,23 +48,23 @@ Clicking on a list item opens an issueish pane item for the chosen issueish. If 
 
 For a pull request, the issueish pane shows:
 
-* PR status badge. -> `Open`.
-* Link to .com. -> [atom/github#1503](https://github.com/atom/github/pull/1503)
-* Author avatar
-* Title
-* Branches -> `master` < `aw/rfc-pr-list`
-* "Checkout" button to fetch (if necessary) and check out the pull request. Only enabled if the checked out pull request is not the current one.
-* `Commits` with count, links to .com (for now), optional with avatars
-* `Checks` with count, links to .com (for now)
-  * CI status, each item links to the detail page
-* `Files changed` with count, links to .com (for now), optional with "+-" bar
-* Mergability status -> `Able to merge`, links to the [Merging controls at the bottom](https://github.com/atom/github/pull/1503#partial-pull-merging)
-  * "Merge PR" to merge the pull request on GitHub if it is open.
-  * "Close" to close the pull request, unmerged, if it is open.
-  * "Re-open PR" to re-open a pull request if it is closed.
-* `Conversation` with comment count, opens the current PR timeline in a center pane.
-  * Reaction emoji and counts.
-  * Description (PR body) as rendered markdown.
+- PR status badge. -> `Open`.
+- Link to .com. -> [atom/github#1503](https://github.com/atom/github/pull/1503)
+- Author avatar
+- Title
+- Branches -> `master` < `aw/rfc-pr-list`
+- "Checkout" button to fetch (if necessary) and check out the pull request. Only enabled if the checked out pull request is not the current one.
+- `Commits` with count, links to .com (for now), optional with avatars
+- `Checks` with count, links to .com (for now)
+  - CI status, each item links to the detail page
+- `Files changed` with count, links to .com (for now), optional with "+-" bar
+- Mergability status -> `Able to merge`, links to the [Merging controls at the bottom](https://github.com/atom/github/pull/1503#partial-pull-merging)
+  - "Merge PR" to merge the pull request on GitHub if it is open.
+  - "Close" to close the pull request, unmerged, if it is open.
+  - "Re-open PR" to re-open a pull request if it is closed.
+- `Conversation` with comment count, opens the current PR timeline in a center pane.
+  - Reaction emoji and counts.
+  - Description (PR body) as rendered markdown.
 
 ![detail](https://user-images.githubusercontent.com/378023/41140383-368c45d4-6b28-11e8-87c2-d4bc0b47fbe1.png)
 
@@ -78,8 +78,8 @@ When the current branch is the default branch, e.g. `master`, a message is shown
 
 ## Drawbacks
 
-* "All pull requests" could easily be overwhelming on moderate to high traffic repositories. Stay tuned for more refinements on this front.
-* Opening a pane item for each pull request click is heavyweight from a navigational standpoint. We may explore showing a popup as an intermediate state.
+- "All pull requests" could easily be overwhelming on moderate to high traffic repositories. Stay tuned for more refinements on this front.
+- Opening a pane item for each pull request click is heavyweight from a navigational standpoint. We may explore showing a popup as an intermediate state.
 
 ## Rationale and alternatives
 

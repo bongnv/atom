@@ -1,5 +1,7 @@
 ##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
- # PHP language support in Atom
+
+# PHP language support in Atom
+
 ![CI Status](https://github.com/atom/language-php/actions/workflows/main.yml/badge.svg)
 
 Adds syntax highlighting and snippets to PHP files in Atom.

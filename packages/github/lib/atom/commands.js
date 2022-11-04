@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Disposable} from 'event-kit';
+import { Disposable } from 'event-kit';
 
-import {DOMNodePropType, RefHolderPropType} from '../prop-types';
+import { DOMNodePropType, RefHolderPropType } from '../prop-types';
 import RefHolder from '../models/ref-holder';
 
 export default class Commands extends React.Component {
@@ -17,14 +17,14 @@ export default class Commands extends React.Component {
       PropTypes.element,
       PropTypes.arrayOf(PropTypes.element),
     ]).isRequired,
-  }
+  };
 
   render() {
-    const {registry, target} = this.props;
+    const { registry, target } = this.props;
     return (
       <div>
-        {React.Children.map(this.props.children, child => {
-          return child ? React.cloneElement(child, {registry, target}) : null;
+        {React.Children.map(this.props.children, (child) => {
+          return child ? React.cloneElement(child, { registry, target }) : null;
         })}
       </div>
     );
@@ -41,7 +41,7 @@ export class Command extends React.Component {
     ]),
     command: PropTypes.string.isRequired,
     callback: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -54,7 +54,11 @@ export class Command extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (['registry', 'target', 'command', 'callback'].some(p => newProps[p] !== this.props[p])) {
+    if (
+      ['registry', 'target', 'command', 'callback'].some(
+        (p) => newProps[p] !== this.props[p]
+      )
+    ) {
       this.observeTarget(newProps);
     }
   }
@@ -66,10 +70,12 @@ export class Command extends React.Component {
 
   observeTarget(props) {
     this.subTarget.dispose();
-    this.subTarget = RefHolder.on(props.target).observe(t => this.registerCommand(t, props));
+    this.subTarget = RefHolder.on(props.target).observe((t) =>
+      this.registerCommand(t, props)
+    );
   }
 
-  registerCommand(target, {registry, command, callback}) {
+  registerCommand(target, { registry, command, callback }) {
     this.subCommand.dispose();
     this.subCommand = registry.add(target, command, callback);
   }

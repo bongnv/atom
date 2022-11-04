@@ -1,14 +1,7 @@
 {
   "tags": {
     "a": {
-      "attributes": [
-        "href",
-        "hreflang",
-        "media",
-        "rel",
-        "target",
-        "type"
-      ],
+      "attributes": ["href", "hreflang", "media", "rel", "target", "type"],
       "description": "Creates a hyperlink to other web pages, files, locations within the same page, email addresses, or any other URL."
     },
     "abbr": {
@@ -53,10 +46,7 @@
       "description": "Represents a span of text stylistically different from normal text, without conveying any special importance or relevance, and that is typically rendered in boldface."
     },
     "base": {
-      "attributes": [
-        "href",
-        "target"
-      ],
+      "attributes": ["href", "target"],
       "description": "Specifies the base URL to use for all relative URLs contained within a document."
     },
     "bdi": {
@@ -69,9 +59,7 @@
       "description": "The big element is obsolete. Avoid using it and update existing code if possible."
     },
     "blockquote": {
-      "attributes": [
-        "cite"
-      ],
+      "attributes": ["cite"],
       "description": "Indicates that the enclosed text is an extended quotation."
     },
     "body": {
@@ -114,10 +102,7 @@
       "description": "Represents a clickable button, which can be used in forms, or anywhere in a document that needs simple, standard button functionality."
     },
     "canvas": {
-      "attributes": [
-        "height",
-        "width"
-      ],
+      "attributes": ["height", "width"],
       "description": "Use the HTML canvas element with either the canvas scripting API or the WebGL API to draw graphics and animations."
     },
     "caption": {
@@ -130,15 +115,11 @@
       "description": "Displays its contents styled in a fashion intended to indicate that the text is a short fragment of computer code."
     },
     "col": {
-      "attributes": [
-        "span"
-      ],
+      "attributes": ["span"],
       "description": "Defines a column within a table and is used for defining common semantics on all common cells."
     },
     "colgroup": {
-      "attributes": [
-        "span"
-      ],
+      "attributes": ["span"],
       "description": "Defines a group of columns within a table."
     },
     "command": {
@@ -159,25 +140,18 @@
       "description": "Provides the details about or the definition of the preceding term (dt) in a description list (dl)."
     },
     "del": {
-      "attributes": [
-        "cite",
-        "datetime"
-      ],
+      "attributes": ["cite", "datetime"],
       "description": "Represents a range of text that has been deleted from a document."
     },
     "details": {
-      "attributes": [
-        "open"
-      ],
+      "attributes": ["open"],
       "description": "Used as a disclosure widget from which the user can retrieve additional information."
     },
     "dfn": {
       "description": "Represents the defining instance of a term."
     },
     "dialog": {
-      "attributes": [
-        "open"
-      ],
+      "attributes": ["open"],
       "description": "Represents a dialog box or other interactive component, such as an inspector or window."
     },
     "div": {
@@ -193,20 +167,11 @@
       "description": "Marks text that has stress emphasis."
     },
     "embed": {
-      "attributes": [
-        "height",
-        "src",
-        "type",
-        "width"
-      ],
+      "attributes": ["height", "src", "type", "width"],
       "description": "Embeds external content at the specified point in the document."
     },
     "fieldset": {
-      "attributes": [
-        "disabled",
-        "form",
-        "name"
-      ],
+      "attributes": ["disabled", "form", "name"],
       "description": "Used to group several controls as well as labels (label) within a web form."
     },
     "figcaption": {
@@ -262,11 +227,7 @@
       "description": "Represents a thematic break between paragraph-level elements (for example, a change of scene in a story, or a shift of topic with a section); historically, this has been presented as a horizontal rule or line."
     },
     "html": {
-      "attributes": [
-        "manifest",
-        "xml:lang",
-        "xmlns"
-      ],
+      "attributes": ["manifest", "xml:lang", "xmlns"],
       "description": "Represents the root (top-level element) of an HTML document, so it is also referred to as the root element."
     },
     "i": {
@@ -333,10 +294,7 @@
       "description": "Used to create interactive controls for web-based forms in order to accept data from the user."
     },
     "ins": {
-      "attributes": [
-        "cite",
-        "datetime"
-      ],
+      "attributes": ["cite", "datetime"],
       "description": "Represents a range of text that has been added to a document."
     },
     "kbd": {
@@ -354,19 +312,14 @@
       "description": "The keygen element is deprecated. Avoid using it and update existing code if possible."
     },
     "label": {
-      "attributes": [
-        "for",
-        "form"
-      ],
+      "attributes": ["for", "form"],
       "description": "Represents a caption for an item in a user interface."
     },
     "legend": {
       "description": "Represents a caption for the content of its parent fieldset."
     },
     "li": {
-      "attributes": [
-        "value"
-      ],
+      "attributes": ["value"],
       "description": "Used to represent an item in a list."
     },
     "link": {
@@ -385,9 +338,7 @@
       "description": "Represents the main content of the body of a document, portion of a document, or application."
     },
     "map": {
-      "attributes": [
-        "name"
-      ],
+      "attributes": ["name"],
       "description": "Used with area elements to define an image map (a clickable link area)."
     },
     "mark": {
@@ -411,31 +362,15 @@
       "description": "The marquee element is obsolete. Avoid using it and update existing code if possible."
     },
     "menu": {
-      "attributes": [
-        "label",
-        "type"
-      ],
+      "attributes": ["label", "type"],
       "description": "Represents a group of commands that a user can perform or activate."
     },
     "meta": {
-      "attributes": [
-        "charset",
-        "content",
-        "http-equiv",
-        "name"
-      ],
+      "attributes": ["charset", "content", "http-equiv", "name"],
       "description": "Represents metadata that cannot be represented by other HTML meta-related elements, like base, link, script, style or title."
     },
     "meter": {
-      "attributes": [
-        "form",
-        "high",
-        "low",
-        "max",
-        "min",
-        "optimum",
-        "value"
-      ],
+      "attributes": ["form", "high", "low", "max", "min", "optimum", "value"],
       "description": "Represents either a scalar value within a known range or a fractional value."
     },
     "nav": {
@@ -462,62 +397,37 @@
       "description": "Represents an external resource, which can be treated as an image, a nested browsing context, or a resource to be handled by a plugin."
     },
     "ol": {
-      "attributes": [
-        "reversed",
-        "start",
-        "type"
-      ],
+      "attributes": ["reversed", "start", "type"],
       "description": "Represents an ordered list of items, typically rendered as a numbered list."
     },
     "optgroup": {
-      "attributes": [
-        "disabled",
-        "label"
-      ],
+      "attributes": ["disabled", "label"],
       "description": "Creates a grouping of options within a select element."
     },
     "option": {
-      "attributes": [
-        "disabled",
-        "label",
-        "selected",
-        "value"
-      ],
+      "attributes": ["disabled", "label", "selected", "value"],
       "description": "Used to define an item contained in a select, an optgroup, or a datalist element."
     },
     "output": {
-      "attributes": [
-        "for",
-        "form",
-        "name"
-      ],
+      "attributes": ["for", "form", "name"],
       "description": "Represents the result of a calculation or user action."
     },
     "p": {
       "description": "Represents a paragraph of text."
     },
     "param": {
-      "attributes": [
-        "name",
-        "value"
-      ],
+      "attributes": ["name", "value"],
       "description": "Defines parameters for an object element."
     },
     "pre": {
       "description": "Represents preformatted text which is to be presented exactly as written in the HTML file."
     },
     "progress": {
-      "attributes": [
-        "form",
-        "max",
-        "value"
-      ],
+      "attributes": ["form", "max", "value"],
       "description": "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar."
     },
     "q": {
-      "attributes": [
-        "cite"
-      ],
+      "attributes": ["cite"],
       "description": "Indicates that the enclosed text is a short inline quotation."
     },
     "rp": {
@@ -533,13 +443,7 @@
       "description": "An element intended to identify sample output from a computer program."
     },
     "script": {
-      "attributes": [
-        "async",
-        "charset",
-        "defer",
-        "src",
-        "type"
-      ],
+      "attributes": ["async", "charset", "defer", "src", "type"],
       "description": "Used to embed or reference executable code; this is typically used to embed or refer to JavaScript code."
     },
     "section": {
@@ -561,11 +465,7 @@
       "description": "Makes the text font size one size smaller (for example, from large to medium, or from small to x-small) down to the browser's minimum font size."
     },
     "source": {
-      "attributes": [
-        "media",
-        "src",
-        "type"
-      ],
+      "attributes": ["media", "src", "type"],
       "description": "Specifies multiple media resources for the picture, the audio element, or the video element."
     },
     "span": {
@@ -575,12 +475,7 @@
       "description": "Gives text strong importance and is typically displayed in bold."
     },
     "style": {
-      "attributes": [
-        "disabled",
-        "media",
-        "scoped",
-        "type"
-      ],
+      "attributes": ["disabled", "media", "scoped", "type"],
       "description": "Contains style information for a document, or part of a document."
     },
     "sub": {
@@ -593,26 +488,18 @@
       "description": "Defines a span of text that should be displayed, for typographic reasons, higher, and often smaller, than the main span of text."
     },
     "table": {
-      "attributes": [
-        "border"
-      ],
+      "attributes": ["border"],
       "description": "Represents tabular data — that is, information presented in a two-dimensional table comprised of rows and columns of cells containing data."
     },
     "tbody": {
       "description": "Groups one or more tr elements as the body of a table element."
     },
     "td": {
-      "attributes": [
-        "colspan",
-        "headers",
-        "rowspan"
-      ],
+      "attributes": ["colspan", "headers", "rowspan"],
       "description": "Defines a cell of a table that contains data."
     },
     "template": {
-      "attributes": [
-        "content"
-      ],
+      "attributes": ["content"],
       "description": "A mechanism for holding client-side content that is not to be rendered when a page is loaded but may subsequently be instantiated during runtime using JavaScript."
     },
     "textarea": {
@@ -637,22 +524,14 @@
       "description": "Defines a set of rows summarizing the columns of the table."
     },
     "th": {
-      "attributes": [
-        "colspan",
-        "headers",
-        "rowspan",
-        "scope"
-      ],
+      "attributes": ["colspan", "headers", "rowspan", "scope"],
       "description": "Defines a cell as header of a group of table cells."
     },
     "thead": {
       "description": "Defines a set of rows defining the head of the columns of the table."
     },
     "time": {
-      "attributes": [
-        "datetime",
-        "pubdate"
-      ],
+      "attributes": ["datetime", "pubdate"],
       "description": "Represents either a time on a 24-hour clock or a precise date in the Gregorian calendar (with optional time and timezone information)."
     },
     "title": {
@@ -662,13 +541,7 @@
       "description": "Specifies that the markup contained inside the tr block comprises one row of a table, inside which the th and td elements create header and data cells, respectively, within the row."
     },
     "track": {
-      "attributes": [
-        "default",
-        "kind",
-        "label",
-        "src",
-        "srclang"
-      ],
+      "attributes": ["default", "kind", "label", "src", "srclang"],
       "description": "Used as a child of the media elements audio and video."
     },
     "tt": {
@@ -719,28 +592,17 @@
       "description": "The id of a menu to use as the contextual menu for this element."
     },
     "dir": {
-      "attribOption": [
-        "ltr",
-        "rtl"
-      ],
+      "attribOption": ["ltr", "rtl"],
       "global": "true",
       "description": "An enumerated attribute indicates the directionality of the element's text."
     },
     "draggable": {
-      "attribOption": [
-        "auto",
-        "false",
-        "true"
-      ],
+      "attribOption": ["auto", "false", "true"],
       "global": "true",
       "description": "An enumerated attribute that indicates whether the element can be dragged, using the HTML Drag and Drop API."
     },
     "dropzone": {
-      "attribOption": [
-        "copy",
-        "move",
-        "link"
-      ],
+      "attribOption": ["copy", "move", "link"],
       "global": "true",
       "description": "An enumerated attribute indicating what types of content can be dropped on an element, using the Drag and Drop API."
     },
@@ -1152,21 +1014,13 @@
       "global": "true"
     },
     "aria-autocomplete": {
-      "attribOption": [
-        "inline",
-        "list",
-        "both",
-        "none"
-      ]
+      "attribOption": ["inline", "list", "both", "none"]
     },
     "aria-activedescendant": {
       "global": "true"
     },
     "aria-atomic": {
-      "attribOption": [
-        "true",
-        "false"
-      ],
+      "attribOption": ["true", "false"],
       "global": "true",
       "type": "boolean"
     },
@@ -1175,12 +1029,7 @@
       "type": "boolean"
     },
     "aria-checked": {
-      "attribOption": [
-        "true",
-        "false",
-        "mixed",
-        "undefined"
-      ]
+      "attribOption": ["true", "false", "mixed", "undefined"]
     },
     "aria-controls": {
       "global": "true"
@@ -1189,64 +1038,35 @@
       "global": "true"
     },
     "aria-disabled": {
-      "attribOption": [
-        "true",
-        "false"
-      ],
+      "attribOption": ["true", "false"],
       "global": "true"
     },
     "aria-dropeffect": {
-      "attribOption": [
-        "copy",
-        "move",
-        "link",
-        "execute",
-        "popup",
-        "none"
-      ],
+      "attribOption": ["copy", "move", "link", "execute", "popup", "none"],
       "global": "true"
     },
     "aria-expanded": {
-      "attribOption": [
-        "true",
-        "false",
-        "undefined"
-      ]
+      "attribOption": ["true", "false", "undefined"]
     },
     "aria-flowto": {
       "global": "true"
     },
     "aria-grabbed": {
-      "attribOption": [
-        "true",
-        "false",
-        "undefined"
-      ],
+      "attribOption": ["true", "false", "undefined"],
       "global": "true"
     },
     "aria-haspopup": {
-      "attribOption": [
-        "true",
-        "false"
-      ],
+      "attribOption": ["true", "false"],
       "global": "true",
       "type": "boolean"
     },
     "aria-hidden": {
-      "attribOption": [
-        "true",
-        "false"
-      ],
+      "attribOption": ["true", "false"],
       "global": "true",
       "type": "boolean"
     },
     "aria-invalid": {
-      "attribOption": [
-        "grammar",
-        "false",
-        "spelling",
-        "true"
-      ],
+      "attribOption": ["grammar", "false", "spelling", "true"],
       "global": "true"
     },
     "aria-label": {
@@ -1257,50 +1077,29 @@
     },
     "aria-level": {},
     "aria-live": {
-      "attribOption": [
-        "off",
-        "polite",
-        "assertive"
-      ],
+      "attribOption": ["off", "polite", "assertive"],
       "global": "true"
     },
     "aria-multiline": {
-      "attribOption": [
-        "true",
-        "false"
-      ],
+      "attribOption": ["true", "false"],
       "type": "boolean"
     },
     "aria-multiselectable": {
-      "attribOption": [
-        "true",
-        "false"
-      ],
+      "attribOption": ["true", "false"],
       "type": "boolean"
     },
     "aria-orientation": {
-      "attribOption": [
-        "vertical",
-        "horizontal"
-      ]
+      "attribOption": ["vertical", "horizontal"]
     },
     "aria-owns": {
       "global": "true"
     },
     "aria-posinset": {},
     "aria-pressed": {
-      "attribOption": [
-        "true",
-        "false",
-        "mixed",
-        "undefined"
-      ]
+      "attribOption": ["true", "false", "mixed", "undefined"]
     },
     "aria-readonly": {
-      "attribOption": [
-        "true",
-        "false"
-      ]
+      "attribOption": ["true", "false"]
     },
     "aria-relevant": {
       "attribOption": [
@@ -1313,27 +1112,15 @@
       "global": "true"
     },
     "aria-required": {
-      "attribOption": [
-        "true",
-        "false"
-      ],
+      "attribOption": ["true", "false"],
       "type": "boolean"
     },
     "aria-selected": {
-      "attribOption": [
-        "true",
-        "false",
-        "undefined"
-      ]
+      "attribOption": ["true", "false", "undefined"]
     },
     "aria-setsize": {},
     "aria-sort": {
-      "attribOption": [
-        "ascending",
-        "descending",
-        "none",
-        "other"
-      ]
+      "attribOption": ["ascending", "descending", "none", "other"]
     },
     "aria-valuemax": {},
     "aria-valuemin": {},
@@ -1450,11 +1237,7 @@
       "type": "flag"
     },
     "behavior": {
-      "attribOption": [
-        "scroll",
-        "slide",
-        "alternate"
-      ]
+      "attribOption": ["scroll", "slide", "alternate"]
     },
     "bgcolor": {
       "type": "color"
@@ -1533,12 +1316,7 @@
       "type": "flag"
     },
     "direction": {
-      "attribOption": [
-        "left",
-        "right",
-        "up",
-        "down"
-      ]
+      "attribOption": ["left", "right", "up", "down"]
     },
     "dirname": {},
     "disabled": {
@@ -1562,21 +1340,13 @@
       ]
     },
     "formmethod": {
-      "attribOption": [
-        "get",
-        "post"
-      ]
+      "attribOption": ["get", "post"]
     },
     "formnovalidate": {
       "type": "flag"
     },
     "formtarget": {
-      "attribOption": [
-        "_blank",
-        "_parent",
-        "_self",
-        "_top"
-      ]
+      "attribOption": ["_blank", "_parent", "_self", "_top"]
     },
     "headers": {},
     "height": {},
@@ -1585,22 +1355,14 @@
     "hreflang": {},
     "hspace": {},
     "http-equiv": {
-      "attribOption": [
-        "content-type",
-        "default-style",
-        "refresh"
-      ]
+      "attribOption": ["content-type", "default-style", "refresh"]
     },
     "icon": {},
     "ismap": {
       "type": "flag"
     },
     "keytype": {
-      "attribOption": [
-        "dsa",
-        "ec",
-        "rsa"
-      ]
+      "attribOption": ["dsa", "ec", "rsa"]
     },
     "kind": {
       "attribOption": [
@@ -1672,10 +1434,7 @@
     },
     "mediagroup": {},
     "method": {
-      "attribOption": [
-        "get",
-        "post"
-      ]
+      "attribOption": ["get", "post"]
     },
     "min": {},
     "multiple": {
@@ -1705,11 +1464,7 @@
     "placeholder": {},
     "poster": {},
     "preload": {
-      "attribOption": [
-        "auto",
-        "metadata",
-        "none"
-      ]
+      "attribOption": ["auto", "metadata", "none"]
     },
     "pubdate": {},
     "radiogroup": {},
@@ -1774,12 +1529,7 @@
       "type": "flag"
     },
     "scope": {
-      "attribOption": [
-        "col",
-        "colgroup",
-        "row",
-        "rowgroup"
-      ]
+      "attribOption": ["col", "colgroup", "row", "rowgroup"]
     },
     "scoped": {
       "type": "boolean"
@@ -1787,18 +1537,11 @@
     "scrollamount": {},
     "scrolldelay": {},
     "shape": {
-      "attribOption": [
-        "circle",
-        "default",
-        "poly",
-        "rect"
-      ]
+      "attribOption": ["circle", "default", "poly", "rect"]
     },
     "size": {},
     "sizes": {
-      "attribOption": [
-        "any"
-      ]
+      "attribOption": ["any"]
     },
     "span": {},
     "src": {},
@@ -1808,51 +1551,26 @@
     "start": {},
     "step": {},
     "target": {
-      "attribOption": [
-        "_blank",
-        "_parent",
-        "_self",
-        "_top"
-      ]
+      "attribOption": ["_blank", "_parent", "_self", "_top"]
     },
     "truespeed": {
       "type": "flag"
     },
     "type": {},
     "button/type": {
-      "attribOption": [
-        "button",
-        "reset",
-        "submit"
-      ]
+      "attribOption": ["button", "reset", "submit"]
     },
     "command/type": {
-      "attribOption": [
-        "command",
-        "checkbox",
-        "radio"
-      ]
+      "attribOption": ["command", "checkbox", "radio"]
     },
     "link/type": {
-      "attribOption": [
-        "text/css"
-      ]
+      "attribOption": ["text/css"]
     },
     "menu/type": {
-      "attribOption": [
-        "context",
-        "list",
-        "toolbar"
-      ]
+      "attribOption": ["context", "list", "toolbar"]
     },
     "ol/type": {
-      "attribOption": [
-        "1",
-        "a",
-        "A",
-        "i",
-        "I"
-      ]
+      "attribOption": ["1", "a", "A", "i", "I"]
     },
     "script/type": {
       "attribOption": [
@@ -1872,9 +1590,7 @@
       ]
     },
     "style/type": {
-      "attribOption": [
-        "text/css"
-      ]
+      "attribOption": ["text/css"]
     },
     "input/type": {
       "attribOption": [
@@ -1908,10 +1624,7 @@
     "vspace": {},
     "width": {},
     "wrap": {
-      "attribOption": [
-        "hard",
-        "soft"
-      ]
+      "attribOption": ["hard", "soft"]
     },
     "xml:lang": {},
     "xmlns": {}

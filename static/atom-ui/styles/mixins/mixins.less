@@ -1,4 +1,4 @@
-@import "ui-variables";
+@import 'ui-variables';
 
 // Core mixins
 // ----------------------------------------
@@ -9,7 +9,6 @@
   outline: 2px auto @text-color-info;
   outline-offset: -2px;
 }
-
 
 // Border-radius
 //
@@ -30,7 +29,6 @@
   border-top-left-radius: @radius;
 }
 
-
 // Clearfix
 //
 // For modern browsers
@@ -46,14 +44,13 @@
 .clearfix() {
   &:before,
   &:after {
-    content: " "; // 1
+    content: ' '; // 1
     display: table; // 2
   }
   &:after {
     clear: both;
   }
 }
-
 
 // CSS image replacement
 //
@@ -65,7 +62,7 @@
 
 // Deprecated as of v3.0.1 (has been removed in v4)
 .hide-text() {
-  font: ~"0/0" a;
+  font: ~'0/0' a;
   color: transparent;
   text-shadow: none;
   background-color: transparent;
@@ -76,7 +73,6 @@
 .text-hide() {
   .hide-text();
 }
-
 
 // Text overflow
 // Requires inline-block or block for proper styling

@@ -1,5 +1,5 @@
 import React from 'react';
-import {graphql, createRefetchContainer} from 'react-relay';
+import { graphql, createRefetchContainer } from 'react-relay';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
@@ -9,8 +9,8 @@ import Octicon from '../atom/octicon';
 import IssueishBadge from '../views/issueish-badge';
 import GithubDotcomMarkdown from '../views/github-dotcom-markdown';
 import PeriodicRefresher from '../periodic-refresher';
-import {addEvent} from '../reporter-proxy';
-import {GHOST_USER} from '../helpers';
+import { addEvent } from '../reporter-proxy';
+import { GHOST_USER } from '../helpers';
 
 export class BareIssueDetailView extends React.Component {
   static propTypes = {
@@ -33,9 +33,7 @@ export class BareIssueDetailView extends React.Component {
       url: PropTypes.string.isRequired,
       bodyHTML: PropTypes.string,
       number: PropTypes.number,
-      state: PropTypes.oneOf([
-        'OPEN', 'CLOSED',
-      ]).isRequired,
+      state: PropTypes.oneOf(['OPEN', 'CLOSED']).isRequired,
       author: PropTypes.shape({
         login: PropTypes.string.isRequired,
         avatarUrl: PropTypes.string.isRequired,
@@ -47,7 +45,7 @@ export class BareIssueDetailView extends React.Component {
           users: PropTypes.shape({
             totalCount: PropTypes.number.isRequired,
           }).isRequired,
-        }),
+        })
       ).isRequired,
     }).isRequired,
 
@@ -56,11 +54,11 @@ export class BareIssueDetailView extends React.Component {
 
     // Action methods
     reportRelayError: PropTypes.func.isRequired,
-  }
+  };
 
   state = {
     refreshing: false,
-  }
+  };
 
   componentDidMount() {
     this.refresher = new PeriodicRefresher(BareIssueDetailView, {
@@ -105,11 +103,11 @@ export class BareIssueDetailView extends React.Component {
     return (
       <div className="github-IssueishDetailView native-key-bindings">
         <div className="github-IssueishDetailView-container">
-
           <header className="github-IssueishDetailView-header">
             <div className="github-IssueishDetailView-headerColumn">
               <a className="github-IssueishDetailView-avatar" href={author.url}>
-                <img className="github-IssueishDetailView-avatarImage"
+                <img
+                  className="github-IssueishDetailView-avatarImage"
                   src={author.avatarUrl}
                   title={author.login}
                   alt={author.login}
@@ -119,21 +117,30 @@ export class BareIssueDetailView extends React.Component {
 
             <div className="github-IssueishDetailView-headerColumn is-flexible">
               <div className="github-IssueishDetailView-headerRow is-fullwidth">
-                <a className="github-IssueishDetailView-title" href={issue.url}>{issue.title}</a>
+                <a className="github-IssueishDetailView-title" href={issue.url}>
+                  {issue.title}
+                </a>
               </div>
               <div className="github-IssueishDetailView-headerRow">
-                <IssueishBadge className="github-IssueishDetailView-headerBadge"
+                <IssueishBadge
+                  className="github-IssueishDetailView-headerBadge"
                   type={issue.__typename}
                   state={issue.state}
                 />
                 <Octicon
                   icon="repo-sync"
-                  className={cx('github-IssueishDetailView-headerRefreshButton', {refreshing: this.state.refreshing})}
+                  className={cx(
+                    'github-IssueishDetailView-headerRefreshButton',
+                    { refreshing: this.state.refreshing }
+                  )}
                   onClick={this.handleRefreshClick}
                 />
-                <a className="github-IssueishDetailView-headerLink"
+                <a
+                  className="github-IssueishDetailView-headerLink"
                   title="open on GitHub.com"
-                  href={issue.url} onClick={this.recordOpenInBrowserEvent}>
+                  href={issue.url}
+                  onClick={this.recordOpenInBrowserEvent}
+                >
                   {repo.owner.login}/{repo.name}#{issue.number}
                 </a>
               </div>
@@ -143,96 +150,114 @@ export class BareIssueDetailView extends React.Component {
           {this.renderIssueBody(issue)}
 
           <footer className="github-IssueishDetailView-footer">
-            <a className="github-IssueishDetailView-footerLink icon icon-mark-github"
-              href={issue.url}>{repo.owner.login}/{repo.name}#{issue.number}
+            <a
+              className="github-IssueishDetailView-footerLink icon icon-mark-github"
+              href={issue.url}
+            >
+              {repo.owner.login}/{repo.name}#{issue.number}
             </a>
           </footer>
-
         </div>
       </div>
     );
   }
 
-  handleRefreshClick = e => {
+  handleRefreshClick = (e) => {
     e.preventDefault();
     this.refresher.refreshNow(true);
-  }
+  };
 
   recordOpenInBrowserEvent = () => {
-    addEvent('open-issue-in-browser', {package: 'github', component: this.constructor.name});
-  }
+    addEvent('open-issue-in-browser', {
+      package: 'github',
+      component: this.constructor.name,
+    });
+  };
 
   refresh = () => {
     if (this.state.refreshing) {
       return;
     }
 
-    this.setState({refreshing: true});
-    this.props.relay.refetch({
-      repoId: this.props.repository.id,
-      issueishId: this.props.issue.id,
-      timelineCount: 100,
-      timelineCursor: null,
-    }, null, err => {
-      if (err) {
-        this.props.reportRelayError('Unable to refresh issue details', err);
-      }
-      this.setState({refreshing: false});
-    }, {force: true});
-  }
+    this.setState({ refreshing: true });
+    this.props.relay.refetch(
+      {
+        repoId: this.props.repository.id,
+        issueishId: this.props.issue.id,
+        timelineCount: 100,
+        timelineCursor: null,
+      },
+      null,
+      (err) => {
+        if (err) {
+          this.props.reportRelayError('Unable to refresh issue details', err);
+        }
+        this.setState({ refreshing: false });
+      },
+      { force: true }
+    );
+  };
 }
 
-export default createRefetchContainer(BareIssueDetailView, {
-  repository: graphql`
-    fragment issueDetailView_repository on Repository {
-      id
-      name
-      owner {
-        login
+export default createRefetchContainer(
+  BareIssueDetailView,
+  {
+    repository: graphql`
+      fragment issueDetailView_repository on Repository {
+        id
+        name
+        owner {
+          login
+        }
       }
-    }
-  `,
+    `,
 
-  issue: graphql`
-    fragment issueDetailView_issue on Issue
-    @argumentDefinitions(
-      timelineCount: {type: "Int!"},
-      timelineCursor: {type: "String"},
-    ) {
-      id
-      __typename
-      url
-      state
-      number
-      title
-      bodyHTML
-      author {
-        login
-        avatarUrl
+    issue: graphql`
+      fragment issueDetailView_issue on Issue
+      @argumentDefinitions(
+        timelineCount: { type: "Int!" }
+        timelineCursor: { type: "String" }
+      ) {
+        id
+        __typename
         url
+        state
+        number
+        title
+        bodyHTML
+        author {
+          login
+          avatarUrl
+          url
+        }
+
+        ...issueTimelineController_issue
+          @arguments(
+            timelineCount: $timelineCount
+            timelineCursor: $timelineCursor
+          )
+        ...emojiReactionsView_reactable
+      }
+    `,
+  },
+  graphql`
+    query issueDetailViewRefetchQuery(
+      $repoId: ID!
+      $issueishId: ID!
+      $timelineCount: Int!
+      $timelineCursor: String
+    ) {
+      repository: node(id: $repoId) {
+        ...issueDetailView_repository
       }
 
-      ...issueTimelineController_issue @arguments(timelineCount: $timelineCount, timelineCursor: $timelineCursor)
-      ...emojiReactionsView_reactable
+      issue: node(id: $issueishId) {
+        ...issueDetailView_issue
+          @arguments(
+            timelineCount: $timelineCount
+            timelineCursor: $timelineCursor
+          )
+      }
     }
-  `,
-}, graphql`
-  query issueDetailViewRefetchQuery
-  (
-    $repoId: ID!,
-    $issueishId: ID!,
-    $timelineCount: Int!,
-    $timelineCursor: String,
-  ) {
-    repository: node(id: $repoId) {
-      ...issueDetailView_repository
-    }
-
-    issue: node(id: $issueishId) {
-      ...issueDetailView_issue @arguments(
-        timelineCount: $timelineCount,
-        timelineCursor: $timelineCursor,
-      )
-    }
-  }
-`);
+  `
+);

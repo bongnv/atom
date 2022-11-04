@@ -1,12 +1,12 @@
 import React from 'react';
-import {shallow} from 'enzyme';
+import { shallow } from 'enzyme';
 
-import {BareReviewCommentsAccumulator} from '../../../lib/containers/accumulators/review-comments-accumulator';
-import {reviewThreadBuilder} from '../../builder/graphql/pr';
+import { BareReviewCommentsAccumulator } from '../../../lib/containers/accumulators/review-comments-accumulator';
+import { reviewThreadBuilder } from '../../builder/graphql/pr';
 
 import reviewThreadQuery from '../../../lib/containers/accumulators/__generated__/reviewCommentsAccumulator_reviewThread.graphql.js';
 
-describe('ReviewCommentsAccumulator', function() {
+describe('ReviewCommentsAccumulator', function () {
   function buildApp(opts = {}) {
     const options = {
       buildReviewThread: () => {},
@@ -32,33 +32,42 @@ describe('ReviewCommentsAccumulator', function() {
     return <BareReviewCommentsAccumulator {...props} />;
   }
 
-  it('passes the review thread comments as its result batch', function() {
+  it('passes the review thread comments as its result batch', function () {
     function buildReviewThread(b) {
-      b.comments(conn => {
-        conn.addEdge(e => e.node(c => c.id(10)));
-        conn.addEdge(e => e.node(c => c.id(20)));
-        conn.addEdge(e => e.node(c => c.id(30)));
+      b.comments((conn) => {
+        conn.addEdge((e) => e.node((c) => c.id(10)));
+        conn.addEdge((e) => e.node((c) => c.id(20)));
+        conn.addEdge((e) => e.node((c) => c.id(30)));
       });
     }
 
-    const wrapper = shallow(buildApp({buildReviewThread}));
+    const wrapper = shallow(buildApp({ buildReviewThread }));
 
     assert.deepEqual(
-      wrapper.find('Accumulator').prop('resultBatch').map(each => each.id),
-      [10, 20, 30],
+      wrapper
+        .find('Accumulator')
+        .prop('resultBatch')
+        .map((each) => each.id),
+      [10, 20, 30]
     );
   });
 
-  it('passes a child render prop', function() {
+  it('passes a child render prop', function () {
     const children = sinon.stub().returns(<div className="done" />);
-    const wrapper = shallow(buildApp({props: {children}}));
-    const resultWrapper = wrapper.find('Accumulator').renderProp('children')(null, [], false);
+    const wrapper = shallow(buildApp({ props: { children } }));
+    const resultWrapper = wrapper.find('Accumulator').renderProp('children')(
+      null,
+      [],
+      false
+    );
 
     assert.isTrue(resultWrapper.exists('.done'));
-    assert.isTrue(children.calledWith({
-      error: null,
-      comments: [],
-      loading: false,
-    }));
+    assert.isTrue(
+      children.calledWith({
+        error: null,
+        comments: [],
+        loading: false,
+      })
+    );
   });
 });

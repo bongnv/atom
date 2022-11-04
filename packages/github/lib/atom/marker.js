@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable, Disposable} from 'event-kit';
+import { CompositeDisposable, Disposable } from 'event-kit';
 
-import {autobind, extractProps} from '../helpers';
-import {RefHolderPropType, RangePropType} from '../prop-types';
+import { autobind, extractProps } from '../helpers';
+import { RefHolderPropType, RangePropType } from '../prop-types';
 import RefHolder from '../models/ref-holder';
-import {TextEditorContext} from './atom-text-editor';
-import {MarkerLayerContext} from './marker-layer';
+import { TextEditorContext } from './atom-text-editor';
+import { MarkerLayerContext } from './marker-layer';
 
 const MarkablePropType = PropTypes.shape({
   markBufferRange: PropTypes.func.isRequired,
@@ -15,7 +15,13 @@ const MarkablePropType = PropTypes.shape({
 const markerProps = {
   exclusive: PropTypes.bool,
   reversed: PropTypes.bool,
-  invalidate: PropTypes.oneOf(['never', 'surround', 'overlap', 'inside', 'touch']),
+  invalidate: PropTypes.oneOf([
+    'never',
+    'surround',
+    'overlap',
+    'inside',
+    'touch',
+  ]),
 };
 
 export const MarkerContext = React.createContext();
@@ -32,13 +38,13 @@ class BareMarker extends React.Component {
     onDidChange: PropTypes.func,
     handleID: PropTypes.func,
     handleMarker: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     onDidChange: () => {},
     handleID: () => {},
     handleMarker: () => {},
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -49,7 +55,7 @@ class BareMarker extends React.Component {
     this.subs = new CompositeDisposable();
 
     this.markerHolder = new RefHolder();
-    this.markerHolder.observe(marker => {
+    this.markerHolder.observe((marker) => {
       this.props.handleMarker(marker);
     });
 
@@ -78,8 +84,12 @@ class BareMarker extends React.Component {
       this.observeMarkable();
     }
 
-    if (Object.keys(markerProps).some(key => prevProps[key] !== this.props[key])) {
-      this.markerHolder.map(marker => marker.setProperties(extractProps(this.props, markerProps)));
+    if (
+      Object.keys(markerProps).some((key) => prevProps[key] !== this.props[key])
+    ) {
+      this.markerHolder.map((marker) =>
+        marker.setProperties(extractProps(this.props, markerProps))
+      );
     }
 
     this.updateMarkerPosition();
@@ -102,7 +112,7 @@ class BareMarker extends React.Component {
 
     const options = extractProps(this.props, markerProps);
 
-    this.props.markableHolder.map(markable => {
+    this.props.markableHolder.map((markable) => {
       let marker;
 
       if (this.props.id !== undefined) {
@@ -124,17 +134,29 @@ class BareMarker extends React.Component {
   }
 
   updateMarkerPosition() {
-    this.markerHolder.map(marker => marker.setBufferRange(this.props.bufferRange));
+    this.markerHolder.map((marker) =>
+      marker.setBufferRange(this.props.bufferRange)
+    );
   }
 
   didChange(event) {
-    const reversed = this.markerHolder.map(marker => marker.isReversed()).getOr(false);
+    const reversed = this.markerHolder
+      .map((marker) => marker.isReversed())
+      .getOr(false);
 
-    const oldBufferStartPosition = reversed ? event.oldHeadBufferPosition : event.oldTailBufferPosition;
-    const oldBufferEndPosition = reversed ? event.oldTailBufferPosition : event.oldHeadBufferPosition;
+    const oldBufferStartPosition = reversed
+      ? event.oldHeadBufferPosition
+      : event.oldTailBufferPosition;
+    const oldBufferEndPosition = reversed
+      ? event.oldTailBufferPosition
+      : event.oldHeadBufferPosition;
 
-    const newBufferStartPosition = reversed ? event.newHeadBufferPosition : event.newTailBufferPosition;
-    const newBufferEndPosition = reversed ? event.newTailBufferPosition : event.newHeadBufferPosition;
+    const newBufferStartPosition = reversed
+      ? event.newHeadBufferPosition
+      : event.newTailBufferPosition;
+    const newBufferEndPosition = reversed
+      ? event.newTailBufferPosition
+      : event.newHeadBufferPosition;
 
     this.props.onDidChange({
       oldRange: new Range(oldBufferStartPosition, oldBufferEndPosition),
@@ -148,7 +170,7 @@ export default class Marker extends React.Component {
   static propTypes = {
     editor: MarkablePropType,
     layer: MarkablePropType,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -161,7 +183,11 @@ export default class Marker extends React.Component {
   static getDerivedStateFromProps(props, state) {
     const markable = props.layer || props.editor;
 
-    if (state.markableHolder.map(m => m === markable).getOr(markable === undefined)) {
+    if (
+      state.markableHolder
+        .map((m) => m === markable)
+        .getOr(markable === undefined)
+    ) {
       return {};
     }
 
@@ -172,18 +198,25 @@ export default class Marker extends React.Component {
 
   render() {
     if (!this.state.markableHolder.isEmpty()) {
-      return <BareMarker {...this.props} markableHolder={this.state.markableHolder} />;
+      return (
+        <BareMarker
+          {...this.props}
+          markableHolder={this.state.markableHolder}
+        />
+      );
     }
 
     return (
       <MarkerLayerContext.Consumer>
-        {layerHolder => {
+        {(layerHolder) => {
           if (layerHolder) {
             return <BareMarker {...this.props} markableHolder={layerHolder} />;
           } else {
             return (
               <TextEditorContext.Consumer>
-                {editorHolder => <BareMarker {...this.props} markableHolder={editorHolder} />}
+                {(editorHolder) => (
+                  <BareMarker {...this.props} markableHolder={editorHolder} />
+                )}
               </TextEditorContext.Consumer>
             );
           }

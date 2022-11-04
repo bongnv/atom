@@ -1,19 +1,19 @@
 import fs from 'fs-extra';
 import path from 'path';
-import {remote} from 'electron';
+import { remote } from 'electron';
 
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 import yubikiri from 'yubikiri';
 
 import StatusBar from '../atom/status-bar';
 import PaneItem from '../atom/pane-item';
-import {openIssueishItem} from '../views/open-issueish-dialog';
-import {openCommitDetailItem} from '../views/open-commit-dialog';
-import {createRepository, publishRepository} from '../views/create-dialog';
+import { openIssueishItem } from '../views/open-issueish-dialog';
+import { openCommitDetailItem } from '../views/open-commit-dialog';
+import { createRepository, publishRepository } from '../views/create-dialog';
 import ObserveModel from '../views/observe-model';
-import Commands, {Command} from '../atom/commands';
+import Commands, { Command } from '../atom/commands';
 import ChangedFileItem from '../items/changed-file-item';
 import IssueishDetailItem from '../items/issueish-detail-item';
 import CommitDetailItem from '../items/commit-detail-item';
@@ -22,19 +22,23 @@ import GitTabItem from '../items/git-tab-item';
 import GitHubTabItem from '../items/github-tab-item';
 import ReviewsItem from '../items/reviews-item';
 import CommentDecorationsContainer from '../containers/comment-decorations-container';
-import DialogsController, {dialogRequests} from './dialogs-controller';
+import DialogsController, { dialogRequests } from './dialogs-controller';
 import StatusBarTileController from './status-bar-tile-controller';
 import RepositoryConflictController from './repository-conflict-controller';
 import RelayNetworkLayerManager from '../relay-network-layer-manager';
 import GitCacheView from '../views/git-cache-view';
 import GitTimingsView from '../views/git-timings-view';
 import Conflict from '../models/conflicts/conflict';
-import {getEndpoint} from '../models/endpoint';
+import { getEndpoint } from '../models/endpoint';
 import Switchboard from '../switchboard';
-import {WorkdirContextPoolPropType} from '../prop-types';
-import {destroyFilePatchPaneItems, destroyEmptyFilePatchPaneItems, autobind} from '../helpers';
-import {GitError} from '../git-shell-out-strategy';
-import {incrementCounter, addEvent} from '../reporter-proxy';
+import { WorkdirContextPoolPropType } from '../prop-types';
+import {
+  destroyFilePatchPaneItems,
+  destroyEmptyFilePatchPaneItems,
+  autobind,
+} from '../helpers';
+import { GitError } from '../git-shell-out-strategy';
+import { incrementCounter, addEvent } from '../reporter-proxy';
 
 export default class RootController extends React.Component {
   static propTypes = {
@@ -72,24 +76,33 @@ export default class RootController extends React.Component {
     setContextLock: PropTypes.func.isRequired,
     startOpen: PropTypes.bool,
     startRevealed: PropTypes.bool,
-  }
+  };
 
   static defaultProps = {
     switchboard: new Switchboard(),
     startOpen: false,
     startRevealed: false,
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
     autobind(
       this,
       'clearGithubToken',
-      'showWaterfallDiagnostics', 'showCacheDiagnostics',
-      'destroyFilePatchPaneItems', 'destroyEmptyFilePatchPaneItems',
-      'quietlySelectItem', 'viewUnstagedChangesForCurrentFile',
-      'viewStagedChangesForCurrentFile', 'openFiles', 'getUnsavedFiles', 'ensureNoUnsavedFiles',
-      'discardWorkDirChangesForPaths', 'discardLines', 'undoLastDiscard', 'refreshResolutionProgress',
+      'showWaterfallDiagnostics',
+      'showCacheDiagnostics',
+      'destroyFilePatchPaneItems',
+      'destroyEmptyFilePatchPaneItems',
+      'quietlySelectItem',
+      'viewUnstagedChangesForCurrentFile',
+      'viewStagedChangesForCurrentFile',
+      'openFiles',
+      'getUnsavedFiles',
+      'ensureNoUnsavedFiles',
+      'discardWorkDirChangesForPaths',
+      'discardLines',
+      'undoLastDiscard',
+      'refreshResolutionProgress'
     );
 
     this.state = {
@@ -107,12 +120,17 @@ export default class RootController extends React.Component {
     });
 
     this.subscription = new CompositeDisposable(
-      this.props.repository.onPullError(this.gitTabTracker.ensureVisible),
+      this.props.repository.onPullError(this.gitTabTracker.ensureVisible)
     );
 
-    this.props.commands.onDidDispatch(event => {
-      if (event.type && event.type.startsWith('github:')
-        && event.detail && event.detail[0] && event.detail[0].contextCommand) {
+    this.props.commands.onDidDispatch((event) => {
+      if (
+        event.type &&
+        event.type.startsWith('github:') &&
+        event.detail &&
+        event.detail[0] &&
+        event.detail[0].contextCommand
+      ) {
         addEvent('context-menu-action', {
           package: 'github',
           command: event.type,
@@ -144,19 +162,55 @@ export default class RootController extends React.Component {
     return (
       <Fragment>
         <Commands registry={this.props.commands} target="atom-workspace">
-          <Command command="github:toggle-commit-preview" callback={this.toggleCommitPreviewItem} />
+          <Command
+            command="github:toggle-commit-preview"
+            callback={this.toggleCommitPreviewItem}
+          />
           <Command command="github:logout" callback={this.clearGithubToken} />
-          <Command command="github:show-waterfall-diagnostics" callback={this.showWaterfallDiagnostics} />
-          <Command command="github:show-cache-diagnostics" callback={this.showCacheDiagnostics} />
-          <Command command="github:toggle-git-tab" callback={this.gitTabTracker.toggle} />
-          <Command command="github:toggle-git-tab-focus" callback={this.gitTabTracker.toggleFocus} />
-          <Command command="github:toggle-github-tab" callback={this.githubTabTracker.toggle} />
-          <Command command="github:toggle-github-tab-focus" callback={this.githubTabTracker.toggleFocus} />
-          <Command command="github:initialize" callback={() => this.openInitializeDialog()} />
-          <Command command="github:clone" callback={() => this.openCloneDialog()} />
-          <Command command="github:open-issue-or-pull-request" callback={() => this.openIssueishDialog()} />
-          <Command command="github:open-commit" callback={() => this.openCommitDialog()} />
-          <Command command="github:create-repository" callback={() => this.openCreateDialog()} />
+          <Command
+            command="github:show-waterfall-diagnostics"
+            callback={this.showWaterfallDiagnostics}
+          />
+          <Command
+            command="github:show-cache-diagnostics"
+            callback={this.showCacheDiagnostics}
+          />
+          <Command
+            command="github:toggle-git-tab"
+            callback={this.gitTabTracker.toggle}
+          />
+          <Command
+            command="github:toggle-git-tab-focus"
+            callback={this.gitTabTracker.toggleFocus}
+          />
+          <Command
+            command="github:toggle-github-tab"
+            callback={this.githubTabTracker.toggle}
+          />
+          <Command
+            command="github:toggle-github-tab-focus"
+            callback={this.githubTabTracker.toggleFocus}
+          />
+          <Command
+            command="github:initialize"
+            callback={() => this.openInitializeDialog()}
+          />
+          <Command
+            command="github:clone"
+            callback={() => this.openCloneDialog()}
+          />
+          <Command
+            command="github:open-issue-or-pull-request"
+            callback={() => this.openIssueishDialog()}
+          />
+          <Command
+            command="github:open-commit"
+            callback={() => this.openCommitDialog()}
+          />
+          <Command
+            command="github:create-repository"
+            callback={() => this.openCreateDialog()}
+          />
           <Command
             command="github:view-unstaged-changes-for-current-file"
             callback={this.viewUnstagedChangesForCurrentFile}
@@ -175,8 +229,12 @@ export default class RootController extends React.Component {
           />
         </Commands>
         <ObserveModel model={this.props.repository} fetchData={this.fetchData}>
-          {data => {
-            if (!data || !data.isPublishable || !data.remotes.filter(r => r.isGithubRepo()).isEmpty()) {
+          {(data) => {
+            if (
+              !data ||
+              !data.isPublishable ||
+              !data.remotes.filter((r) => r.isGithubRepo()).isEmpty()
+            ) {
               return null;
             }
 
@@ -198,8 +256,9 @@ export default class RootController extends React.Component {
     return (
       <StatusBar
         statusBar={this.props.statusBar}
-        onConsumeStatusBar={sb => this.onConsumeStatusBar(sb)}
-        className="github-StatusBarTileController">
+        onConsumeStatusBar={(sb) => this.onConsumeStatusBar(sb)}
+        className="github-StatusBarTileController"
+      >
         <StatusBarTileController
           pipelineManager={this.props.pipelineManager}
           workspace={this.props.workspace}
@@ -220,7 +279,6 @@ export default class RootController extends React.Component {
       <DialogsController
         loginModel={this.props.loginModel}
         request={this.state.dialogRequest}
-
         currentWindow={this.props.currentWindow}
         workspace={this.props.workspace}
         commands={this.props.commands}
@@ -262,17 +320,20 @@ export default class RootController extends React.Component {
   }
 
   renderPaneItems() {
-    const {workdirContextPool} = this.props;
-    const getCurrentWorkDirs = workdirContextPool.getCurrentWorkDirs.bind(workdirContextPool);
-    const onDidChangeWorkDirs = workdirContextPool.onDidChangePoolContexts.bind(workdirContextPool);
+    const { workdirContextPool } = this.props;
+    const getCurrentWorkDirs =
+      workdirContextPool.getCurrentWorkDirs.bind(workdirContextPool);
+    const onDidChangeWorkDirs =
+      workdirContextPool.onDidChangePoolContexts.bind(workdirContextPool);
 
     return (
       <Fragment>
         <PaneItem
           workspace={this.props.workspace}
           uriPattern={GitTabItem.uriPattern}
-          className="github-Git-root">
-          {({itemHolder}) => (
+          className="github-Git-root"
+        >
+          {({ itemHolder }) => (
             <GitTabItem
               ref={itemHolder.setter}
               workspace={this.props.workspace}
@@ -304,8 +365,9 @@ export default class RootController extends React.Component {
         <PaneItem
           workspace={this.props.workspace}
           uriPattern={GitHubTabItem.uriPattern}
-          className="github-GitHub-root">
-          {({itemHolder}) => (
+          className="github-GitHub-root"
+        >
+          {({ itemHolder }) => (
             <GitHubTabItem
               ref={itemHolder.setter}
               repository={this.props.repository}
@@ -326,22 +388,20 @@ export default class RootController extends React.Component {
         </PaneItem>
         <PaneItem
           workspace={this.props.workspace}
-          uriPattern={ChangedFileItem.uriPattern}>
-          {({itemHolder, params}) => (
+          uriPattern={ChangedFileItem.uriPattern}
+        >
+          {({ itemHolder, params }) => (
             <ChangedFileItem
               ref={itemHolder.setter}
-
               workdirContextPool={this.props.workdirContextPool}
               relPath={path.join(...params.relPath)}
               workingDirectory={params.workingDirectory}
               stagingStatus={params.stagingStatus}
-
               tooltips={this.props.tooltips}
               commands={this.props.commands}
               keymaps={this.props.keymaps}
               workspace={this.props.workspace}
               config={this.props.config}
-
               discardLines={this.discardLines}
               undoLastDiscard={this.undoLastDiscard}
               surfaceFileAtPath={this.surfaceFromFileAtPath}
@@ -351,11 +411,11 @@ export default class RootController extends React.Component {
         <PaneItem
           workspace={this.props.workspace}
           uriPattern={CommitPreviewItem.uriPattern}
-          className="github-CommitPreview-root">
-          {({itemHolder, params}) => (
+          className="github-CommitPreview-root"
+        >
+          {({ itemHolder, params }) => (
             <CommitPreviewItem
               ref={itemHolder.setter}
-
               workdirContextPool={this.props.workdirContextPool}
               workingDirectory={params.workingDirectory}
               workspace={this.props.workspace}
@@ -363,7 +423,6 @@ export default class RootController extends React.Component {
               keymaps={this.props.keymaps}
               tooltips={this.props.tooltips}
               config={this.props.config}
-
               discardLines={this.discardLines}
               undoLastDiscard={this.undoLastDiscard}
               surfaceToCommitPreviewButton={this.surfaceToCommitPreviewButton}
@@ -373,11 +432,11 @@ export default class RootController extends React.Component {
         <PaneItem
           workspace={this.props.workspace}
           uriPattern={CommitDetailItem.uriPattern}
-          className="github-CommitDetail-root">
-          {({itemHolder, params}) => (
+          className="github-CommitDetail-root"
+        >
+          {({ itemHolder, params }) => (
             <CommitDetailItem
               ref={itemHolder.setter}
-
               workdirContextPool={this.props.workdirContextPool}
               workingDirectory={params.workingDirectory}
               workspace={this.props.workspace}
@@ -385,47 +444,46 @@ export default class RootController extends React.Component {
               keymaps={this.props.keymaps}
               tooltips={this.props.tooltips}
               config={this.props.config}
-
               sha={params.sha}
               surfaceCommit={this.surfaceToRecentCommit}
             />
           )}
         </PaneItem>
-        <PaneItem workspace={this.props.workspace} uriPattern={IssueishDetailItem.uriPattern}>
-          {({itemHolder, params, deserialized}) => (
+        <PaneItem
+          workspace={this.props.workspace}
+          uriPattern={IssueishDetailItem.uriPattern}
+        >
+          {({ itemHolder, params, deserialized }) => (
             <IssueishDetailItem
               ref={itemHolder.setter}
-
               host={params.host}
               owner={params.owner}
               repo={params.repo}
               issueishNumber={parseInt(params.issueishNumber, 10)}
-
               workingDirectory={params.workingDirectory}
               workdirContextPool={this.props.workdirContextPool}
               loginModel={this.props.loginModel}
               initSelectedTab={deserialized.initSelectedTab}
-
               workspace={this.props.workspace}
               commands={this.props.commands}
               keymaps={this.props.keymaps}
               tooltips={this.props.tooltips}
               config={this.props.config}
-
               reportRelayError={this.reportRelayError}
             />
           )}
         </PaneItem>
-        <PaneItem workspace={this.props.workspace} uriPattern={ReviewsItem.uriPattern}>
-          {({itemHolder, params}) => (
+        <PaneItem
+          workspace={this.props.workspace}
+          uriPattern={ReviewsItem.uriPattern}
+        >
+          {({ itemHolder, params }) => (
             <ReviewsItem
               ref={itemHolder.setter}
-
               host={params.host}
               owner={params.owner}
               repo={params.repo}
               number={parseInt(params.number, 10)}
-
               workdir={params.workdir}
               workdirContextPool={this.props.workdirContextPool}
               loginModel={this.props.loginModel}
@@ -438,20 +496,32 @@ export default class RootController extends React.Component {
             />
           )}
         </PaneItem>
-        <PaneItem workspace={this.props.workspace} uriPattern={GitTimingsView.uriPattern}>
-          {({itemHolder}) => <GitTimingsView ref={itemHolder.setter} />}
+        <PaneItem
+          workspace={this.props.workspace}
+          uriPattern={GitTimingsView.uriPattern}
+        >
+          {({ itemHolder }) => <GitTimingsView ref={itemHolder.setter} />}
         </PaneItem>
-        <PaneItem workspace={this.props.workspace} uriPattern={GitCacheView.uriPattern}>
-          {({itemHolder}) => <GitCacheView ref={itemHolder.setter} repository={this.props.repository} />}
+        <PaneItem
+          workspace={this.props.workspace}
+          uriPattern={GitCacheView.uriPattern}
+        >
+          {({ itemHolder }) => (
+            <GitCacheView
+              ref={itemHolder.setter}
+              repository={this.props.repository}
+            />
+          )}
         </PaneItem>
       </Fragment>
     );
   }
 
-  fetchData = repository => yubikiri({
-    isPublishable: repository.isPublishable(),
-    remotes: repository.getRemotes(),
-  });
+  fetchData = (repository) =>
+    yubikiri({
+      isPublishable: repository.isPublishable(),
+      remotes: repository.getRemotes(),
+    });
 
   async openTabs() {
     if (this.props.startOpen) {
@@ -464,8 +534,10 @@ export default class RootController extends React.Component {
     if (this.props.startRevealed) {
       const docks = new Set(
         [GitTabItem.buildURI(), GitHubTabItem.buildURI()]
-          .map(uri => this.props.workspace.paneContainerForURI(uri))
-          .filter(container => container && (typeof container.show) === 'function'),
+          .map((uri) => this.props.workspace.paneContainerForURI(uri))
+          .filter(
+            (container) => container && typeof container.show === 'function'
+          )
       );
 
       for (const dock of docks) {
@@ -481,7 +553,9 @@ export default class RootController extends React.Component {
   componentDidUpdate() {
     this.subscription.dispose();
     this.subscription = new CompositeDisposable(
-      this.props.repository.onPullError(() => this.gitTabTracker.ensureVisible()),
+      this.props.repository.onPullError(() =>
+        this.gitTabTracker.ensureVisible()
+      )
     );
   }
 
@@ -495,13 +569,18 @@ export default class RootController extends React.Component {
     return this.props.loginModel.removeToken('https://api.github.com');
   }
 
-  closeDialog = () => new Promise(resolve => this.setState({dialogRequest: dialogRequests.null}, resolve));
+  closeDialog = () =>
+    new Promise((resolve) =>
+      this.setState({ dialogRequest: dialogRequests.null }, resolve)
+    );
 
-  openInitializeDialog = async dirPath => {
+  openInitializeDialog = async (dirPath) => {
     if (!dirPath) {
       const activeEditor = this.props.workspace.getActiveTextEditor();
       if (activeEditor) {
-        const [projectPath] = this.props.project.relativizePath(activeEditor.getPath());
+        const [projectPath] = this.props.project.relativizePath(
+          activeEditor.getPath()
+        );
         if (projectPath) {
           dirPath = projectPath;
         }
@@ -511,7 +590,10 @@ export default class RootController extends React.Component {
     if (!dirPath) {
       const directories = this.props.project.getDirectories();
       const withRepositories = await Promise.all(
-        directories.map(async d => [d, await this.props.project.repositoryForDirectory(d)]),
+        directories.map(async (d) => [
+          d,
+          await this.props.project.repositoryForDirectory(d),
+        ])
       );
       const firstUninitialized = withRepositories.find(([d, r]) => !r);
       if (firstUninitialized && firstUninitialized[0]) {
@@ -523,17 +605,17 @@ export default class RootController extends React.Component {
       dirPath = this.props.config.get('core.projectHome');
     }
 
-    const dialogRequest = dialogRequests.init({dirPath});
-    dialogRequest.onProgressingAccept(async chosenPath => {
+    const dialogRequest = dialogRequests.init({ dirPath });
+    dialogRequest.onProgressingAccept(async (chosenPath) => {
       await this.props.initialize(chosenPath);
       await this.closeDialog();
     });
     dialogRequest.onCancel(this.closeDialog);
 
-    return new Promise(resolve => this.setState({dialogRequest}, resolve));
-  }
+    return new Promise((resolve) => this.setState({ dialogRequest }, resolve));
+  };
 
-  openCloneDialog = opts => {
+  openCloneDialog = (opts) => {
     const dialogRequest = dialogRequests.clone(opts);
     dialogRequest.onProgressingAccept(async (url, chosenPath) => {
       await this.props.clone(url, chosenPath);
@@ -541,13 +623,13 @@ export default class RootController extends React.Component {
     });
     dialogRequest.onCancel(this.closeDialog);
 
-    return new Promise(resolve => this.setState({dialogRequest}, resolve));
-  }
+    return new Promise((resolve) => this.setState({ dialogRequest }, resolve));
+  };
 
-  openCredentialsDialog = query => {
+  openCredentialsDialog = (query) => {
     return new Promise((resolve, reject) => {
       const dialogRequest = dialogRequests.credential(query);
-      dialogRequest.onProgressingAccept(async result => {
+      dialogRequest.onProgressingAccept(async (result) => {
         resolve(result);
         await this.closeDialog();
       });
@@ -556,13 +638,13 @@ export default class RootController extends React.Component {
         await this.closeDialog();
       });
 
-      this.setState({dialogRequest});
+      this.setState({ dialogRequest });
     });
-  }
+  };
 
   openIssueishDialog = () => {
     const dialogRequest = dialogRequests.issueish();
-    dialogRequest.onProgressingAccept(async url => {
+    dialogRequest.onProgressingAccept(async (url) => {
       await openIssueishItem(url, {
         workspace: this.props.workspace,
         workdir: this.props.repository.getWorkingDirectoryPath(),
@@ -571,12 +653,12 @@ export default class RootController extends React.Component {
     });
     dialogRequest.onCancel(this.closeDialog);
 
-    return new Promise(resolve => this.setState({dialogRequest}, resolve));
-  }
+    return new Promise((resolve) => this.setState({ dialogRequest }, resolve));
+  };
 
   openCommitDialog = () => {
     const dialogRequest = dialogRequests.commit();
-    dialogRequest.onProgressingAccept(async ref => {
+    dialogRequest.onProgressingAccept(async (ref) => {
       await openCommitDetailItem(ref, {
         workspace: this.props.workspace,
         repository: this.props.repository,
@@ -585,41 +667,48 @@ export default class RootController extends React.Component {
     });
     dialogRequest.onCancel(this.closeDialog);
 
-    return new Promise(resolve => this.setState({dialogRequest}, resolve));
-  }
+    return new Promise((resolve) => this.setState({ dialogRequest }, resolve));
+  };
 
   openCreateDialog = () => {
     const dialogRequest = dialogRequests.create();
-    dialogRequest.onProgressingAccept(async result => {
+    dialogRequest.onProgressingAccept(async (result) => {
       const dotcom = getEndpoint('github.com');
-      const relayEnvironment = RelayNetworkLayerManager.getEnvironmentForHost(dotcom);
+      const relayEnvironment =
+        RelayNetworkLayerManager.getEnvironmentForHost(dotcom);
 
-      await createRepository(result, {clone: this.props.clone, relayEnvironment});
+      await createRepository(result, {
+        clone: this.props.clone,
+        relayEnvironment,
+      });
       await this.closeDialog();
     });
     dialogRequest.onCancel(this.closeDialog);
 
-    return new Promise(resolve => this.setState({dialogRequest}, resolve));
-  }
+    return new Promise((resolve) => this.setState({ dialogRequest }, resolve));
+  };
 
-  openPublishDialog = repository => {
-    const dialogRequest = dialogRequests.publish({localDir: repository.getWorkingDirectoryPath()});
-    dialogRequest.onProgressingAccept(async result => {
+  openPublishDialog = (repository) => {
+    const dialogRequest = dialogRequests.publish({
+      localDir: repository.getWorkingDirectoryPath(),
+    });
+    dialogRequest.onProgressingAccept(async (result) => {
       const dotcom = getEndpoint('github.com');
-      const relayEnvironment = RelayNetworkLayerManager.getEnvironmentForHost(dotcom);
+      const relayEnvironment =
+        RelayNetworkLayerManager.getEnvironmentForHost(dotcom);
 
-      await publishRepository(result, {repository, relayEnvironment});
+      await publishRepository(result, { repository, relayEnvironment });
       await this.closeDialog();
     });
     dialogRequest.onCancel(this.closeDialog);
 
-    return new Promise(resolve => this.setState({dialogRequest}, resolve));
-  }
+    return new Promise((resolve) => this.setState({ dialogRequest }, resolve));
+  };
 
   toggleCommitPreviewItem = () => {
     const workdir = this.props.repository.getWorkingDirectoryPath();
     return this.props.workspace.toggle(CommitPreviewItem.buildURI(workdir));
-  }
+  };
 
   showWaterfallDiagnostics() {
     this.props.workspace.open(GitTimingsView.buildURI());
@@ -632,20 +721,20 @@ export default class RootController extends React.Component {
   surfaceFromFileAtPath = (filePath, stagingStatus) => {
     const gitTab = this.gitTabTracker.getComponent();
     return gitTab && gitTab.focusAndSelectStagingItem(filePath, stagingStatus);
-  }
+  };
 
   surfaceToCommitPreviewButton = () => {
     const gitTab = this.gitTabTracker.getComponent();
     return gitTab && gitTab.focusAndSelectCommitPreviewButton();
-  }
+  };
 
   surfaceToRecentCommit = () => {
     const gitTab = this.gitTabTracker.getComponent();
     return gitTab && gitTab.focusAndSelectRecentCommit();
-  }
+  };
 
   destroyFilePatchPaneItems() {
-    destroyFilePatchPaneItems({onlyStaged: false}, this.props.workspace);
+    destroyFilePatchPaneItems({ onlyStaged: false }, this.props.workspace);
   }
 
   destroyEmptyFilePatchPaneItems() {
@@ -659,7 +748,9 @@ export default class RootController extends React.Component {
 
   async viewChangesForCurrentFile(stagingStatus) {
     const editor = this.props.workspace.getActiveTextEditor();
-    if (!editor.getPath()) { return; }
+    if (!editor.getPath()) {
+      return;
+    }
 
     const absFilePath = await fs.realpath(editor.getPath());
     const repoPath = this.props.repository.getWorkingDirectoryPath();
@@ -668,27 +759,34 @@ export default class RootController extends React.Component {
       const notification = this.props.notificationManager.addInfo(
         "Hmm, there's nothing to compare this file to",
         {
-          description: 'You can create a Git repository to track changes to the files in your project.',
+          description:
+            'You can create a Git repository to track changes to the files in your project.',
           dismissable: true,
-          buttons: [{
-            className: 'btn btn-primary',
-            text: 'Create a repository now',
-            onDidClick: async () => {
-              notification.dismiss();
-              const createdPath = await this.initializeRepo(projectPath);
-              // If the user confirmed repository creation for this project path,
-              // retry the operation that got them here in the first place
-              if (createdPath === projectPath) { this.viewChangesForCurrentFile(stagingStatus); }
+          buttons: [
+            {
+              className: 'btn btn-primary',
+              text: 'Create a repository now',
+              onDidClick: async () => {
+                notification.dismiss();
+                const createdPath = await this.initializeRepo(projectPath);
+                // If the user confirmed repository creation for this project path,
+                // retry the operation that got them here in the first place
+                if (createdPath === projectPath) {
+                  this.viewChangesForCurrentFile(stagingStatus);
+                }
+              },
             },
-          }],
-        },
+          ],
+        }
       );
       return;
     }
     if (absFilePath.startsWith(repoPath)) {
       const filePath = absFilePath.slice(repoPath.length + 1);
       this.quietlySelectItem(filePath, stagingStatus);
-      const splitDirection = this.props.config.get('github.viewChangesForCurrentFileDiffPaneSplitDirection');
+      const splitDirection = this.props.config.get(
+        'github.viewChangesForCurrentFileDiffPaneSplitDirection'
+      );
       const pane = this.props.workspace.getActivePane();
       if (splitDirection === 'right') {
         pane.splitRight();
@@ -698,7 +796,7 @@ export default class RootController extends React.Component {
       const lineNum = editor.getCursorBufferPosition().row + 1;
       const item = await this.props.workspace.open(
         ChangedFileItem.buildURI(filePath, repoPath, stagingStatus),
-        {pending: true, activatePane: true, activateItem: true},
+        { pending: true, activatePane: true, activateItem: true }
       );
       await item.getRealItemPromise();
       await item.getFilePatchLoadedPromise();
@@ -718,33 +816,43 @@ export default class RootController extends React.Component {
   }
 
   openFiles(filePaths, repository = this.props.repository) {
-    return Promise.all(filePaths.map(filePath => {
-      const absolutePath = path.join(repository.getWorkingDirectoryPath(), filePath);
-      return this.props.workspace.open(absolutePath, {pending: filePaths.length === 1});
-    }));
+    return Promise.all(
+      filePaths.map((filePath) => {
+        const absolutePath = path.join(
+          repository.getWorkingDirectoryPath(),
+          filePath
+        );
+        return this.props.workspace.open(absolutePath, {
+          pending: filePaths.length === 1,
+        });
+      })
+    );
   }
 
   getUnsavedFiles(filePaths, workdirPath) {
     const isModifiedByPath = new Map();
-    this.props.workspace.getTextEditors().forEach(editor => {
+    this.props.workspace.getTextEditors().forEach((editor) => {
       isModifiedByPath.set(editor.getPath(), editor.isModified());
     });
-    return filePaths.filter(filePath => {
+    return filePaths.filter((filePath) => {
       const absFilePath = path.join(workdirPath, filePath);
       return isModifiedByPath.get(absFilePath);
     });
   }
 
-  ensureNoUnsavedFiles(filePaths, message, workdirPath = this.props.repository.getWorkingDirectoryPath()) {
-    const unsavedFiles = this.getUnsavedFiles(filePaths, workdirPath).map(filePath => `\`${filePath}\``).join('<br>');
+  ensureNoUnsavedFiles(
+    filePaths,
+    message,
+    workdirPath = this.props.repository.getWorkingDirectoryPath()
+  ) {
+    const unsavedFiles = this.getUnsavedFiles(filePaths, workdirPath)
+      .map((filePath) => `\`${filePath}\``)
+      .join('<br>');
     if (unsavedFiles.length) {
-      this.props.notificationManager.addError(
-        message,
-        {
-          description: `You have unsaved changes in:<br>${unsavedFiles}.`,
-          dismissable: true,
-        },
-      );
+      this.props.notificationManager.addError(message, {
+        description: `You have unsaved changes in:<br>${unsavedFiles}.`,
+        dismissable: true,
+      });
       return false;
     } else {
       return true;
@@ -757,12 +865,20 @@ export default class RootController extends React.Component {
     };
     return await this.props.repository.storeBeforeAndAfterBlobs(
       filePaths,
-      () => this.ensureNoUnsavedFiles(filePaths, 'Cannot discard changes in selected files.'),
-      destructiveAction,
+      () =>
+        this.ensureNoUnsavedFiles(
+          filePaths,
+          'Cannot discard changes in selected files.'
+        ),
+      destructiveAction
     );
   }
 
-  async discardLines(multiFilePatch, lines, repository = this.props.repository) {
+  async discardLines(
+    multiFilePatch,
+    lines,
+    repository = this.props.repository
+  ) {
     // (kuychaco) For now we only support discarding rows for MultiFilePatches that contain a single file patch
     // The only way to access this method from the UI is to be in a ChangedFileItem, which only has a single file patch
     if (multiFilePatch.getFilePatches().length !== 1) {
@@ -776,31 +892,46 @@ export default class RootController extends React.Component {
     };
     return await repository.storeBeforeAndAfterBlobs(
       [filePath],
-      () => this.ensureNoUnsavedFiles([filePath], 'Cannot discard lines.', repository.getWorkingDirectoryPath()),
+      () =>
+        this.ensureNoUnsavedFiles(
+          [filePath],
+          'Cannot discard lines.',
+          repository.getWorkingDirectoryPath()
+        ),
       destructiveAction,
-      filePath,
+      filePath
     );
   }
 
   getFilePathsForLastDiscard(partialDiscardFilePath = null) {
-    let lastSnapshots = this.props.repository.getLastHistorySnapshots(partialDiscardFilePath);
+    let lastSnapshots = this.props.repository.getLastHistorySnapshots(
+      partialDiscardFilePath
+    );
     if (partialDiscardFilePath) {
       lastSnapshots = lastSnapshots ? [lastSnapshots] : [];
     }
-    return lastSnapshots.map(snapshot => snapshot.filePath);
+    return lastSnapshots.map((snapshot) => snapshot.filePath);
   }
 
-  async undoLastDiscard(partialDiscardFilePath = null, repository = this.props.repository) {
+  async undoLastDiscard(
+    partialDiscardFilePath = null,
+    repository = this.props.repository
+  ) {
     const filePaths = this.getFilePathsForLastDiscard(partialDiscardFilePath);
     try {
       const results = await repository.restoreLastDiscardInTempFiles(
         () => this.ensureNoUnsavedFiles(filePaths, 'Cannot undo last discard.'),
-        partialDiscardFilePath,
+        partialDiscardFilePath
       );
-      if (results.length === 0) { return; }
+      if (results.length === 0) {
+        return;
+      }
       await this.proceedOrPromptBasedOnResults(results, partialDiscardFilePath);
     } catch (e) {
-      if (e instanceof GitError && e.stdErr.match(/fatal: Not a valid object name/)) {
+      if (
+        e instanceof GitError &&
+        e.stdErr.match(/fatal: Not a valid object name/)
+      ) {
         this.cleanUpHistoryForFilePaths(filePaths, partialDiscardFilePath);
       } else {
         // eslint-disable-next-line no-console
@@ -810,19 +941,30 @@ export default class RootController extends React.Component {
   }
 
   async proceedOrPromptBasedOnResults(results, partialDiscardFilePath = null) {
-    const conflicts = results.filter(({conflict}) => conflict);
+    const conflicts = results.filter(({ conflict }) => conflict);
     if (conflicts.length === 0) {
       await this.proceedWithLastDiscardUndo(results, partialDiscardFilePath);
     } else {
-      await this.promptAboutConflicts(results, conflicts, partialDiscardFilePath);
+      await this.promptAboutConflicts(
+        results,
+        conflicts,
+        partialDiscardFilePath
+      );
     }
   }
 
-  async promptAboutConflicts(results, conflicts, partialDiscardFilePath = null) {
-    const conflictedFiles = conflicts.map(({filePath}) => `\t${filePath}`).join('\n');
+  async promptAboutConflicts(
+    results,
+    conflicts,
+    partialDiscardFilePath = null
+  ) {
+    const conflictedFiles = conflicts
+      .map(({ filePath }) => `\t${filePath}`)
+      .join('\n');
     const choice = this.props.confirm({
       message: 'Undoing will result in conflicts...',
-      detailedMessage: `for the following files:\n${conflictedFiles}\n` +
+      detailedMessage:
+        `for the following files:\n${conflictedFiles}\n` +
         'Would you like to apply the changes with merge conflict markers, ' +
         'or open the text with merge conflict markers in a new file?',
       buttons: ['Merge with conflict markers', 'Open in new file', 'Cancel'],
@@ -830,33 +972,50 @@ export default class RootController extends React.Component {
     if (choice === 0) {
       await this.proceedWithLastDiscardUndo(results, partialDiscardFilePath);
     } else if (choice === 1) {
-      await this.openConflictsInNewEditors(conflicts.map(({resultPath}) => resultPath));
+      await this.openConflictsInNewEditors(
+        conflicts.map(({ resultPath }) => resultPath)
+      );
     }
   }
 
   cleanUpHistoryForFilePaths(filePaths, partialDiscardFilePath = null) {
     this.props.repository.clearDiscardHistory(partialDiscardFilePath);
-    const filePathsStr = filePaths.map(filePath => `\`${filePath}\``).join('<br>');
-    this.props.notificationManager.addError(
-      'Discard history has expired.',
-      {
-        description: `Cannot undo discard for<br>${filePathsStr}<br>Stale discard history has been deleted.`,
-        dismissable: true,
-      },
-    );
+    const filePathsStr = filePaths
+      .map((filePath) => `\`${filePath}\``)
+      .join('<br>');
+    this.props.notificationManager.addError('Discard history has expired.', {
+      description: `Cannot undo discard for<br>${filePathsStr}<br>Stale discard history has been deleted.`,
+      dismissable: true,
+    });
   }
 
   async proceedWithLastDiscardUndo(results, partialDiscardFilePath = null) {
-    const promises = results.map(async result => {
-      const {filePath, resultPath, deleted, conflict, theirsSha, commonBaseSha, currentSha} = result;
-      const absFilePath = path.join(this.props.repository.getWorkingDirectoryPath(), filePath);
+    const promises = results.map(async (result) => {
+      const {
+        filePath,
+        resultPath,
+        deleted,
+        conflict,
+        theirsSha,
+        commonBaseSha,
+        currentSha,
+      } = result;
+      const absFilePath = path.join(
+        this.props.repository.getWorkingDirectoryPath(),
+        filePath
+      );
       if (deleted && resultPath === null) {
         await fs.remove(absFilePath);
       } else {
         await fs.copy(resultPath, absFilePath);
       }
       if (conflict) {
-        await this.props.repository.writeMergeConflictToIndex(filePath, commonBaseSha, currentSha, theirsSha);
+        await this.props.repository.writeMergeConflictToIndex(
+          filePath,
+          commonBaseSha,
+          currentSha,
+          theirsSha
+        );
       }
     });
     await Promise.all(promises);
@@ -864,14 +1023,14 @@ export default class RootController extends React.Component {
   }
 
   async openConflictsInNewEditors(resultPaths) {
-    const editorPromises = resultPaths.map(resultPath => {
+    const editorPromises = resultPaths.map((resultPath) => {
       return this.props.workspace.open(resultPath);
     });
     return await Promise.all(editorPromises);
   }
 
   reportRelayError = (friendlyMessage, err) => {
-    const opts = {dismissable: true};
+    const opts = { dismissable: true };
 
     if (err.network) {
       // Offline
@@ -883,21 +1042,21 @@ export default class RootController extends React.Component {
       opts.detail = err.responseText;
     } else if (err.errors) {
       // GraphQL errors
-      opts.detail = err.errors.map(e => e.message).join('\n');
+      opts.detail = err.errors.map((e) => e.message).join('\n');
     } else {
       opts.detail = err.stack;
     }
 
     this.props.notificationManager.addError(friendlyMessage, opts);
-  }
+  };
 
   /*
    * Asynchronously count the conflict markers present in a file specified by full path.
    */
   refreshResolutionProgress(fullPath) {
-    const readStream = fs.createReadStream(fullPath, {encoding: 'utf8'});
-    return new Promise(resolve => {
-      Conflict.countFromStream(readStream).then(count => {
+    const readStream = fs.createReadStream(fullPath, { encoding: 'utf8' });
+    return new Promise((resolve) => {
+      Conflict.countFromStream(readStream).then((count) => {
         this.props.resolutionProgress.reportMarkerCount(fullPath, count);
       });
     });
@@ -905,7 +1064,7 @@ export default class RootController extends React.Component {
 }
 
 class TabTracker {
-  constructor(name, {getWorkspace, uri}) {
+  constructor(name, { getWorkspace, uri }) {
     autobind(this, 'toggle', 'toggleFocus', 'ensureVisible');
     this.name = name;
 
@@ -962,12 +1121,20 @@ class TabTracker {
   }
 
   ensureRendered() {
-    return this.getWorkspace().open(this.uri, {searchAllPanes: true, activateItem: false, activatePane: false});
+    return this.getWorkspace().open(this.uri, {
+      searchAllPanes: true,
+      activateItem: false,
+      activatePane: false,
+    });
   }
 
   reveal() {
     incrementCounter(`${this.name}-tab-open`);
-    return this.getWorkspace().open(this.uri, {searchAllPanes: true, activateItem: true, activatePane: true});
+    return this.getWorkspace().open(this.uri, {
+      searchAllPanes: true,
+      activateItem: true,
+      activatePane: true,
+    });
   }
 
   hide() {
@@ -998,7 +1165,7 @@ class TabTracker {
     if (!paneItem) {
       return null;
     }
-    if (((typeof paneItem.getRealItem) !== 'function')) {
+    if (typeof paneItem.getRealItem !== 'function') {
       return null;
     }
 
@@ -1010,7 +1177,7 @@ class TabTracker {
     if (!paneItem) {
       return null;
     }
-    if (((typeof paneItem.getElement) !== 'function')) {
+    if (typeof paneItem.getElement !== 'function') {
       return null;
     }
 
@@ -1023,12 +1190,18 @@ class TabTracker {
 
   isVisible() {
     const workspace = this.getWorkspace();
-    return workspace.getPaneContainers()
-      .filter(container => container === workspace.getCenter() || container.isVisible())
-      .some(container => container.getPanes().some(pane => {
-        const item = pane.getActiveItem();
-        return item && item.getURI && item.getURI() === this.uri;
-      }));
+    return workspace
+      .getPaneContainers()
+      .filter(
+        (container) =>
+          container === workspace.getCenter() || container.isVisible()
+      )
+      .some((container) =>
+        container.getPanes().some((pane) => {
+          const item = pane.getActiveItem();
+          return item && item.getURI && item.getURI() === this.uri;
+        })
+      );
   }
 
   hasFocus() {

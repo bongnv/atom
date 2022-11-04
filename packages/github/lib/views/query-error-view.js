@@ -15,25 +15,29 @@ export default class QueryErrorView extends React.Component {
         status: PropTypes.number.isRequired,
       }),
       responseText: PropTypes.string,
-      errors: PropTypes.arrayOf(PropTypes.shape({
-        message: PropTypes.string.isRequired,
-      })),
+      errors: PropTypes.arrayOf(
+        PropTypes.shape({
+          message: PropTypes.string.isRequired,
+        })
+      ),
     }).isRequired,
     login: PropTypes.func.isRequired,
     retry: PropTypes.func,
     logout: PropTypes.func,
-  }
+  };
 
   render() {
     const e = this.props.error;
 
     if (e.response) {
       switch (e.response.status) {
-      case 401: return this.render401();
-      case 200:
-        // Do the default
-        break;
-      default: return this.renderUnknown(e.response, e.responseText);
+        case 401:
+          return this.render401();
+        case 200:
+          // Do the default
+          break;
+        default:
+          return this.renderUnknown(e.response, e.responseText);
       }
     }
 
@@ -59,7 +63,7 @@ export default class QueryErrorView extends React.Component {
     return (
       <ErrorView
         title="Query errors reported"
-        descriptions={errors.map(e => e.message)}
+        descriptions={errors.map((e) => e.message)}
         {...this.errorViewProps()}
       />
     );
@@ -74,7 +78,8 @@ export default class QueryErrorView extends React.Component {
       <div className="github-GithubLoginView-Container">
         <GithubLoginView onLogin={this.props.login}>
           <p>
-            The API endpoint returned a unauthorized error. Please try to re-authenticate with the endpoint.
+            The API endpoint returned a unauthorized error. Please try to
+            re-authenticate with the endpoint.
           </p>
         </GithubLoginView>
       </div>

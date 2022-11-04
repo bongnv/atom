@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {TextBuffer} from 'atom';
+import { TextBuffer } from 'atom';
 
 import CommitDetailItem from '../items/commit-detail-item';
-import {GitError} from '../git-shell-out-strategy';
+import { GitError } from '../git-shell-out-strategy';
 import DialogView from './dialog-view';
 import TabGroup from '../tab-group';
-import {TabbableTextEditor} from './tabbable';
-import {addEvent} from '../reporter-proxy';
+import { TabbableTextEditor } from './tabbable';
+import { addEvent } from '../reporter-proxy';
 
 export default class OpenCommitDialog extends React.Component {
   static propTypes = {
@@ -23,7 +23,7 @@ export default class OpenCommitDialog extends React.Component {
     // Atom environment
     workspace: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -50,8 +50,8 @@ export default class OpenCommitDialog extends React.Component {
         inProgress={this.props.inProgress}
         error={this.props.error}
         workspace={this.props.workspace}
-        commands={this.props.commands}>
-
+        commands={this.props.commands}
+      >
         <label className="github-DialogLabel github-CommitRef">
           Commit sha or ref:
           <TabbableTextEditor
@@ -62,7 +62,6 @@ export default class OpenCommitDialog extends React.Component {
             buffer={this.ref}
           />
         </label>
-
       </DialogView>
     );
   }
@@ -82,17 +81,17 @@ export default class OpenCommitDialog extends React.Component {
     }
 
     return this.props.request.accept(ref);
-  }
+  };
 
   didChangeRef = () => {
     const enabled = !this.ref.isEmpty();
     if (this.state.acceptEnabled !== enabled) {
-      this.setState({acceptEnabled: enabled});
+      this.setState({ acceptEnabled: enabled });
     }
-  }
+  };
 }
 
-export async function openCommitDetailItem(ref, {workspace, repository}) {
+export async function openCommitDetailItem(ref, { workspace, repository }) {
   try {
     await repository.getCommit(ref);
   } catch (error) {
@@ -105,8 +104,11 @@ export async function openCommitDetailItem(ref, {workspace, repository}) {
 
   const item = await workspace.open(
     CommitDetailItem.buildURI(repository.getWorkingDirectoryPath(), ref),
-    {searchAllPanes: true},
+    { searchAllPanes: true }
   );
-  addEvent('open-commit-in-pane', {package: 'github', from: OpenCommitDialog.name});
+  addEvent('open-commit-in-pane', {
+    package: 'github',
+    from: OpenCommitDialog.name,
+  });
   return item;
 }

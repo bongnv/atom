@@ -1,1 +1,9 @@
-{".source.gfm:not(.markup.code)":{"editor":{"softWrap":true,"commentStart":"<!-- ","commentEnd":" -->"}}}
+{
+  ".source.gfm:not(.markup.code)": {
+    "editor": {
+      "softWrap": true,
+      "commentStart": "<!-- ",
+      "commentEnd": " -->"
+    }
+  }
+}

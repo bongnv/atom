@@ -106,7 +106,7 @@ export default class InstallPanel {
             <div className="text native-key-bindings" tabIndex="-1">
               <span className="icon icon-question" />
               <span ref="publishedToText">Packages are published to </span>
-              <a className="link" onclick={this.didClickOpenAtomIo.bind(this)}>
+              <a className="link" onClick={this.didClickOpenAtomIo.bind(this)}>
                 atom.io
               </a>
               <span>
@@ -124,14 +124,14 @@ export default class InstallPanel {
                 <button
                   ref="searchPackagesButton"
                   className="btn btn-default selected"
-                  onclick={this.didClickSearchPackagesButton.bind(this)}
+                  onClick={this.didClickSearchPackagesButton.bind(this)}
                 >
                   Packages
                 </button>
                 <button
                   ref="searchThemesButton"
                   className="btn btn-default"
-                  onclick={this.didClickSearchThemesButton.bind(this)}
+                  onClick={this.didClickSearchThemesButton.bind(this)}
                 >
                   Themes
                 </button>

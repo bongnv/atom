@@ -1,4 +1,4 @@
-@import "variables";
+@import 'variables';
 
 .github-Accordion {
   cursor: default;
@@ -7,7 +7,7 @@
   &-header {
     font-weight: 600;
     color: @text-color-subtle;
-    padding: @component-padding/2;
+    padding: @component-padding / 2;
     border-bottom: 1px solid @base-border-color;
     display: flex;
     align-items: center;
@@ -17,7 +17,8 @@
     }
   }
 
-  &--rightTitle, &--leftTitle {
+  &--rightTitle,
+  &--leftTitle {
     flex: 1;
   }
 
@@ -27,7 +28,7 @@
 
     // Add an "Empty" label for empty items
     &:empty::before {
-      content: "Empty";
+      content: 'Empty';
       display: block;
       font-style: italic;
       text-align: center;
@@ -59,5 +60,4 @@
       background-color: @background-color-highlight;
     }
   }
-
 }

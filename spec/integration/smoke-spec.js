@@ -18,9 +18,9 @@ describe('Smoke Test', () => {
       '*': {
         welcome: { showOnStartup: false },
         core: {
-          disabledPackages: ['github']
-        }
-      }
+          disabledPackages: ['github'],
+        },
+      },
     });
   });
 
@@ -30,11 +30,14 @@ describe('Smoke Test', () => {
 
     fs.writeFileSync(filePath, '', { encoding: 'utf8' });
 
-    runAtom([tempDirPath], { ATOM_HOME: atomHome }, async client => {
+    runAtom([tempDirPath], { ATOM_HOME: atomHome }, async (client) => {
       const roots = await client.treeViewRootDirectories();
       expect(roots).toEqual([tempDirPath]);
 
-      await client.execute(filePath => atom.workspace.open(filePath), filePath);
+      await client.execute(
+        (filePath) => atom.workspace.open(filePath),
+        filePath
+      );
 
       const textEditorElement = await client.$('atom-text-editor');
       await textEditorElement.waitForExist(5000);

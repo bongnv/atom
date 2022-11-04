@@ -1,17 +1,17 @@
 import React from 'react';
-import {shallow} from 'enzyme';
+import { shallow } from 'enzyme';
 
 import ReactionPickerView from '../../lib/views/reaction-picker-view';
-import {reactionTypeToEmoji} from '../../lib/helpers';
+import { reactionTypeToEmoji } from '../../lib/helpers';
 
-describe('ReactionPickerView', function() {
+describe('ReactionPickerView', function () {
   let atomEnv;
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -26,7 +26,7 @@ describe('ReactionPickerView', function() {
     return <ReactionPickerView {...props} />;
   }
 
-  it('renders a button for each known content type', function() {
+  it('renders a button for each known content type', function () {
     const knownTypes = Object.keys(reactionTypeToEmoji);
     assert.include(knownTypes, 'THUMBS_UP');
 
@@ -36,40 +36,47 @@ describe('ReactionPickerView', function() {
       assert.isTrue(
         wrapper
           .find('.github-ReactionPicker-reaction')
-          .someWhere(w => w.text().includes(reactionTypeToEmoji[contentType])),
-        `does not include a button for ${contentType}`,
+          .someWhere((w) =>
+            w.text().includes(reactionTypeToEmoji[contentType])
+          ),
+        `does not include a button for ${contentType}`
       );
     }
   });
 
-  it('adds the "selected" class to buttons included in viewerReacted', function() {
+  it('adds the "selected" class to buttons included in viewerReacted', function () {
     const viewerReacted = ['THUMBS_UP', 'ROCKET'];
-    const wrapper = shallow(buildApp({viewerReacted}));
+    const wrapper = shallow(buildApp({ viewerReacted }));
 
     const reactions = wrapper.find('.github-ReactionPicker-reaction');
-    const selectedReactions = reactions.find('.selected').map(w => w.text());
-    assert.sameMembers(selectedReactions, [reactionTypeToEmoji.ROCKET, reactionTypeToEmoji.THUMBS_UP]);
+    const selectedReactions = reactions.find('.selected').map((w) => w.text());
+    assert.sameMembers(selectedReactions, [
+      reactionTypeToEmoji.ROCKET,
+      reactionTypeToEmoji.THUMBS_UP,
+    ]);
   });
 
-  it('calls addReactionAndClose when clicking a reaction button', function() {
+  it('calls addReactionAndClose when clicking a reaction button', function () {
     const addReactionAndClose = sinon.spy();
-    const wrapper = shallow(buildApp({addReactionAndClose}));
+    const wrapper = shallow(buildApp({ addReactionAndClose }));
 
     wrapper
       .find('.github-ReactionPicker-reaction')
-      .filterWhere(w => w.text().includes(reactionTypeToEmoji.LAUGH))
+      .filterWhere((w) => w.text().includes(reactionTypeToEmoji.LAUGH))
       .simulate('click');
 
     assert.isTrue(addReactionAndClose.calledWith('LAUGH'));
   });
 
-  it('calls removeReactionAndClose when clicking a reaction in viewerReacted', function() {
+  it('calls removeReactionAndClose when clicking a reaction in viewerReacted', function () {
     const removeReactionAndClose = sinon.spy();
-    const wrapper = shallow(buildApp({viewerReacted: ['CONFUSED', 'HEART'], removeReactionAndClose}));
+    const wrapper = shallow(
+      buildApp({ viewerReacted: ['CONFUSED', 'HEART'], removeReactionAndClose })
+    );
 
     wrapper
       .find('.github-ReactionPicker-reaction')
-      .filterWhere(w => w.text().includes(reactionTypeToEmoji.CONFUSED))
+      .filterWhere((w) => w.text().includes(reactionTypeToEmoji.CONFUSED))
       .simulate('click');
 
     assert.isTrue(removeReactionAndClose.calledWith('CONFUSED'));

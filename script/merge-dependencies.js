@@ -10,9 +10,13 @@ const main = async () => {
   let needUpdate = false;
   const toDeletePackages = [];
 
-  const allPackages = (await fs.readdir(path.resolve(__dirname, '../packages'), { withFileTypes: true }))
-  .filter(dirent => dirent.isDirectory())
-  .map(dirent => dirent.name);
+  const allPackages = (
+    await fs.readdir(path.resolve(__dirname, '../packages'), {
+      withFileTypes: true,
+    })
+  )
+    .filter((dirent) => dirent.isDirectory())
+    .map((dirent) => dirent.name);
 
   for (const packageName of allPackages) {
     if (!rootPackageMetadata.dependencies[packageName]) {
@@ -20,14 +24,21 @@ const main = async () => {
       continue;
     }
 
-    const packageMetadata = require(path.join(__dirname, '../packages', packageName, 'package.json'));
-    const dependencies = packageMetadata.dependencies ? Object.keys(packageMetadata.dependencies) : [];
+    const packageMetadata = require(path.join(
+      __dirname,
+      '../packages',
+      packageName,
+      'package.json'
+    ));
+    const dependencies = packageMetadata.dependencies
+      ? Object.keys(packageMetadata.dependencies)
+      : [];
     console.log(`Adding ${packageName} with ${dependencies}`);
     if (dependencies.length > 0) {
       spawnSync('npm', ['install', ...dependencies], {
-          env: process.env,
-          cwd: path.join(__dirname, '..'),
-          stdio: 'inherit',
+        env: process.env,
+        cwd: path.join(__dirname, '..'),
+        stdio: 'inherit',
       });
     }
     toDeletePackages.push(packageName);
@@ -37,8 +48,13 @@ const main = async () => {
   if (needUpdate) {
     console.log(`Delete ${toDeletePackages} from package.json`);
     const newPackageJson = JSON.parse(await fs.readFile(rootPackageJsonPath));
-    toDeletePackages.forEach(name => delete newPackageJson.dependencies[name]);
-    await fs.writeFile(rootPackageJsonPath, JSON.stringify(newPackageJson, null, '  '));
+    toDeletePackages.forEach(
+      (name) => delete newPackageJson.dependencies[name]
+    );
+    await fs.writeFile(
+      rootPackageJsonPath,
+      JSON.stringify(newPackageJson, null, '  ')
+    );
   }
 };
 main();

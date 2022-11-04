@@ -1,16 +1,16 @@
 import path from 'path';
 import React from 'react';
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
 import PaneItem from '../../lib/atom/pane-item';
 import ChangedFileItem from '../../lib/items/changed-file-item';
 import WorkdirContextPool from '../../lib/models/workdir-context-pool';
-import {cloneRepository} from '../helpers';
+import { cloneRepository } from '../helpers';
 
-describe('ChangedFileItem', function() {
+describe('ChangedFileItem', function () {
   let atomEnv, repository, pool;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
 
     const workdirPath = await cloneRepository();
@@ -21,7 +21,7 @@ describe('ChangedFileItem', function() {
     repository = pool.add(workdirPath).getRepository();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
     pool.clear();
   });
@@ -41,8 +41,11 @@ describe('ChangedFileItem', function() {
     };
 
     return (
-      <PaneItem workspace={atomEnv.workspace} uriPattern={ChangedFileItem.uriPattern}>
-        {({itemHolder, params}) => {
+      <PaneItem
+        workspace={atomEnv.workspace}
+        uriPattern={ChangedFileItem.uriPattern}
+      >
+        {({ itemHolder, params }) => {
           return (
             <ChangedFileItem
               ref={itemHolder.setter}
@@ -64,62 +67,82 @@ describe('ChangedFileItem', function() {
       stagingStatus: 'unstaged',
       ...options,
     };
-    const uri = ChangedFileItem.buildURI(opts.relPath, opts.workingDirectory, opts.stagingStatus);
+    const uri = ChangedFileItem.buildURI(
+      opts.relPath,
+      opts.workingDirectory,
+      opts.stagingStatus
+    );
     return atomEnv.workspace.open(uri);
   }
 
-  it('locates the repository from the context pool', async function() {
+  it('locates the repository from the context pool', async function () {
     const wrapper = mount(buildPaneApp());
     await open();
 
-    assert.strictEqual(wrapper.update().find('ChangedFileContainer').prop('repository'), repository);
+    assert.strictEqual(
+      wrapper.update().find('ChangedFileContainer').prop('repository'),
+      repository
+    );
   });
 
-  it('passes an absent repository if the working directory is unrecognized', async function() {
+  it('passes an absent repository if the working directory is unrecognized', async function () {
     const wrapper = mount(buildPaneApp());
-    await open({workingDirectory: '/nope'});
+    await open({ workingDirectory: '/nope' });
 
-    assert.isTrue(wrapper.update().find('ChangedFileContainer').prop('repository').isAbsent());
+    assert.isTrue(
+      wrapper
+        .update()
+        .find('ChangedFileContainer')
+        .prop('repository')
+        .isAbsent()
+    );
   });
 
-  it('passes other props to the container', async function() {
+  it('passes other props to the container', async function () {
     const other = Symbol('other');
-    const wrapper = mount(buildPaneApp({other}));
+    const wrapper = mount(buildPaneApp({ other }));
     await open();
 
-    assert.strictEqual(wrapper.update().find('ChangedFileContainer').prop('other'), other);
+    assert.strictEqual(
+      wrapper.update().find('ChangedFileContainer').prop('other'),
+      other
+    );
   });
 
-  describe('getTitle()', function() {
-    it('renders an unstaged title', async function() {
+  describe('getTitle()', function () {
+    it('renders an unstaged title', async function () {
       mount(buildPaneApp());
-      const item = await open({stagingStatus: 'unstaged'});
+      const item = await open({ stagingStatus: 'unstaged' });
 
       assert.strictEqual(item.getTitle(), 'Unstaged Changes: a.txt');
     });
 
-    it('renders a staged title', async function() {
+    it('renders a staged title', async function () {
       mount(buildPaneApp());
-      const item = await open({stagingStatus: 'staged'});
+      const item = await open({ stagingStatus: 'staged' });
 
       assert.strictEqual(item.getTitle(), 'Staged Changes: a.txt');
     });
   });
 
-  describe('buildURI', function() {
-    it('correctly uri encodes all components', function() {
+  describe('buildURI', function () {
+    it('correctly uri encodes all components', function () {
       const filePathWithSpecialChars = '???.txt';
       const stagingStatus = 'staged';
       const workdirPath = '/???/!!!';
 
-      const uri = ChangedFileItem.buildURI(filePathWithSpecialChars, workdirPath, stagingStatus);
+      const uri = ChangedFileItem.buildURI(
+        filePathWithSpecialChars,
+        workdirPath,
+        stagingStatus
+      );
       assert.include(uri, encodeURIComponent(filePathWithSpecialChars));
       assert.include(uri, encodeURIComponent(workdirPath));
       assert.include(uri, encodeURIComponent(stagingStatus));
     });
   });
 
-  it('terminates pending state', async function() {
+  it('terminates pending state', async function () {
     const wrapper = mount(buildPaneApp());
 
     const item = await open(wrapper);
@@ -135,7 +158,7 @@ describe('ChangedFileItem', function() {
     sub.dispose();
   });
 
-  it('may be destroyed once', async function() {
+  it('may be destroyed once', async function () {
     const wrapper = mount(buildPaneApp());
 
     const item = await open(wrapper);
@@ -149,24 +172,36 @@ describe('ChangedFileItem', function() {
     sub.dispose();
   });
 
-  it('serializes itself as a FilePatchControllerStub', async function() {
+  it('serializes itself as a FilePatchControllerStub', async function () {
     mount(buildPaneApp());
-    const item0 = await open({relPath: 'a.txt', workingDirectory: '/dir0', stagingStatus: 'unstaged'});
+    const item0 = await open({
+      relPath: 'a.txt',
+      workingDirectory: '/dir0',
+      stagingStatus: 'unstaged',
+    });
     assert.deepEqual(item0.serialize(), {
       deserializer: 'FilePatchControllerStub',
       uri: 'atom-github://file-patch/a.txt?workdir=%2Fdir0&stagingStatus=unstaged',
     });
 
-    const item1 = await open({relPath: 'b.txt', workingDirectory: '/dir1', stagingStatus: 'staged'});
+    const item1 = await open({
+      relPath: 'b.txt',
+      workingDirectory: '/dir1',
+      stagingStatus: 'staged',
+    });
     assert.deepEqual(item1.serialize(), {
       deserializer: 'FilePatchControllerStub',
       uri: 'atom-github://file-patch/b.txt?workdir=%2Fdir1&stagingStatus=staged',
     });
   });
 
-  it('has some item-level accessors', async function() {
+  it('has some item-level accessors', async function () {
     mount(buildPaneApp());
-    const item = await open({relPath: 'a.txt', workingDirectory: '/dir', stagingStatus: 'unstaged'});
+    const item = await open({
+      relPath: 'a.txt',
+      workingDirectory: '/dir',
+      stagingStatus: 'unstaged',
+    });
 
     assert.strictEqual(item.getStagingStatus(), 'unstaged');
     assert.strictEqual(item.getFilePath(), 'a.txt');
@@ -174,60 +209,86 @@ describe('ChangedFileItem', function() {
     assert.isTrue(item.isFilePatchItem());
   });
 
-  describe('observeEmbeddedTextEditor() to interoperate with find-and-replace', function() {
+  describe('observeEmbeddedTextEditor() to interoperate with find-and-replace', function () {
     let sub, editor;
 
-    beforeEach(function() {
+    beforeEach(function () {
       editor = {
-        isAlive() { return true; },
+        isAlive() {
+          return true;
+        },
       };
     });
 
-    afterEach(function() {
+    afterEach(function () {
       sub && sub.dispose();
     });
 
-    it('calls its callback immediately if an editor is present and alive', async function() {
+    it('calls its callback immediately if an editor is present and alive', async function () {
       const wrapper = mount(buildPaneApp());
       const item = await open();
 
-      wrapper.update().find('ChangedFileContainer').prop('refEditor').setter(editor);
+      wrapper
+        .update()
+        .find('ChangedFileContainer')
+        .prop('refEditor')
+        .setter(editor);
 
       const cb = sinon.spy();
       sub = item.observeEmbeddedTextEditor(cb);
       assert.isTrue(cb.calledWith(editor));
     });
 
-    it('does not call its callback if an editor is present but destroyed', async function() {
+    it('does not call its callback if an editor is present but destroyed', async function () {
       const wrapper = mount(buildPaneApp());
       const item = await open();
 
-      wrapper.update().find('ChangedFileContainer').prop('refEditor').setter({isAlive() { return false; }});
+      wrapper
+        .update()
+        .find('ChangedFileContainer')
+        .prop('refEditor')
+        .setter({
+          isAlive() {
+            return false;
+          },
+        });
 
       const cb = sinon.spy();
       sub = item.observeEmbeddedTextEditor(cb);
       assert.isFalse(cb.called);
     });
 
-    it('calls its callback later if the editor changes', async function() {
+    it('calls its callback later if the editor changes', async function () {
       const wrapper = mount(buildPaneApp());
       const item = await open();
 
       const cb = sinon.spy();
       sub = item.observeEmbeddedTextEditor(cb);
 
-      wrapper.update().find('ChangedFileContainer').prop('refEditor').setter(editor);
+      wrapper
+        .update()
+        .find('ChangedFileContainer')
+        .prop('refEditor')
+        .setter(editor);
       assert.isTrue(cb.calledWith(editor));
     });
 
-    it('does not call its callback after its editor is destroyed', async function() {
+    it('does not call its callback after its editor is destroyed', async function () {
       const wrapper = mount(buildPaneApp());
       const item = await open();
 
       const cb = sinon.spy();
       sub = item.observeEmbeddedTextEditor(cb);
 
-      wrapper.update().find('ChangedFileContainer').prop('refEditor').setter({isAlive() { return false; }});
+      wrapper
+        .update()
+        .find('ChangedFileContainer')
+        .prop('refEditor')
+        .setter({
+          isAlive() {
+            return false;
+          },
+        });
       assert.isFalse(cb.called);
     });
   });

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 import cx from 'classnames';
 import Select from 'react-select';
 
@@ -9,13 +9,13 @@ import AtomTextEditor from '../atom/atom-text-editor';
 import CoAuthorForm from './co-author-form';
 import RecentCommitsView from './recent-commits-view';
 import StagingView from './staging-view';
-import Commands, {Command} from '../atom/commands';
+import Commands, { Command } from '../atom/commands';
 import RefHolder from '../models/ref-holder';
 import Author from '../models/author';
 import ObserveModel from './observe-model';
-import {LINE_ENDING_REGEX, autobind} from '../helpers';
-import {AuthorPropType, UserStorePropType} from '../prop-types';
-import {incrementCounter} from '../reporter-proxy';
+import { LINE_ENDING_REGEX, autobind } from '../helpers';
+import { AuthorPropType, UserStorePropType } from '../prop-types';
+import { incrementCounter } from '../reporter-proxy';
 
 const TOOLTIP_DELAY = 200;
 
@@ -67,9 +67,18 @@ export default class CommitView extends React.Component {
     super(props, context);
     autobind(
       this,
-      'submitNewCoAuthor', 'cancelNewCoAuthor', 'didMoveCursor', 'toggleHardWrap',
-      'toggleCoAuthorInput', 'abortMerge', 'commit', 'amendLastCommit', 'toggleExpandedCommitMessageEditor',
-      'renderCoAuthorListItem', 'onSelectedCoAuthorsChanged', 'excludeCoAuthor',
+      'submitNewCoAuthor',
+      'cancelNewCoAuthor',
+      'didMoveCursor',
+      'toggleHardWrap',
+      'toggleCoAuthorInput',
+      'abortMerge',
+      'commit',
+      'amendLastCommit',
+      'toggleExpandedCommitMessageEditor',
+      'renderCoAuthorListItem',
+      'onSelectedCoAuthorsChanged',
+      'excludeCoAuthor'
     );
 
     this.state = {
@@ -98,7 +107,7 @@ export default class CommitView extends React.Component {
   }
 
   proxyKeyCode(keyCode) {
-    return e => {
+    return (e) => {
       if (this.refCoAuthorSelect.isEmpty()) {
         return;
       }
@@ -126,8 +135,11 @@ export default class CommitView extends React.Component {
     this.scheduleShowWorking(this.props);
 
     this.subs.add(
-      this.props.config.onDidChange('github.automaticCommitMessageWrapping', () => this.forceUpdate()),
-      this.props.messageBuffer.onDidChange(() => this.forceUpdate()),
+      this.props.config.onDidChange(
+        'github.automaticCommitMessageWrapping',
+        () => this.forceUpdate()
+      ),
+      this.props.messageBuffer.onDidChange(() => this.forceUpdate())
     );
   }
 
@@ -149,38 +161,94 @@ export default class CommitView extends React.Component {
       <div className="github-CommitView" ref={this.refRoot.setter}>
         <Commands registry={this.props.commands} target="atom-workspace">
           <Command command="github:commit" callback={this.commit} />
-          <Command command="github:amend-last-commit" callback={this.amendLastCommit} />
-          <Command command="github:toggle-expanded-commit-message-editor"
+          <Command
+            command="github:amend-last-commit"
+            callback={this.amendLastCommit}
+          />
+          <Command
+            command="github:toggle-expanded-commit-message-editor"
             callback={this.toggleExpandedCommitMessageEditor}
           />
         </Commands>
-        <Commands registry={this.props.commands} target=".github-CommitView-coAuthorEditor">
-          <Command command="github:selectbox-down" callback={this.proxyKeyCode(40)} />
-          <Command command="github:selectbox-up" callback={this.proxyKeyCode(38)} />
-          <Command command="github:selectbox-enter" callback={this.proxyKeyCode(13)} />
-          <Command command="github:selectbox-tab" callback={this.proxyKeyCode(9)} />
-          <Command command="github:selectbox-backspace" callback={this.proxyKeyCode(8)} />
-          <Command command="github:selectbox-pageup" callback={this.proxyKeyCode(33)} />
-          <Command command="github:selectbox-pagedown" callback={this.proxyKeyCode(34)} />
-          <Command command="github:selectbox-end" callback={this.proxyKeyCode(35)} />
-          <Command command="github:selectbox-home" callback={this.proxyKeyCode(36)} />
-          <Command command="github:selectbox-delete" callback={this.proxyKeyCode(46)} />
-          <Command command="github:selectbox-escape" callback={this.proxyKeyCode(27)} />
-          <Command command="github:co-author-exclude" callback={this.excludeCoAuthor} />
+        <Commands
+          registry={this.props.commands}
+          target=".github-CommitView-coAuthorEditor"
+        >
+          <Command
+            command="github:selectbox-down"
+            callback={this.proxyKeyCode(40)}
+          />
+          <Command
+            command="github:selectbox-up"
+            callback={this.proxyKeyCode(38)}
+          />
+          <Command
+            command="github:selectbox-enter"
+            callback={this.proxyKeyCode(13)}
+          />
+          <Command
+            command="github:selectbox-tab"
+            callback={this.proxyKeyCode(9)}
+          />
+          <Command
+            command="github:selectbox-backspace"
+            callback={this.proxyKeyCode(8)}
+          />
+          <Command
+            command="github:selectbox-pageup"
+            callback={this.proxyKeyCode(33)}
+          />
+          <Command
+            command="github:selectbox-pagedown"
+            callback={this.proxyKeyCode(34)}
+          />
+          <Command
+            command="github:selectbox-end"
+            callback={this.proxyKeyCode(35)}
+          />
+          <Command
+            command="github:selectbox-home"
+            callback={this.proxyKeyCode(36)}
+          />
+          <Command
+            command="github:selectbox-delete"
+            callback={this.proxyKeyCode(46)}
+          />
+          <Command
+            command="github:selectbox-escape"
+            callback={this.proxyKeyCode(27)}
+          />
+          <Command
+            command="github:co-author-exclude"
+            callback={this.excludeCoAuthor}
+          />
         </Commands>
-        <Commands registry={this.props.commands} target=".github-CommitView-commitPreview">
-          <Command command="github:dive" callback={this.props.activateCommitPreview} />
+        <Commands
+          registry={this.props.commands}
+          target=".github-CommitView-commitPreview"
+        >
+          <Command
+            command="github:dive"
+            callback={this.props.activateCommitPreview}
+          />
         </Commands>
         <div className="github-CommitView-buttonWrapper">
           <button
             ref={this.refCommitPreviewButton.setter}
             className="github-CommitView-commitPreview github-CommitView-button btn"
             disabled={!this.props.stagedChangesExist}
-            onClick={this.props.toggleCommitPreview}>
-            {this.props.commitPreviewActive ? 'Hide All Staged Changes' : 'See All Staged Changes'}
+            onClick={this.props.toggleCommitPreview}
+          >
+            {this.props.commitPreviewActive
+              ? 'Hide All Staged Changes'
+              : 'See All Staged Changes'}
           </button>
         </div>
-        <div className={cx('github-CommitView-editor', {'is-expanded': this.props.deactivateCommitBox})}>
+        <div
+          className={cx('github-CommitView-editor', {
+            'is-expanded': this.props.deactivateCommitBox,
+          })}
+        >
           <AtomTextEditor
             ref={this.refEditorComponent.setter}
             refModel={this.refEditorModel}
@@ -196,20 +264,26 @@ export default class CommitView extends React.Component {
           />
           <button
             ref={this.refCoAuthorToggle.setter}
-            className={cx('github-CommitView-coAuthorToggle', {focused: this.state.showCoAuthorInput})}
-            onClick={this.toggleCoAuthorInput}>
+            className={cx('github-CommitView-coAuthorToggle', {
+              focused: this.state.showCoAuthorInput,
+            })}
+            onClick={this.toggleCoAuthorInput}
+          >
             {this.renderCoAuthorToggleIcon()}
           </button>
           <Tooltip
             manager={this.props.tooltips}
             target={this.refCoAuthorToggle}
-            title={`${this.state.showCoAuthorInput ? 'Remove' : 'Add'} co-authors`}
+            title={`${
+              this.state.showCoAuthorInput ? 'Remove' : 'Add'
+            } co-authors`}
             showDelay={TOOLTIP_DELAY}
           />
           <button
             ref={this.refHardWrapButton.setter}
             onClick={this.toggleHardWrap}
-            className="github-CommitView-hardwrap hard-wrap-icons">
+            className="github-CommitView-hardwrap hard-wrap-icons"
+          >
             {this.renderHardWrapIcon()}
           </button>
           <Tooltip
@@ -237,27 +311,36 @@ export default class CommitView extends React.Component {
         {this.renderCoAuthorInput()}
 
         <footer className="github-CommitView-bar">
-          {showAbortMergeButton &&
+          {showAbortMergeButton && (
             <button
               ref={this.refAbortMergeButton.setter}
               className="btn github-CommitView-button github-CommitView-abortMerge is-secondary"
-              onClick={this.abortMerge}>Abort Merge</button>
-          }
+              onClick={this.abortMerge}
+            >
+              Abort Merge
+            </button>
+          )}
 
           <button
             ref={this.refCommitButton.setter}
             className="github-CommitView-button github-CommitView-commit btn btn-primary native-key-bindings"
             onClick={this.commit}
-            disabled={!this.commitIsEnabled(false)}>{this.commitButtonText()}</button>
-          {this.commitIsEnabled(false) &&
+            disabled={!this.commitIsEnabled(false)}
+          >
+            {this.commitButtonText()}
+          </button>
+          {this.commitIsEnabled(false) && (
             <Tooltip
               manager={this.props.tooltips}
               target={this.refCommitButton}
               className="github-CommitView-button-tooltip"
               title={`${modKey}-enter to commit`}
               showDelay={TOOLTIP_DELAY}
-            />}
-          <div className={`github-CommitView-remaining-characters ${remainingCharsClassName}`}>
+            />
+          )}
+          <div
+            className={`github-CommitView-remaining-characters ${remainingCharsClassName}`}
+          >
             {this.getRemainingCharacters()}
           </div>
         </footer>
@@ -267,9 +350,16 @@ export default class CommitView extends React.Component {
 
   renderCoAuthorToggleIcon() {
     /* eslint-disable max-len */
-    const svgPath = 'M9.875 2.125H12v1.75H9.875V6h-1.75V3.875H6v-1.75h2.125V0h1.75v2.125zM6 6.5a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5V6c0-1.316 2-2 2-2s.114-.204 0-.5c-.42-.31-.472-.795-.5-2C1.587.293 2.434 0 3 0s1.413.293 1.5 1.5c-.028 1.205-.08 1.69-.5 2-.114.295 0 .5 0 .5s2 .684 2 2v.5z';
+    const svgPath =
+      'M9.875 2.125H12v1.75H9.875V6h-1.75V3.875H6v-1.75h2.125V0h1.75v2.125zM6 6.5a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5V6c0-1.316 2-2 2-2s.114-.204 0-.5c-.42-.31-.472-.795-.5-2C1.587.293 2.434 0 3 0s1.413.293 1.5 1.5c-.028 1.205-.08 1.69-.5 2-.114.295 0 .5 0 .5s2 .684 2 2v.5z';
     return (
-      <svg className={cx('github-CommitView-coAuthorToggleIcon', {focused: this.state.showCoAuthorInput})} viewBox="0 0 12 7" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        className={cx('github-CommitView-coAuthorToggleIcon', {
+          focused: this.state.showCoAuthorInput,
+        })}
+        viewBox="0 0 12 7"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <title>Add or remove co-authors</title>
         <path d={svgPath} />
       </svg>
@@ -282,8 +372,11 @@ export default class CommitView extends React.Component {
     }
 
     return (
-      <ObserveModel model={this.props.userStore} fetchData={store => store.getUsers()}>
-        {mentionableUsers => (
+      <ObserveModel
+        model={this.props.userStore}
+        fetchData={(store) => store.getUsers()}
+      >
+        {(mentionableUsers) => (
           <Select
             ref={this.refCoAuthorSelect.setter}
             className="github-CommitView-coAuthorEditor input-textarea native-key-bindings"
@@ -308,18 +401,24 @@ export default class CommitView extends React.Component {
   }
 
   renderHardWrapIcon() {
-    const singleLineMessage = this.props.messageBuffer.getText().split(LINE_ENDING_REGEX).length === 1;
-    const hardWrap = this.props.config.get('github.automaticCommitMessageWrapping');
+    const singleLineMessage =
+      this.props.messageBuffer.getText().split(LINE_ENDING_REGEX).length === 1;
+    const hardWrap = this.props.config.get(
+      'github.automaticCommitMessageWrapping'
+    );
     const notApplicable = this.props.deactivateCommitBox || singleLineMessage;
 
     /* eslint-disable max-len */
     const svgPaths = {
       hardWrapEnabled: {
-        path1: 'M7.058 10.2h-.975v2.4L2 9l4.083-3.6v2.4h.97l1.202 1.203L7.058 10.2zm2.525-4.865V4.2h2.334v1.14l-1.164 1.165-1.17-1.17z', // eslint-disable-line max-len
-        path2: 'M7.842 6.94l2.063 2.063-2.122 2.12.908.91 2.123-2.123 1.98 1.98.85-.848L11.58 8.98l2.12-2.123-.824-.825-2.122 2.12-2.062-2.06z', // eslint-disable-line max-len
+        path1:
+          'M7.058 10.2h-.975v2.4L2 9l4.083-3.6v2.4h.97l1.202 1.203L7.058 10.2zm2.525-4.865V4.2h2.334v1.14l-1.164 1.165-1.17-1.17z', // eslint-disable-line max-len
+        path2:
+          'M7.842 6.94l2.063 2.063-2.122 2.12.908.91 2.123-2.123 1.98 1.98.85-.848L11.58 8.98l2.12-2.123-.824-.825-2.122 2.12-2.062-2.06z', // eslint-disable-line max-len
       },
       hardWrapDisabled: {
-        path1: 'M11.917 8.4c0 .99-.788 1.8-1.75 1.8H6.083v2.4L2 9l4.083-3.6v2.4h3.5V4.2h2.334v4.2z',
+        path1:
+          'M11.917 8.4c0 .99-.788 1.8-1.75 1.8H6.083v2.4L2 9l4.083-3.6v2.4h3.5V4.2h2.334v4.2z',
       },
     };
     /* eslint-enable max-len */
@@ -330,16 +429,34 @@ export default class CommitView extends React.Component {
 
     if (hardWrap) {
       return (
-        <div className={cx('icon', 'hardwrap', 'icon-hardwrap-enabled', {hidden: notApplicable || !hardWrap})}>
-          <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <div
+          className={cx('icon', 'hardwrap', 'icon-hardwrap-enabled', {
+            hidden: notApplicable || !hardWrap,
+          })}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path d={svgPaths.hardWrapDisabled.path1} fillRule="evenodd" />
           </svg>
         </div>
       );
     } else {
       return (
-        <div className={cx('icon', 'no-hardwrap', 'icon-hardwrap-disabled', {hidden: notApplicable || hardWrap})}>
-          <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <div
+          className={cx('icon', 'no-hardwrap', 'icon-hardwrap-disabled', {
+            hidden: notApplicable || hardWrap,
+          })}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <g fillRule="evenodd">
               <path d={svgPaths.hardWrapEnabled.path1} />
               <path fillRule="nonzero" d={svgPaths.hardWrapEnabled.path2} />
@@ -376,8 +493,8 @@ export default class CommitView extends React.Component {
   }
 
   hideNewAuthorForm() {
-    this.setState({showCoAuthorForm: false}, () => {
-      this.refCoAuthorSelect.map(c => c.focus());
+    this.setState({ showCoAuthorForm: false }, () => {
+      this.refCoAuthorSelect.map((c) => c.focus());
     });
   }
 
@@ -395,27 +512,37 @@ export default class CommitView extends React.Component {
   }
 
   toggleHardWrap() {
-    const currentSetting = this.props.config.get('github.automaticCommitMessageWrapping');
-    this.props.config.set('github.automaticCommitMessageWrapping', !currentSetting);
+    const currentSetting = this.props.config.get(
+      'github.automaticCommitMessageWrapping'
+    );
+    this.props.config.set(
+      'github.automaticCommitMessageWrapping',
+      !currentSetting
+    );
   }
 
   toggleCoAuthorInput() {
-    this.setState({
-      showCoAuthorInput: !this.state.showCoAuthorInput,
-    }, () => {
-      if (this.state.showCoAuthorInput) {
-        incrementCounter('show-co-author-input');
-        this.refCoAuthorSelect.map(c => c.focus());
-      } else {
-        // if input is closed, remove all co-authors
-        this.props.updateSelectedCoAuthors([]);
-        incrementCounter('hide-co-author-input');
+    this.setState(
+      {
+        showCoAuthorInput: !this.state.showCoAuthorInput,
+      },
+      () => {
+        if (this.state.showCoAuthorInput) {
+          incrementCounter('show-co-author-input');
+          this.refCoAuthorSelect.map((c) => c.focus());
+        } else {
+          // if input is closed, remove all co-authors
+          this.props.updateSelectedCoAuthors([]);
+          incrementCounter('hide-co-author-input');
+        }
       }
-    });
+    );
   }
 
   excludeCoAuthor() {
-    const author = this.refCoAuthorSelect.map(c => c.getFocusedOption()).getOr(null);
+    const author = this.refCoAuthorSelect
+      .map((c) => c.getFocusedOption())
+      .getOr(null);
     if (!author || author.isNew()) {
       return;
     }
@@ -433,9 +560,13 @@ export default class CommitView extends React.Component {
   }
 
   async commit(event, amend) {
-    if (await this.props.prepareToCommit() && this.commitIsEnabled(amend)) {
+    if ((await this.props.prepareToCommit()) && this.commitIsEnabled(amend)) {
       try {
-        await this.props.commit(this.props.messageBuffer.getText(), this.props.selectedCoAuthors, amend);
+        await this.props.commit(
+          this.props.messageBuffer.getText(),
+          this.props.selectedCoAuthors,
+          amend
+        );
       } catch (e) {
         // do nothing - error was taken care of in pipeline manager
         if (!atom.isReleasedVersion()) {
@@ -453,13 +584,18 @@ export default class CommitView extends React.Component {
   }
 
   getRemainingCharacters() {
-    return this.refEditorModel.map(editor => {
-      if (editor.getCursorBufferPosition().row === 0) {
-        return (this.props.maximumCharacterLimit - editor.lineTextForBufferRow(0).length).toString();
-      } else {
-        return '∞';
-      }
-    }).getOr(this.props.maximumCharacterLimit || '');
+    return this.refEditorModel
+      .map((editor) => {
+        if (editor.getCursorBufferPosition().row === 0) {
+          return (
+            this.props.maximumCharacterLimit -
+            editor.lineTextForBufferRow(0).length
+          ).toString();
+        } else {
+          return '∞';
+        }
+      })
+      .getOr(this.props.maximumCharacterLimit || '');
   }
 
   // We don't want the user to see the UI flicker in the case
@@ -473,28 +609,33 @@ export default class CommitView extends React.Component {
       if (!this.state.showWorking && this.timeoutHandle === null) {
         this.timeoutHandle = setTimeout(() => {
           this.timeoutHandle = null;
-          this.setState({showWorking: true});
+          this.setState({ showWorking: true });
         }, 1000);
       }
     } else {
       clearTimeout(this.timeoutHandle);
       this.timeoutHandle = null;
-      this.setState({showWorking: false});
+      this.setState({ showWorking: false });
     }
   }
 
   isValidMessage() {
     // ensure that there are at least some non-comment lines in the commit message.
     // Commented lines are stripped out of commit messages by git, by default configuration.
-    return this.props.messageBuffer.getText().replace(/^#.*$/gm, '').trim().length !== 0;
+    return (
+      this.props.messageBuffer.getText().replace(/^#.*$/gm, '').trim()
+        .length !== 0
+    );
   }
 
   commitIsEnabled(amend) {
-    return !this.props.isCommitting &&
+    return (
+      !this.props.isCommitting &&
       (amend || this.props.stagedChangesExist) &&
       !this.props.mergeConflictsExist &&
       this.props.lastCommit.isPresent() &&
-      (this.props.deactivateCommitBox || (amend || this.isValidMessage()));
+      (this.props.deactivateCommitBox || amend || this.isValidMessage())
+    );
   }
 
   commitButtonText() {
@@ -510,17 +651,24 @@ export default class CommitView extends React.Component {
   }
 
   toggleExpandedCommitMessageEditor() {
-    return this.props.toggleExpandedCommitMessageEditor(this.props.messageBuffer.getText());
+    return this.props.toggleExpandedCommitMessageEditor(
+      this.props.messageBuffer.getText()
+    );
   }
 
   matchAuthors(authors, filterText, selectedAuthors) {
     const matchedAuthors = authors.filter((author, index) => {
-      const isAlreadySelected = selectedAuthors && selectedAuthors.find(selected => selected.matches(author));
+      const isAlreadySelected =
+        selectedAuthors &&
+        selectedAuthors.find((selected) => selected.matches(author));
       const matchesFilter = [
         author.getLogin(),
         author.getFullName(),
         author.getEmail(),
-      ].some(field => field && field.toLowerCase().indexOf(filterText.toLowerCase()) !== -1);
+      ].some(
+        (field) =>
+          field && field.toLowerCase().indexOf(filterText.toLowerCase()) !== -1
+      );
 
       return !isAlreadySelected && matchesFilter;
     });
@@ -534,15 +682,22 @@ export default class CommitView extends React.Component {
     }
 
     return (
-      <span className={`github-CommitView-coAuthorEditor-${fieldName}`}>{value}</span>
+      <span className={`github-CommitView-coAuthorEditor-${fieldName}`}>
+        {value}
+      </span>
     );
   }
 
   renderCoAuthorListItem(author) {
     return (
-      <div className={cx('github-CommitView-coAuthorEditor-selectListItem', {'new-author': author.isNew()})}>
+      <div
+        className={cx('github-CommitView-coAuthorEditor-selectListItem', {
+          'new-author': author.isNew(),
+        })}
+      >
         {this.renderCoAuthorListItemField('name', author.getFullName())}
-        {author.hasLogin() && this.renderCoAuthorListItemField('login', '@' + author.getLogin())}
+        {author.hasLogin() &&
+          this.renderCoAuthorListItemField('login', '@' + author.getLogin())}
         {this.renderCoAuthorListItemField('email', author.getEmail())}
       </div>
     );
@@ -562,37 +717,54 @@ export default class CommitView extends React.Component {
 
   onSelectedCoAuthorsChanged(selectedCoAuthors) {
     incrementCounter('selected-co-authors-changed');
-    const newAuthor = selectedCoAuthors.find(author => author.isNew());
+    const newAuthor = selectedCoAuthors.find((author) => author.isNew());
 
     if (newAuthor) {
-      this.setState({coAuthorInput: newAuthor.getFullName(), showCoAuthorForm: true});
+      this.setState({
+        coAuthorInput: newAuthor.getFullName(),
+        showCoAuthorForm: true,
+      });
     } else {
       this.props.updateSelectedCoAuthors(selectedCoAuthors);
     }
   }
 
   hasFocus() {
-    return this.refRoot.map(element => element.contains(document.activeElement)).getOr(false);
+    return this.refRoot
+      .map((element) => element.contains(document.activeElement))
+      .getOr(false);
   }
 
   getFocus(element) {
-    if (this.refCommitPreviewButton.map(button => button.contains(element)).getOr(false)) {
+    if (
+      this.refCommitPreviewButton
+        .map((button) => button.contains(element))
+        .getOr(false)
+    ) {
       return CommitView.focus.COMMIT_PREVIEW_BUTTON;
     }
 
-    if (this.refEditorComponent.map(editor => editor.contains(element)).getOr(false)) {
+    if (
+      this.refEditorComponent
+        .map((editor) => editor.contains(element))
+        .getOr(false)
+    ) {
       return CommitView.focus.EDITOR;
     }
 
-    if (this.refAbortMergeButton.map(e => e.contains(element)).getOr(false)) {
+    if (this.refAbortMergeButton.map((e) => e.contains(element)).getOr(false)) {
       return CommitView.focus.ABORT_MERGE_BUTTON;
     }
 
-    if (this.refCommitButton.map(e => e.contains(element)).getOr(false)) {
+    if (this.refCommitButton.map((e) => e.contains(element)).getOr(false)) {
       return CommitView.focus.COMMIT_BUTTON;
     }
 
-    if (this.refCoAuthorSelect.map(c => c.wrapper && c.wrapper.contains(element)).getOr(false)) {
+    if (
+      this.refCoAuthorSelect
+        .map((c) => c.wrapper && c.wrapper.contains(element))
+        .getOr(false)
+    ) {
       return CommitView.focus.COAUTHOR_INPUT;
     }
 
@@ -601,7 +773,7 @@ export default class CommitView extends React.Component {
 
   setFocus(focus) {
     let fallback = false;
-    const focusElement = element => {
+    const focusElement = (element) => {
       element.focus();
       return true;
     };
@@ -614,10 +786,16 @@ export default class CommitView extends React.Component {
 
     if (focus === CommitView.focus.EDITOR) {
       if (this.refEditorComponent.map(focusElement).getOr(false)) {
-        if (this.props.messageBuffer.getText().length > 0 && !this.isValidMessage()) {
+        if (
+          this.props.messageBuffer.getText().length > 0 &&
+          !this.isValidMessage()
+        ) {
           // there is likely a commit message template present
           // we want the cursor to be at the beginning, not at the and of the template
-          this.refEditorComponent.get().getModel().setCursorBufferPosition([0, 0]);
+          this.refEditorComponent
+            .get()
+            .getModel()
+            .setCursorBufferPosition([0, 0]);
         }
         return true;
       }
@@ -668,35 +846,37 @@ export default class CommitView extends React.Component {
 
     let next = null;
     switch (focus) {
-    case f.COMMIT_PREVIEW_BUTTON:
-      next = f.EDITOR;
-      break;
-    case f.EDITOR:
-      if (this.state.showCoAuthorInput) {
-        next = f.COAUTHOR_INPUT;
-      } else if (this.props.isMerging) {
-        next = f.ABORT_MERGE_BUTTON;
-      } else if (this.commitIsEnabled(false)) {
-        next = f.COMMIT_BUTTON;
-      } else {
+      case f.COMMIT_PREVIEW_BUTTON:
+        next = f.EDITOR;
+        break;
+      case f.EDITOR:
+        if (this.state.showCoAuthorInput) {
+          next = f.COAUTHOR_INPUT;
+        } else if (this.props.isMerging) {
+          next = f.ABORT_MERGE_BUTTON;
+        } else if (this.commitIsEnabled(false)) {
+          next = f.COMMIT_BUTTON;
+        } else {
+          next = RecentCommitsView.firstFocus;
+        }
+        break;
+      case f.COAUTHOR_INPUT:
+        if (this.props.isMerging) {
+          next = f.ABORT_MERGE_BUTTON;
+        } else if (this.commitIsEnabled(false)) {
+          next = f.COMMIT_BUTTON;
+        } else {
+          next = RecentCommitsView.firstFocus;
+        }
+        break;
+      case f.ABORT_MERGE_BUTTON:
+        next = this.commitIsEnabled(false)
+          ? f.COMMIT_BUTTON
+          : RecentCommitsView.firstFocus;
+        break;
+      case f.COMMIT_BUTTON:
         next = RecentCommitsView.firstFocus;
-      }
-      break;
-    case f.COAUTHOR_INPUT:
-      if (this.props.isMerging) {
-        next = f.ABORT_MERGE_BUTTON;
-      } else if (this.commitIsEnabled(false)) {
-        next = f.COMMIT_BUTTON;
-      } else {
-        next = RecentCommitsView.firstFocus;
-      }
-      break;
-    case f.ABORT_MERGE_BUTTON:
-      next = this.commitIsEnabled(false) ? f.COMMIT_BUTTON : RecentCommitsView.firstFocus;
-      break;
-    case f.COMMIT_BUTTON:
-      next = RecentCommitsView.firstFocus;
-      break;
+        break;
     }
 
     return Promise.resolve(next);
@@ -707,27 +887,27 @@ export default class CommitView extends React.Component {
 
     let previous = null;
     switch (focus) {
-    case f.COMMIT_BUTTON:
-      if (this.props.isMerging) {
-        previous = f.ABORT_MERGE_BUTTON;
-      } else if (this.state.showCoAuthorInput) {
-        previous = f.COAUTHOR_INPUT;
-      } else {
+      case f.COMMIT_BUTTON:
+        if (this.props.isMerging) {
+          previous = f.ABORT_MERGE_BUTTON;
+        } else if (this.state.showCoAuthorInput) {
+          previous = f.COAUTHOR_INPUT;
+        } else {
+          previous = f.EDITOR;
+        }
+        break;
+      case f.ABORT_MERGE_BUTTON:
+        previous = this.state.showCoAuthorInput ? f.COAUTHOR_INPUT : f.EDITOR;
+        break;
+      case f.COAUTHOR_INPUT:
         previous = f.EDITOR;
-      }
-      break;
-    case f.ABORT_MERGE_BUTTON:
-      previous = this.state.showCoAuthorInput ? f.COAUTHOR_INPUT : f.EDITOR;
-      break;
-    case f.COAUTHOR_INPUT:
-      previous = f.EDITOR;
-      break;
-    case f.EDITOR:
-      previous = f.COMMIT_PREVIEW_BUTTON;
-      break;
-    case f.COMMIT_PREVIEW_BUTTON:
-      previous = StagingView.lastFocus;
-      break;
+        break;
+      case f.EDITOR:
+        previous = f.COMMIT_PREVIEW_BUTTON;
+        break;
+      case f.COMMIT_PREVIEW_BUTTON:
+        previous = StagingView.lastFocus;
+        break;
     }
 
     return Promise.resolve(previous);

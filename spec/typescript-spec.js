@@ -1,6 +1,6 @@
-describe('TypeScript transpiler support', function() {
+describe('TypeScript transpiler support', function () {
   describe('when there is a .ts file', () =>
-    it('transpiles it using typescript', function() {
+    it('transpiles it using typescript', function () {
       const transpiled = require('./fixtures/typescript/valid.ts');
       expect(transpiled(3)).toBe(4);
     }));

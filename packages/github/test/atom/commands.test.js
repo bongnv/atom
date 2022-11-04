@@ -1,22 +1,22 @@
 import React from 'react';
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
-import Commands, {Command} from '../../lib/atom/commands';
+import Commands, { Command } from '../../lib/atom/commands';
 import RefHolder from '../../lib/models/ref-holder';
 
-describe('Commands', function() {
+describe('Commands', function () {
   let atomEnv, commands;
 
-  beforeEach(function() {
+  beforeEach(function () {
     atomEnv = global.buildAtomEnvironment();
     commands = atomEnv.commands;
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
-  it('registers commands on mount and unregisters them on unmount', async function() {
+  it('registers commands on mount and unregisters them on unmount', async function () {
     const callback1 = sinon.stub();
     const callback2 = sinon.stub();
     const element = document.createElement('div');
@@ -33,8 +33,13 @@ describe('Commands', function() {
     commands.dispatch(element, 'github:do-thing2');
     assert.equal(callback2.callCount, 1);
 
-    await new Promise(resolve => {
-      wrapper.setProps({children: <Command command="github:do-thing1" callback={callback1} />}, resolve);
+    await new Promise((resolve) => {
+      wrapper.setProps(
+        {
+          children: <Command command="github:do-thing1" callback={callback1} />,
+        },
+        resolve
+      );
     });
 
     callback1.reset();
@@ -54,7 +59,7 @@ describe('Commands', function() {
     assert.equal(callback2.callCount, 0);
   });
 
-  it('updates commands when props change', async function() {
+  it('updates commands when props change', async function () {
     const element = document.createElement('div');
     const callback1 = sinon.stub();
     const callback2 = sinon.stub();
@@ -78,8 +83,11 @@ describe('Commands', function() {
     commands.dispatch(element, 'user:command1');
     assert.equal(callback1.callCount, 1);
 
-    await new Promise(resolve => {
-      wrapper.setProps({command: 'user:command2', callback: callback2}, resolve);
+    await new Promise((resolve) => {
+      wrapper.setProps(
+        { command: 'user:command2', callback: callback2 },
+        resolve
+      );
     });
 
     callback1.reset();
@@ -91,13 +99,13 @@ describe('Commands', function() {
     assert.equal(callback2.callCount, 1);
   });
 
-  it('allows the target prop to be a RefHolder to capture refs from parent components', function() {
+  it('allows the target prop to be a RefHolder to capture refs from parent components', function () {
     const callback = sinon.spy();
     const holder = new RefHolder();
     mount(
       <Commands registry={commands} target={holder}>
         <Command command="github:do-thing" callback={callback} />
-      </Commands>,
+      </Commands>
     );
 
     const element = document.createElement('div');

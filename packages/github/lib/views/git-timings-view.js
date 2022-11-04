@@ -1,6 +1,6 @@
-import {TextBuffer} from 'atom';
-import {Emitter, CompositeDisposable} from 'event-kit';
-import {dialog} from '@electron/remote';
+import { TextBuffer } from 'atom';
+import { Emitter, CompositeDisposable } from 'event-kit';
+import { dialog } from '@electron/remote';
 import React from 'react';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
@@ -8,15 +8,18 @@ import memoize from 'lodash.memoize';
 import fs from 'fs-extra';
 
 import Octicon from '../atom/octicon';
-import {autobind} from '../helpers';
+import { autobind } from '../helpers';
 
-const genArray = memoize(function genArray(interval, count) {
-  const arr = [];
-  for (let i = 1; i <= count; i++) {
-    arr.push(interval * i);
-  }
-  return arr;
-}, (interval, count) => `${interval}:${count}`);
+const genArray = memoize(
+  function genArray(interval, count) {
+    const arr = [];
+    for (let i = 1; i <= count; i++) {
+      arr.push(interval * i);
+    }
+    return arr;
+  },
+  (interval, count) => `${interval}:${count}`
+);
 
 class Marker {
   static deserialize(data) {
@@ -42,7 +45,7 @@ class Marker {
   }
 
   mark(sectionName, start) {
-    this.markers.push({name: sectionName, start: start || performance.now()});
+    this.markers.push({ name: sectionName, start: start || performance.now() });
   }
 
   finalize() {
@@ -54,7 +57,7 @@ class Marker {
     return this.markers.map((timing, idx, ary) => {
       const next = ary[idx + 1];
       const end = next ? next.start : this.getEnd();
-      return {...timing, end};
+      return { ...timing, end };
     });
   }
 
@@ -67,23 +70,28 @@ class Marker {
   }
 }
 
-
 class MarkerTooltip extends React.Component {
   static propTypes = {
     marker: PropTypes.instanceOf(Marker).isRequired,
-  }
+  };
 
   render() {
-    const {marker} = this.props;
+    const { marker } = this.props;
     const timings = marker.getTimings();
 
     return (
-      <div style={{textAlign: 'left', maxWidth: 300, whiteSpace: 'initial'}}>
-        <strong><tt>{marker.label}</tt></strong>
-        <ul style={{paddingLeft: 20, marginTop: 10}}>
-          {timings.map(({name, start, end}) => {
+      <div style={{ textAlign: 'left', maxWidth: 300, whiteSpace: 'initial' }}>
+        <strong>
+          <tt>{marker.label}</tt>
+        </strong>
+        <ul style={{ paddingLeft: 20, marginTop: 10 }}>
+          {timings.map(({ name, start, end }) => {
             const duration = end - start;
-            return <li key={name}>{name}: {Math.floor(duration * 100) / 100}ms</li>;
+            return (
+              <li key={name}>
+                {name}: {Math.floor(duration * 100) / 100}ms
+              </li>
+            );
           })}
         </ul>
       </div>
@@ -101,7 +109,7 @@ const COLORS = {
 class MarkerSpan extends React.Component {
   static propTypes = {
     marker: PropTypes.instanceOf(Marker).isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -109,25 +117,30 @@ class MarkerSpan extends React.Component {
   }
 
   render() {
-    const {marker, ...others} = this.props;
+    const { marker, ...others } = this.props;
     const timings = marker.getTimings();
     const totalTime = marker.getEnd() - marker.getStart();
-    const percentages = timings.map(({name, start, end}) => {
+    const percentages = timings.map(({ name, start, end }) => {
       const duration = end - start;
-      return {color: COLORS[name], percent: duration / totalTime * 100};
+      return { color: COLORS[name], percent: (duration / totalTime) * 100 };
     });
     return (
       <span
         {...others}
-        ref={c => { this.element = c; }}
+        ref={(c) => {
+          this.element = c;
+        }}
         onMouseOver={this.handleMouseOver}
-        onMouseOut={this.handleMouseOut}>
-        {percentages.map(({color, percent}, i) => {
+        onMouseOut={this.handleMouseOut}
+      >
+        {percentages.map(({ color, percent }, i) => {
           const style = {
             width: `${percent}%`,
             background: color,
           };
-          return <span className="waterfall-marker-section" key={i} style={style} />;
+          return (
+            <span className="waterfall-marker-section" key={i} style={style} />
+          );
         })}
       </span>
     );
@@ -157,12 +170,11 @@ class MarkerSpan extends React.Component {
   }
 }
 
-
 class Waterfall extends React.Component {
   static propTypes = {
     markers: PropTypes.arrayOf(PropTypes.instanceOf(Marker)).isRequired,
     zoomFactor: PropTypes.number.isRequired,
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -175,7 +187,7 @@ class Waterfall extends React.Component {
   }
 
   getNextState(props) {
-    const {markers} = props;
+    const { markers } = props;
     const firstMarker = markers[0];
     const lastMarker = markers[markers.length - 1];
 
@@ -192,9 +204,19 @@ class Waterfall extends React.Component {
     } else {
       timelineMarkInterval = 100;
     }
-    const timelineMarks = genArray(timelineMarkInterval, Math.ceil(totalDuration / timelineMarkInterval));
+    const timelineMarks = genArray(
+      timelineMarkInterval,
+      Math.ceil(totalDuration / timelineMarkInterval)
+    );
 
-    return {firstMarker, lastMarker, startTime, endTime, totalDuration, timelineMarks};
+    return {
+      firstMarker,
+      lastMarker,
+      startTime,
+      endTime,
+      totalDuration,
+      timelineMarks,
+    };
   }
 
   render() {
@@ -213,12 +235,20 @@ class Waterfall extends React.Component {
     return (
       <div className="waterfall-timeline">
         &nbsp;
-        {this.state.timelineMarks.map(time => {
+        {this.state.timelineMarks.map((time) => {
           const leftPos = time * this.props.zoomFactor;
           const style = {
             left: leftPos,
           };
-          return <span className="waterfall-timeline-label" style={style} key={`tl:${time}`}>{time}ms</span>;
+          return (
+            <span
+              className="waterfall-timeline-label"
+              style={style}
+              key={`tl:${time}`}
+            >
+              {time}ms
+            </span>
+          );
         })}
       </div>
     );
@@ -227,19 +257,27 @@ class Waterfall extends React.Component {
   renderTimeMarkers() {
     return (
       <div className="waterfall-time-markers">
-        {this.state.timelineMarks.map(time => {
+        {this.state.timelineMarks.map((time) => {
           const leftPos = time * this.props.zoomFactor;
           const style = {
             left: leftPos,
           };
-          return <span className="waterfall-time-marker" style={style} key={`tm:${time}`} />;
+          return (
+            <span
+              className="waterfall-time-marker"
+              style={style}
+              key={`tm:${time}`}
+            />
+          );
         })}
       </div>
     );
   }
 
   renderMarker(marker, i) {
-    if (marker.getStart() === null || marker.getEnd() === null) { return <div key={i} />; }
+    if (marker.getStart() === null || marker.getEnd() === null) {
+      return <div key={i} />;
+    }
 
     const startOffset = marker.getStart() - this.state.startTime;
     const duration = marker.getEnd() - marker.getStart();
@@ -252,22 +290,33 @@ class Waterfall extends React.Component {
       <div className="waterfall-row" key={i}>
         <span
           className="waterfall-row-label"
-          style={{paddingLeft: markerStyle.left + markerStyle.width}}>{marker.label}</span>
-        <MarkerSpan className="waterfall-marker" style={markerStyle} marker={marker} />
+          style={{ paddingLeft: markerStyle.left + markerStyle.width }}
+        >
+          {marker.label}
+        </span>
+        <MarkerSpan
+          className="waterfall-marker"
+          style={markerStyle}
+          marker={marker}
+        />
       </div>
     );
   }
 }
 
-
 class WaterfallWidget extends React.Component {
   static propTypes = {
     markers: PropTypes.arrayOf(PropTypes.instanceOf(Marker)).isRequired,
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
-    autobind(this, 'handleZoomFactorChange', 'handleCollapseClick', 'handleExportClick');
+    autobind(
+      this,
+      'handleZoomFactorChange',
+      'handleCollapseClick',
+      'handleExportClick'
+    );
     this.state = {
       zoomFactor: 0.3,
       collapsed: false,
@@ -275,7 +324,7 @@ class WaterfallWidget extends React.Component {
   }
 
   render() {
-    const {markers} = this.props;
+    const { markers } = this.props;
     const firstMarker = markers[0];
     const lastMarker = markers[markers.length - 1];
 
@@ -287,7 +336,10 @@ class WaterfallWidget extends React.Component {
       <div className="waterfall-widget inset-pannel">
         <div className="waterfall-header">
           <div className="waterfall-header-text">
-            <span onClick={this.handleCollapseClick} className="collapse-toggle">
+            <span
+              onClick={this.handleCollapseClick}
+              className="collapse-toggle"
+            >
               {this.state.collapsed ? '\u25b6' : '\u25bc'}
             </span>
             {this.props.markers.length} event(s) over {Math.floor(duration)}ms
@@ -295,7 +347,10 @@ class WaterfallWidget extends React.Component {
           <div className="waterfall-header-controls">
             <button
               className="waterfall-export-button btn btn-sm"
-              onClick={this.handleExportClick}>Export</button>
+              onClick={this.handleExportClick}
+            >
+              Export
+            </button>
             <Octicon icon="search" />
             <input
               type="range"
@@ -308,24 +363,33 @@ class WaterfallWidget extends React.Component {
             />
           </div>
         </div>
-        {this.state.collapsed ? null : <Waterfall markers={this.props.markers} zoomFactor={this.state.zoomFactor} />}
+        {this.state.collapsed ? null : (
+          <Waterfall
+            markers={this.props.markers}
+            zoomFactor={this.state.zoomFactor}
+          />
+        )}
       </div>
     );
   }
 
   handleZoomFactorChange(e) {
-    this.setState({zoomFactor: parseFloat(e.target.value)});
+    this.setState({ zoomFactor: parseFloat(e.target.value) });
   }
 
   handleCollapseClick(e) {
-    this.setState(s => ({collapsed: !s.collapsed}));
+    this.setState((s) => ({ collapsed: !s.collapsed }));
   }
 
   async handleExportClick(e) {
     e.preventDefault();
-    const json = JSON.stringify(this.props.markers.map(m => m.serialize()), null, '  ');
-    const buffer = new TextBuffer({text: json});
-    const {filePath} = await dialog.showSaveDialog({
+    const json = JSON.stringify(
+      this.props.markers.map((m) => m.serialize()),
+      null,
+      '  '
+    );
+    const buffer = new TextBuffer({ text: json });
+    const { filePath } = await dialog.showSaveDialog({
       defaultPath: 'git-timings.json',
     });
     if (!filePath) {
@@ -335,7 +399,6 @@ class WaterfallWidget extends React.Component {
   }
 }
 
-
 let markers = null;
 let groupId = 0;
 const groups = [];
@@ -343,7 +406,6 @@ let lastMarkerTime = null;
 let updateTimer = null;
 
 export default class GitTimingsView extends React.Component {
-
   static uriPattern = 'atom-github://debug/timings';
 
   static buildURI() {
@@ -357,10 +419,13 @@ export default class GitTimingsView extends React.Component {
       GitTimingsView.scheduleUpdate();
     });
     const now = performance.now();
-    if (!markers || (lastMarkerTime && Math.abs(now - lastMarkerTime) >= 5000)) {
+    if (
+      !markers ||
+      (lastMarkerTime && Math.abs(now - lastMarkerTime) >= 5000)
+    ) {
       groupId++;
       markers = [];
-      groups.unshift({id: groupId, markers});
+      groups.unshift({ id: groupId, markers });
       if (groups.length > 100) {
         groups.pop();
       }
@@ -373,7 +438,7 @@ export default class GitTimingsView extends React.Component {
 
   static restoreGroup(group) {
     groupId++;
-    groups.unshift({id: groupId, markers: group});
+    groups.unshift({ id: groupId, markers: group });
     GitTimingsView.scheduleUpdate(true);
   }
 
@@ -382,9 +447,12 @@ export default class GitTimingsView extends React.Component {
       clearTimeout(updateTimer);
     }
 
-    updateTimer = setTimeout(() => {
-      GitTimingsView.emitter.emit('did-update');
-    }, immediate ? 0 : 1000);
+    updateTimer = setTimeout(
+      () => {
+        GitTimingsView.emitter.emit('did-update');
+      },
+      immediate ? 0 : 1000
+    );
   }
 
   static onDidUpdate(callback) {
@@ -398,7 +466,7 @@ export default class GitTimingsView extends React.Component {
 
   componentDidMount() {
     this.subscriptions = new CompositeDisposable(
-      GitTimingsView.onDidUpdate(() => this.forceUpdate()),
+      GitTimingsView.onDidUpdate(() => this.forceUpdate())
     );
   }
 
@@ -410,7 +478,12 @@ export default class GitTimingsView extends React.Component {
     return (
       <div className="github-GitTimingsView">
         <div className="github-GitTimingsView-header">
-          <button className="import-button btn" onClick={this.handleImportClick}>Import</button>
+          <button
+            className="import-button btn"
+            onClick={this.handleImportClick}
+          >
+            Import
+          </button>
         </div>
         {groups.map((group, idx) => (
           <WaterfallWidget key={group.id} markers={group.markers} />
@@ -421,7 +494,7 @@ export default class GitTimingsView extends React.Component {
 
   async handleImportClick(e) {
     e.preventDefault();
-    const {filePaths} = await dialog.showOpenDialog({
+    const { filePaths } = await dialog.showOpenDialog({
       properties: ['openFile'],
     });
     if (!filePaths.length) {
@@ -429,9 +502,9 @@ export default class GitTimingsView extends React.Component {
     }
     const filename = filePaths[0];
     try {
-      const contents = await fs.readFile(filename, {encoding: 'utf8'});
+      const contents = await fs.readFile(filename, { encoding: 'utf8' });
       const data = JSON.parse(contents);
-      const restoredMarkers = data.map(item => Marker.deserialize(item));
+      const restoredMarkers = data.map((item) => Marker.deserialize(item));
       GitTimingsView.restoreGroup(restoredMarkers);
     } catch (_err) {
       atom.notifications.addError(`Could not import timings from ${filename}`);

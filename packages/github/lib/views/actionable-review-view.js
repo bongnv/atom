@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import {shell} from 'electron';
+import { shell } from 'electron';
 import * as remote from '@electron/remote';
-import {TextBuffer} from 'atom';
+import { TextBuffer } from 'atom';
 import AtomTextEditor from '../atom/atom-text-editor';
 import RefHolder from '../models/ref-holder';
-import {addEvent} from '../reporter-proxy';
-import Commands, {Command} from '../atom/commands';
-const {Menu, MenuItem} = remote;
+import { addEvent } from '../reporter-proxy';
+import Commands, { Command } from '../atom/commands';
+const { Menu, MenuItem } = remote;
 
 export default class ActionableReviewView extends React.Component {
   static propTypes = {
@@ -27,34 +27,39 @@ export default class ActionableReviewView extends React.Component {
 
     // Render prop
     render: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
     createMenu: /* istanbul ignore next */ () => new Menu(),
-    createMenuItem: /* istanbul ignore next */ (...args) => new MenuItem(...args),
-  }
+    createMenuItem: /* istanbul ignore next */ (...args) =>
+      new MenuItem(...args),
+  };
 
   constructor(props) {
     super(props);
     this.refEditor = new RefHolder();
     this.refRoot = new RefHolder();
     this.buffer = new TextBuffer();
-    this.state = {editing: false};
+    this.state = { editing: false };
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.editing && !prevState.editing) {
       this.buffer.setText(this.props.originalContent.body);
-      this.refEditor.map(e => e.getElement().focus());
+      this.refEditor.map((e) => e.getElement().focus());
     }
   }
 
   render() {
-    return this.state.editing ? this.renderEditor() : this.props.render(this.showActionsMenu);
+    return this.state.editing
+      ? this.renderEditor()
+      : this.props.render(this.showActionsMenu);
   }
 
   renderEditor() {
-    const className = cx('github-Review-editable', {'github-Review-editable--disabled': this.props.isPosting});
+    const className = cx('github-Review-editable', {
+      'github-Review-editable--disabled': this.props.isPosting,
+    });
 
     return (
       <div className={className} ref={this.refRoot.setter}>
@@ -72,14 +77,16 @@ export default class ActionableReviewView extends React.Component {
             className="github-Review-editableCancelButton btn btn-sm"
             title="Cancel editing comment"
             disabled={this.props.isPosting}
-            onClick={this.onCancel}>
+            onClick={this.onCancel}
+          >
             Cancel
           </button>
           <button
             className="github-Review-updateCommentButton btn btn-sm btn-primary"
             title="Update comment"
             disabled={this.props.isPosting}
-            onClick={this.onSubmitUpdate}>
+            onClick={this.onSubmitUpdate}
+          >
             Update comment
           </button>
         </footer>
@@ -90,7 +97,10 @@ export default class ActionableReviewView extends React.Component {
   renderCommands() {
     return (
       <Commands registry={this.props.commands} target={this.refRoot}>
-        <Command command="github:submit-comment" callback={this.onSubmitUpdate} />
+        <Command
+          command="github:submit-comment"
+          callback={this.onSubmitUpdate}
+        />
         <Command command="core:cancel" callback={this.onCancel} />
       </Commands>
     );
@@ -98,45 +108,54 @@ export default class ActionableReviewView extends React.Component {
 
   onCancel = () => {
     if (this.buffer.getText() === this.props.originalContent.body) {
-      this.setState({editing: false});
+      this.setState({ editing: false });
     } else {
       const choice = this.props.confirm({
         message: 'Are you sure you want to discard your unsaved changes?',
         buttons: ['OK', 'Cancel'],
       });
       if (choice === 0) {
-        this.setState({editing: false});
+        this.setState({ editing: false });
       }
     }
-  }
+  };
 
   onSubmitUpdate = async () => {
     const text = this.buffer.getText();
     if (text === this.props.originalContent.body || text === '') {
-      this.setState({editing: false});
+      this.setState({ editing: false });
       return;
     }
 
     try {
       await this.props.contentUpdater(this.props.originalContent.id, text);
-      this.setState({editing: false});
+      this.setState({ editing: false });
     } catch (e) {
       this.buffer.setText(text);
     }
-  }
+  };
 
   reportAbuse = async (commentUrl, author) => {
-    const url = 'https://github.com/contact/report-content?report=' +
-      `${encodeURIComponent(author)}&content_url=${encodeURIComponent(commentUrl)}`;
+    const url =
+      'https://github.com/contact/report-content?report=' +
+      `${encodeURIComponent(author)}&content_url=${encodeURIComponent(
+        commentUrl
+      )}`;
 
     await shell.openExternal(url);
-    addEvent('report-abuse', {package: 'github', component: this.constructor.name});
-  }
+    addEvent('report-abuse', {
+      package: 'github',
+      component: this.constructor.name,
+    });
+  };
 
-  openOnGitHub = async url => {
+  openOnGitHub = async (url) => {
     await shell.openExternal(url);
-    addEvent('open-comment-in-browser', {package: 'github', component: this.constructor.name});
-  }
+    addEvent('open-comment-in-browser', {
+      package: 'github',
+      component: this.constructor.name,
+    });
+  };
 
   showActionsMenu = (event, content, author) => {
     event.preventDefault();
@@ -144,22 +163,28 @@ export default class ActionableReviewView extends React.Component {
     const menu = this.props.createMenu();
 
     if (content.viewerCanUpdate) {
-      menu.append(this.props.createMenuItem({
-        label: 'Edit',
-        click: () => this.setState({editing: true}),
-      }));
+      menu.append(
+        this.props.createMenuItem({
+          label: 'Edit',
+          click: () => this.setState({ editing: true }),
+        })
+      );
     }
 
-    menu.append(this.props.createMenuItem({
-      label: 'Open on GitHub',
-      click: () => this.openOnGitHub(content.url),
-    }));
+    menu.append(
+      this.props.createMenuItem({
+        label: 'Open on GitHub',
+        click: () => this.openOnGitHub(content.url),
+      })
+    );
 
-    menu.append(this.props.createMenuItem({
-      label: 'Report abuse',
-      click: () => this.reportAbuse(content.url, author.login),
-    }));
+    menu.append(
+      this.props.createMenuItem({
+        label: 'Report abuse',
+        click: () => this.reportAbuse(content.url, author.login),
+      })
+    );
 
     menu.popup(remote.getCurrentWindow());
-  }
+  };
 }

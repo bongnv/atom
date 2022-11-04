@@ -1,9 +1,9 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import {Range} from 'atom';
+import { Range } from 'atom';
 
-import {EndpointPropType} from '../prop-types';
-import {addEvent} from '../reporter-proxy';
+import { EndpointPropType } from '../prop-types';
+import { addEvent } from '../reporter-proxy';
 import Marker from '../atom/marker';
 import Decoration from '../atom/decoration';
 import ReviewsItem from '../items/reviews-item';
@@ -19,11 +19,13 @@ export default class EditorCommentDecorationsController extends React.Component 
 
     workspace: PropTypes.object.isRequired,
     editor: PropTypes.object.isRequired,
-    threadsForPath: PropTypes.arrayOf(PropTypes.shape({
-      rootCommentID: PropTypes.string.isRequired,
-      position: PropTypes.number,
-      threadID: PropTypes.string.isRequired,
-    })).isRequired,
+    threadsForPath: PropTypes.arrayOf(
+      PropTypes.shape({
+        rootCommentID: PropTypes.string.isRequired,
+        position: PropTypes.number,
+        threadID: PropTypes.string.isRequired,
+      })
+    ).isRequired,
     commentTranslationsForPath: PropTypes.shape({
       diffToFilePosition: PropTypes.shape({
         get: PropTypes.func.isRequired,
@@ -34,7 +36,7 @@ export default class EditorCommentDecorationsController extends React.Component 
       removed: PropTypes.bool.isRequired,
       digest: PropTypes.string,
     }),
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -43,7 +45,9 @@ export default class EditorCommentDecorationsController extends React.Component 
   }
 
   shouldComponentUpdate(nextProps) {
-    return translationDigestFrom(this.props) !== translationDigestFrom(nextProps);
+    return (
+      translationDigestFrom(this.props) !== translationDigestFrom(nextProps)
+    );
   }
 
   render() {
@@ -51,7 +55,10 @@ export default class EditorCommentDecorationsController extends React.Component 
       return null;
     }
 
-    if (this.props.commentTranslationsForPath.removed && this.props.threadsForPath.length > 0) {
+    if (
+      this.props.commentTranslationsForPath.removed &&
+      this.props.threadsForPath.length > 0
+    ) {
       const [firstThread] = this.props.threadsForPath;
 
       return (
@@ -59,46 +66,58 @@ export default class EditorCommentDecorationsController extends React.Component 
           editor={this.props.editor}
           exclusive={true}
           invalidate="surround"
-          bufferRange={Range.fromObject([[0, 0], [0, 0]])}>
-
-          <Decoration type="block" editor={this.props.editor} className="github-EditorComment-omitted">
+          bufferRange={Range.fromObject([
+            [0, 0],
+            [0, 0],
+          ])}
+        >
+          <Decoration
+            type="block"
+            editor={this.props.editor}
+            className="github-EditorComment-omitted"
+          >
             <p>
-              This file has review comments, but its patch is too large for Atom to load.
+              This file has review comments, but its patch is too large for Atom
+              to load.
             </p>
             <p>
               Review comments may still be viewed within
               <button
                 className="btn"
-                onClick={() => this.openReviewThread(firstThread.threadID)}>the review tab</button>.
+                onClick={() => this.openReviewThread(firstThread.threadID)}
+              >
+                the review tab
+              </button>
+              .
             </p>
           </Decoration>
-
         </Marker>
       );
     }
 
-    return this.props.threadsForPath.map(thread => {
+    return this.props.threadsForPath.map((thread) => {
       const range = this.getRangeForThread(thread);
       if (!range) {
         return null;
       }
 
       return (
-        <Fragment key={`github-editor-review-decoration-${thread.rootCommentID}`}>
+        <Fragment
+          key={`github-editor-review-decoration-${thread.rootCommentID}`}
+        >
           <Marker
             editor={this.props.editor}
             exclusive={true}
             invalidate="surround"
             bufferRange={range}
-            didChange={evt => this.markerDidChange(thread.rootCommentID, evt)}>
-
+            didChange={(evt) => this.markerDidChange(thread.rootCommentID, evt)}
+          >
             <Decoration
               type="line"
               editor={this.props.editor}
               className="github-editorCommentHighlight"
               omitEmptyLastRow={false}
             />
-
           </Marker>
           <CommentGutterDecorationController
             commentRow={range.start.row}
@@ -117,7 +136,7 @@ export default class EditorCommentDecorationsController extends React.Component 
     });
   }
 
-  markerDidChange(rootCommentID, {newRange}) {
+  markerDidChange(rootCommentID, { newRange }) {
     this.rangesByRootID.set(rootCommentID, Range.fromObject(newRange));
   }
 
@@ -136,7 +155,8 @@ export default class EditorCommentDecorationsController extends React.Component 
     }
 
     if (translations.fileTranslations) {
-      adjustedPosition = translations.fileTranslations.get(adjustedPosition).newPosition;
+      adjustedPosition =
+        translations.fileTranslations.get(adjustedPosition).newPosition;
       if (!adjustedPosition) {
         this.rangesByRootID.delete(thread.rootCommentID);
         return null;
@@ -147,13 +167,16 @@ export default class EditorCommentDecorationsController extends React.Component 
 
     let localRange = this.rangesByRootID.get(thread.rootCommentID);
     if (!localRange) {
-      localRange = Range.fromObject([[editorRow, 0], [editorRow, Infinity]]);
+      localRange = Range.fromObject([
+        [editorRow, 0],
+        [editorRow, Infinity],
+      ]);
       this.rangesByRootID.set(thread.rootCommentID, localRange);
     }
     return localRange;
   }
 
-  openReviewThread = async threadId => {
+  openReviewThread = async (threadId) => {
     const uri = ReviewsItem.buildURI({
       host: this.props.endpoint.getHost(),
       owner: this.props.owner,
@@ -161,10 +184,15 @@ export default class EditorCommentDecorationsController extends React.Component 
       number: this.props.number,
       workdir: this.props.workdir,
     });
-    const reviewsItem = await this.props.workspace.open(uri, {searchAllPanes: true});
+    const reviewsItem = await this.props.workspace.open(uri, {
+      searchAllPanes: true,
+    });
     reviewsItem.jumpToThread(threadId);
-    addEvent('open-review-thread', {package: 'github', from: this.constructor.name});
-  }
+    addEvent('open-review-thread', {
+      package: 'github',
+      from: this.constructor.name,
+    });
+  };
 }
 
 function translationDigestFrom(props) {

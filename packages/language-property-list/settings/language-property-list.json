@@ -1,1 +1,10 @@
-{".source.plist":{"editor":{"commentStart":"// ","foldEndPattern":"^\\s*(\\}|\\))","increaseIndentPattern":"^\\s*(([a-zA-Z_-]+|\"[^\"]+\"|'[^']+')\\s+=\\s+)?[{(](?!.*[)}][;,]?\\s*$)","decreaseIndentPattern":"^\\s*(\\}|\\))"}}}
+{
+  ".source.plist": {
+    "editor": {
+      "commentStart": "// ",
+      "foldEndPattern": "^\\s*(\\}|\\))",
+      "increaseIndentPattern": "^\\s*(([a-zA-Z_-]+|\"[^\"]+\"|'[^']+')\\s+=\\s+)?[{(](?!.*[)}][;,]?\\s*$)",
+      "decreaseIndentPattern": "^\\s*(\\}|\\))"
+    }
+  }
+}

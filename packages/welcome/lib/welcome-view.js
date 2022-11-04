@@ -44,12 +44,7 @@ export default class WelcomeView {
                 viewBox="0 0 330 68"
                 version="1.1"
               >
-                <g
-                  stroke="none"
-                  stroke-width="1"
-                  fill="none"
-                  fill-rule="evenodd"
-                >
+                <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
                   <g transform="translate(2.000000, 1.000000)">
                     <g
                       transform="translate(96.000000, 8.000000)"
@@ -68,20 +63,20 @@ export default class WelcomeView {
                       <path
                         d="M48.578,28.615 C56.851,45.587 58.558,61.581 52.288,64.778 C45.822,68.076 33.326,56.521 24.375,38.969 C15.424,21.418 13.409,4.518 19.874,1.221 C22.689,-0.216 26.648,1.166 30.959,4.629"
                         stroke="currentColor"
-                        stroke-width="3.08"
-                        stroke-linecap="round"
+                        strokeWidth="3.08"
+                        strokeLinecap="round"
                       />
                       <path
                         d="M7.64,39.45 C2.806,36.94 -0.009,33.915 0.154,30.79 C0.531,23.542 16.787,18.497 36.462,19.52 C56.137,20.544 71.781,27.249 71.404,34.497 C71.241,37.622 68.127,40.338 63.06,42.333"
                         stroke="currentColor"
-                        stroke-width="3.08"
-                        stroke-linecap="round"
+                        strokeWidth="3.08"
+                        strokeLinecap="round"
                       />
                       <path
                         d="M28.828,59.354 C23.545,63.168 18.843,64.561 15.902,62.653 C9.814,58.702 13.572,42.102 24.296,25.575 C35.02,9.048 48.649,-1.149 54.736,2.803 C57.566,4.639 58.269,9.208 57.133,15.232"
                         stroke="currentColor"
-                        stroke-width="3.08"
-                        stroke-linecap="round"
+                        strokeWidth="3.08"
+                        strokeLinecap="round"
                       />
                     </g>
                   </g>
@@ -134,7 +129,7 @@ export default class WelcomeView {
                 className="input-checkbox"
                 type="checkbox"
                 checked={atom.config.get('welcome.showOnStartup')}
-                onchange={this.didChangeShowOnStartup}
+                onChange={this.didChangeShowOnStartup}
               />
               Show Welcome Guide when opening Atom
             </label>

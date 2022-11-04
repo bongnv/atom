@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {addEvent} from '../reporter-proxy';
+import { addEvent } from '../reporter-proxy';
 
 export default class ReviewsFooterView extends React.Component {
   static propTypes = {
@@ -14,37 +14,49 @@ export default class ReviewsFooterView extends React.Component {
   };
 
   logStartReviewClick = () => {
-    addEvent('start-pr-review', {package: 'github', component: this.constructor.name});
-  }
+    addEvent('start-pr-review', {
+      package: 'github',
+      component: this.constructor.name,
+    });
+  };
 
   render() {
     return (
       <footer className="github-ReviewsFooterView-footer">
-        <span className="github-ReviewsFooterView-footerTitle">
-          Reviews
-        </span>
+        <span className="github-ReviewsFooterView-footerTitle">Reviews</span>
         <span className="github-ReviewsFooterView">
           <span className="github-ReviewsFooterView-commentCount">
-          Resolved{' '}
+            Resolved{' '}
             <span className="github-ReviewsFooterView-commentsResolved">
               {this.props.commentsResolved}
-            </span>
-            {' '}of{' '}
+            </span>{' '}
+            of{' '}
             <span className="github-ReviewsFooterView-totalComments">
               {this.props.totalComments}
-            </span>{' '}comments
+            </span>{' '}
+            comments
           </span>
-          <progress className="github-ReviewsFooterView-progessBar"
-            value={this.props.commentsResolved} max={this.props.totalComments}>
-            {' '}comments{' '}
+          <progress
+            className="github-ReviewsFooterView-progessBar"
+            value={this.props.commentsResolved}
+            max={this.props.totalComments}
+          >
+            {' '}
+            comments{' '}
           </progress>
         </span>
-        <button className="github-ReviewsFooterView-openReviewsButton btn btn-primary"
-          onClick={this.props.openReviews}>See reviews</button>
-        <a href={this.props.pullRequestURL}
+        <button
+          className="github-ReviewsFooterView-openReviewsButton btn btn-primary"
+          onClick={this.props.openReviews}
+        >
+          See reviews
+        </button>
+        <a
+          href={this.props.pullRequestURL}
           className="github-ReviewsFooterView-reviewChangesButton btn"
-          onClick={this.logStartReviewClick}>
-            Start a new review
+          onClick={this.logStartReviewClick}
+        >
+          Start a new review
         </a>
       </footer>
     );

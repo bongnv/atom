@@ -1,4 +1,6 @@
-**/spec/fixtures/**/*.js
+**/spec/fixtures/**/*
+/spec/fixtures/**/*
 node_modules
 /vendor/
 /out/
+/.webpack/

@@ -31,13 +31,13 @@ describe('PanelContainerElement', () => {
   beforeEach(() => {
     jasmineContent = document.body.querySelector('#jasmine-content');
 
-    atom.views.addViewProvider(TestPanelContainerItem, model =>
+    atom.views.addViewProvider(TestPanelContainerItem, (model) =>
       TestPanelContainerItemElement.initialize(model)
     );
 
     container = new PanelContainer({
       viewRegistry: atom.views,
-      location: 'left'
+      location: 'left',
     });
     element = container.getElement();
     jasmineContent.appendChild(element);
@@ -114,7 +114,7 @@ describe('PanelContainerElement', () => {
       beforeEach(() => {
         container = new PanelContainer({
           viewRegistry: atom.views,
-          location: 'bottom'
+          location: 'bottom',
         });
         element = container.getElement();
         jasmineContent.appendChild(element);
@@ -156,7 +156,7 @@ describe('PanelContainerElement', () => {
     beforeEach(() => {
       container = new PanelContainer({
         viewRegistry: atom.views,
-        location: 'modal'
+        location: 'modal',
       });
       element = container.getElement();
       jasmineContent.appendChild(element);
@@ -207,7 +207,7 @@ describe('PanelContainerElement', () => {
           {
             item: new TestPanelContainerItem(),
             autoFocus: autoFocus,
-            visible: false
+            visible: false,
           },
           atom.views
         );

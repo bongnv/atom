@@ -1,17 +1,17 @@
 import React from 'react';
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
 import ReviewsItem from '../../lib/items/reviews-item';
-import {cloneRepository} from '../helpers';
+import { cloneRepository } from '../helpers';
 import PaneItem from '../../lib/atom/pane-item';
-import {InMemoryStrategy} from '../../lib/shared/keytar-strategy';
+import { InMemoryStrategy } from '../../lib/shared/keytar-strategy';
 import GithubLoginModel from '../../lib/models/github-login-model';
 import WorkdirContextPool from '../../lib/models/workdir-context-pool';
 
-describe('ReviewsItem', function() {
+describe('ReviewsItem', function () {
   let atomEnv, repository, pool;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
     const workdir = await cloneRepository();
 
@@ -22,7 +22,7 @@ describe('ReviewsItem', function() {
     repository = pool.add(workdir).getRepository();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
     pool.clear();
   });
@@ -42,8 +42,11 @@ describe('ReviewsItem', function() {
     };
 
     return (
-      <PaneItem workspace={atomEnv.workspace} uriPattern={ReviewsItem.uriPattern}>
-        {({itemHolder, params}) => (
+      <PaneItem
+        workspace={atomEnv.workspace}
+        uriPattern={ReviewsItem.uriPattern}
+      >
+        {({ itemHolder, params }) => (
           <ReviewsItem
             ref={itemHolder.setter}
             {...params}
@@ -71,35 +74,40 @@ describe('ReviewsItem', function() {
     return item;
   }
 
-  it('constructs and opens the correct URI', async function() {
+  it('constructs and opens the correct URI', async function () {
     const wrapper = mount(buildPaneApp());
     assert.isFalse(wrapper.exists('ReviewsItem'));
     await open(wrapper);
     assert.isTrue(wrapper.exists('ReviewsItem'));
   });
 
-  it('locates the repository from the context pool', async function() {
+  it('locates the repository from the context pool', async function () {
     const wrapper = mount(buildPaneApp());
     await open(wrapper);
 
-    assert.strictEqual(wrapper.find('ReviewsContainer').prop('repository'), repository);
+    assert.strictEqual(
+      wrapper.find('ReviewsContainer').prop('repository'),
+      repository
+    );
   });
 
-  it('uses an absent repository if no workdir is provided', async function() {
+  it('uses an absent repository if no workdir is provided', async function () {
     const wrapper = mount(buildPaneApp());
-    await open(wrapper, {workdir: null});
+    await open(wrapper, { workdir: null });
 
-    assert.isTrue(wrapper.find('ReviewsContainer').prop('repository').isAbsent());
+    assert.isTrue(
+      wrapper.find('ReviewsContainer').prop('repository').isAbsent()
+    );
   });
 
-  it('returns a title containing the pull request number', async function() {
+  it('returns a title containing the pull request number', async function () {
     const wrapper = mount(buildPaneApp());
-    const item = await open(wrapper, {number: 1234});
+    const item = await open(wrapper, { number: 1234 });
 
     assert.strictEqual(item.getTitle(), 'Reviews #1234');
   });
 
-  it('may be destroyed once', async function() {
+  it('may be destroyed once', async function () {
     const wrapper = mount(buildPaneApp());
 
     const item = await open(wrapper);
@@ -113,16 +121,22 @@ describe('ReviewsItem', function() {
     sub.dispose();
   });
 
-  it('serializes itself as a ReviewsItemStub', async function() {
+  it('serializes itself as a ReviewsItemStub', async function () {
     const wrapper = mount(buildPaneApp());
-    const item = await open(wrapper, {host: 'github.horse', owner: 'atom', repo: 'atom', number: 12, workdir: '/here'});
+    const item = await open(wrapper, {
+      host: 'github.horse',
+      owner: 'atom',
+      repo: 'atom',
+      number: 12,
+      workdir: '/here',
+    });
     assert.deepEqual(item.serialize(), {
       deserializer: 'ReviewsStub',
       uri: 'atom-github://reviews/github.horse/atom/atom/12?workdir=%2Fhere',
     });
   });
 
-  it('jumps to thread', async function() {
+  it('jumps to thread', async function () {
     const wrapper = mount(buildPaneApp());
     const item = await open(wrapper);
     assert.isNull(item.state.initThreadID);

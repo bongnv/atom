@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {TextBuffer} from 'atom';
+import { TextBuffer } from 'atom';
 
 import TabGroup from '../tab-group';
-import {TabbableTextEditor} from './tabbable';
+import { TabbableTextEditor } from './tabbable';
 import DialogView from './dialog-view';
 
 export default class InitDialog extends React.Component {
@@ -20,7 +20,7 @@ export default class InitDialog extends React.Component {
     // Atom environment
     workspace: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -51,8 +51,8 @@ export default class InitDialog extends React.Component {
         inProgress={this.props.inProgress}
         error={this.props.error}
         workspace={this.props.workspace}
-        commands={this.props.commands}>
-
+        commands={this.props.commands}
+      >
         <label className="github-DialogLabel">
           Initialize git repository in directory
           <TabbableTextEditor
@@ -65,7 +65,6 @@ export default class InitDialog extends React.Component {
             buffer={this.destinationPath}
           />
         </label>
-
       </DialogView>
     );
   }
@@ -85,12 +84,12 @@ export default class InitDialog extends React.Component {
     }
 
     return this.props.request.accept(destPath);
-  }
+  };
 
   setAcceptEnablement = () => {
     const enablement = !this.destinationPath.isEmpty();
     if (enablement !== this.state.acceptEnabled) {
-      this.setState({acceptEnabled: enablement});
+      this.setState({ acceptEnabled: enablement });
     }
-  }
+  };
 }

@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as remote from '@electron/remote';
 
-import {TabbableTextEditor, TabbableButton} from './tabbable';
+import { TabbableTextEditor, TabbableButton } from './tabbable';
 
-const {dialog} = remote;
+const { dialog } = remote;
 
 export default class DirectorySelect extends React.Component {
   static propTypes = {
@@ -16,12 +16,13 @@ export default class DirectorySelect extends React.Component {
     // Atom environment
     currentWindow: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
-  }
+  };
 
   static defaultProps = {
     disabled: false,
-    showOpenDialog: /* istanbul ignore next */ (...args) => dialog.showOpenDialog(...args),
-  }
+    showOpenDialog: /* istanbul ignore next */ (...args) =>
+      dialog.showOpenDialog(...args),
+  };
 
   render() {
     return (
@@ -46,12 +47,15 @@ export default class DirectorySelect extends React.Component {
   }
 
   chooseDirectory = async () => {
-    const {filePaths} = await this.props.showOpenDialog(this.props.currentWindow, {
-      defaultPath: this.props.buffer.getText(),
-      properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
-    });
+    const { filePaths } = await this.props.showOpenDialog(
+      this.props.currentWindow,
+      {
+        defaultPath: this.props.buffer.getText(),
+        properties: ['openDirectory', 'createDirectory', 'promptToCreate'],
+      }
+    );
     if (filePaths.length) {
       this.props.buffer.setText(filePaths[0]);
     }
-  }
+  };
 }

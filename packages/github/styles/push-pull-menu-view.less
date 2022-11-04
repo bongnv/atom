@@ -1,7 +1,6 @@
-@import "variables";
+@import 'variables';
 
 .github-PushPullMenuView {
-
   &-selector {
     display: flex;
     align-items: center;
@@ -51,7 +50,6 @@
     }
   }
 
-
   // Progress indicator
   &.in-progress {
     .icon-mark-github {
@@ -61,7 +59,7 @@
         color: inherit;
       }
       &:after {
-        content: "";
+        content: '';
         position: absolute;
         top: -4px;
         left: -4px;
@@ -75,14 +73,15 @@
         // To limit CPU usage, the animation plays for some time at normal speed,
         // then slows down frame-rate for a while and stops at some point
         -webkit-animation: github-PushPullMenuView-animation 2s linear 12,
-                           github-PushPullMenuView-animation 4s 24s steps(12) 100;
+          github-PushPullMenuView-animation 4s 24s steps(12) 100;
       }
     }
   }
 }
 
-
 // Animations
 @-webkit-keyframes github-PushPullMenuView-animation {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }

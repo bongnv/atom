@@ -11,11 +11,13 @@ export default class QueryErrorTile extends React.Component {
       }),
       responseText: PropTypes.string,
       network: PropTypes.bool,
-      errors: PropTypes.arrayOf(PropTypes.shape({
-        message: PropTypes.string.isRequired,
-      })),
+      errors: PropTypes.arrayOf(
+        PropTypes.shape({
+          message: PropTypes.string.isRequired,
+        })
+      ),
     }).isRequired,
-  }
+  };
 
   componentDidMount() {
     // eslint-disable-next-line no-console

@@ -1,11 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {QueryRenderer, graphql} from 'react-relay';
-import {Disposable} from 'event-kit';
+import { QueryRenderer, graphql } from 'react-relay';
+import { Disposable } from 'event-kit';
 
-import {autobind, CHECK_SUITE_PAGE_SIZE, CHECK_RUN_PAGE_SIZE} from '../helpers';
-import {SearchPropType, EndpointPropType} from '../prop-types';
-import IssueishListController, {BareIssueishListController} from '../controllers/issueish-list-controller';
+import {
+  autobind,
+  CHECK_SUITE_PAGE_SIZE,
+  CHECK_RUN_PAGE_SIZE,
+} from '../helpers';
+import { SearchPropType, EndpointPropType } from '../prop-types';
+import IssueishListController, {
+  BareIssueishListController,
+} from '../controllers/issueish-list-controller';
 import RelayNetworkLayerManager from '../relay-network-layer-manager';
 
 export default class IssueishSearchContainer extends React.Component {
@@ -22,11 +28,11 @@ export default class IssueishSearchContainer extends React.Component {
     onOpenIssueish: PropTypes.func.isRequired,
     onOpenSearch: PropTypes.func.isRequired,
     onOpenReviews: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
     limit: 20,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -36,7 +42,10 @@ export default class IssueishSearchContainer extends React.Component {
   }
 
   render() {
-    const environment = RelayNetworkLayerManager.getEnvironmentForHost(this.props.endpoint, this.props.token);
+    const environment = RelayNetworkLayerManager.getEnvironmentForHost(
+      this.props.endpoint,
+      this.props.token
+    );
 
     if (this.props.search.isNull()) {
       return (
@@ -59,12 +68,13 @@ export default class IssueishSearchContainer extends React.Component {
         search(first: $first, query: $query, type: ISSUE) {
           issueCount
           nodes {
-            ...issueishListController_results @arguments(
-              checkSuiteCount: $checkSuiteCount
-              checkSuiteCursor: $checkSuiteCursor
-              checkRunCount: $checkRunCount
-              checkRunCursor: $checkRunCursor
-            )
+            ...issueishListController_results
+              @arguments(
+                checkSuiteCount: $checkSuiteCount
+                checkSuiteCursor: $checkSuiteCursor
+                checkRunCount: $checkRunCount
+                checkRunCursor: $checkRunCursor
+              )
           }
         }
       }
@@ -88,7 +98,7 @@ export default class IssueishSearchContainer extends React.Component {
     );
   }
 
-  renderQueryResult({error, props}) {
+  renderQueryResult({ error, props }) {
     if (error) {
       return (
         <BareIssueishListController

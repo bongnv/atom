@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {addEvent} from '../reporter-proxy';
-import {CompositeDisposable} from 'event-kit';
+import { addEvent } from '../reporter-proxy';
+import { CompositeDisposable } from 'event-kit';
 
 import CommitDetailItem from '../items/commit-detail-item';
 import URIPattern from '../atom/uri-pattern';
@@ -16,40 +16,45 @@ export default class RecentCommitsController extends React.Component {
     workspace: PropTypes.object.isRequired,
     repository: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
-  }
+  };
 
-  static focus = RecentCommitsView.focus
+  static focus = RecentCommitsView.focus;
 
   constructor(props, context) {
     super(props, context);
 
     this.subscriptions = new CompositeDisposable(
-      this.props.workspace.onDidChangeActivePaneItem(this.updateSelectedCommit),
+      this.props.workspace.onDidChangeActivePaneItem(this.updateSelectedCommit)
     );
 
     this.refView = new RefHolder();
 
-    this.state = {selectedCommitSha: ''};
+    this.state = { selectedCommitSha: '' };
   }
 
   updateSelectedCommit = () => {
     const activeItem = this.props.workspace.getActivePaneItem();
 
-    const pattern = new URIPattern(decodeURIComponent(
-      CommitDetailItem.buildURI(
-        this.props.repository.getWorkingDirectoryPath(),
-        '{sha}'),
-    ));
+    const pattern = new URIPattern(
+      decodeURIComponent(
+        CommitDetailItem.buildURI(
+          this.props.repository.getWorkingDirectoryPath(),
+          '{sha}'
+        )
+      )
+    );
 
     if (activeItem && activeItem.getURI) {
       const match = pattern.matches(activeItem.getURI());
-      const {sha} = match.getParams();
+      const { sha } = match.getParams();
       if (match.ok() && sha && sha !== this.state.selectedCommitSha) {
-        return new Promise(resolve => this.setState({selectedCommitSha: sha}, resolve));
+        return new Promise((resolve) =>
+          this.setState({ selectedCommitSha: sha }, resolve)
+        );
       }
     }
     return Promise.resolve();
-  }
+  };
 
   render() {
     return (
@@ -68,54 +73,69 @@ export default class RecentCommitsController extends React.Component {
     );
   }
 
-  openCommit = async ({sha, preserveFocus}) => {
+  openCommit = async ({ sha, preserveFocus }) => {
     const workdir = this.props.repository.getWorkingDirectoryPath();
     const uri = CommitDetailItem.buildURI(workdir, sha);
-    const item = await this.props.workspace.open(uri, {pending: true});
+    const item = await this.props.workspace.open(uri, { pending: true });
     if (preserveFocus) {
       item.preventFocus();
       this.setFocus(this.constructor.focus.RECENT_COMMIT);
     }
-    addEvent('open-commit-in-pane', {package: 'github', from: this.constructor.name});
-  }
+    addEvent('open-commit-in-pane', {
+      package: 'github',
+      from: this.constructor.name,
+    });
+  };
 
   // When no commit is selected, `getSelectedCommitIndex` returns -1 & the commit at index 0 (first commit) is selected
-  selectNextCommit = () => this.setSelectedCommitIndex(this.getSelectedCommitIndex() + 1);
+  selectNextCommit = () =>
+    this.setSelectedCommitIndex(this.getSelectedCommitIndex() + 1);
 
-  selectPreviousCommit = () => this.setSelectedCommitIndex(Math.max(this.getSelectedCommitIndex() - 1, 0));
+  selectPreviousCommit = () =>
+    this.setSelectedCommitIndex(Math.max(this.getSelectedCommitIndex() - 1, 0));
 
   getSelectedCommitIndex() {
-    return this.props.commits.findIndex(commit => commit.getSha() === this.state.selectedCommitSha);
+    return this.props.commits.findIndex(
+      (commit) => commit.getSha() === this.state.selectedCommitSha
+    );
   }
 
   setSelectedCommitIndex(ind) {
     const commit = this.props.commits[ind];
     if (commit) {
-      return new Promise(resolve => this.setState({selectedCommitSha: commit.getSha()}, resolve));
+      return new Promise((resolve) =>
+        this.setState({ selectedCommitSha: commit.getSha() }, resolve)
+      );
     } else {
       return Promise.resolve();
     }
   }
 
   getFocus(element) {
-    return this.refView.map(view => view.getFocus(element)).getOr(null);
+    return this.refView.map((view) => view.getFocus(element)).getOr(null);
   }
 
   setFocus(focus) {
-    return this.refView.map(view => {
-      const wasFocused = view.setFocus(focus);
-      if (wasFocused && this.getSelectedCommitIndex() === -1) {
-        this.setSelectedCommitIndex(0);
-      }
-      return wasFocused;
-    }).getOr(false);
+    return this.refView
+      .map((view) => {
+        const wasFocused = view.setFocus(focus);
+        if (wasFocused && this.getSelectedCommitIndex() === -1) {
+          this.setSelectedCommitIndex(0);
+        }
+        return wasFocused;
+      })
+      .getOr(false);
   }
 
   advanceFocusFrom(focus) {
-    return this.refView.map(view => view.advanceFocusFrom(focus)).getOr(Promise.resolve(null));
+    return this.refView
+      .map((view) => view.advanceFocusFrom(focus))
+      .getOr(Promise.resolve(null));
   }
 
   retreatFocusFrom(focus) {
-    return this.refView.map(view => view.retreatFocusFrom(focus)).getOr(Promise.resolve(null));
+    return this.refView
+      .map((view) => view.retreatFocusFrom(focus))
+      .getOr(Promise.resolve(null));
   }
 }

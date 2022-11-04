@@ -1,7 +1,7 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
-import {IssueishPropType} from '../prop-types';
+import { IssueishPropType } from '../prop-types';
 import Accordion from './accordion';
 import Timeago from './timeago';
 import StatusDonutChart from './status-donut-chart';
@@ -32,7 +32,7 @@ export default class IssueishListView extends React.Component {
 
     emptyComponent: PropTypes.func,
     error: PropTypes.object,
-  }
+  };
 
   render() {
     return (
@@ -45,7 +45,8 @@ export default class IssueishListView extends React.Component {
         emptyComponent={this.renderEmptyTile}
         moreComponent={this.renderMoreTile}
         reviewsButton={this.renderReviewsButton}
-        onClickItem={this.props.onIssueishClick}>
+        onClickItem={this.props.onIssueishClick}
+      >
         {this.renderIssueish}
       </Accordion>
     );
@@ -58,21 +59,22 @@ export default class IssueishListView extends React.Component {
     return (
       <button
         className="btn btn-primary btn-sm github-IssueishList-openReviewsButton"
-        onClick={this.openReviews}>
+        onClick={this.openReviews}
+      >
         See reviews
       </button>
     );
-  }
+  };
 
-  openReviews = e => {
+  openReviews = (e) => {
     e.stopPropagation();
     this.props.openReviews(this.props.issueishes[0]);
-  }
+  };
 
-  renderIssueish = issueish => {
+  renderIssueish = (issueish) => {
     return (
       <CheckSuitesAccumulator commit={issueish.getLatestCommit()}>
-        {({runsBySuite}) => {
+        {({ runsBySuite }) => {
           issueish.setCheckRuns(runsBySuite);
 
           return (
@@ -95,16 +97,17 @@ export default class IssueishListView extends React.Component {
                 displayStyle="short"
                 className="github-IssueishList-item github-IssueishList-item--age"
               />
-              <Octicon icon="ellipses"
+              <Octicon
+                icon="ellipses"
                 className="github-IssueishList-item github-IssueishList-item--menu"
-                onClick={event => this.showActionsMenu(event, issueish)}
+                onClick={(event) => this.showActionsMenu(event, issueish)}
               />
             </Fragment>
           );
         }}
       </CheckSuitesAccumulator>
     );
-  }
+  };
 
   showActionsMenu(event, issueish) {
     event.preventDefault();
@@ -114,28 +117,56 @@ export default class IssueishListView extends React.Component {
   }
 
   renderStatusSummary(statusCounts) {
-    if (['success', 'failure', 'pending'].every(kind => statusCounts[kind] === 0)) {
-      return <Octicon className="github-IssueishList-item github-IssueishList-item--status" icon="dash" />;
+    if (
+      ['success', 'failure', 'pending'].every(
+        (kind) => statusCounts[kind] === 0
+      )
+    ) {
+      return (
+        <Octicon
+          className="github-IssueishList-item github-IssueishList-item--status"
+          icon="dash"
+        />
+      );
     }
 
-    if (statusCounts.success > 0 && statusCounts.failure === 0 && statusCounts.pending === 0) {
-      return <Octicon className="github-IssueishList-item github-IssueishList-item--status" icon="check" />;
+    if (
+      statusCounts.success > 0 &&
+      statusCounts.failure === 0 &&
+      statusCounts.pending === 0
+    ) {
+      return (
+        <Octicon
+          className="github-IssueishList-item github-IssueishList-item--status"
+          icon="check"
+        />
+      );
     }
 
-    if (statusCounts.success === 0 && statusCounts.failure > 0 && statusCounts.pending === 0) {
-      return <Octicon className="github-IssueishList-item github-IssueishList-item--status" icon="x" />;
+    if (
+      statusCounts.success === 0 &&
+      statusCounts.failure > 0 &&
+      statusCounts.pending === 0
+    ) {
+      return (
+        <Octicon
+          className="github-IssueishList-item github-IssueishList-item--status"
+          icon="x"
+        />
+      );
     }
 
-    return <StatusDonutChart {...statusCounts} className="github-IssueishList-item github-IssueishList-item--status" />;
+    return (
+      <StatusDonutChart
+        {...statusCounts}
+        className="github-IssueishList-item github-IssueishList-item--status"
+      />
+    );
   }
 
   renderLoadingTile = () => {
-    return (
-      <div className="github-IssueishList-loading">
-        Loading
-      </div>
-    );
-  }
+    return <div className="github-IssueishList-loading">Loading</div>;
+  };
 
   renderEmptyTile = () => {
     if (this.props.error) {
@@ -148,20 +179,18 @@ export default class IssueishListView extends React.Component {
     }
 
     return null;
-  }
+  };
 
   renderMoreTile = () => {
     /* eslint-disable jsx-a11y/anchor-is-valid */
     if (this.props.onMoreClick) {
       return (
         <div className="github-IssueishList-more">
-          <a onClick={this.props.onMoreClick}>
-            More...
-          </a>
+          <a onClick={this.props.onMoreClick}>More...</a>
         </div>
       );
     }
 
     return null;
-  }
+  };
 }

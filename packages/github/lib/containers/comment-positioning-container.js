@@ -1,42 +1,49 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import crypto from 'crypto';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 import yubikiri from 'yubikiri';
-import {translateLinesGivenDiff, diffPositionToFilePosition} from 'whats-my-line';
+import {
+  translateLinesGivenDiff,
+  diffPositionToFilePosition,
+} from 'whats-my-line';
 
 import File from '../models/patch/file';
 import ObserveModel from '../views/observe-model';
-import {toNativePathSep} from '../helpers';
+import { toNativePathSep } from '../helpers';
 
 export default class CommentPositioningContainer extends React.Component {
   static propTypes = {
     localRepository: PropTypes.object.isRequired,
     multiFilePatch: PropTypes.object.isRequired,
-    commentThreads: PropTypes.arrayOf(PropTypes.shape({
-      comments: PropTypes.arrayOf(PropTypes.shape({
-        position: PropTypes.number,
-        path: PropTypes.string.isRequired,
-      })).isRequired,
-    })),
+    commentThreads: PropTypes.arrayOf(
+      PropTypes.shape({
+        comments: PropTypes.arrayOf(
+          PropTypes.shape({
+            position: PropTypes.number,
+            path: PropTypes.string.isRequired,
+          })
+        ).isRequired,
+      })
+    ),
     prCommitSha: PropTypes.string.isRequired,
     children: PropTypes.func.isRequired,
 
     // For unit test injection
     translateLinesGivenDiff: PropTypes.func,
     diffPositionToFilePosition: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     translateLinesGivenDiff,
     diffPositionToFilePosition,
     didTranslate: /* istanbul ignore next */ () => {},
-  }
+  };
 
   constructor(props) {
     super(props);
 
-    this.state = {translationsByFile: new Map()};
+    this.state = { translationsByFile: new Map() };
     this.subs = new CompositeDisposable();
   }
 
@@ -65,7 +72,7 @@ export default class CommentPositioningContainer extends React.Component {
     }
 
     if (changed) {
-      return {translationsByFile: state.translationsByFile};
+      return { translationsByFile: state.translationsByFile };
     } else {
       return null;
     }
@@ -82,9 +89,9 @@ export default class CommentPositioningContainer extends React.Component {
       <ObserveModel
         model={this.props.localRepository}
         fetchData={this.fetchData}
-        fetchParams={[commentPaths, this.props.prCommitSha]}>
-
-        {diffsByPath => {
+        fetchParams={[commentPaths, this.props.prCommitSha]}
+      >
+        {(diffsByPath) => {
           if (diffsByPath === null) {
             return this.props.children(null);
           }
@@ -100,7 +107,6 @@ export default class CommentPositioningContainer extends React.Component {
 
           return this.props.children(this.state.translationsByFile);
         }}
-
       </ObserveModel>
     );
   }
@@ -108,10 +114,12 @@ export default class CommentPositioningContainer extends React.Component {
   fetchData = (localRepository, commentPaths, prCommitSha) => {
     const promises = {};
     for (const commentPath of commentPaths) {
-      promises[commentPath] = localRepository.getDiffsForFilePath(commentPath, prCommitSha).catch(() => []);
+      promises[commentPath] = localRepository
+        .getDiffsForFilePath(commentPath, prCommitSha)
+        .catch(() => []);
     }
     return yubikiri(promises);
-  }
+  };
 }
 
 class FileTranslation {
@@ -125,14 +133,19 @@ class FileTranslation {
     this.fileTranslations = null;
     this.digest = null;
 
-    this.last = {multiFilePatch: null, diffs: null};
+    this.last = { multiFilePatch: null, diffs: null };
   }
 
   addCommentThread(thread) {
     this.rawPositions.add(thread.comments[0].position);
   }
 
-  updateIfNecessary({multiFilePatch, diffs, diffPositionFn, translatePositionFn}) {
+  updateIfNecessary({
+    multiFilePatch,
+    diffs,
+    diffPositionFn,
+    translatePositionFn,
+  }) {
     if (
       this.last.multiFilePatch === multiFilePatch &&
       this.last.diffs === diffs
@@ -143,10 +156,15 @@ class FileTranslation {
     this.last.multiFilePatch = multiFilePatch;
     this.last.diffs = diffs;
 
-    return this.update({multiFilePatch, diffs, diffPositionFn, translatePositionFn});
+    return this.update({
+      multiFilePatch,
+      diffs,
+      diffPositionFn,
+      translatePositionFn,
+    });
   }
 
-  update({multiFilePatch, diffs, diffPositionFn, translatePositionFn}) {
+  update({ multiFilePatch, diffs, diffPositionFn, translatePositionFn }) {
     const filePatch = multiFilePatch.getPatchForPath(this.nativeRelPath);
     // Comment on a file that used to exist in a PR but no longer does. Skip silently.
     if (!filePatch) {
@@ -166,7 +184,10 @@ class FileTranslation {
       return;
     }
 
-    this.diffToFilePosition = diffPositionFn(this.rawPositions, filePatch.getRawContentPatch());
+    this.diffToFilePosition = diffPositionFn(
+      this.rawPositions,
+      filePatch.getRawContentPatch()
+    );
     this.removed = false;
 
     let contentChangeDiff;
@@ -174,7 +195,10 @@ class FileTranslation {
       contentChangeDiff = diffs[0];
     } else if (diffs.length === 2) {
       const [diff1, diff2] = diffs;
-      if (diff1.oldMode === File.modes.SYMLINK || diff1.newMode === File.modes.SYMLINK) {
+      if (
+        diff1.oldMode === File.modes.SYMLINK ||
+        diff1.newMode === File.modes.SYMLINK
+      ) {
         contentChangeDiff = diff2;
       } else {
         contentChangeDiff = diff1;
@@ -183,7 +207,10 @@ class FileTranslation {
 
     if (contentChangeDiff) {
       const filePositions = [...this.diffToFilePosition.values()];
-      this.fileTranslations = translatePositionFn(filePositions, contentChangeDiff);
+      this.fileTranslations = translatePositionFn(
+        filePositions,
+        contentChangeDiff
+      );
 
       const hash = crypto.createHash('sha256');
       hash.update(JSON.stringify(Array.from(this.fileTranslations.entries())));

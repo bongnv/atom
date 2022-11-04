@@ -6,7 +6,7 @@ import RepositoryHomeSelectionView from './repository-home-selection-view';
 import DirectorySelect from './directory-select';
 import RemoteConfigurationView from './remote-configuration-view';
 import TabGroup from '../tab-group';
-import {TabbableInput} from './tabbable';
+import { TabbableInput } from './tabbable';
 import Octicon from '../atom/octicon';
 
 const DIALOG_TEXT = {
@@ -57,7 +57,7 @@ export default class CreateDialogView extends React.Component {
     workspace: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
     config: PropTypes.object.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -79,8 +79,8 @@ export default class CreateDialogView extends React.Component {
         inProgress={this.props.inProgress}
         error={this.props.error}
         workspace={this.props.workspace}
-        commands={this.props.commands}>
-
+        commands={this.props.commands}
+      >
         <h1 className="github-Create-header">
           <Octicon icon="globe" />
           {text.heading}
@@ -144,7 +144,6 @@ export default class CreateDialogView extends React.Component {
           didChangeProtocol={this.props.didChangeProtocol}
           sourceRemoteBuffer={this.props.sourceRemoteName}
         />
-
       </DialogView>
     );
   }
@@ -153,5 +152,6 @@ export default class CreateDialogView extends React.Component {
     this.tabGroup.autofocus();
   }
 
-  didChangeVisibility = event => this.props.didChangeVisibility(event.target.value);
+  didChangeVisibility = (event) =>
+    this.props.didChangeVisibility(event.target.value);
 }

@@ -99,14 +99,16 @@ export default class UpdatesPanel {
                 <button
                   ref="checkButton"
                   className="update-all-button btn"
-                  onclick={() => {/* FIXME: bongnv */}}
+                  onClick={() => {
+                    /* FIXME: bongnv */
+                  }}
                 >
                   Check for Updates
                 </button>
                 <button
                   ref="updateAllButton"
                   className="update-all-button btn btn-primary"
-                  onclick={() => {
+                  onClick={() => {
                     this.updateAll();
                   }}
                 >

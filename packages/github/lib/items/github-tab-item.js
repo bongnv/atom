@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {GithubLoginModelPropType} from '../prop-types';
+import { GithubLoginModelPropType } from '../prop-types';
 import RefHolder from '../models/ref-holder';
 import GitHubTabContainer from '../containers/github-tab-container';
 
@@ -20,11 +20,12 @@ export default class GitHubTabItem extends React.Component {
     openPublishDialog: PropTypes.func.isRequired,
     openCloneDialog: PropTypes.func.isRequired,
     openGitTab: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
-    documentActiveElement: /* istanbul ignore next */ () => document.activeElement,
-  }
+    documentActiveElement: /* istanbul ignore next */ () =>
+      document.activeElement,
+  };
 
   static uriPattern = 'atom-github://dock-item/github';
 
@@ -66,13 +67,13 @@ export default class GitHubTabItem extends React.Component {
   }
 
   render() {
-    return (
-      <GitHubTabContainer {...this.props} rootHolder={this.rootHolder} />
-    );
+    return <GitHubTabContainer {...this.props} rootHolder={this.rootHolder} />;
   }
 
   hasFocus() {
-    return this.rootHolder.map(root => root.contains(this.props.documentActiveElement())).getOr(false);
+    return this.rootHolder
+      .map((root) => root.contains(this.props.documentActiveElement()))
+      .getOr(false);
   }
 
   restoreFocus() {

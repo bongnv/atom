@@ -1,11 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {QueryRenderer, graphql} from 'react-relay';
-import {Disposable} from 'event-kit';
+import { QueryRenderer, graphql } from 'react-relay';
+import { Disposable } from 'event-kit';
 
-import {autobind, CHECK_SUITE_PAGE_SIZE, CHECK_RUN_PAGE_SIZE} from '../helpers';
-import {RemotePropType, RemoteSetPropType, BranchSetPropType, EndpointPropType} from '../prop-types';
-import IssueishListController, {BareIssueishListController} from '../controllers/issueish-list-controller';
+import {
+  autobind,
+  CHECK_SUITE_PAGE_SIZE,
+  CHECK_RUN_PAGE_SIZE,
+} from '../helpers';
+import {
+  RemotePropType,
+  RemoteSetPropType,
+  BranchSetPropType,
+  EndpointPropType,
+} from '../prop-types';
+import IssueishListController, {
+  BareIssueishListController,
+} from '../controllers/issueish-list-controller';
 import CreatePullRequestTile from '../views/create-pull-request-tile';
 import RelayNetworkLayerManager from '../relay-network-layer-manager';
 
@@ -38,11 +49,11 @@ export default class CurrentPullRequestContainer extends React.Component {
     onOpenIssueish: PropTypes.func.isRequired,
     onOpenReviews: PropTypes.func.isRequired,
     onCreatePr: PropTypes.func.isRequired,
-  }
+  };
 
   static defaultProps = {
     limit: 5,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -52,7 +63,10 @@ export default class CurrentPullRequestContainer extends React.Component {
   }
 
   render() {
-    const environment = RelayNetworkLayerManager.getEnvironmentForHost(this.props.endpoint, this.props.token);
+    const environment = RelayNetworkLayerManager.getEnvironmentForHost(
+      this.props.endpoint,
+      this.props.token
+    );
 
     const head = this.props.branches.getHeadBranch();
     if (!head.isPresent()) {
@@ -83,12 +97,13 @@ export default class CurrentPullRequestContainer extends React.Component {
             associatedPullRequests(first: $first, states: [OPEN]) {
               totalCount
               nodes {
-                ...issueishListController_results @arguments(
-                  checkSuiteCount: $checkSuiteCount
-                  checkSuiteCursor: $checkSuiteCursor
-                  checkRunCount: $checkRunCount
-                  checkRunCursor: $checkRunCursor
-                )
+                ...issueishListController_results
+                  @arguments(
+                    checkSuiteCount: $checkSuiteCount
+                    checkSuiteCursor: $checkSuiteCursor
+                    checkRunCount: $checkRunCount
+                    checkRunCursor: $checkRunCursor
+                  )
               }
             }
           }
@@ -117,10 +132,15 @@ export default class CurrentPullRequestContainer extends React.Component {
   }
 
   renderEmptyResult() {
-    return <BareIssueishListController isLoading={false} {...this.controllerProps()} />;
+    return (
+      <BareIssueishListController
+        isLoading={false}
+        {...this.controllerProps()}
+      />
+    );
   }
 
-  renderQueryResult({error, props}) {
+  renderQueryResult({ error, props }) {
     if (error) {
       return (
         <BareIssueishListController
@@ -141,7 +161,12 @@ export default class CurrentPullRequestContainer extends React.Component {
     }
 
     if (!props.repository || !props.repository.ref) {
-      return <BareIssueishListController isLoading={false} {...this.controllerProps()} />;
+      return (
+        <BareIssueishListController
+          isLoading={false}
+          {...this.controllerProps()}
+        />
+      );
     }
 
     const associatedPullRequests = props.repository.ref.associatedPullRequests;
@@ -152,7 +177,9 @@ export default class CurrentPullRequestContainer extends React.Component {
         results={associatedPullRequests.nodes}
         isLoading={false}
         endpoint={this.props.endpoint}
-        resultFilter={issueish => issueish.getHeadRepositoryID() === this.props.repository.id}
+        resultFilter={(issueish) =>
+          issueish.getHeadRepositoryID() === this.props.repository.id
+        }
         {...this.controllerProps()}
       />
     );

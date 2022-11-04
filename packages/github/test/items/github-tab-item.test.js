@@ -1,24 +1,24 @@
 import React from 'react';
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
 import PaneItem from '../../lib/atom/pane-item';
 import GitHubTabItem from '../../lib/items/github-tab-item';
 import GithubLoginModel from '../../lib/models/github-login-model';
-import {InMemoryStrategy} from '../../lib/shared/keytar-strategy';
+import { InMemoryStrategy } from '../../lib/shared/keytar-strategy';
 
-import {cloneRepository, buildRepository} from '../helpers';
+import { cloneRepository, buildRepository } from '../helpers';
 
-describe('GitHubTabItem', function() {
+describe('GitHubTabItem', function () {
   let atomEnv, repository;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
 
     const workdirPath = await cloneRepository();
     repository = await buildRepository(workdirPath);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -27,14 +27,12 @@ describe('GitHubTabItem', function() {
 
     return (
       <PaneItem workspace={workspace} uriPattern={GitHubTabItem.uriPattern}>
-        {({itemHolder}) => (
+        {({ itemHolder }) => (
           <GitHubTabItem
             ref={itemHolder.setter}
-
             workspace={workspace}
             repository={repository}
             loginModel={new GithubLoginModel(InMemoryStrategy)}
-
             changeWorkingDirectory={() => {}}
             onDidChangeWorkDirs={() => {}}
             getCurrentWorkDirs={() => []}
@@ -49,25 +47,30 @@ describe('GitHubTabItem', function() {
     );
   }
 
-  it('renders within the dock with the component as its owner', async function() {
+  it('renders within the dock with the component as its owner', async function () {
     mount(buildApp());
 
     await atomEnv.workspace.open(GitHubTabItem.buildURI());
 
-    const paneItem = atomEnv.workspace.getRightDock().getPaneItems()
-      .find(item => item.getURI() === 'atom-github://dock-item/github');
+    const paneItem = atomEnv.workspace
+      .getRightDock()
+      .getPaneItems()
+      .find((item) => item.getURI() === 'atom-github://dock-item/github');
     assert.strictEqual(paneItem.getTitle(), 'GitHub');
     assert.strictEqual(paneItem.getIconName(), 'octoface');
   });
 
-  it('access the working directory path', async function() {
+  it('access the working directory path', async function () {
     mount(buildApp());
     const item = await atomEnv.workspace.open(GitHubTabItem.buildURI());
 
-    assert.strictEqual(item.getWorkingDirectory(), repository.getWorkingDirectoryPath());
+    assert.strictEqual(
+      item.getWorkingDirectory(),
+      repository.getWorkingDirectoryPath()
+    );
   });
 
-  it('serializes itself', async function() {
+  it('serializes itself', async function () {
     mount(buildApp());
     const item = await atomEnv.workspace.open(GitHubTabItem.buildURI());
 
@@ -77,11 +80,13 @@ describe('GitHubTabItem', function() {
     });
   });
 
-  it('detects when it has focus', async function() {
+  it('detects when it has focus', async function () {
     let activeElement = document.body;
-    const wrapper = mount(buildApp({
-      documentActiveElement: () => activeElement,
-    }));
+    const wrapper = mount(
+      buildApp({
+        documentActiveElement: () => activeElement,
+      })
+    );
     const item = await atomEnv.workspace.open(GitHubTabItem.buildURI());
     await assert.async.isTrue(wrapper.update().find('.github-GitHub').exists());
 

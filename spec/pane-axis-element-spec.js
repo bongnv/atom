@@ -8,15 +8,15 @@ const buildPane = () =>
     config: atom.config,
     deserializerManager: atom.deserializers,
     notificationManager: atom.notifications,
-    viewRegistry: atom.views
+    viewRegistry: atom.views,
   });
 
 describe('PaneAxisElement', () =>
-  it('correctly subscribes and unsubscribes to the underlying model events on attach/detach', function() {
+  it('correctly subscribes and unsubscribes to the underlying model events on attach/detach', function () {
     const container = new PaneContainer({
       config: atom.config,
       applicationDelegate: atom.applicationDelegate,
-      viewRegistry: atom.views
+      viewRegistry: atom.views,
     });
     const axis = new PaneAxis({}, atom.views);
     axis.setContainer(container);

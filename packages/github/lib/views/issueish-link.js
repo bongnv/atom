@@ -1,19 +1,23 @@
 import url from 'url';
-import {shell} from 'electron';
+import { shell } from 'electron';
 
 import React from 'react';
 import PropTypes from 'prop-types';
 
 import IssueishDetailItem from '../items/issueish-detail-item';
-import {addEvent} from '../reporter-proxy';
+import { addEvent } from '../reporter-proxy';
 
 // eslint-disable-next-line no-shadow
-export default function IssueishLink({url, children, ...others}) {
+export default function IssueishLink({ url, children, ...others }) {
   function clickHandler(event) {
     handleClickEvent(event, url);
   }
 
-  return <a {...others} onClick={clickHandler}>{children}</a>;
+  return (
+    <a {...others} onClick={clickHandler}>
+      {children}
+    </a>
+  );
 }
 
 IssueishLink.propTypes = {
@@ -21,13 +25,14 @@ IssueishLink.propTypes = {
   children: PropTypes.node,
 };
 
-
 // eslint-disable-next-line no-shadow
 export function handleClickEvent(event, url) {
   event.preventDefault();
   event.stopPropagation();
   if (!event.shiftKey) {
-    return openIssueishLinkInNewTab(url, {activate: !(event.metaKey || event.ctrlKey)});
+    return openIssueishLinkInNewTab(url, {
+      activate: !(event.metaKey || event.ctrlKey),
+    });
   } else {
     // Open in browser if shift key held
     return openLinkInBrowser(url);
@@ -46,7 +51,10 @@ export function openIssueishLinkInNewTab(url, options = {}) {
 
 export async function openLinkInBrowser(uri) {
   await shell.openExternal(uri);
-  addEvent('open-issueish-in-browser', {package: 'github', from: 'issueish-link'});
+  addEvent('open-issueish-in-browser', {
+    package: 'github',
+    from: 'issueish-link',
+  });
 }
 
 function getAtomUriForGithubUrl(githubUrl) {
@@ -54,13 +62,32 @@ function getAtomUriForGithubUrl(githubUrl) {
 }
 
 export function getDataFromGithubUrl(githubUrl) {
-  const {hostname, pathname} = url.parse(githubUrl);
-  const [repoOwner, repoName, type, issueishNumber] = pathname.split('/').filter(s => s);
-  return {hostname, repoOwner, repoName, type, issueishNumber: parseInt(issueishNumber, 10)};
+  const { hostname, pathname } = url.parse(githubUrl);
+  const [repoOwner, repoName, type, issueishNumber] = pathname
+    .split('/')
+    .filter((s) => s);
+  return {
+    hostname,
+    repoOwner,
+    repoName,
+    type,
+    issueishNumber: parseInt(issueishNumber, 10),
+  };
 }
 
-function getUriForData({hostname, repoOwner, repoName, type, issueishNumber}) {
-  if (hostname !== 'github.com' || !['pull', 'issues'].includes(type) || !issueishNumber || isNaN(issueishNumber)) {
+function getUriForData({
+  hostname,
+  repoOwner,
+  repoName,
+  type,
+  issueishNumber,
+}) {
+  if (
+    hostname !== 'github.com' ||
+    !['pull', 'issues'].includes(type) ||
+    !issueishNumber ||
+    isNaN(issueishNumber)
+  ) {
     return null;
   } else {
     return IssueishDetailItem.buildURI({
@@ -72,8 +99,12 @@ function getUriForData({hostname, repoOwner, repoName, type, issueishNumber}) {
   }
 }
 
-function openInNewTab(uri, {activate} = {activate: true}) {
-  return atom.workspace.open(uri, {activateItem: activate}).then(() => {
-    addEvent('open-issueish-in-pane', {package: 'github', from: 'issueish-link', target: 'new-tab'});
+function openInNewTab(uri, { activate } = { activate: true }) {
+  return atom.workspace.open(uri, { activateItem: activate }).then(() => {
+    addEvent('open-issueish-in-pane', {
+      package: 'github',
+      from: 'issueish-link',
+      target: 'new-tab',
+    });
   });
 }

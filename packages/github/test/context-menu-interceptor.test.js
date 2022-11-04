@@ -1,5 +1,5 @@
 import React from 'react';
-import {mount} from 'enzyme';
+import { mount } from 'enzyme';
 
 import ContextMenuInterceptor from '../lib/context-menu-interceptor';
 
@@ -7,20 +7,18 @@ class SampleComponent extends React.Component {
   render() {
     return (
       <div className="parent">
-        <div className="child">
-          This element has content.
-        </div>
+        <div className="child">This element has content.</div>
       </div>
     );
   }
 }
 
-describe('ContextMenuInterceptor', function() {
+describe('ContextMenuInterceptor', function () {
   let rootElement, rootHandler, rootHandlerCalled;
 
-  beforeEach(function() {
+  beforeEach(function () {
     rootHandlerCalled = false;
-    rootHandler = event => {
+    rootHandler = (event) => {
       rootHandlerCalled = true;
       event.preventDefault();
       return false;
@@ -31,13 +29,13 @@ describe('ContextMenuInterceptor', function() {
     document.body.appendChild(rootElement);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     document.removeEventListener('contextmenu', rootHandler);
     ContextMenuInterceptor.dispose();
     rootElement.remove();
   });
 
-  it('responds to native contextmenu events before they reach the document root', function() {
+  it('responds to native contextmenu events before they reach the document root', function () {
     let interceptorHandlerCalled = false;
     let rootHandlerCalledFirst = false;
     const handler = () => {
@@ -49,7 +47,7 @@ describe('ContextMenuInterceptor', function() {
       <ContextMenuInterceptor onWillShowContextMenu={handler}>
         <SampleComponent />
       </ContextMenuInterceptor>,
-      {attachTo: rootElement},
+      { attachTo: rootElement }
     );
 
     const targetDOMNode = wrapper.find('.child').getDOMNode();
@@ -64,7 +62,7 @@ describe('ContextMenuInterceptor', function() {
     assert.isTrue(rootHandlerCalled);
   });
 
-  it('can prevent event propagation', function() {
+  it('can prevent event propagation', function () {
     let interceptorHandlerCalled = false;
     const handler = () => {
       interceptorHandlerCalled = true;
@@ -75,7 +73,7 @@ describe('ContextMenuInterceptor', function() {
       <ContextMenuInterceptor onWillShowContextMenu={handler}>
         <SampleComponent />
       </ContextMenuInterceptor>,
-      {attachTo: rootElement},
+      { attachTo: rootElement }
     );
 
     const targetDOMNode = wrapper.find('.child').getDOMNode();
@@ -89,7 +87,7 @@ describe('ContextMenuInterceptor', function() {
     assert.isFalse(rootHandlerCalled);
   });
 
-  it('ignores contextmenu events from other children', function() {
+  it('ignores contextmenu events from other children', function () {
     let interceptorHandlerCalled = false;
     const handler = () => {
       interceptorHandlerCalled = true;
@@ -101,12 +99,10 @@ describe('ContextMenuInterceptor', function() {
           <SampleComponent />
         </ContextMenuInterceptor>
         <div className="unrelated">
-          <div className="otherNode">
-            This is another div.
-          </div>
+          <div className="otherNode">This is another div.</div>
         </div>
       </div>,
-      {attachTo: rootElement},
+      { attachTo: rootElement }
     );
 
     const targetDOMNode = wrapper.find('.otherNode').getDOMNode();
@@ -120,7 +116,7 @@ describe('ContextMenuInterceptor', function() {
     assert.isTrue(rootHandlerCalled);
   });
 
-  it('cleans itself up on .dispose()', function() {
+  it('cleans itself up on .dispose()', function () {
     let interceptorHandlerCalled = false;
     const handler = () => {
       interceptorHandlerCalled = true;
@@ -130,7 +126,7 @@ describe('ContextMenuInterceptor', function() {
       <ContextMenuInterceptor onWillShowContextMenu={handler}>
         <SampleComponent />
       </ContextMenuInterceptor>,
-      {attachTo: rootElement},
+      { attachTo: rootElement }
     );
 
     ContextMenuInterceptor.dispose();

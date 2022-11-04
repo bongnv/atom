@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import yubikiri from 'yubikiri';
-import {QueryRenderer, graphql} from 'react-relay';
+import { QueryRenderer, graphql } from 'react-relay';
 
 import CommentDecorationsController from '../controllers/comment-decorations-controller';
 import ObserveModel from '../views/observe-model';
 import RelayEnvironment from '../views/relay-environment';
-import {GithubLoginModelPropType} from '../prop-types';
-import {UNAUTHENTICATED, INSUFFICIENT} from '../shared/keytar-strategy';
+import { GithubLoginModelPropType } from '../prop-types';
+import { UNAUTHENTICATED, INSUFFICIENT } from '../shared/keytar-strategy';
 import RelayNetworkLayerManager from '../relay-network-layer-manager';
-import {PAGE_SIZE} from '../helpers';
+import { PAGE_SIZE } from '../helpers';
 import AggregatedReviewsContainer from './aggregated-reviews-container';
 import CommentPositioningContainer from './comment-positioning-container';
 import PullRequestPatchContainer from './pr-patch-container';
@@ -26,13 +26,16 @@ export default class CommentDecorationsContainer extends React.Component {
 
   render() {
     return (
-      <ObserveModel model={this.props.localRepository} fetchData={this.fetchRepositoryData}>
+      <ObserveModel
+        model={this.props.localRepository}
+        fetchData={this.fetchRepositoryData}
+      >
         {this.renderWithLocalRepositoryData}
       </ObserveModel>
     );
   }
 
-  renderWithLocalRepositoryData = repoData => {
+  renderWithLocalRepositoryData = (repoData) => {
     if (!repoData) {
       return null;
     }
@@ -41,14 +44,20 @@ export default class CommentDecorationsContainer extends React.Component {
       <ObserveModel
         model={this.props.loginModel}
         fetchParams={[repoData]}
-        fetchData={this.fetchToken}>
-        {token => this.renderWithToken(token, {repoData})}
+        fetchData={this.fetchToken}
+      >
+        {(token) => this.renderWithToken(token, { repoData })}
       </ObserveModel>
     );
-  }
+  };
 
-  renderWithToken(token, {repoData}) {
-    if (!token || token === UNAUTHENTICATED || token === INSUFFICIENT || token instanceof Error) {
+  renderWithToken(token, { repoData }) {
+    if (
+      !token ||
+      token === UNAUTHENTICATED ||
+      token === INSUFFICIENT ||
+      token instanceof Error
+    ) {
       // we're not going to prompt users to log in to render decorations for comments
       // just let it go and move on with our lives.
       return null;
@@ -70,7 +79,10 @@ export default class CommentDecorationsContainer extends React.Component {
     }
 
     const endpoint = repoData.currentRemote.getEndpoint();
-    const environment = RelayNetworkLayerManager.getEnvironmentForHost(endpoint, token);
+    const environment = RelayNetworkLayerManager.getEnvironmentForHost(
+      endpoint,
+      token
+    );
     const query = graphql`
       query commentDecorationsContainerQuery(
         $headOwner: String!
@@ -93,14 +105,15 @@ export default class CommentDecorationsContainer extends React.Component {
                 headRefOid
 
                 ...commentDecorationsController_pullRequests
-                ...aggregatedReviewsContainer_pullRequest @arguments(
-                  reviewCount: $reviewCount
-                  reviewCursor: $reviewCursor
-                  threadCount: $threadCount
-                  threadCursor: $threadCursor
-                  commentCount: $commentCount
-                  commentCursor: $commentCursor
-                )
+                ...aggregatedReviewsContainer_pullRequest
+                  @arguments(
+                    reviewCount: $reviewCount
+                    reviewCursor: $reviewCursor
+                    threadCount: $threadCount
+                    threadCursor: $threadCursor
+                    commentCount: $commentCount
+                    commentCursor: $commentCursor
+                  )
               }
             }
           }
@@ -126,18 +139,26 @@ export default class CommentDecorationsContainer extends React.Component {
           environment={environment}
           query={query}
           variables={variables}
-          render={queryResult => this.renderWithPullRequest({
-            endpoint,
-            owner: variables.headOwner,
-            repo: variables.headName,
-            ...queryResult,
-          }, {repoData, token})}
+          render={(queryResult) =>
+            this.renderWithPullRequest(
+              {
+                endpoint,
+                owner: variables.headOwner,
+                repo: variables.headName,
+                ...queryResult,
+              },
+              { repoData, token }
+            )
+          }
         />
       </RelayEnvironment.Provider>
     );
   }
 
-  renderWithPullRequest({error, props, endpoint, owner, repo}, {repoData, token}) {
+  renderWithPullRequest(
+    { error, props, endpoint, owner, repo },
+    { repoData, token }
+  ) {
     if (error) {
       // eslint-disable-next-line no-console
       console.warn(`error fetching CommentDecorationsContainer data: ${error}`);
@@ -145,7 +166,9 @@ export default class CommentDecorationsContainer extends React.Component {
     }
 
     if (
-      !props || !props.repository || !props.repository.ref ||
+      !props ||
+      !props.repository ||
+      !props.repository.ref ||
       !props.repository.ref.associatedPullRequests ||
       props.repository.ref.associatedPullRequests.totalCount === 0
     ) {
@@ -154,16 +177,26 @@ export default class CommentDecorationsContainer extends React.Component {
       return null;
     }
 
-    const currentPullRequest = props.repository.ref.associatedPullRequests.nodes[0];
+    const currentPullRequest =
+      props.repository.ref.associatedPullRequests.nodes[0];
 
     return (
       <AggregatedReviewsContainer
         pullRequest={currentPullRequest}
-        reportRelayError={this.props.reportRelayError}>
-        {({errors, summaries, commentThreads}) => {
+        reportRelayError={this.props.reportRelayError}
+      >
+        {({ errors, summaries, commentThreads }) => {
           return this.renderWithReviews(
-            {errors, summaries, commentThreads},
-            {currentPullRequest, repoResult: props, endpoint, owner, repo, repoData, token},
+            { errors, summaries, commentThreads },
+            {
+              currentPullRequest,
+              repoResult: props,
+              endpoint,
+              owner,
+              repo,
+              repoData,
+              token,
+            }
           );
         }}
       </AggregatedReviewsContainer>
@@ -171,12 +204,15 @@ export default class CommentDecorationsContainer extends React.Component {
   }
 
   renderWithReviews(
-    {errors, summaries, commentThreads},
-    {currentPullRequest, repoResult, endpoint, owner, repo, repoData, token},
+    { errors, summaries, commentThreads },
+    { currentPullRequest, repoResult, endpoint, owner, repo, repoData, token }
   ) {
     if (errors && errors.length > 0) {
       // eslint-disable-next-line no-console
-      console.warn('Errors aggregating reviews and comments for current pull request', ...errors);
+      console.warn(
+        'Errors aggregating reviews and comments for current pull request',
+        ...errors
+      );
       return null;
     }
 
@@ -191,18 +227,41 @@ export default class CommentDecorationsContainer extends React.Component {
         number={currentPullRequest.number}
         endpoint={endpoint}
         token={token}
-        largeDiffThreshold={Infinity}>
-        {(patchError, patch) => this.renderWithPatch(
-          {error: patchError, patch},
-          {summaries, commentThreads, currentPullRequest, repoResult, endpoint, owner, repo, repoData, token},
-        )}
+        largeDiffThreshold={Infinity}
+      >
+        {(patchError, patch) =>
+          this.renderWithPatch(
+            { error: patchError, patch },
+            {
+              summaries,
+              commentThreads,
+              currentPullRequest,
+              repoResult,
+              endpoint,
+              owner,
+              repo,
+              repoData,
+              token,
+            }
+          )
+        }
       </PullRequestPatchContainer>
     );
   }
 
   renderWithPatch(
-    {error, patch},
-    {summaries, commentThreads, currentPullRequest, repoResult, endpoint, owner, repo, repoData, token},
+    { error, patch },
+    {
+      summaries,
+      commentThreads,
+      currentPullRequest,
+      repoResult,
+      endpoint,
+      owner,
+      repo,
+      repoData,
+      token,
+    }
   ) {
     if (error) {
       // eslint-disable-next-line no-console
@@ -220,8 +279,9 @@ export default class CommentDecorationsContainer extends React.Component {
         commentThreads={commentThreads}
         prCommitSha={currentPullRequest.headRefOid}
         localRepository={this.props.localRepository}
-        workdir={repoData.workingDirectoryPath}>
-        {commentTranslations => {
+        workdir={repoData.workingDirectoryPath}
+      >
+        {(commentTranslations) => {
           if (!commentTranslations) {
             return null;
           }
@@ -236,7 +296,9 @@ export default class CommentDecorationsContainer extends React.Component {
               repoData={repoData}
               commentThreads={commentThreads}
               commentTranslations={commentTranslations}
-              pullRequests={repoResult.repository.ref.associatedPullRequests.nodes}
+              pullRequests={
+                repoResult.repository.ref.associatedPullRequests.nodes
+              }
             />
           );
         }}
@@ -244,14 +306,14 @@ export default class CommentDecorationsContainer extends React.Component {
     );
   }
 
-  fetchRepositoryData = repository => {
+  fetchRepositoryData = (repository) => {
     return yubikiri({
       branches: repository.getBranches(),
       remotes: repository.getRemotes(),
       currentRemote: repository.getCurrentGitHubRemote(),
       workingDirectoryPath: repository.getWorkingDirectoryPath(),
     });
-  }
+  };
 
   fetchToken = (loginModel, repoData) => {
     const endpoint = repoData.currentRemote.getEndpoint();
@@ -260,5 +322,5 @@ export default class CommentDecorationsContainer extends React.Component {
     }
 
     return loginModel.getToken(endpoint.getLoginAccount());
-  }
+  };
 }

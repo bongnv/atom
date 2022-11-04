@@ -2,12 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  GithubLoginModelPropType, TokenPropType, RefHolderPropType,
-  RemoteSetPropType, RemotePropType, BranchSetPropType, BranchPropType,
+  GithubLoginModelPropType,
+  TokenPropType,
+  RefHolderPropType,
+  RemoteSetPropType,
+  RemotePropType,
+  BranchSetPropType,
+  BranchPropType,
   RefresherPropType,
 } from '../prop-types';
 import GitHubTabView from '../views/github-tab-view';
-import {incrementCounter} from '../reporter-proxy';
+import { incrementCounter } from '../reporter-proxy';
 
 export default class GitHubTabController extends React.Component {
   static propTypes = {
@@ -39,7 +44,7 @@ export default class GitHubTabController extends React.Component {
     openPublishDialog: PropTypes.func.isRequired,
     openCloneDialog: PropTypes.func.isRequired,
     openGitTab: PropTypes.func.isRequired,
-  }
+  };
 
   render() {
     return (
@@ -47,12 +52,12 @@ export default class GitHubTabController extends React.Component {
         // Connection
         endpoint={this.currentEndpoint()}
         token={this.props.token}
-
         workspace={this.props.workspace}
         refresher={this.props.refresher}
         rootHolder={this.props.rootHolder}
-
-        workingDirectory={this.props.workingDirectory || this.props.currentWorkDir}
+        workingDirectory={
+          this.props.workingDirectory || this.props.currentWorkDir
+        }
         contextLocked={this.props.contextLocked}
         repository={this.props.repository}
         branches={this.props.branches}
@@ -63,7 +68,6 @@ export default class GitHubTabController extends React.Component {
         aheadCount={this.props.aheadCount}
         pushInProgress={this.props.pushInProgress}
         isLoading={this.props.isLoading}
-
         handleLogin={this.handleLogin}
         handleLogout={this.handleLogout}
         handleTokenRetry={this.handleTokenRetry}
@@ -86,24 +90,31 @@ export default class GitHubTabController extends React.Component {
       remote: targetRemote,
       setUpstream: true,
     });
-  }
+  };
 
   handleRemoteSelect = (e, remote) => {
     e.preventDefault();
-    return this.props.repository.setConfig('atomGithub.currentRemote', remote.getName());
-  }
+    return this.props.repository.setConfig(
+      'atomGithub.currentRemote',
+      remote.getName()
+    );
+  };
 
-  openBoundPublishDialog = () => this.props.openPublishDialog(this.props.repository);
+  openBoundPublishDialog = () =>
+    this.props.openPublishDialog(this.props.repository);
 
-  handleLogin = token => {
+  handleLogin = (token) => {
     incrementCounter('github-login');
-    this.props.loginModel.setToken(this.currentEndpoint().getLoginAccount(), token);
-  }
+    this.props.loginModel.setToken(
+      this.currentEndpoint().getLoginAccount(),
+      token
+    );
+  };
 
   handleLogout = () => {
     incrementCounter('github-logout');
     this.props.loginModel.removeToken(this.currentEndpoint().getLoginAccount());
-  }
+  };
 
   handleTokenRetry = () => this.props.loginModel.didUpdate();
 

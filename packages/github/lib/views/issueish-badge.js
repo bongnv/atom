@@ -18,22 +18,21 @@ const typeAndStateToIcon = {
 
 export default class IssueishBadge extends React.Component {
   static propTypes = {
-    type: PropTypes.oneOf([
-      'Issue', 'PullRequest', 'Unknown',
-    ]).isRequired,
-    state: PropTypes.oneOf([
-      'OPEN', 'CLOSED', 'MERGED', 'UNKNOWN',
-    ]).isRequired,
-  }
+    type: PropTypes.oneOf(['Issue', 'PullRequest', 'Unknown']).isRequired,
+    state: PropTypes.oneOf(['OPEN', 'CLOSED', 'MERGED', 'UNKNOWN']).isRequired,
+  };
 
   render() {
-    const {type, state, ...others} = this.props;
+    const { type, state, ...others } = this.props;
     const icons = typeAndStateToIcon[type] || {};
     const icon = icons[state] || 'question';
 
-    const {className, ...otherProps} = others;
+    const { className, ...otherProps } = others;
     return (
-      <span className={cx(className, 'github-IssueishBadge', state.toLowerCase())} {...otherProps}>
+      <span
+        className={cx(className, 'github-IssueishBadge', state.toLowerCase())}
+        {...otherProps}
+      >
         <Octicon icon={icon} />
         {state.toLowerCase()}
       </span>

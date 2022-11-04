@@ -1,21 +1,21 @@
 import React from 'react';
-import {mount} from 'enzyme';
-import {TextBuffer} from 'atom';
+import { mount } from 'enzyme';
+import { TextBuffer } from 'atom';
 
 import MarkerLayer from '../../lib/atom/marker-layer';
 import RefHolder from '../../lib/models/ref-holder';
 import AtomTextEditor from '../../lib/atom/atom-text-editor';
 
-describe('MarkerLayer', function() {
+describe('MarkerLayer', function () {
   let atomEnv, workspace, editor, layer, layerID;
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     atomEnv = global.buildAtomEnvironment();
     workspace = atomEnv.workspace;
     editor = await atomEnv.workspace.open(__filename);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     atomEnv.destroy();
   });
 
@@ -27,7 +27,7 @@ describe('MarkerLayer', function() {
     layerID = id;
   }
 
-  it('adds its layer on mount', function() {
+  it('adds its layer on mount', function () {
     mount(
       <MarkerLayer
         editor={editor}
@@ -35,7 +35,7 @@ describe('MarkerLayer', function() {
         persistent={true}
         handleID={setLayerID}
         handleLayer={setLayer}
-      />,
+      />
     );
 
     const theLayer = editor.getMarkerLayer(layerID);
@@ -44,8 +44,14 @@ describe('MarkerLayer', function() {
     assert.isTrue(theLayer.bufferMarkerLayer.persistent);
   });
 
-  it('removes its layer on unmount', function() {
-    const wrapper = mount(<MarkerLayer editor={editor} handleID={setLayerID} handleLayer={setLayer} />);
+  it('removes its layer on unmount', function () {
+    const wrapper = mount(
+      <MarkerLayer
+        editor={editor}
+        handleID={setLayerID}
+        handleLayer={setLayer}
+      />
+    );
 
     assert.isDefined(editor.getMarkerLayer(layerID));
     assert.isDefined(layer);
@@ -54,40 +60,55 @@ describe('MarkerLayer', function() {
     assert.isUndefined(layer);
   });
 
-  it('inherits an editor from a parent node', function() {
+  it('inherits an editor from a parent node', function () {
     const refEditor = new RefHolder();
     mount(
       <AtomTextEditor workspace={workspace} refModel={refEditor}>
         <MarkerLayer handleID={setLayerID} />
-      </AtomTextEditor>,
+      </AtomTextEditor>
     );
     const theEditor = refEditor.get();
 
     assert.isDefined(theEditor.getMarkerLayer(layerID));
   });
 
-  describe('with an externally managed layer', function() {
-    it('locates a display marker layer', function() {
+  describe('with an externally managed layer', function () {
+    it('locates a display marker layer', function () {
       const external = editor.addMarkerLayer();
-      const wrapper = mount(<MarkerLayer editor={editor} external={external} />);
-      assert.strictEqual(wrapper.find('BareMarkerLayer').instance().layerHolder.get(), external);
+      const wrapper = mount(
+        <MarkerLayer editor={editor} external={external} />
+      );
+      assert.strictEqual(
+        wrapper.find('BareMarkerLayer').instance().layerHolder.get(),
+        external
+      );
     });
 
-    it('locates a marker layer on the buffer', function() {
+    it('locates a marker layer on the buffer', function () {
       const external = editor.getBuffer().addMarkerLayer();
-      const wrapper = mount(<MarkerLayer editor={editor} external={external} />);
-      assert.strictEqual(wrapper.find('BareMarkerLayer').instance().layerHolder.get().bufferMarkerLayer, external);
+      const wrapper = mount(
+        <MarkerLayer editor={editor} external={external} />
+      );
+      assert.strictEqual(
+        wrapper.find('BareMarkerLayer').instance().layerHolder.get()
+          .bufferMarkerLayer,
+        external
+      );
     });
 
-    it('does nothing if the marker layer is not found', function() {
+    it('does nothing if the marker layer is not found', function () {
       const otherBuffer = new TextBuffer();
       const external = otherBuffer.addMarkerLayer();
 
-      const wrapper = mount(<MarkerLayer editor={editor} external={external} />);
-      assert.isTrue(wrapper.find('BareMarkerLayer').instance().layerHolder.isEmpty());
+      const wrapper = mount(
+        <MarkerLayer editor={editor} external={external} />
+      );
+      assert.isTrue(
+        wrapper.find('BareMarkerLayer').instance().layerHolder.isEmpty()
+      );
     });
 
-    it('does nothing if the marker layer is on a different editor', function() {
+    it('does nothing if the marker layer is on a different editor', function () {
       const otherBuffer = new TextBuffer();
       let external = otherBuffer.addMarkerLayer();
       while (parseInt(external.id, 10) < editor.getBuffer().nextMarkerLayerId) {
@@ -97,13 +118,19 @@ describe('MarkerLayer', function() {
       const oops = editor.addMarkerLayer();
       assert.strictEqual(oops.id, external.id);
 
-      const wrapper = mount(<MarkerLayer editor={editor} external={external} />);
-      assert.isTrue(wrapper.find('BareMarkerLayer').instance().layerHolder.isEmpty());
+      const wrapper = mount(
+        <MarkerLayer editor={editor} external={external} />
+      );
+      assert.isTrue(
+        wrapper.find('BareMarkerLayer').instance().layerHolder.isEmpty()
+      );
     });
 
-    it('does not destroy its layer on unmount', function() {
+    it('does not destroy its layer on unmount', function () {
       const external = editor.addMarkerLayer();
-      const wrapper = mount(<MarkerLayer editor={editor} external={external} />);
+      const wrapper = mount(
+        <MarkerLayer editor={editor} external={external} />
+      );
       wrapper.unmount();
       assert.isFalse(external.isDestroyed());
     });

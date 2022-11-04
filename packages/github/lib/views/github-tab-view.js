@@ -2,8 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  TokenPropType, EndpointPropType, RefHolderPropType,
-  RemoteSetPropType, RemotePropType, BranchSetPropType, BranchPropType,
+  TokenPropType,
+  EndpointPropType,
+  RefHolderPropType,
+  RemoteSetPropType,
+  RemotePropType,
+  BranchSetPropType,
+  BranchPropType,
   RefresherPropType,
 } from '../prop-types';
 import LoadingView from './loading-view';
@@ -15,7 +20,7 @@ import GitHubBlankNoLocal from './github-blank-nolocal';
 import GitHubBlankUninitialized from './github-blank-uninitialized';
 import GitHubBlankNoRemote from './github-blank-noremote';
 import RemoteContainer from '../containers/remote-container';
-import {UNAUTHENTICATED, INSUFFICIENT} from '../shared/keytar-strategy';
+import { UNAUTHENTICATED, INSUFFICIENT } from '../shared/keytar-strategy';
 
 export default class GitHubTabView extends React.Component {
   static propTypes = {
@@ -57,15 +62,13 @@ export default class GitHubTabView extends React.Component {
     openBoundPublishDialog: PropTypes.func.isRequired,
     openCloneDialog: PropTypes.func.isRequired,
     openGitTab: PropTypes.func.isRequired,
-  }
+  };
 
   render() {
     return (
       <div className="github-GitHub" ref={this.props.rootHolder.setter}>
         {this.renderHeader()}
-        <div className="github-GitHub-content">
-          {this.renderRemote()}
-        </div>
+        <div className="github-GitHub-content">{this.renderRemote()}</div>
       </div>
     );
   }
@@ -83,7 +86,8 @@ export default class GitHubTabView extends React.Component {
       return (
         <GithubLoginView onLogin={this.props.handleLogin}>
           <p>
-            Your token no longer has sufficient authorizations. Please re-authenticate and generate a new one.
+            Your token no longer has sufficient authorizations. Please
+            re-authenticate and generate a new one.
           </p>
         </GithubLoginView>
       );
@@ -104,7 +108,10 @@ export default class GitHubTabView extends React.Component {
       return <LoadingView />;
     }
 
-    if (this.props.repository.isAbsent() || this.props.repository.isAbsentGuess()) {
+    if (
+      this.props.repository.isAbsent() ||
+      this.props.repository.isAbsentGuess()
+    ) {
       return (
         <GitHubBlankNoLocal
           openCreateDialog={this.props.openCreateDialog}
@@ -129,7 +136,6 @@ export default class GitHubTabView extends React.Component {
           // Connection
           endpoint={this.props.currentRemote.getEndpoint()}
           token={this.props.token}
-
           // Repository attributes
           refresher={this.props.refresher}
           pushInProgress={this.props.pushInProgress}
@@ -139,11 +145,15 @@ export default class GitHubTabView extends React.Component {
           remotes={this.props.remotes}
           branches={this.props.branches}
           aheadCount={this.props.aheadCount}
-
           // Action methods
           handleLogin={this.props.handleLogin}
           handleLogout={this.props.handleLogout}
-          onPushBranch={() => this.props.handlePushBranch(this.props.currentBranch, this.props.currentRemote)}
+          onPushBranch={() =>
+            this.props.handlePushBranch(
+              this.props.currentBranch,
+              this.props.currentRemote
+            )
+          }
         />
       );
     }
@@ -160,7 +170,9 @@ export default class GitHubTabView extends React.Component {
     }
 
     return (
-      <GitHubBlankNoRemote openBoundPublishDialog={this.props.openBoundPublishDialog} />
+      <GitHubBlankNoRemote
+        openBoundPublishDialog={this.props.openBoundPublishDialog}
+      />
     );
   }
 
@@ -170,14 +182,12 @@ export default class GitHubTabView extends React.Component {
         // Connection
         endpoint={this.props.endpoint}
         token={this.props.token}
-
         // Workspace
         currentWorkDir={this.props.workingDirectory}
         contextLocked={this.props.contextLocked}
         changeWorkingDirectory={this.props.changeWorkingDirectory}
         setContextLock={this.props.setContextLock}
         getCurrentWorkDirs={this.props.getCurrentWorkDirs}
-
         // Event Handlers
         onDidChangeWorkDirs={this.props.onDidChangeWorkDirs}
       />

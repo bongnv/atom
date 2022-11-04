@@ -12,7 +12,7 @@ describe('PaneContainer', () => {
       config: atom.config,
       deserializerManager: atom.deserializers,
       applicationDelegate: atom.applicationDelegate,
-      viewRegistry: atom.views
+      viewRegistry: atom.views,
     };
   });
 
@@ -151,7 +151,7 @@ describe('PaneContainer', () => {
       [pane1, pane2] = container.getPanes();
 
       observed = [];
-      container.onDidChangeActivePane(pane => observed.push(pane));
+      container.onDidChangeActivePane((pane) => observed.push(pane));
     });
 
     it('invokes observers when the active pane changes', () => {
@@ -171,7 +171,7 @@ describe('PaneContainer', () => {
       [pane1, pane2] = container.getPanes();
 
       observed = [];
-      container.onDidChangeActivePaneItem(item => observed.push(item));
+      container.onDidChangeActivePaneItem((item) => observed.push(item));
     });
 
     it('invokes observers when the active item of the active pane changes', () => {
@@ -197,7 +197,7 @@ describe('PaneContainer', () => {
       [pane1, pane2] = container.getPanes();
 
       observed = [];
-      container.onDidStopChangingActivePaneItem(item => observed.push(item));
+      container.onDidStopChangingActivePaneItem((item) => observed.push(item));
     });
 
     it('invokes observers once when the active item of the active pane changes', () => {
@@ -224,7 +224,7 @@ describe('PaneContainer', () => {
       const [pane1, pane2] = container.getPanes();
 
       const activatedPanes = [];
-      container.onDidActivatePane(pane => activatedPanes.push(pane));
+      container.onDidActivatePane((pane) => activatedPanes.push(pane));
 
       pane1.activate();
       pane1.activate();
@@ -241,7 +241,7 @@ describe('PaneContainer', () => {
       const [pane1, pane2] = container.getPanes();
 
       const observed = [];
-      container.observePanes(pane => observed.push(pane));
+      container.observePanes((pane) => observed.push(pane));
 
       const pane3 = pane2.splitDown();
       const pane4 = pane2.splitRight();
@@ -257,7 +257,7 @@ describe('PaneContainer', () => {
       container.getRoot().splitRight({ items: [{}] });
       const pane2 = container.getPanes()[1];
       const observed = [];
-      container.observePaneItems(pane => observed.push(pane));
+      container.observePaneItems((pane) => observed.push(pane));
 
       const pane3 = pane2.splitDown({ items: [{}] });
       pane3.addItems([{}, {}]);
@@ -304,7 +304,7 @@ describe('PaneContainer', () => {
     it('invokes the given callback when panes are added', () => {
       const container = new PaneContainer(params);
       const events = [];
-      container.onDidAddPane(event => {
+      container.onDidAddPane((event) => {
         expect(container.getPanes().includes(event.pane)).toBe(true);
         events.push(event);
       });
@@ -333,10 +333,10 @@ describe('PaneContainer', () => {
 
       const container = new PaneContainer(params);
       const events = [];
-      container.onWillDestroyPane(event => {
+      container.onWillDestroyPane((event) => {
         const itemsDestroyed = event.pane
           .getItems()
-          .map(item => item.isDestroyed());
+          .map((item) => item.isDestroyed());
         events.push([event, { itemsDestroyed }]);
       });
 
@@ -354,7 +354,7 @@ describe('PaneContainer', () => {
     it('invokes the given callback when panes are destroyed', () => {
       const container = new PaneContainer(params);
       const events = [];
-      container.onDidDestroyPane(event => {
+      container.onDidDestroyPane((event) => {
         expect(container.getPanes().includes(event.pane)).toBe(false);
         events.push(event);
       });
@@ -372,7 +372,7 @@ describe('PaneContainer', () => {
     it('invokes the given callback when the container is destroyed', () => {
       const container = new PaneContainer(params);
       const events = [];
-      container.onDidDestroyPane(event => {
+      container.onDidDestroyPane((event) => {
         expect(container.getPanes().includes(event.pane)).toBe(false);
         events.push(event);
       });
@@ -386,7 +386,7 @@ describe('PaneContainer', () => {
       expect(events).toEqual([
         { pane: pane1 },
         { pane: pane2 },
-        { pane: pane3 }
+        { pane: pane3 },
       ]);
     });
   });
@@ -401,8 +401,8 @@ describe('PaneContainer', () => {
 
       pane1.addItem(item1);
       const events = [];
-      container.onWillDestroyPaneItem(event => events.push(['will', event]));
-      container.onDidDestroyPaneItem(event => events.push(['did', event]));
+      container.onWillDestroyPaneItem((event) => events.push(['will', event]));
+      container.onDidDestroyPaneItem((event) => events.push(['did', event]));
       const pane2 = pane1.splitRight({ items: [item2, item3] });
 
       await pane1.destroyItem(item1);
@@ -412,15 +412,15 @@ describe('PaneContainer', () => {
       expect(events.length).toBe(6);
       expect(events[1]).toEqual([
         'did',
-        { item: item1, pane: pane1, index: 0 }
+        { item: item1, pane: pane1, index: 0 },
       ]);
       expect(events[3]).toEqual([
         'did',
-        { item: item3, pane: pane2, index: 1 }
+        { item: item3, pane: pane2, index: 1 },
       ]);
       expect(events[5]).toEqual([
         'did',
-        { item: item2, pane: pane2, index: 0 }
+        { item: item2, pane: pane2, index: 0 },
       ]);
 
       expect(events[0][0]).toEqual('will');
@@ -459,7 +459,7 @@ describe('PaneContainer', () => {
         },
         save() {
           this.saved = true;
-        }
+        },
       };
       const item2 = {
         saved: false,
@@ -471,7 +471,7 @@ describe('PaneContainer', () => {
         },
         save() {
           this.saved = true;
-        }
+        },
       };
       const item3 = {
         saved: false,
@@ -483,7 +483,7 @@ describe('PaneContainer', () => {
         },
         save() {
           this.saved = true;
-        }
+        },
       };
 
       pane1.addItem(item1);

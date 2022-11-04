@@ -1,10 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
-import {GithubLoginModelPropType, WorkdirContextPoolPropType} from '../prop-types';
+import {
+  GithubLoginModelPropType,
+  WorkdirContextPoolPropType,
+} from '../prop-types';
 import Repository from '../models/repository';
-import {getEndpoint} from '../models/endpoint';
+import { getEndpoint } from '../models/endpoint';
 import ReviewsContainer from '../containers/reviews-container';
 
 export default class ReviewsItem extends React.Component {
@@ -29,17 +32,24 @@ export default class ReviewsItem extends React.Component {
 
     // Action methods
     reportRelayError: PropTypes.func.isRequired,
-  }
+  };
 
-  static uriPattern = 'atom-github://reviews/{host}/{owner}/{repo}/{number}?workdir={workdir}'
+  static uriPattern =
+    'atom-github://reviews/{host}/{owner}/{repo}/{number}?workdir={workdir}';
 
-  static buildURI({host, owner, repo, number, workdir}) {
-    return 'atom-github://reviews/' +
-      encodeURIComponent(host) + '/' +
-      encodeURIComponent(owner) + '/' +
-      encodeURIComponent(repo) + '/' +
+  static buildURI({ host, owner, repo, number, workdir }) {
+    return (
+      'atom-github://reviews/' +
+      encodeURIComponent(host) +
+      '/' +
+      encodeURIComponent(owner) +
+      '/' +
+      encodeURIComponent(repo) +
+      '/' +
       encodeURIComponent(number) +
-      '?workdir=' + encodeURIComponent(workdir || '');
+      '?workdir=' +
+      encodeURIComponent(workdir || '')
+    );
   }
 
   constructor(props) {
@@ -56,9 +66,10 @@ export default class ReviewsItem extends React.Component {
   render() {
     const endpoint = getEndpoint(this.props.host);
 
-    const repository = this.props.workdir.length > 0
-      ? this.props.workdirContextPool.add(this.props.workdir).getRepository()
-      : Repository.absent();
+    const repository =
+      this.props.workdir.length > 0
+        ? this.props.workdirContextPool.add(this.props.workdir).getRepository()
+        : Repository.absent();
 
     return (
       <ReviewsContainer
@@ -109,9 +120,13 @@ export default class ReviewsItem extends React.Component {
 
   async jumpToThread(id) {
     if (this.state.initThreadID === id) {
-      await new Promise(resolve => this.setState({initThreadID: null}, resolve));
+      await new Promise((resolve) =>
+        this.setState({ initThreadID: null }, resolve)
+      );
     }
 
-    return new Promise(resolve => this.setState({initThreadID: id}, resolve));
+    return new Promise((resolve) =>
+      this.setState({ initThreadID: id }, resolve)
+    );
   }
 }

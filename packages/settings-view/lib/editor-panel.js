@@ -42,7 +42,7 @@ export default class EditorPanel {
 
   render() {
     return (
-      <div tabIndex="0" className="panels-item" onclick={this.didClick}>
+      <div tabIndex="0" className="panels-item" onClick={this.didClick}>
         <SettingsPanel
           namespace="editor"
           icon="code"

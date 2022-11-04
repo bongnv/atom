@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Emitter} from 'event-kit';
+import { Emitter } from 'event-kit';
 
-import {WorkdirContextPoolPropType} from '../prop-types';
-import {autobind} from '../helpers';
+import { WorkdirContextPoolPropType } from '../prop-types';
+import { autobind } from '../helpers';
 import ChangedFileContainer from '../containers/changed-file-container';
 import RefHolder from '../models/ref-holder';
 
@@ -24,15 +24,18 @@ export default class ChangedFileItem extends React.Component {
     discardLines: PropTypes.func.isRequired,
     undoLastDiscard: PropTypes.func.isRequired,
     surfaceFileAtPath: PropTypes.func.isRequired,
-  }
+  };
 
-  static uriPattern = 'atom-github://file-patch/{relPath...}?workdir={workingDirectory}&stagingStatus={stagingStatus}'
+  static uriPattern =
+    'atom-github://file-patch/{relPath...}?workdir={workingDirectory}&stagingStatus={stagingStatus}';
 
   static buildURI(relPath, workingDirectory, stagingStatus) {
-    return 'atom-github://file-patch/' +
+    return (
+      'atom-github://file-patch/' +
       encodeURIComponent(relPath) +
       `?workdir=${encodeURIComponent(workingDirectory)}` +
-      `&stagingStatus=${encodeURIComponent(stagingStatus)}`;
+      `&stagingStatus=${encodeURIComponent(stagingStatus)}`
+    );
   }
 
   constructor(props) {
@@ -44,7 +47,7 @@ export default class ChangedFileItem extends React.Component {
     this.hasTerminatedPendingState = false;
 
     this.refEditor = new RefHolder();
-    this.refEditor.observe(editor => {
+    this.refEditor.observe((editor) => {
       if (editor.isAlive()) {
         this.emitter.emit('did-change-embedded-text-editor', editor);
       }
@@ -82,7 +85,9 @@ export default class ChangedFileItem extends React.Component {
   }
 
   render() {
-    const repository = this.props.workdirContextPool.getContext(this.props.workingDirectory).getRepository();
+    const repository = this.props.workdirContextPool
+      .getContext(this.props.workingDirectory)
+      .getRepository();
 
     return (
       <ChangedFileContainer
@@ -96,14 +101,18 @@ export default class ChangedFileItem extends React.Component {
   }
 
   observeEmbeddedTextEditor(cb) {
-    this.refEditor.map(editor => editor.isAlive() && cb(editor));
+    this.refEditor.map((editor) => editor.isAlive() && cb(editor));
     return this.emitter.on('did-change-embedded-text-editor', cb);
   }
 
   serialize() {
     return {
       deserializer: 'FilePatchControllerStub',
-      uri: ChangedFileItem.buildURI(this.props.relPath, this.props.workingDirectory, this.props.stagingStatus),
+      uri: ChangedFileItem.buildURI(
+        this.props.relPath,
+        this.props.workingDirectory,
+        this.props.stagingStatus
+      ),
     };
   }
 

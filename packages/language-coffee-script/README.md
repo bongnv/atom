@@ -1,7 +1,9 @@
 ##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
- # CoffeeScript language support in Atom
+
+# CoffeeScript language support in Atom
+
 [![macOS Build Status](https://travis-ci.org/atom/language-coffee-script.svg?branch=master)](https://travis-ci.org/atom/language-coffee-script)
-[![Windows Build status](https://ci.appveyor.com/api/projects/status/4j9aak7iwn2f2x7a/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/language-coffee-script/branch/master)  [![Dependency Status](https://david-dm.org/atom/language-coffee-script.svg)](https://david-dm.org/atom/language-coffee-script)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/4j9aak7iwn2f2x7a/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/language-coffee-script/branch/master) [![Dependency Status](https://david-dm.org/atom/language-coffee-script.svg)](https://david-dm.org/atom/language-coffee-script)
 
 Adds syntax highlighting and snippets to CoffeeScript files in Atom.
 

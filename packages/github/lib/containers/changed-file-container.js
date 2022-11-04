@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import yubikiri from 'yubikiri';
-import {CompositeDisposable, Emitter} from 'event-kit';
+import { CompositeDisposable, Emitter } from 'event-kit';
 
-import {autobind} from '../helpers';
+import { autobind } from '../helpers';
 import ObserveModel from '../views/observe-model';
 import LoadingView from '../views/loading-view';
 import ChangedFileController from '../controllers/changed-file-controller';
@@ -25,7 +25,7 @@ export default class ChangedFileContainer extends React.Component {
     destroy: PropTypes.func.isRequired,
     undoLastDiscard: PropTypes.func.isRequired,
     surfaceFileAtPath: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -37,7 +37,7 @@ export default class ChangedFileContainer extends React.Component {
     this.lastMultiFilePatch = null;
     this.sub = new CompositeDisposable();
 
-    this.state = {renderStatusOverride: null};
+    this.state = { renderStatusOverride: null };
   }
 
   fetchData(repository) {
@@ -45,14 +45,16 @@ export default class ChangedFileContainer extends React.Component {
 
     const builderOpts = {};
     if (this.state.renderStatusOverride !== null) {
-      builderOpts.renderStatusOverrides = {[this.props.relPath]: this.state.renderStatusOverride};
+      builderOpts.renderStatusOverrides = {
+        [this.props.relPath]: this.state.renderStatusOverride,
+      };
     }
     if (this.props.largeDiffThreshold !== undefined) {
       builderOpts.largeDiffThreshold = this.props.largeDiffThreshold;
     }
 
     const before = () => this.emitter.emit('will-update-patch');
-    const after = patch => this.emitter.emit('did-update-patch', patch);
+    const after = (patch) => this.emitter.emit('did-update-patch', patch);
 
     return yubikiri({
       multiFilePatch: repository.getFilePatchForPath(this.props.relPath, {
@@ -83,9 +85,11 @@ export default class ChangedFileContainer extends React.Component {
       if (currentMultiFilePatch) {
         // Keep this component's renderStatusOverride synchronized with the FilePatch we're rendering
         this.sub = new CompositeDisposable(
-          ...currentMultiFilePatch.getFilePatches().map(fp => fp.onDidChangeRenderStatus(() => {
-            this.setState({renderStatusOverride: fp.getRenderStatus()});
-          })),
+          ...currentMultiFilePatch.getFilePatches().map((fp) =>
+            fp.onDidChangeRenderStatus(() => {
+              this.setState({ renderStatusOverride: fp.getRenderStatus() });
+            })
+          )
         );
       }
       this.lastMultiFilePatch = currentMultiFilePatch;
@@ -109,7 +113,7 @@ export default class ChangedFileContainer extends React.Component {
     this.sub.dispose();
   }
 
-  onWillUpdatePatch = cb => this.emitter.on('will-update-patch', cb);
+  onWillUpdatePatch = (cb) => this.emitter.on('will-update-patch', cb);
 
-  onDidUpdatePatch = cb => this.emitter.on('did-update-patch', cb);
+  onDidUpdatePatch = (cb) => this.emitter.on('did-update-patch', cb);
 }

@@ -1,5 +1,5 @@
-@import "ui-variables";
-@import "octicon-mixins";
+@import 'ui-variables';
+@import 'octicon-mixins';
 
 html {
   background-color: @base-background-color;
@@ -90,7 +90,7 @@ body {
       }
 
       &::before {
-        content: "\02022";
+        content: '\02022';
       }
     }
   }
@@ -210,7 +210,8 @@ body {
     }
   }
 
-  .result-message.fail, .stack-trace.padded {
+  .result-message.fail,
+  .stack-trace.padded {
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-box-orient: vertical;

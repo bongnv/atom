@@ -1,1 +1,6 @@
-{".source.clojure":{"editor":{"commentStart":"; "},"autocomplete":{"extraWordCharacters":"-"}}}
+{
+  ".source.clojure": {
+    "editor": { "commentStart": "; " },
+    "autocomplete": { "extraWordCharacters": "-" }
+  }
+}

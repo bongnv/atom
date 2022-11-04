@@ -2,7 +2,7 @@ import path from 'path';
 import React from 'react';
 import PropTypes from 'prop-types';
 import yubikiri from 'yubikiri';
-import {CompositeDisposable} from 'event-kit';
+import { CompositeDisposable } from 'event-kit';
 
 import ObserveModel from '../views/observe-model';
 import ResolutionProgress from '../models/conflicts/resolution-progress';
@@ -34,7 +34,7 @@ export default class RepositoryConflictController extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    this.state = {openEditors: this.props.workspace.getTextEditors()};
+    this.state = { openEditors: this.props.workspace.getTextEditors() };
     this.subscriptions = new CompositeDisposable();
   }
 
@@ -48,24 +48,26 @@ export default class RepositoryConflictController extends React.Component {
     this.subscriptions.add(
       this.props.workspace.observeTextEditors(updateState),
       this.props.workspace.onDidDestroyPaneItem(updateState),
-      this.props.config.observe('github.graphicalConflictResolution', () => this.forceUpdate()),
+      this.props.config.observe('github.graphicalConflictResolution', () =>
+        this.forceUpdate()
+      )
     );
   }
 
-  fetchData = repository => {
+  fetchData = (repository) => {
     return yubikiri({
       workingDirectoryPath: repository.getWorkingDirectoryPath(),
-      mergeConflictPaths: repository.getMergeConflicts().then(conflicts => {
-        return conflicts.map(conflict => conflict.filePath);
+      mergeConflictPaths: repository.getMergeConflicts().then((conflicts) => {
+        return conflicts.map((conflict) => conflict.filePath);
       }),
       isRebasing: repository.isRebasing(),
     });
-  }
+  };
 
   render() {
     return (
       <ObserveModel model={this.props.repository} fetchData={this.fetchData}>
-        {data => this.renderWithData(data || DEFAULT_REPO_DATA)}
+        {(data) => this.renderWithData(data || DEFAULT_REPO_DATA)}
       </ObserveModel>
     );
   }
@@ -75,7 +77,7 @@ export default class RepositoryConflictController extends React.Component {
 
     return (
       <div>
-        {conflictingEditors.map(editor => (
+        {conflictingEditors.map((editor) => (
           <EditorConflictController
             key={editor.id}
             commands={this.props.commands}
@@ -100,10 +102,14 @@ export default class RepositoryConflictController extends React.Component {
 
     const commonBasePath = this.props.repository.getWorkingDirectoryPath();
     const fullMergeConflictPaths = new Set(
-      repoData.mergeConflictPaths.map(relativePath => path.join(commonBasePath, relativePath)),
+      repoData.mergeConflictPaths.map((relativePath) =>
+        path.join(commonBasePath, relativePath)
+      )
     );
 
-    return this.state.openEditors.filter(editor => fullMergeConflictPaths.has(editor.getPath()));
+    return this.state.openEditors.filter((editor) =>
+      fullMergeConflictPaths.has(editor.getPath())
+    );
   }
 
   componentWillUnmount() {

@@ -30,21 +30,21 @@ It also measures performance data and reports diagnostics to the dev console if 
 
 A [`GitTempDir`](/lib/git-temp-dir.js) and [`GitPromptServer`](/lib/git-prompt-server.js) are created during certain `GitShellOutStrategy` methods to service any credential requests that git requires. We handle passphrase requests by:
 
-* Creating a temporary directory.
-* Copying a set of [helper scripts](/bin) to the temporary directory and, on non-Windows platforms, marking them executable. These scripts are `/bin/sh` scripts that execute their corresponding JavaScript modules as Node.js processes with the current Electron binary (by setting `ELECTRON_RUN_AS_NODE=1`), propagating along any arguments.
-* A UNIX domain socket or named pipe is created within the temporary directory. :memo: _Note that UNIX domain socket paths are limited to a maximum of 107 characters for [reasons](https://unix.stackexchange.com/questions/367008/why-is-socket-path-length-limited-to-a-hundred-chars). On platforms where this is an issue, the temporary directory name must be short enough to accommodate this._
-* The host Atom process creates a server listening on the UNIX domain socket or named pipe.
-* The `git` subprocess is spawned, configured to use the copied helper scripts as credential handlers.
-  * For HTTPS authentication, the argument `-c credential.helper=...` is used to ensure [`bin/git-credential-atom.js`](/bin/git-credential-atom.js) is used as the highest-priority [git credential helper](https://git-scm.com/docs/git-credential). `git-credential-atom.js` implements git's credential helper protocol by:
+- Creating a temporary directory.
+- Copying a set of [helper scripts](/bin) to the temporary directory and, on non-Windows platforms, marking them executable. These scripts are `/bin/sh` scripts that execute their corresponding JavaScript modules as Node.js processes with the current Electron binary (by setting `ELECTRON_RUN_AS_NODE=1`), propagating along any arguments.
+- A UNIX domain socket or named pipe is created within the temporary directory. :memo: _Note that UNIX domain socket paths are limited to a maximum of 107 characters for [reasons](https://unix.stackexchange.com/questions/367008/why-is-socket-path-length-limited-to-a-hundred-chars). On platforms where this is an issue, the temporary directory name must be short enough to accommodate this._
+- The host Atom process creates a server listening on the UNIX domain socket or named pipe.
+- The `git` subprocess is spawned, configured to use the copied helper scripts as credential handlers.
+  - For HTTPS authentication, the argument `-c credential.helper=...` is used to ensure [`bin/git-credential-atom.js`](/bin/git-credential-atom.js) is used as the highest-priority [git credential helper](https://git-scm.com/docs/git-credential). `git-credential-atom.js` implements git's credential helper protocol by:
     1. Executing any credential helpers configured by your system git. Some git installations are already configured to read from the OS keychain, but dugite's bundled git won't respect configution from your system installation.
     2. Reading an Atom-specific key from your OS keychain. If you have logged in to the GitHub tab, your OAuth token will be found here as well.
     3. If neither of those are successful, connect to the socket opened by `GitPromptServer` and write a JSON query.
     4. When a JSON reply is received, it is written back to git on stdout.
     5. If git reports that the credential is accepted, and if the "remember me" flag was set in the query reply, the provided password will be written to the OS keychain.
     6. If git reports that the credential was rejected, the provided password will be deleted from the OS keychain.
-  * To unlock SSH keys, the environment variables `SSH_ASKPASS` and `GIT_ASKPASS` are set to the path to the script that runs [`git-askpass-atom.js`](bin/git-askpass-atom.js). `DISPLAY` is also set to a non-empty value so that `ssh` will respect `SSH_ASKPASS`. `git-askpass-atom.js` reads its prompt from its process arguments, attempts to execute the system askpass if one is present, and falls back to querying the `GitPromptServer` if that does not succeed. Its passphrase is written to stdout.
-  * For GPG passphrases, `-c gpg.program=...` is set to [`bin/gpg-wrapper.sh`](/bin/gpg-wrapper.sh). `gpg-wrapper.sh` attempts to use the `--passphrase-fd` argument to GPG to prompt for your passphrase by reading and writing to file descriptor 3. Unfortunately, more recent versions of GPG not longer respect this argument (and use a much more complicated architecture for pinentry configuration through `gpg-agent`,) so for now native GPG pinentry programs must often be used.
-  * On Linux, `GIT_SSH_COMMAND` is set to [`bin/linux-ssh-wrapper.sh`](/bin/linux-ssh-wrapper.sh), a wrapper script that runs the ssh command in a new process group. Otherwise, `ssh` will ignore `SSH_ASKPASS` and insist on prompting on the tty you used to launch Atom.
+  - To unlock SSH keys, the environment variables `SSH_ASKPASS` and `GIT_ASKPASS` are set to the path to the script that runs [`git-askpass-atom.js`](bin/git-askpass-atom.js). `DISPLAY` is also set to a non-empty value so that `ssh` will respect `SSH_ASKPASS`. `git-askpass-atom.js` reads its prompt from its process arguments, attempts to execute the system askpass if one is present, and falls back to querying the `GitPromptServer` if that does not succeed. Its passphrase is written to stdout.
+  - For GPG passphrases, `-c gpg.program=...` is set to [`bin/gpg-wrapper.sh`](/bin/gpg-wrapper.sh). `gpg-wrapper.sh` attempts to use the `--passphrase-fd` argument to GPG to prompt for your passphrase by reading and writing to file descriptor 3. Unfortunately, more recent versions of GPG not longer respect this argument (and use a much more complicated architecture for pinentry configuration through `gpg-agent`,) so for now native GPG pinentry programs must often be used.
+  - On Linux, `GIT_SSH_COMMAND` is set to [`bin/linux-ssh-wrapper.sh`](/bin/linux-ssh-wrapper.sh), a wrapper script that runs the ssh command in a new process group. Otherwise, `ssh` will ignore `SSH_ASKPASS` and insist on prompting on the tty you used to launch Atom.
 
 ## Repository
 
@@ -54,8 +54,8 @@ Repositories are stateful: when created with a path, they are **loading**, after
 
 Repository instances mostly delegate operations to their current _state instance_. (This delegation is not automatic; there is [an explicit list](/lib/models/repository.js#L265-L363) of methods that are delegated, which must be updated if new functionality is added.) However, Repositories do directly implement methods for:
 
-* Composite operations that chain together several one-git-command pieces from its state, and
-* Alias operations that re-interpret the result from a single primitive command in different ways.
+- Composite operations that chain together several one-git-command pieces from its state, and
+- Alias operations that re-interpret the result from a single primitive command in different ways.
 
 ### Present
 
@@ -77,13 +77,16 @@ const Keys = {
     // Generate a key based on a command argument.
     // The created key belongs to two "groups" that can be used to invalidate it.
     oneWith: (setting, local) => {
-      return new CacheKey(`config:${setting}:${local}`, ['config', `config:${local}`]);
+      return new CacheKey(`config:${setting}:${local}`, [
+        'config',
+        `config:${local}`,
+      ]);
     },
 
     // Used to invalidate *all* cache entries belonging to a given group at once.
     all: new GroupKey('config'),
   },
-}
+};
 ```
 
 Then write your method to call `this.cache.getOrSet()` with the appropriate key or keys as its first argument:

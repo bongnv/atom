@@ -1,5 +1,5 @@
-@import "variables";
-@import (less) "../node_modules/react-select/dist/react-select.css";
+@import 'variables';
+@import (less) '../node_modules/react-select/dist/react-select.css';
 
 .github-CommitView {
   padding: @component-padding;
@@ -22,12 +22,12 @@
       border: none;
       background-color: @syntax-background-color;
       cursor: default;
-      opacity: .3;
+      opacity: 0.3;
       &:hover {
         opacity: 1;
       }
       &:active {
-        opacity: .5;
+        opacity: 0.5;
       }
     }
   }
@@ -52,7 +52,7 @@
     border: none;
     background-color: @syntax-background-color;
     cursor: default;
-    opacity: .3;
+    opacity: 0.3;
     // in expanded editor view, make this button sit on top of
     // the editor toggle button so the co author toggle is still clickable.
     z-index: 1;
@@ -61,7 +61,7 @@
       cursor: pointer;
     }
     &:active {
-      opacity: .5;
+      opacity: 0.5;
     }
     &.focused {
       opacity: 1;
@@ -97,7 +97,12 @@
     background-color: @syntax-background-color;
     cursor: text;
 
-    &&, &.is-open, &.is-focused, &.is-searchable, &.is-searchable.is-open, &.is-searchable.is-focused:not(.is-open) {
+    &&,
+    &.is-open,
+    &.is-focused,
+    &.is-searchable,
+    &.is-searchable.is-open,
+    &.is-searchable.is-focused:not(.is-open) {
       & > .Select-control {
         background-color: inherit;
         border: none;
@@ -130,7 +135,7 @@
     // Token
     .Select-value {
       margin: 0;
-      margin-right: .5em;
+      margin-right: 0.5em;
       vertical-align: middle;
       line-height: 1.1;
       color: mix(@text-color-highlight, @text-color-info, 70%);
@@ -152,7 +157,7 @@
       border-radius: @component-border-radius;
       border: 1px solid @overlay-border-color;
       background-color: @overlay-background-color;
-      box-shadow: 0 2px 4px hsla(0,0%,0%,.15);
+      box-shadow: 0 2px 4px hsla(0, 0%, 0%, 0.15);
       overflow: hidden;
     }
 
@@ -188,15 +193,15 @@
       white-space: nowrap;
       overflow: hidden;
 
-      &> span:first-child {
+      & > span:first-child {
         font-weight: 600;
         color: @text-color-highlight;
       }
-      &> span {
+      & > span {
         color: @text-color-subtle;
-        margin-right: .75em;
+        margin-right: 0.75em;
       }
-      &> span:last-child {
+      & > span:last-child {
         margin-right: 0;
       }
     }
@@ -215,12 +220,12 @@
     border: none;
     background-color: @syntax-background-color;
     cursor: default;
-    opacity: .3;
+    opacity: 0.3;
     &:hover {
       opacity: 1;
     }
     &:active {
-      opacity: .5;
+      opacity: 0.5;
     }
     &:before {
       margin: 0;
@@ -254,10 +259,13 @@
     margin-left: @component-padding;
     color: @text-color-subtle;
 
-    &.is-warning { color: @text-color-warning; }
-    &.is-error   { color: @text-color-error; }
+    &.is-warning {
+      color: @text-color-warning;
+    }
+    &.is-error {
+      color: @text-color-error;
+    }
   }
-
 
   // States ---------------------------------------------------
 
@@ -271,20 +279,20 @@
       width: 100%;
       line-height: inherit;
       background-color: transparent;
-      opacity: .5;
+      opacity: 0.5;
       &::before {
         margin-right: @component-padding / 2;
       }
       &::after {
-        content: "Toggle expanded commit message";
+        content: 'Toggle expanded commit message';
       }
       &:active {
-        opacity: .3;
+        opacity: 0.3;
       }
     }
   }
 
   .hard-wrap-icons {
-    fill: @text-color
+    fill: @text-color;
   }
 }

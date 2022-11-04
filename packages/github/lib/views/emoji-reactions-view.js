@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import {createFragmentContainer, graphql} from 'react-relay';
+import { createFragmentContainer, graphql } from 'react-relay';
 import cx from 'classnames';
 
 import ReactionPickerController from '../controllers/reaction-picker-controller';
 import Tooltip from '../atom/tooltip';
 import RefHolder from '../models/ref-holder';
-import {reactionTypeToEmoji} from '../helpers';
+import { reactionTypeToEmoji } from '../helpers';
 
 export class BareEmojiReactionsView extends React.Component {
   static propTypes = {
@@ -20,7 +20,7 @@ export class BareEmojiReactionsView extends React.Component {
           users: PropTypes.shape({
             totalCount: PropTypes.number.isRequired,
           }).isRequired,
-        }),
+        })
       ).isRequired,
       viewerCanReact: PropTypes.bool.isRequired,
     }).isRequired,
@@ -31,7 +31,7 @@ export class BareEmojiReactionsView extends React.Component {
     // Action methods
     addReaction: PropTypes.func.isRequired,
     removeReaction: PropTypes.func.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -42,10 +42,12 @@ export class BareEmojiReactionsView extends React.Component {
 
   render() {
     const viewerReacted = this.props.reactable.reactionGroups
-      .filter(group => group.viewerHasReacted)
-      .map(group => group.content);
-    const {reactionGroups} = this.props.reactable;
-    const showAddButton = reactionGroups.length === 0 || reactionGroups.some(g => g.users.totalCount === 0);
+      .filter((group) => group.viewerHasReacted)
+      .map((group) => group.content);
+    const { reactionGroups } = this.props.reactable;
+    const showAddButton =
+      reactionGroups.length === 0 ||
+      reactionGroups.some((g) => g.users.totalCount === 0);
 
     return (
       <div className="github-EmojiReactions btn-toolbar">
@@ -61,7 +63,8 @@ export class BareEmojiReactionsView extends React.Component {
               target={this.refAddButton}
               trigger="click"
               className="github-Popover"
-              refTooltip={this.refTooltip}>
+              refTooltip={this.refTooltip}
+            >
               <ReactionPickerController
                 viewerReacted={viewerReacted}
                 addReaction={this.props.addReaction}
@@ -72,7 +75,7 @@ export class BareEmojiReactionsView extends React.Component {
           </div>
         )}
         <div className="btn-group">
-          {this.props.reactable.reactionGroups.map(group => {
+          {this.props.reactable.reactionGroups.map((group) => {
             const emoji = reactionTypeToEmoji[group.content];
             if (!emoji) {
               return null;
@@ -85,7 +88,7 @@ export class BareEmojiReactionsView extends React.Component {
               'github-EmojiReactions-group',
               'btn',
               group.content.toLowerCase(),
-              {selected: group.viewerHasReacted},
+              { selected: group.viewerHasReacted }
             );
 
             const toggle = !group.viewerHasReacted
@@ -95,8 +98,14 @@ export class BareEmojiReactionsView extends React.Component {
             const disabled = !this.props.reactable.viewerCanReact;
 
             return (
-              <button key={group.content} className={className} onClick={toggle} disabled={disabled}>
-                {reactionTypeToEmoji[group.content]} &nbsp; {group.users.totalCount}
+              <button
+                key={group.content}
+                className={className}
+                onClick={toggle}
+                disabled={disabled}
+              >
+                {reactionTypeToEmoji[group.content]} &nbsp;{' '}
+                {group.users.totalCount}
               </button>
             );
           })}

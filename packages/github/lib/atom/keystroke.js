@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {humanizeKeystroke} from 'underscore-plus';
-import {Disposable} from 'event-kit';
+import { humanizeKeystroke } from 'underscore-plus';
+import { Disposable } from 'event-kit';
 
-import {autobind} from '../helpers';
-import {RefHolderPropType} from '../prop-types';
+import { autobind } from '../helpers';
+import { RefHolderPropType } from '../prop-types';
 
 export default class Keystroke extends React.Component {
   static propTypes = {
@@ -13,14 +13,14 @@ export default class Keystroke extends React.Component {
     }).isRequired,
     command: PropTypes.string.isRequired,
     refTarget: RefHolderPropType,
-  }
+  };
 
   constructor(props) {
     super(props);
     autobind(this, 'didChangeTarget');
 
     this.sub = new Disposable();
-    this.state = {keybinding: null};
+    this.state = { keybinding: null };
   }
 
   componentDidMount() {
@@ -44,7 +44,11 @@ export default class Keystroke extends React.Component {
       return null;
     }
 
-    return <span className="keystroke">{humanizeKeystroke(this.state.keybinding.keystrokes)}</span>;
+    return (
+      <span className="keystroke">
+        {humanizeKeystroke(this.state.keybinding.keystrokes)}
+      </span>
+    );
   }
 
   observeTarget() {
@@ -61,6 +65,6 @@ export default class Keystroke extends React.Component {
       command: this.props.command,
       target,
     });
-    this.setState({keybinding});
+    this.setState({ keybinding });
   }
 }

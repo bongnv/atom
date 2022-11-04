@@ -1,13 +1,18 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
-import {CompositeDisposable, Disposable} from 'event-kit';
+import { CompositeDisposable, Disposable } from 'event-kit';
 
-import {handleClickEvent, openIssueishLinkInNewTab, openLinkInBrowser, getDataFromGithubUrl} from './issueish-link';
+import {
+  handleClickEvent,
+  openIssueishLinkInNewTab,
+  openLinkInBrowser,
+  getDataFromGithubUrl,
+} from './issueish-link';
 import UserMentionTooltipItem from '../items/user-mention-tooltip-item';
 import IssueishTooltipItem from '../items/issueish-tooltip-item';
 import RelayEnvironment from './relay-environment';
-import {renderMarkdown} from '../helpers';
+import { renderMarkdown } from '../helpers';
 
 export class BareGithubDotcomMarkdown extends React.Component {
   static propTypes = {
@@ -20,14 +25,14 @@ export class BareGithubDotcomMarkdown extends React.Component {
     handleClickEvent: PropTypes.func,
     openIssueishLinkInNewTab: PropTypes.func,
     openLinkInBrowser: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     className: '',
     handleClickEvent,
     openIssueishLinkInNewTab,
     openLinkInBrowser,
-  }
+  };
 
   componentDidMount() {
     this.commandSubscriptions = atom.commands.add(ReactDom.findDOMNode(this), {
@@ -56,24 +61,34 @@ export class BareGithubDotcomMarkdown extends React.Component {
     }
 
     this.tooltipSubscriptions = new CompositeDisposable();
-    this.component.querySelectorAll('.user-mention').forEach(node => {
-      const item = new UserMentionTooltipItem(node.textContent, this.props.relayEnvironment);
-      this.tooltipSubscriptions.add(atom.tooltips.add(node, {
-        trigger: 'hover',
-        delay: 0,
-        class: 'github-Popover',
-        item,
-      }));
+    this.component.querySelectorAll('.user-mention').forEach((node) => {
+      const item = new UserMentionTooltipItem(
+        node.textContent,
+        this.props.relayEnvironment
+      );
+      this.tooltipSubscriptions.add(
+        atom.tooltips.add(node, {
+          trigger: 'hover',
+          delay: 0,
+          class: 'github-Popover',
+          item,
+        })
+      );
       this.tooltipSubscriptions.add(new Disposable(() => item.destroy()));
     });
-    this.component.querySelectorAll('.issue-link').forEach(node => {
-      const item = new IssueishTooltipItem(node.getAttribute('href'), this.props.relayEnvironment);
-      this.tooltipSubscriptions.add(atom.tooltips.add(node, {
-        trigger: 'hover',
-        delay: 0,
-        class: 'github-Popover',
-        item,
-      }));
+    this.component.querySelectorAll('.issue-link').forEach((node) => {
+      const item = new IssueishTooltipItem(
+        node.getAttribute('href'),
+        this.props.relayEnvironment
+      );
+      this.tooltipSubscriptions.add(
+        atom.tooltips.add(node, {
+          trigger: 'hover',
+          delay: 0,
+          class: 'github-Popover',
+          item,
+        })
+      );
       this.tooltipSubscriptions.add(new Disposable(() => item.destroy()));
     });
   }
@@ -89,52 +104,59 @@ export class BareGithubDotcomMarkdown extends React.Component {
       <div
         className={`github-DotComMarkdownHtml native-key-bindings ${this.props.className}`}
         tabIndex="-1"
-        ref={c => { this.component = c; }}
-        dangerouslySetInnerHTML={{__html: this.props.html}}
+        ref={(c) => {
+          this.component = c;
+        }}
+        dangerouslySetInnerHTML={{ __html: this.props.html }}
       />
     );
   }
 
-  handleClick = event => {
+  handleClick = (event) => {
     if (event.target.dataset.url) {
       return this.props.handleClickEvent(event, event.target.dataset.url);
     } else {
       return null;
     }
-  }
+  };
 
-  openLinkInNewTab = event => {
+  openLinkInNewTab = (event) => {
     return this.props.openIssueishLinkInNewTab(event.target.dataset.url);
-  }
+  };
 
-  openLinkInThisTab = event => {
-    const {repoOwner, repoName, issueishNumber} = getDataFromGithubUrl(event.target.dataset.url);
+  openLinkInThisTab = (event) => {
+    const { repoOwner, repoName, issueishNumber } = getDataFromGithubUrl(
+      event.target.dataset.url
+    );
     this.props.switchToIssueish(repoOwner, repoName, issueishNumber);
-  }
+  };
 
-  openLinkInBrowser = event => {
+  openLinkInBrowser = (event) => {
     return this.props.openLinkInBrowser(event.target.getAttribute('href'));
-  }
+  };
 }
 
 export default class GithubDotcomMarkdown extends React.Component {
   static propTypes = {
     markdown: PropTypes.string,
     html: PropTypes.string,
-  }
+  };
 
   state = {
     lastMarkdown: null,
     html: null,
-  }
+  };
 
   static getDerivedStateFromProps(props, state) {
     if (props.html) {
-      return {html: props.html};
+      return { html: props.html };
     }
 
     if (props.markdown && props.markdown !== state.lastMarkdown) {
-      return {html: renderMarkdown(props.markdown), lastMarkdown: props.markdown};
+      return {
+        html: renderMarkdown(props.markdown),
+        lastMarkdown: props.markdown,
+      };
     }
 
     return null;
@@ -143,7 +165,7 @@ export default class GithubDotcomMarkdown extends React.Component {
   render() {
     return (
       <RelayEnvironment.Consumer>
-        {relayEnvironment => (
+        {(relayEnvironment) => (
           <BareGithubDotcomMarkdown
             relayEnvironment={relayEnvironment}
             {...this.props}

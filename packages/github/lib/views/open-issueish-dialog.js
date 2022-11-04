@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {TextBuffer} from 'atom';
+import { TextBuffer } from 'atom';
 
 import IssueishDetailItem from '../items/issueish-detail-item';
 import TabGroup from '../tab-group';
 import DialogView from './dialog-view';
-import {TabbableTextEditor} from './tabbable';
-import {addEvent} from '../reporter-proxy';
+import { TabbableTextEditor } from './tabbable';
+import { addEvent } from '../reporter-proxy';
 
-const ISSUEISH_URL_REGEX = /^(?:https?:\/\/)?(github.com)\/([^/]+)\/([^/]+)\/(?:issues|pull)\/(\d+)/;
+const ISSUEISH_URL_REGEX =
+  /^(?:https?:\/\/)?(github.com)\/([^/]+)\/([^/]+)\/(?:issues|pull)\/(\d+)/;
 
 export default class OpenIssueishDialog extends React.Component {
   static propTypes = {
@@ -24,7 +25,7 @@ export default class OpenIssueishDialog extends React.Component {
     // Atom environment
     workspace: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -52,8 +53,8 @@ export default class OpenIssueishDialog extends React.Component {
         inProgress={this.props.inProgress}
         error={this.props.error}
         workspace={this.props.workspace}
-        commands={this.props.commands}>
-
+        commands={this.props.commands}
+      >
         <label className="github-DialogLabel">
           Issue or pull request URL:
           <TabbableTextEditor
@@ -65,7 +66,6 @@ export default class OpenIssueishDialog extends React.Component {
             buffer={this.url}
           />
         </label>
-
       </DialogView>
     );
   }
@@ -85,7 +85,7 @@ export default class OpenIssueishDialog extends React.Component {
     }
 
     return this.props.request.accept(issueishURL);
-  }
+  };
 
   parseUrl() {
     const url = this.getIssueishUrl();
@@ -94,25 +94,31 @@ export default class OpenIssueishDialog extends React.Component {
       return false;
     }
     const [_full, repoOwner, repoName, issueishNumber] = matches; // eslint-disable-line no-unused-vars
-    return {repoOwner, repoName, issueishNumber};
+    return { repoOwner, repoName, issueishNumber };
   }
 
   didChangeURL = () => {
     const enabled = !this.url.isEmpty();
     if (this.state.acceptEnabled !== enabled) {
-      this.setState({acceptEnabled: enabled});
+      this.setState({ acceptEnabled: enabled });
     }
-  }
+  };
 }
 
-export async function openIssueishItem(issueishURL, {workspace, workdir}) {
+export async function openIssueishItem(issueishURL, { workspace, workdir }) {
   const matches = ISSUEISH_URL_REGEX.exec(issueishURL);
   if (!matches) {
     throw new Error('Not a valid issue or pull request URL');
   }
   const [, host, owner, repo, number] = matches;
-  const uri = IssueishDetailItem.buildURI({host, owner, repo, number, workdir});
-  const item = await workspace.open(uri, {searchAllPanes: true});
-  addEvent('open-issueish-in-pane', {package: 'github', from: 'dialog'});
+  const uri = IssueishDetailItem.buildURI({
+    host,
+    owner,
+    repo,
+    number,
+    workdir,
+  });
+  const item = await workspace.open(uri, { searchAllPanes: true });
+  addEvent('open-issueish-in-pane', { package: 'github', from: 'dialog' });
   return item;
 }

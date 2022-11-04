@@ -9,13 +9,13 @@ export default class ErrorView extends React.Component {
 
     retry: PropTypes.func,
     logout: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     title: 'Error',
     descriptions: ['An unknown error occurred'],
     preformatted: false,
-  }
+  };
 
   render() {
     return (
@@ -25,10 +25,20 @@ export default class ErrorView extends React.Component {
           {this.props.descriptions.map(this.renderDescription)}
           <div className="github-Message-action">
             {this.props.retry && (
-              <button className="github-Message-button btn btn-primary" onClick={this.props.retry}>Try Again</button>
+              <button
+                className="github-Message-button btn btn-primary"
+                onClick={this.props.retry}
+              >
+                Try Again
+              </button>
             )}
             {this.props.logout && (
-              <button className="github-Message-button btn btn-logout" onClick={this.props.logout}>Logout</button>
+              <button
+                className="github-Message-button btn btn-logout"
+                onClick={this.props.logout}
+              >
+                Logout
+              </button>
             )}
           </div>
         </div>
@@ -50,5 +60,5 @@ export default class ErrorView extends React.Component {
         </p>
       );
     }
-  }
+  };
 }

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {RelayConnectionPropType} from '../prop-types';
-import {autobind} from '../helpers';
+import { RelayConnectionPropType } from '../prop-types';
+import { autobind } from '../helpers';
 import Octicon from '../atom/octicon';
 import CommitsView from './timeline-items/commits-view.js';
 import IssueCommentView from './timeline-items/issue-comment-view.js';
@@ -13,13 +13,15 @@ import CommitCommentThreadView from './timeline-items/commit-comment-thread-view
 
 export function collectionRenderer(Component, styleAsTimelineItem = true) {
   return class GroupedComponent extends React.Component {
-    static displayName = `Grouped(${Component.render ? Component.render.displayName : Component.displayName})`
+    static displayName = `Grouped(${
+      Component.render ? Component.render.displayName : Component.displayName
+    })`;
 
     static propTypes = {
       nodes: PropTypes.array.isRequired,
       issueish: PropTypes.object.isRequired,
       switchToIssueish: PropTypes.func.isRequired,
-    }
+    };
 
     static getFragment(fragName, ...args) {
       const frag = fragName === 'nodes' ? 'item' : fragName;
@@ -32,7 +34,11 @@ export function collectionRenderer(Component, styleAsTimelineItem = true) {
     }
 
     render() {
-      return <div className={styleAsTimelineItem ? 'timeline-item' : ''}>{this.props.nodes.map(this.renderNode)}</div>;
+      return (
+        <div className={styleAsTimelineItem ? 'timeline-item' : ''}>
+          {this.props.nodes.map(this.renderNode)}
+        </div>
+      );
     }
 
     renderNode(node, i) {
@@ -50,7 +56,10 @@ export function collectionRenderer(Component, styleAsTimelineItem = true) {
 
 const timelineItems = {
   PullRequestCommit: CommitsView,
-  PullRequestCommitCommentThread: collectionRenderer(CommitCommentThreadView, false),
+  PullRequestCommitCommentThread: collectionRenderer(
+    CommitCommentThreadView,
+    false
+  ),
   IssueComment: collectionRenderer(IssueCommentView, false),
   MergedEvent: collectionRenderer(MergedEventView),
   HeadRefForcePushedEvent: collectionRenderer(HeadRefForcePushedEventView),
@@ -60,7 +69,7 @@ const timelineItems = {
 const TimelineConnectionPropType = RelayConnectionPropType(
   PropTypes.shape({
     __typename: PropTypes.string.isRequired,
-  }),
+  })
 ).isRequired;
 
 export default class IssueishTimelineView extends React.Component {
@@ -79,12 +88,12 @@ export default class IssueishTimelineView extends React.Component {
     }),
     onBranch: PropTypes.bool,
     openCommit: PropTypes.func,
-  }
+  };
 
   static defaultProps = {
     onBranch: false,
     openCommit: () => {},
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -103,7 +112,7 @@ export default class IssueishTimelineView extends React.Component {
     const groupedEdges = this.groupEdges(issueish.timelineItems.edges);
     return (
       <div className="github-PrTimeline">
-        {groupedEdges.map(({type, edges}) => {
+        {groupedEdges.map(({ type, edges }) => {
           const Component = timelineItems[type];
           const propsForCommits = {
             onBranch: this.props.onBranch,
@@ -113,7 +122,7 @@ export default class IssueishTimelineView extends React.Component {
             return (
               <Component
                 key={`${type}-${edges[0].cursor}`}
-                nodes={edges.map(e => e.node)}
+                nodes={edges.map((e) => e.node)}
                 issueish={issueish}
                 switchToIssueish={this.props.switchToIssueish}
                 {...(Component === CommitsView && propsForCommits)}
@@ -137,8 +146,15 @@ export default class IssueishTimelineView extends React.Component {
 
     return (
       <div className="github-PrTimeline-loadMore">
-        <button className="github-PrTimeline-loadMoreButton btn" onClick={this.loadMore}>
-          {this.props.relay.isLoading() ? <Octicon icon="ellipsis" /> : 'Load More'}
+        <button
+          className="github-PrTimeline-loadMoreButton btn"
+          onClick={this.loadMore}
+        >
+          {this.props.relay.isLoading() ? (
+            <Octicon icon="ellipsis" />
+          ) : (
+            'Load More'
+          )}
         </button>
       </div>
     );
@@ -148,14 +164,14 @@ export default class IssueishTimelineView extends React.Component {
     let currentGroup;
     const groupedEdges = [];
     let lastEdgeType;
-    edges.forEach(({node, cursor}) => {
+    edges.forEach(({ node, cursor }) => {
       const currentEdgeType = node.__typename;
       if (currentEdgeType === lastEdgeType) {
-        currentGroup.edges.push({node, cursor});
+        currentGroup.edges.push({ node, cursor });
       } else {
         currentGroup = {
           type: currentEdgeType,
-          edges: [{node, cursor}],
+          edges: [{ node, cursor }],
         };
         groupedEdges.push(currentGroup);
       }

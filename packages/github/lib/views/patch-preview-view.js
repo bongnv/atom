@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import {blankLabel} from '../helpers';
+import { blankLabel } from '../helpers';
 import AtomTextEditor from '../atom/atom-text-editor';
 import Decoration from '../atom/decoration';
 import MarkerLayer from '../atom/marker-layer';
@@ -20,7 +20,7 @@ export default class PatchPreviewView extends React.Component {
     config: PropTypes.shape({
       get: PropTypes.func.isRequired,
     }),
-  }
+  };
 
   state = {
     lastPatch: null,
@@ -28,7 +28,7 @@ export default class PatchPreviewView extends React.Component {
     lastDiffRow: null,
     lastMaxRowCount: null,
     previewPatchBuffer: null,
-  }
+  };
 
   static getDerivedStateFromProps(props, state) {
     if (
@@ -41,7 +41,9 @@ export default class PatchPreviewView extends React.Component {
     }
 
     const nextPreviewPatchBuffer = props.multiFilePatch.getPreviewPatchBuffer(
-      props.fileName, props.diffRow, props.maxRowCount,
+      props.fileName,
+      props.diffRow,
+      props.maxRowCount
     );
     let previewPatchBuffer = null;
     if (state.previewPatchBuffer !== null) {
@@ -68,15 +70,26 @@ export default class PatchPreviewView extends React.Component {
         lineNumberGutterVisible={false}
         autoHeight={true}
         autoWidth={false}
-        softWrapped={false}>
-
+        softWrapped={false}
+      >
         {this.props.config.get('github.showDiffIconGutter') && (
-          <Gutter name="diff-icons" priority={1} type="line-number" className="icons" labelFn={blankLabel} />
+          <Gutter
+            name="diff-icons"
+            priority={1}
+            type="line-number"
+            className="icons"
+            labelFn={blankLabel}
+          />
         )}
 
-        {this.renderLayerDecorations('addition', 'github-FilePatchView-line--added')}
-        {this.renderLayerDecorations('deletion', 'github-FilePatchView-line--deleted')}
-
+        {this.renderLayerDecorations(
+          'addition',
+          'github-FilePatchView-line--added'
+        )}
+        {this.renderLayerDecorations(
+          'deletion',
+          'github-FilePatchView-line--deleted'
+        )}
       </AtomTextEditor>
     );
   }
@@ -89,9 +102,18 @@ export default class PatchPreviewView extends React.Component {
 
     return (
       <MarkerLayer external={layer}>
-        <Decoration type="line" className={className} omitEmptyLastRow={false} />
+        <Decoration
+          type="line"
+          className={className}
+          omitEmptyLastRow={false}
+        />
         {this.props.config.get('github.showDiffIconGutter') && (
-          <Decoration type="line-number" gutterName="diff-icons" className={className} omitEmptyLastRow={false} />
+          <Decoration
+            type="line-number"
+            gutterName="diff-icons"
+            className={className}
+            omitEmptyLastRow={false}
+          />
         )}
       </MarkerLayer>
     );

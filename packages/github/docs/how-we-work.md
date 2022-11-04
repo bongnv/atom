@@ -20,9 +20,9 @@ This includes work like typos in comments or documentation, localized work, or r
 
 ##### Examples
 
-* Changing or upgrading dependencies.
-* Renaming components.
-* Minor refactoring that only touches a file or two.
+- Changing or upgrading dependencies.
+- Renaming components.
+- Minor refactoring that only touches a file or two.
 
 ##### Process
 
@@ -51,18 +51,18 @@ Major, cross-cutting refactoring efforts fit within this category. Our goals wit
 
 ##### Examples
 
-* Porting the package from Etch to React.
-* Introducing additional diagnostics or metrics.
-* Restructuring an entire component tree.
+- Porting the package from Etch to React.
+- Introducing additional diagnostics or metrics.
+- Restructuring an entire component tree.
 
 ##### Process
 
 1. Propose these changes first in a conversation in Slack, a stand-up, or another synchronous channel. The decisions to be made here are:
-    * Does this change make sense to people other than me?
-    * Will this impact other work in flight?
+   - Does this change make sense to people other than me?
+   - Will this impact other work in flight?
 2. Capture the context of the change in an issue, which can then be prioritized accordingly within our normal channels.
-    * Should we stop or delay existing work in favor of a refactoring?
-    * Should we leave it as-is until we complete other work that's more impactful?
+   - Should we stop or delay existing work in favor of a refactoring?
+   - Should we leave it as-is until we complete other work that's more impactful?
 3. When you're ready to begin refactoring, assign the issue to yourself and move it to "in progress" column on the current sprint project.
 4. Work in a feature branch in the `atom/github` repository and open a pull request to track your progress. Remember to add the pull request to the current sprint project board.
 5. Iteratively change code and tests until the change is complete and CI builds are green.
@@ -87,19 +87,19 @@ _We encourage community members wanting to contribute new features to follow thi
 ##### Process
 
 1. On a feature branch, write a proposal as a markdown document beneath [`docs/feature-requests`](/docs/feature-requests) in this repository. Copy the [template](/docs/feature-requests/000-template.md) to begin. Open a pull request. The Feature Request document should include:
-   * A description of the feature, written as though it already exists;
-   * An analysis of the risks and drawbacks;
-   * A specification of when the feature will be considered "done";
-   * Unresolved questions or possible follow-on work;
-   * A sequence of discrete phases that can be used to realize the full feature;
+   - A description of the feature, written as though it already exists;
+   - An analysis of the risks and drawbacks;
+   - A specification of when the feature will be considered "done";
+   - Unresolved questions or possible follow-on work;
+   - A sequence of discrete phases that can be used to realize the full feature;
 1. @-mention @simurai on the open pull request for design input. Begin hashing out mock-ups, look and feel, specific user interaction details, and decide on a high-level direction for the feature.
 1. Feature development may begin at any point after the Feature Request pull request has been opened.
 1. Work on the Feature Request's implementation is performed in one or more pull requests. Try to break out work into smaller pull requests as much as possible to ship incremental changes. Remember to add each pull request to the current sprint project.
-   * Consider gating your work behind a feature flag or a configuration option.
-   * Write tests for your new work.
-   * Optionally [request reviewers](#how-we-review) if you want feedback. Ping @simurai for ongoing UI/UX considerations if appropriate.
-   * Merge your pull request yourself when CI is green and any reviewers you have requested have approved the PR.
-   * As the design evolves and opinions change, modify the existing Feature Request to stay accurate.
+   - Consider gating your work behind a feature flag or a configuration option.
+   - Write tests for your new work.
+   - Optionally [request reviewers](#how-we-review) if you want feedback. Ping @simurai for ongoing UI/UX considerations if appropriate.
+   - Merge your pull request yourself when CI is green and any reviewers you have requested have approved the PR.
+   - As the design evolves and opinions change, modify the existing Feature Request to stay accurate.
 1. When the feature is complete, update the Feature Request to a "completed" state and merge it. For any outstanding work that didn't get implemented, open issues or start new Feature Requests.
 
 ### Expansions or retractions of package scope
@@ -121,9 +121,9 @@ If you believe an issue _should_ be addressed before merge, mark that comment wi
 
 When finalizing your review:
 
-* "Approve" means "click merge whenever you're ready, I'm okay with this shipping exactly as I see it here if you are."
-* "Comment" means "I've noted things that you may want to consider doing differently. Feel free to merge if you disagree, but further conversation might be useful to bring me on board."
-* "Request changes" means "I believe that merging this right now would break something. Dismiss my review once you've addressed the urgent issues that I've identified."
+- "Approve" means "click merge whenever you're ready, I'm okay with this shipping exactly as I see it here if you are."
+- "Comment" means "I've noted things that you may want to consider doing differently. Feel free to merge if you disagree, but further conversation might be useful to bring me on board."
+- "Request changes" means "I believe that merging this right now would break something. Dismiss my review once you've addressed the urgent issues that I've identified."
 
 ## How we ship
 
@@ -133,25 +133,31 @@ At the end of each development sprint:
 
 1. _In your atom/github repository:_ create a release branch for this minor version with `git checkout -b 0.${MINOR}-releases`. Push it to atom/github.
 1. _In your atom/github repository:_ make sure you're on the release branch, and run `apm publish preminor` to create the first prerelease version or `apm publish prerelease` to increment an existing prerelease version. Note the generated version number and ensure that it's correct. If the currently deployed version is `v0.19.2`, the first prerelease should be `v0.20.0-0`; if the existing prerelease is `v0.20.0-0`, the next prerelease should be `v0.20.0-1`.
-2. _In your atom/atom repository:_ create a new branch and edit `package.json` in its root directory. Change the version of the `"github"` entry beneath `packageDependencies` to match the prerelease you just published. You can ignore the version beneath `dependencies`, the tarball link will get updated during the upcoming build step.
-3. _In your atom/atom repository:_ Run `script/build --install`. This will update Atom's `package-lock.json` files and produce a local development build of Atom with your prerelease version of atom/github bundled.
-  * :boom: _If the build fails,_ correct any bugs and begin again at (1) with a new prerelease version.
+1. _In your atom/atom repository:_ create a new branch and edit `package.json` in its root directory. Change the version of the `"github"` entry beneath `packageDependencies` to match the prerelease you just published. You can ignore the version beneath `dependencies`, the tarball link will get updated during the upcoming build step.
+1. _In your atom/atom repository:_ Run `script/build --install`. This will update Atom's `package-lock.json` files and produce a local development build of Atom with your prerelease version of atom/github bundled.
+
+- :boom: _If the build fails,_ correct any bugs and begin again at (1) with a new prerelease version.
+
 4. Run `apm uninstall github` and `apm uninstall --dev github` to ensure that you don't have any [locally installed atom/github versions](/CONTRIBUTING.md#living-on-the-edge) that would override the bundled one.
-6. Create a [QA issue](https://github.com/atom/github/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Aquality) in the atom/github repository. Its title should be "_prerelease version_ QA Review" and it should have the "quality" label applied. Populate the issue body with a checklist containing the pull requests that were included in this release; these should be the ones in the "Merged" column of the project board. Omit pull requests that don't have verification steps (like renames, refactoring, adding tests or metrics, or dependency upgrades, for example).
-7. Use your `atom-dev` build to verify each and check it off the list.
-  * :boom: _If verification fails,_
-    1. Note the failure in an issue comment. Close the issue.
-    1. Correct the failure with more work in the current sprint board. Make changes on master branch.
-    1. Cherry changes from master to release branch.
-    1. Begin again by cutting a new pre-release and proceeding through the above steps once again.
-  * :white_check_mark: _Otherwise,_ comment in and close the issue, then continue.
+5. Create a [QA issue](https://github.com/atom/github/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Aquality) in the atom/github repository. Its title should be "_prerelease version_ QA Review" and it should have the "quality" label applied. Populate the issue body with a checklist containing the pull requests that were included in this release; these should be the ones in the "Merged" column of the project board. Omit pull requests that don't have verification steps (like renames, refactoring, adding tests or metrics, or dependency upgrades, for example).
+6. Use your `atom-dev` build to verify each and check it off the list.
+
+- :boom: _If verification fails,_
+  1. Note the failure in an issue comment. Close the issue.
+  1. Correct the failure with more work in the current sprint board. Make changes on master branch.
+  1. Cherry changes from master to release branch.
+  1. Begin again by cutting a new pre-release and proceeding through the above steps once again.
+- :white*check_mark: \_Otherwise,* comment in and close the issue, then continue.
+
 8. _In your atom/github repository:_ run `apm publish minor` to publish the next minor version.
-  * :boom: _If publishing fails,_ before trying to publish again
-    1. Check if a release commit was created (`git log`). If one exists, remove it from the commit history (`git reset --hard <sha-prior-to-commit>`).
-    1. Check if a release tag was created (`git tag`). If one exists, delete it (`git tag -d 0.${MINOR}.0`).
-    1. Address the problem that interfered with publishing.
-    1. Try to publish again with `apm publish minor`.
-9. _In your atom/atom repository:_ checkout a new branch (`git checkout -b bump-github-${VERSION}`), update the version of the `"github"` entry beneath `packageDependencies` in `package.json`  to match the published minor version. Run `script/build` to update `package-lock.json` files. Commit and push these changes.
+
+- :boom: _If publishing fails,_ before trying to publish again
+  1. Check if a release commit was created (`git log`). If one exists, remove it from the commit history (`git reset --hard <sha-prior-to-commit>`).
+  1. Check if a release tag was created (`git tag`). If one exists, delete it (`git tag -d 0.${MINOR}.0`).
+  1. Address the problem that interfered with publishing.
+  1. Try to publish again with `apm publish minor`.
+
+9. _In your atom/atom repository:_ checkout a new branch (`git checkout -b bump-github-${VERSION}`), update the version of the `"github"` entry beneath `packageDependencies` in `package.json` to match the published minor version. Run `script/build` to update `package-lock.json` files. Commit and push these changes.
 10. When the CI build for your atom/atom pull request is successful, merge it.
 
 Now cherry-pick any suitably minor or low-risk bugfix PRs from this release to the previous one:

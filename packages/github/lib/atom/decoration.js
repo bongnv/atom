@@ -1,17 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import {Disposable} from 'event-kit';
+import { Disposable } from 'event-kit';
 import cx from 'classnames';
 
-import {createItem, extractProps} from '../helpers';
-import {RefHolderPropType} from '../prop-types';
-import {TextEditorContext} from './atom-text-editor';
-import {DecorableContext} from './marker';
+import { createItem, extractProps } from '../helpers';
+import { RefHolderPropType } from '../prop-types';
+import { TextEditorContext } from './atom-text-editor';
+import { DecorableContext } from './marker';
 import RefHolder from '../models/ref-holder';
 
 const decorationPropTypes = {
-  type: PropTypes.oneOf(['line', 'line-number', 'highlight', 'overlay', 'gutter', 'block']).isRequired,
+  type: PropTypes.oneOf([
+    'line',
+    'line-number',
+    'highlight',
+    'overlay',
+    'gutter',
+    'block',
+  ]).isRequired,
   className: PropTypes.string,
   style: PropTypes.string,
   onlyHead: PropTypes.bool,
@@ -32,11 +39,11 @@ class BareDecoration extends React.Component {
     itemHolder: RefHolderPropType,
     children: PropTypes.node,
     ...decorationPropTypes,
-  }
+  };
 
   static defaultProps = {
     decorateMethod: 'decorateMarker',
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -51,7 +58,10 @@ class BareDecoration extends React.Component {
 
     if (['gutter', 'overlay', 'block'].includes(this.props.type)) {
       this.domNode = document.createElement('div');
-      this.domNode.className = cx('react-atom-decoration', this.props.className);
+      this.domNode.className = cx(
+        'react-atom-decoration',
+        this.props.className
+      );
     }
   }
 
@@ -72,46 +82,60 @@ class BareDecoration extends React.Component {
 
     if (this.props.decorableHolder !== prevProps.decorableHolder) {
       this.decorableSub.dispose();
-      this.decorableSub = this.props.decorableHolder.observe(this.observeParents);
+      this.decorableSub = this.props.decorableHolder.observe(
+        this.observeParents
+      );
     }
 
     if (
-      Object.keys(decorationPropTypes).some(key => this.props[key] !== prevProps[key])
+      Object.keys(decorationPropTypes).some(
+        (key) => this.props[key] !== prevProps[key]
+      )
     ) {
-      this.decorationHolder.map(decoration => decoration.destroy());
+      this.decorationHolder.map((decoration) => decoration.destroy());
       this.createDecoration();
     }
   }
 
   render() {
     if (this.usesItem()) {
-      return ReactDOM.createPortal(
-        this.props.children,
-        this.domNode,
-      );
+      return ReactDOM.createPortal(this.props.children, this.domNode);
     } else {
       return null;
     }
   }
 
   observeParents = () => {
-    this.decorationHolder.map(decoration => decoration.destroy());
+    this.decorationHolder.map((decoration) => decoration.destroy());
 
-    const editorValid = this.props.editorHolder.map(editor => !editor.isDestroyed()).getOr(false);
-    const decorableValid = this.props.decorableHolder.map(decorable => !decorable.isDestroyed()).getOr(false);
+    const editorValid = this.props.editorHolder
+      .map((editor) => !editor.isDestroyed())
+      .getOr(false);
+    const decorableValid = this.props.decorableHolder
+      .map((decorable) => !decorable.isDestroyed())
+      .getOr(false);
 
     // Ensure the Marker or MarkerLayer corresponds to the context's TextEditor
-    const decorableMatches = this.props.decorableHolder.map(decorable => this.props.editorHolder.map(editor => {
-      const layer = decorable.layer || decorable;
-      const displayLayer = editor.getMarkerLayer(layer.id);
-      if (!displayLayer) {
-        return false;
-      }
-      if (displayLayer !== layer && displayLayer.bufferMarkerLayer !== layer) {
-        return false;
-      }
-      return true;
-    }).getOr(false)).getOr(false);
+    const decorableMatches = this.props.decorableHolder
+      .map((decorable) =>
+        this.props.editorHolder
+          .map((editor) => {
+            const layer = decorable.layer || decorable;
+            const displayLayer = editor.getMarkerLayer(layer.id);
+            if (!displayLayer) {
+              return false;
+            }
+            if (
+              displayLayer !== layer &&
+              displayLayer.bufferMarkerLayer !== layer
+            ) {
+              return false;
+            }
+            return true;
+          })
+          .getOr(false)
+      )
+      .getOr(false);
 
     if (!editorValid || !decorableValid || !decorableMatches) {
       return;
@@ -121,10 +145,12 @@ class BareDecoration extends React.Component {
     // instead wait for the Gutter to be added to the editor first
     if (this.props.type === 'gutter') {
       if (!this.props.gutterName) {
-        throw new Error('You are trying to decorate a gutter but did not supply gutterName prop.');
+        throw new Error(
+          'You are trying to decorate a gutter but did not supply gutterName prop.'
+        );
       }
-      this.props.editorHolder.map(editor => {
-        this.gutterSub = editor.observeGutters(gutter => {
+      this.props.editorHolder.map((editor) => {
+        this.gutterSub = editor.observeGutters((gutter) => {
           if (gutter.name === this.props.gutterName) {
             this.createDecoration();
           }
@@ -135,7 +161,7 @@ class BareDecoration extends React.Component {
     }
 
     this.createDecoration();
-  }
+  };
 
   createDecoration() {
     if (this.usesItem() && !this.item) {
@@ -146,12 +172,12 @@ class BareDecoration extends React.Component {
     const editor = this.props.editorHolder.get();
     const decorable = this.props.decorableHolder.get();
     this.decorationHolder.setter(
-      editor[this.props.decorateMethod](decorable, opts),
+      editor[this.props.decorateMethod](decorable, opts)
     );
   }
 
   componentWillUnmount() {
-    this.decorationHolder.map(decoration => decoration.destroy());
+    this.decorationHolder.map((decoration) => decoration.destroy());
     this.editorSub.dispose();
     this.decorableSub.dispose();
     this.gutterSub.dispose();
@@ -159,7 +185,7 @@ class BareDecoration extends React.Component {
 
   getDecorationOpts(props) {
     return {
-      ...extractProps(props, decorationPropTypes, {className: 'class'}),
+      ...extractProps(props, decorationPropTypes, { className: 'class' }),
       item: this.item,
     };
   }
@@ -170,7 +196,7 @@ export default class Decoration extends React.Component {
     editor: PropTypes.object,
     decorable: PropTypes.object,
     decorateMethod: PropTypes.oneOf(['decorateMarker', 'decorateMarkerLayer']),
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -183,10 +209,10 @@ export default class Decoration extends React.Component {
 
   static getDerivedStateFromProps(props, state) {
     const editorChanged = state.editorHolder
-      .map(editor => editor !== props.editor)
+      .map((editor) => editor !== props.editor)
       .getOr(props.editor !== undefined);
     const decorableChanged = state.decorableHolder
-      .map(decorable => decorable !== props.decorable)
+      .map((decorable) => decorable !== props.decorable)
       .getOr(props.decorable !== undefined);
 
     if (!editorChanged && !decorableChanged) {
@@ -206,9 +232,9 @@ export default class Decoration extends React.Component {
   render() {
     return (
       <TextEditorContext.Consumer>
-        {editorHolder => (
+        {(editorHolder) => (
           <DecorableContext.Consumer>
-            {decorable => {
+            {(decorable) => {
               let holder = null;
               let decorateMethod = null;
               if (!this.state.decorableHolder.isEmpty()) {

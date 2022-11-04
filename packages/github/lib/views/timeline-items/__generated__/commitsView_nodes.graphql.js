@@ -32,76 +32,75 @@ export type commitsView_nodes$key = $ReadOnlyArray<{
 }>;
 */
 
-
-const node/*: ReaderFragment*/ = {
-  "kind": "Fragment",
-  "name": "commitsView_nodes",
-  "type": "PullRequestCommit",
-  "metadata": {
-    "plural": true
+const node /*: ReaderFragment*/ = {
+  kind: 'Fragment',
+  name: 'commitsView_nodes',
+  type: 'PullRequestCommit',
+  metadata: {
+    plural: true,
   },
-  "argumentDefinitions": [],
-  "selections": [
+  argumentDefinitions: [],
+  selections: [
     {
-      "kind": "LinkedField",
-      "alias": null,
-      "name": "commit",
-      "storageKey": null,
-      "args": null,
-      "concreteType": "Commit",
-      "plural": false,
-      "selections": [
+      kind: 'LinkedField',
+      alias: null,
+      name: 'commit',
+      storageKey: null,
+      args: null,
+      concreteType: 'Commit',
+      plural: false,
+      selections: [
         {
-          "kind": "ScalarField",
-          "alias": null,
-          "name": "id",
-          "args": null,
-          "storageKey": null
+          kind: 'ScalarField',
+          alias: null,
+          name: 'id',
+          args: null,
+          storageKey: null,
         },
         {
-          "kind": "LinkedField",
-          "alias": null,
-          "name": "author",
-          "storageKey": null,
-          "args": null,
-          "concreteType": "GitActor",
-          "plural": false,
-          "selections": [
+          kind: 'LinkedField',
+          alias: null,
+          name: 'author',
+          storageKey: null,
+          args: null,
+          concreteType: 'GitActor',
+          plural: false,
+          selections: [
             {
-              "kind": "ScalarField",
-              "alias": null,
-              "name": "name",
-              "args": null,
-              "storageKey": null
+              kind: 'ScalarField',
+              alias: null,
+              name: 'name',
+              args: null,
+              storageKey: null,
             },
             {
-              "kind": "LinkedField",
-              "alias": null,
-              "name": "user",
-              "storageKey": null,
-              "args": null,
-              "concreteType": "User",
-              "plural": false,
-              "selections": [
+              kind: 'LinkedField',
+              alias: null,
+              name: 'user',
+              storageKey: null,
+              args: null,
+              concreteType: 'User',
+              plural: false,
+              selections: [
                 {
-                  "kind": "ScalarField",
-                  "alias": null,
-                  "name": "login",
-                  "args": null,
-                  "storageKey": null
-                }
-              ]
-            }
-          ]
+                  kind: 'ScalarField',
+                  alias: null,
+                  name: 'login',
+                  args: null,
+                  storageKey: null,
+                },
+              ],
+            },
+          ],
         },
         {
-          "kind": "FragmentSpread",
-          "name": "commitView_commit",
-          "args": null
-        }
-      ]
-    }
-  ]
+          kind: 'FragmentSpread',
+          name: 'commitView_commit',
+          args: null,
+        },
+      ],
+    },
+  ],
 };
 // prettier-ignore
 (node/*: any*/).hash = '5b2734f1e64af2ad2c9803201a0082f3';

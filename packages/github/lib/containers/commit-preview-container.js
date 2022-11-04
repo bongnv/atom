@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import yubikiri from 'yubikiri';
-import {CompositeDisposable, Emitter} from 'event-kit';
+import { CompositeDisposable, Emitter } from 'event-kit';
 
 import ObserveModel from '../views/observe-model';
 import LoadingView from '../views/loading-view';
@@ -12,7 +12,7 @@ export default class CommitPreviewContainer extends React.Component {
   static propTypes = {
     repository: PropTypes.object.isRequired,
     largeDiffThreshold: PropTypes.number,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -24,18 +24,20 @@ export default class CommitPreviewContainer extends React.Component {
     this.lastMultiFilePatch = null;
     this.sub = new CompositeDisposable();
 
-    this.state = {renderStatusOverrides: {}};
+    this.state = { renderStatusOverrides: {} };
   }
 
-  fetchData = repository => {
-    const builderOpts = {renderStatusOverrides: this.state.renderStatusOverrides};
+  fetchData = (repository) => {
+    const builderOpts = {
+      renderStatusOverrides: this.state.renderStatusOverrides,
+    };
 
     if (this.props.largeDiffThreshold !== undefined) {
       builderOpts.largeDiffThreshold = this.props.largeDiffThreshold;
     }
 
     const before = () => this.emitter.emit('will-update-patch');
-    const after = patch => this.emitter.emit('did-update-patch', patch);
+    const after = (patch) => this.emitter.emit('did-update-patch', patch);
 
     return yubikiri({
       multiFilePatch: repository.getStagedChangesPatch({
@@ -45,7 +47,7 @@ export default class CommitPreviewContainer extends React.Component {
         after,
       }),
     });
-  }
+  };
 
   render() {
     return (
@@ -55,22 +57,24 @@ export default class CommitPreviewContainer extends React.Component {
     );
   }
 
-  renderResult = data => {
+  renderResult = (data) => {
     const currentMultiFilePatch = data && data.multiFilePatch;
     if (currentMultiFilePatch !== this.lastMultiFilePatch) {
       this.sub.dispose();
       if (currentMultiFilePatch) {
         this.sub = new CompositeDisposable(
-          ...currentMultiFilePatch.getFilePatches().map(fp => fp.onDidChangeRenderStatus(() => {
-            this.setState(prevState => {
-              return {
-                renderStatusOverrides: {
-                  ...prevState.renderStatusOverrides,
-                  [fp.getPath()]: fp.getRenderStatus(),
-                },
-              };
-            });
-          })),
+          ...currentMultiFilePatch.getFilePatches().map((fp) =>
+            fp.onDidChangeRenderStatus(() => {
+              this.setState((prevState) => {
+                return {
+                  renderStatusOverrides: {
+                    ...prevState.renderStatusOverrides,
+                    [fp.getPath()]: fp.getRenderStatus(),
+                  },
+                };
+              });
+            })
+          )
         );
       }
       this.lastMultiFilePatch = currentMultiFilePatch;
@@ -89,13 +93,13 @@ export default class CommitPreviewContainer extends React.Component {
         {...this.props}
       />
     );
-  }
+  };
 
   componentWillUnmount() {
     this.sub.dispose();
   }
 
-  onWillUpdatePatch = cb => this.emitter.on('will-update-patch', cb);
+  onWillUpdatePatch = (cb) => this.emitter.on('will-update-patch', cb);
 
-  onDidUpdatePatch = cb => this.emitter.on('did-update-patch', cb);
+  onDidUpdatePatch = (cb) => this.emitter.on('did-update-patch', cb);
 }

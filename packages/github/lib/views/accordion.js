@@ -1,7 +1,7 @@
-import React, {Fragment} from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
-import {autobind} from '../helpers';
+import { autobind } from '../helpers';
 
 export default class Accordion extends React.Component {
   static propTypes = {
@@ -41,9 +41,7 @@ export default class Accordion extends React.Component {
         <summary className="github-Accordion-header" onClick={this.toggle}>
           {this.renderHeader()}
         </summary>
-        <main className="github-Accordion-content">
-          {this.renderContent()}
-        </main>
+        <main className="github-Accordion-content">{this.renderContent()}</main>
       </details>
     );
   }
@@ -87,7 +85,11 @@ export default class Accordion extends React.Component {
           {this.props.results.map((item, index) => {
             const key = item.key !== undefined ? item.key : index;
             return (
-              <li className="github-Accordion-listItem" key={key} onClick={() => this.props.onClickItem(item)}>
+              <li
+                className="github-Accordion-listItem"
+                key={key}
+                onClick={() => this.props.onClickItem(item)}
+              >
                 {this.props.children(item)}
               </li>
             );
@@ -100,8 +102,11 @@ export default class Accordion extends React.Component {
 
   toggle(e) {
     e.preventDefault();
-    return new Promise(resolve => {
-      this.setState(prevState => ({expanded: !prevState.expanded}), resolve);
+    return new Promise((resolve) => {
+      this.setState(
+        (prevState) => ({ expanded: !prevState.expanded }),
+        resolve
+      );
     });
   }
 }

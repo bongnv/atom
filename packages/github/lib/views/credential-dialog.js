@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import DialogView from './dialog-view';
 import TabGroup from '../tab-group';
-import {TabbableInput, TabbableButton} from './tabbable';
+import { TabbableInput, TabbableButton } from './tabbable';
 
 export default class CredentialDialog extends React.Component {
   static propTypes = {
@@ -19,7 +19,7 @@ export default class CredentialDialog extends React.Component {
     // Atom environment
     workspace: PropTypes.object.isRequired,
     commands: PropTypes.object.isRequired,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -49,8 +49,8 @@ export default class CredentialDialog extends React.Component {
         inProgress={this.props.inProgress}
         error={this.props.error}
         workspace={this.props.workspace}
-        commands={this.props.commands}>
-
+        commands={this.props.commands}
+      >
         {params.includeUsername && (
           <label className="github-DialogLabel github-DialogLabel--horizontal">
             Username:
@@ -80,7 +80,8 @@ export default class CredentialDialog extends React.Component {
             tabGroup={this.tabGroup}
             commands={this.props.commands}
             className="github-Dialog--insetButton github-Credential-visibility"
-            onClick={this.toggleShowPassword}>
+            onClick={this.toggleShowPassword}
+          >
             {this.state.showPassword ? 'Hide' : 'Show'}
           </TabbableButton>
         </label>
@@ -97,7 +98,6 @@ export default class CredentialDialog extends React.Component {
             Remember
           </label>
         )}
-
       </DialogView>
     );
   }
@@ -114,7 +114,7 @@ export default class CredentialDialog extends React.Component {
     const request = this.props.request;
     const params = request.getParams();
 
-    const payload = {password: this.state.password};
+    const payload = { password: this.state.password };
 
     if (params.includeUsername) {
       payload.username = this.state.username;
@@ -125,17 +125,21 @@ export default class CredentialDialog extends React.Component {
     }
 
     return request.accept(payload);
-  }
+  };
 
-  didChangeUsername = e => this.setState({username: e.target.value});
+  didChangeUsername = (e) => this.setState({ username: e.target.value });
 
-  didChangePassword = e => this.setState({password: e.target.value});
+  didChangePassword = (e) => this.setState({ password: e.target.value });
 
-  didChangeRemember = e => this.setState({remember: e.target.checked});
+  didChangeRemember = (e) => this.setState({ remember: e.target.checked });
 
-  toggleShowPassword = () => this.setState({showPassword: !this.state.showPassword});
+  toggleShowPassword = () =>
+    this.setState({ showPassword: !this.state.showPassword });
 
   canSignIn() {
-    return !this.props.request.getParams().includeUsername || this.state.username.length > 0;
+    return (
+      !this.props.request.getParams().includeUsername ||
+      this.state.username.length > 0
+    );
   }
 }

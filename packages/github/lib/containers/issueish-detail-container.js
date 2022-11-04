@@ -1,12 +1,21 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import yubikiri from 'yubikiri';
-import {QueryRenderer, graphql} from 'react-relay';
+import { QueryRenderer, graphql } from 'react-relay';
 
-import {PAGE_SIZE, CHECK_SUITE_PAGE_SIZE, CHECK_RUN_PAGE_SIZE} from '../helpers';
+import {
+  PAGE_SIZE,
+  CHECK_SUITE_PAGE_SIZE,
+  CHECK_RUN_PAGE_SIZE,
+} from '../helpers';
 import RelayNetworkLayerManager from '../relay-network-layer-manager';
-import {GithubLoginModelPropType, ItemTypePropType, EndpointPropType, RefHolderPropType} from '../prop-types';
-import {UNAUTHENTICATED, INSUFFICIENT} from '../shared/keytar-strategy';
+import {
+  GithubLoginModelPropType,
+  ItemTypePropType,
+  EndpointPropType,
+  RefHolderPropType,
+} from '../prop-types';
+import { UNAUTHENTICATED, INSUFFICIENT } from '../shared/keytar-strategy';
 import GithubLoginView from '../views/github-login-view';
 import LoadingView from '../views/loading-view';
 import QueryErrorView from '../views/query-error-view';
@@ -53,7 +62,7 @@ export default class IssueishDetailContainer extends React.Component {
     // Item context
     itemType: ItemTypePropType.isRequired,
     refEditor: RefHolderPropType.isRequired,
-  }
+  };
 
   render() {
     return (
@@ -63,7 +72,7 @@ export default class IssueishDetailContainer extends React.Component {
     );
   }
 
-  renderWithToken = tokenData => {
+  renderWithToken = (tokenData) => {
     const token = tokenData && tokenData.token;
 
     if (token instanceof Error) {
@@ -85,28 +94,34 @@ export default class IssueishDetailContainer extends React.Component {
       return (
         <GithubLoginView onLogin={this.handleLogin}>
           <p>
-            Your token no longer has sufficient authorizations. Please re-authenticate and generate a new one.
+            Your token no longer has sufficient authorizations. Please
+            re-authenticate and generate a new one.
           </p>
         </GithubLoginView>
       );
     }
 
     return (
-      <ObserveModel model={this.props.repository} fetchData={this.fetchRepositoryData}>
-        {repoData => this.renderWithRepositoryData(token, repoData)}
+      <ObserveModel
+        model={this.props.repository}
+        fetchData={this.fetchRepositoryData}
+      >
+        {(repoData) => this.renderWithRepositoryData(token, repoData)}
       </ObserveModel>
     );
-  }
+  };
 
   renderWithRepositoryData(token, repoData) {
     if (!token) {
       return <LoadingView />;
     }
 
-    const environment = RelayNetworkLayerManager.getEnvironmentForHost(this.props.endpoint, token);
+    const environment = RelayNetworkLayerManager.getEnvironmentForHost(
+      this.props.endpoint,
+      token
+    );
     const query = graphql`
-      query issueishDetailContainerQuery
-      (
+      query issueishDetailContainerQuery(
         $repoOwner: String!
         $repoName: String!
         $issueishNumber: Int!
@@ -129,28 +144,30 @@ export default class IssueishDetailContainer extends React.Component {
           issueish: issueOrPullRequest(number: $issueishNumber) {
             __typename
             ... on PullRequest {
-              ...aggregatedReviewsContainer_pullRequest @arguments(
-                reviewCount: $reviewCount
-                reviewCursor: $reviewCursor
-                threadCount: $threadCount
-                threadCursor: $threadCursor
-                commentCount: $commentCount
-                commentCursor: $commentCursor
-              )
+              ...aggregatedReviewsContainer_pullRequest
+                @arguments(
+                  reviewCount: $reviewCount
+                  reviewCursor: $reviewCursor
+                  threadCount: $threadCount
+                  threadCursor: $threadCursor
+                  commentCount: $commentCount
+                  commentCursor: $commentCursor
+                )
             }
           }
 
-          ...issueishDetailController_repository @arguments(
-            issueishNumber: $issueishNumber
-            timelineCount: $timelineCount
-            timelineCursor: $timelineCursor
-            commitCount: $commitCount
-            commitCursor: $commitCursor
-            checkSuiteCount: $checkSuiteCount
-            checkSuiteCursor: $checkSuiteCursor
-            checkRunCount: $checkRunCount
-            checkRunCursor: $checkRunCursor
-          )
+          ...issueishDetailController_repository
+            @arguments(
+              issueishNumber: $issueishNumber
+              timelineCount: $timelineCount
+              timelineCursor: $timelineCursor
+              commitCount: $commitCount
+              commitCursor: $commitCursor
+              checkSuiteCount: $checkSuiteCount
+              checkSuiteCursor: $checkSuiteCursor
+              checkRunCount: $checkRunCount
+              checkRunCursor: $checkRunCursor
+            )
         }
       }
     `;
@@ -180,13 +197,15 @@ export default class IssueishDetailContainer extends React.Component {
           environment={environment}
           query={query}
           variables={variables}
-          render={queryResult => this.renderWithQueryResult(token, repoData, queryResult)}
+          render={(queryResult) =>
+            this.renderWithQueryResult(token, repoData, queryResult)
+          }
         />
       </RelayEnvironment.Provider>
     );
   }
 
-  renderWithQueryResult(token, repoData, {error, props, retry}) {
+  renderWithQueryResult(token, repoData, { error, props, retry }) {
     if (error) {
       return (
         <QueryErrorView
@@ -206,27 +225,44 @@ export default class IssueishDetailContainer extends React.Component {
       return (
         <AggregatedReviewsContainer
           pullRequest={props.repository.issueish}
-          reportRelayError={this.props.reportRelayError}>
-          {aggregatedReviews => this.renderWithCommentResult(token, repoData, {props, retry}, aggregatedReviews)}
+          reportRelayError={this.props.reportRelayError}
+        >
+          {(aggregatedReviews) =>
+            this.renderWithCommentResult(
+              token,
+              repoData,
+              { props, retry },
+              aggregatedReviews
+            )
+          }
         </AggregatedReviewsContainer>
       );
     } else {
       return this.renderWithCommentResult(
         token,
         repoData,
-        {props, retry},
-        {errors: [], commentThreads: [], loading: false},
+        { props, retry },
+        { errors: [], commentThreads: [], loading: false }
       );
     }
   }
 
-  renderWithCommentResult(token, repoData, {props, retry}, {errors, commentThreads, loading}) {
-    const nonEmptyThreads = commentThreads.filter(each => each.comments && each.comments.length > 0);
+  renderWithCommentResult(
+    token,
+    repoData,
+    { props, retry },
+    { errors, commentThreads, loading }
+  ) {
+    const nonEmptyThreads = commentThreads.filter(
+      (each) => each.comments && each.comments.length > 0
+    );
     const totalCount = nonEmptyThreads.length;
-    const resolvedCount = nonEmptyThreads.filter(each => each.thread.isResolved).length;
+    const resolvedCount = nonEmptyThreads.filter(
+      (each) => each.thread.isResolved
+    ).length;
 
     if (errors && errors.length > 0) {
-      const descriptions = errors.map(error => error.toString());
+      const descriptions = errors.map((error) => error.toString());
 
       return (
         <ErrorView
@@ -247,10 +283,8 @@ export default class IssueishDetailContainer extends React.Component {
         reviewCommentsResolvedCount={resolvedCount}
         reviewCommentThreads={nonEmptyThreads}
         token={token}
-
         localRepository={this.props.repository}
         workdirPath={this.props.repository.getWorkingDirectoryPath()}
-
         issueishNumber={this.props.issueishNumber}
         onTitleChange={this.props.onTitleChange}
         switchToIssueish={this.props.switchToIssueish}
@@ -261,13 +295,11 @@ export default class IssueishDetailContainer extends React.Component {
         onOpenFilesTab={this.props.onOpenFilesTab}
         endpoint={this.props.endpoint}
         reportRelayError={this.props.reportRelayError}
-
         workspace={this.props.workspace}
         commands={this.props.commands}
         keymaps={this.props.keymaps}
         tooltips={this.props.tooltips}
         config={this.props.config}
-
         itemType={this.props.itemType}
         destroy={this.props.destroy}
         refEditor={this.props.refEditor}
@@ -275,13 +307,13 @@ export default class IssueishDetailContainer extends React.Component {
     );
   }
 
-  fetchToken = loginModel => {
+  fetchToken = (loginModel) => {
     return yubikiri({
       token: loginModel.getToken(this.props.endpoint.getLoginAccount()),
     });
-  }
+  };
 
-  fetchRepositoryData = repository => {
+  fetchRepositoryData = (repository) => {
     return yubikiri({
       branches: repository.getBranches(),
       remotes: repository.getRemotes(),
@@ -291,11 +323,16 @@ export default class IssueishDetailContainer extends React.Component {
       isLoading: repository.isLoading(),
       isPresent: repository.isPresent(),
     });
-  }
+  };
 
-  handleLogin = token => this.props.loginModel.setToken(this.props.endpoint.getLoginAccount(), token);
+  handleLogin = (token) =>
+    this.props.loginModel.setToken(
+      this.props.endpoint.getLoginAccount(),
+      token
+    );
 
-  handleLogout = () => this.props.loginModel.removeToken(this.props.endpoint.getLoginAccount());
+  handleLogout = () =>
+    this.props.loginModel.removeToken(this.props.endpoint.getLoginAccount());
 
   handleTokenRetry = () => this.props.loginModel.didUpdate();
 }

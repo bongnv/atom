@@ -1,5 +1,5 @@
 import React from 'react';
-import {graphql, createFragmentContainer} from 'react-relay';
+import { graphql, createFragmentContainer } from 'react-relay';
 import PropTypes from 'prop-types';
 
 import Octicon from '../../atom/octicon';
@@ -26,9 +26,9 @@ export class BareCrossReferencedEventsView extends React.Component {
             }).isRequired,
           }).isRequired,
         }).isRequired,
-      }).isRequired,
+      }).isRequired
     ).isRequired,
-  }
+  };
 
   render() {
     return (
@@ -47,7 +47,11 @@ export class BareCrossReferencedEventsView extends React.Component {
   renderSummary() {
     const first = this.props.nodes[0];
     if (this.props.nodes.length > 1) {
-      return <span>This was referenced <Timeago time={first.referencedAt} /></span>;
+      return (
+        <span>
+          This was referenced <Timeago time={first.referencedAt} />
+        </span>
+      );
     } else {
       const type = {
         PullRequest: 'a pull request',
@@ -57,15 +61,24 @@ export class BareCrossReferencedEventsView extends React.Component {
       if (first.isCrossRepository) {
         const repo = first.source.repository;
         xrefClause = (
-          <span>in <strong>{repo.owner.login}/{repo.name}</strong></span>
+          <span>
+            in{' '}
+            <strong>
+              {repo.owner.login}/{repo.name}
+            </strong>
+          </span>
         );
       }
       return (
         <span>
-          <img className="author-avatar" src={first.actor.avatarUrl}
-            alt={first.actor.login} title={first.actor.login}
+          <img
+            className="author-avatar"
+            src={first.actor.avatarUrl}
+            alt={first.actor.login}
+            title={first.actor.login}
           />
-          <strong>{first.actor.login}</strong> referenced this from {type} {xrefClause}
+          <strong>{first.actor.login}</strong> referenced this from {type}{' '}
+          {xrefClause}
           <Timeago time={first.referencedAt} />
         </span>
       );
@@ -73,23 +86,31 @@ export class BareCrossReferencedEventsView extends React.Component {
   }
 
   renderEvents() {
-    return this.props.nodes.map(node => {
+    return this.props.nodes.map((node) => {
       return <CrossReferencedEventView key={node.id} item={node} />;
     });
   }
 }
 
-
 export default createFragmentContainer(BareCrossReferencedEventsView, {
   nodes: graphql`
-    fragment crossReferencedEventsView_nodes on CrossReferencedEvent @relay(plural: true) {
-      id referencedAt isCrossRepository
-      actor { login avatarUrl }
+    fragment crossReferencedEventsView_nodes on CrossReferencedEvent
+    @relay(plural: true) {
+      id
+      referencedAt
+      isCrossRepository
+      actor {
+        login
+        avatarUrl
+      }
       source {
         __typename
         ... on RepositoryNode {
           repository {
-            name owner { login }
+            name
+            owner {
+              login
+            }
           }
         }
       }

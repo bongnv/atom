@@ -21,16 +21,18 @@ def func
 end
 ```
 
-* ```javascript
-if a === 3 {
-  b = 5
-}
-```
+- ```javascript
+  if a === 3 {
+    b = 5
+  }
+  ```
+
+````
 
 ```kombucha
 drink-that-stuff:
   tastes-weird~
-```
+````
 
 ```python
 def foo()

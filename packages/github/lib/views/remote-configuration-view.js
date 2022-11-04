@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-import {TabbableInput, TabbableSummary, TabbableTextEditor} from './tabbable';
+import { TabbableInput, TabbableSummary, TabbableTextEditor } from './tabbable';
 
 export default class RemoteConfigurationView extends React.Component {
   static propTypes = {
@@ -13,27 +13,34 @@ export default class RemoteConfigurationView extends React.Component {
 
     // Atom environment
     commands: PropTypes.object.isRequired,
-  }
+  };
 
   render() {
     const httpsClassName = cx(
       'github-RemoteConfiguration-protocolOption',
       'github-RemoteConfiguration-protocolOption--https',
-      'input-label',
+      'input-label'
     );
 
     const sshClassName = cx(
       'github-RemoteConfiguration-protocolOption',
       'github-RemoteConfiguration-protocolOption--ssh',
-      'input-label',
+      'input-label'
     );
 
     return (
       <details className="github-RemoteConfiguration-details block">
-        <TabbableSummary tabGroup={this.props.tabGroup} commands={this.props.commands}>Advanced</TabbableSummary>
+        <TabbableSummary
+          tabGroup={this.props.tabGroup}
+          commands={this.props.commands}
+        >
+          Advanced
+        </TabbableSummary>
         <main>
           <div className="github-RemoteConfiguration-protocol block">
-            <span className="github-RemoteConfiguration-protocolHeading">Protocol:</span>
+            <span className="github-RemoteConfiguration-protocolHeading">
+              Protocol:
+            </span>
             <label className={httpsClassName}>
               <TabbableInput
                 tabGroup={this.props.tabGroup}
@@ -62,7 +69,8 @@ export default class RemoteConfigurationView extends React.Component {
             </label>
           </div>
           <div className="github-RemoteConfiguration-sourceRemote block">
-            <label className="input-label">Source remote name:
+            <label className="input-label">
+              Source remote name:
               <TabbableTextEditor
                 tabGroup={this.props.tabGroup}
                 commands={this.props.commands}
@@ -78,7 +86,7 @@ export default class RemoteConfigurationView extends React.Component {
     );
   }
 
-  handleProtocolChange = event => {
+  handleProtocolChange = (event) => {
     this.props.didChangeProtocol(event.target.value);
-  }
+  };
 }
