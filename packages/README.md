@@ -97,7 +97,6 @@ see the table below for the location of every core Atom package.
 | **whitespace**                  | [`atom/whitespace`][whitespace]                                  |                                                     |
 | **wrap-guide**                  | [`atom/wrap-guide`][wrap-guide]                                  | [#18286](https://github.com/atom/atom/issues/18286) |
 
-[archive-view]: https://github.com/atom/archive-view
 [autocomplete-atom-api]: https://github.com/atom/autocomplete-atom-api
 [autocomplete-css]: https://github.com/atom/autocomplete-css
 [autocomplete-html]: https://github.com/atom/autocomplete-html
