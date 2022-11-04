@@ -127,7 +127,6 @@ Using this criteria, all 91 packages have been evaluated and categorized to dete
 | **[git-diff]**                    | 38          | 1        | 0                   | 1/18/18      |
 | **[go-to-line]**                  | 5           | 2        | 0                   | 1/25/18      |
 | **[grammar-selector]**            | 3           | 1        | 0                   | 4/12/18      |
-| **[image-view]**                  | 4           | 4        | 0                   | 7/9/18       |
 | **[incompatible-packages]**       | 1           | 0        | 0                   | 4/25/17      |
 | **[keybinding-resolver]**         | 11          | 3        | 0                   | 7/6/18       |
 | **[language-clojure]**            | 13          | 3        | 0                   | 1/26/18      |
@@ -274,7 +273,6 @@ One alternative approach would be to break this core Atom functionality out of p
 [github]: https://github.com/atom/github
 [go-to-line]: https://github.com/atom/go-to-line
 [grammar-selector]: https://github.com/atom/grammar-selector
-[image-view]: https://github.com/atom/image-view
 [incompatible-packages]: https://github.com/atom/incompatible-packages
 [keybinding-resolver]: https://github.com/atom/keybinding-resolver
 [language-c]: https://github.com/atom/language-c

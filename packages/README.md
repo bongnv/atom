@@ -35,7 +35,6 @@ see the table below for the location of every core Atom package.
 | **git-diff**                    | [`./git-diff`](./git-diff)                                       | [#17843](https://github.com/atom/atom/issues/17843) |
 | **go-to-line**                  | [`./go-to-line`](./go-to-line)                                   | [#17844](https://github.com/atom/atom/issues/17844) |
 | **grammar-selector**            | [`./grammar-selector`](./grammar-selector)                       | [#17845](https://github.com/atom/atom/issues/17845) |
-| **image-view**                  | [`atom/image-view`][image-view]                                  | [#18274](https://github.com/atom/atom/issues/18274) |
 | **incompatible-packages**       | [`./incompatible-packages`](./incompatible-packages)             | [#17846](https://github.com/atom/atom/issues/17846) |
 | **keybinding-resolver**         | [`atom/keybinding-resolver`][keybinding-resolver]                | [#18275](https://github.com/atom/atom/issues/18275) |
 | **language-c**                  | [`atom/language-c`][language-c]                                  |                                                     |
@@ -111,7 +110,6 @@ see the table below for the location of every core Atom package.
 [find-and-replace]: https://github.com/atom/find-and-replace
 [fuzzy-finder]: https://github.com/atom/fuzzy-finder
 [github]: https://github.com/atom/github
-[image-view]: https://github.com/atom/image-view
 [keybinding-resolver]: https://github.com/atom/keybinding-resolver
 [language-c]: https://github.com/atom/language-c
 [language-clojure]: https://github.com/atom/language-clojure
