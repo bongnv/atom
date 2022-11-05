@@ -56,10 +56,16 @@ module.exports = class PackageManager {
 
     this.packageActivators = [];
     this.registerPackageActivator(this, ['atom', 'textmate']);
+
+    this.installedPackages = [];
   }
 
-  initialize({ configDirPath, devMode } = {}) {
+  initialize({ configDirPath, contextMenuManager, devMode, menuManager, themeManager } = {}) {
     this.devMode = devMode;
+    this.contextMenuManager = contextMenuManager;
+    this.menuManager = menuManager;
+    this.themeManager = themeManager;
+
     if (configDirPath != null) {
       this.packageDirPaths.push(path.join(configDirPath, 'packages'));
     }
@@ -75,28 +81,6 @@ module.exports = class PackageManager {
       )[1];
       this.bundledPackages[packageName] = packagesContext(packagePath);
     });
-  }
-
-  setContextMenuManager(contextMenuManager) {
-    this.contextMenuManager = contextMenuManager;
-  }
-
-  setMenuManager(menuManager) {
-    this.menuManager = menuManager;
-  }
-
-  setThemeManager(themeManager) {
-    this.themeManager = themeManager;
-  }
-
-  async reset() {
-    this.serviceHub.clear();
-    await this.deactivatePackages();
-    this.loadedPackages = {};
-    this.packageStates = {};
-    this.bundledPackage.clear();
-    this.triggeredActivationHooks.clear();
-    this.activatePromise = null;
   }
 
   /*
@@ -119,14 +103,6 @@ module.exports = class PackageManager {
   // Returns a {Disposable} on which `.dispose()` can be called to unsubscribe.
   onDidActivateInitialPackages(callback) {
     return this.emitter.on('did-activate-initial-packages', callback);
-  }
-
-  getActivatePromise() {
-    if (this.activatePromise) {
-      return this.activatePromise;
-    } else {
-      return Promise.resolve();
-    }
   }
 
   // Public: Invoke the given callback when a package is activated.
@@ -321,83 +297,10 @@ module.exports = class PackageManager {
     return this.initialPackagesLoaded;
   }
 
-  /*
-  Section: Accessing available packages
-  */
-
-  // Public: Returns an {Array} of {String}s of all the available package paths.
-  getAvailablePackagePaths() {
-    return this.getAvailablePackages().map((a) => a.path);
-  }
-
-  // Public: Returns an {Array} of {String}s of all the available package names.
-  getAvailablePackageNames() {
-    return this.getAvailablePackages().map((a) => a.name);
-  }
-
-  // Public: Returns an {Array} of {String}s of all the available package metadata.
-  getAvailablePackageMetadata() {
-    const packages = [];
-    for (const pack of this.getAvailablePackages()) {
-      const loadedPackage = this.getLoadedPackage(pack.name);
-      const metadata =
-        loadedPackage != null
-          ? loadedPackage.metadata
-          : this.loadPackageMetadata(pack, true);
-      packages.push(metadata);
-    }
-    return packages;
-  }
-
-  // getAvailablePackages returns a sorted list of available packages.
+  // Public: getInstalledPackages returns a sorted list of available packages.
   // It only contains basic information: name, path, isBundled
-  getAvailablePackages() {
-    const packages = [];
-    const packagesByName = new Set();
-
-    for (const packageDirPath of this.packageDirPaths) {
-      if (fs.isDirectorySync(packageDirPath)) {
-        // checks for directories.
-        // dirent is faster, but for checking symbolic link we need stat.
-        const packageNames = fs
-          .readdirSync(packageDirPath, { withFileTypes: true })
-          .filter(
-            (dirent) =>
-              dirent.isDirectory() ||
-              (dirent.isSymbolicLink() &&
-                fs.isDirectorySync(path.join(packageDirPath, dirent.name)))
-          )
-          .map((dirent) => dirent.name);
-
-        for (const packageName of packageNames) {
-          if (
-            !packageName.startsWith('.') &&
-            !packagesByName.has(packageName)
-          ) {
-            const packagePath = path.join(packageDirPath, packageName);
-            packages.push({
-              name: packageName,
-              path: packagePath,
-              isBundled: false,
-            });
-            packagesByName.add(packageName);
-          }
-        }
-      }
-    }
-
-    for (const packageName of Object.keys(this.bundledPackages)) {
-      if (!packagesByName.has(packageName)) {
-        packages.push({
-          name: packageName,
-          path: path.join(atomConfig.rootDir, 'packages', packageName),
-          isBundled: true,
-        });
-        packagesByName.add(packageName);
-      }
-    }
-
-    return packages.sort((a, b) => a.name.localeCompare(b.name));
+  getInstalledPackages() {
+    return this.installedPackages;
   }
 
   /*
@@ -494,8 +397,9 @@ module.exports = class PackageManager {
       this.config.get('core.disabledPackages')
     );
     await this.config.transactAsync(async () => {
-      for (const pack of this.getAvailablePackages()) {
-        await this.loadAvailablePackage(pack, disabledPackageNames);
+      this.installedPackages = await this._loadInstalledPackages();
+      for (const pack of this.installedPackages) {
+        await this.loadInstalledPackage(pack, disabledPackageNames);
       }
     });
     this.initialPackagesLoaded = true;
@@ -508,20 +412,17 @@ module.exports = class PackageManager {
       return pack;
     }
 
-    const packagePath = this.resolvePackagePath(name);
-    if (packagePath) {
-      return await this.loadAvailablePackage({
-        name,
-        path: packagePath,
-        isBundled: this.isBundledPackagePath(packagePath),
-      });
+    const installedPack = this.installedPackages.find((p) => p.name == name);
+
+    if (installedPack) {
+      return await this.loadInstalledPackage(installedPack);
     }
 
     console.warn(`Could not resolve '${name}' to a package path`);
     return null;
   }
 
-  async loadAvailablePackage(availablePackage, disabledPackageNames) {
+  async loadInstalledPackage(availablePackage, disabledPackageNames) {
     if (
       disabledPackageNames != null &&
       disabledPackageNames.has(availablePackage.name)
@@ -591,13 +492,11 @@ module.exports = class PackageManager {
       const packages = this.getLoadedPackagesForTypes(types);
       promises = promises.concat(activator.activatePackages(packages));
     }
-    this.activatePromise = Promise.all(promises).then(() => {
+    return Promise.all(promises).then(() => {
       this.triggerDeferredActivationHooks();
       this.initialPackagesActivated = true;
       this.emitter.emit('did-activate-initial-packages');
-      this.activatePromise = null;
     });
-    return this.activatePromise;
   }
 
   registerURIHandlerForPackage(packageName, handler) {
@@ -777,11 +676,13 @@ module.exports = class PackageManager {
     }
   }
 
-  isBundledPackagePath(packagePath) {
-    return packagePath != null && packagePath.startsWith(atomConfig.rootDir);
-  }
-
+  // Public: loadPackageMetadata loads package metadata for a given package.
   loadPackageMetadata(availablePackage, ignoreErrors = false) {
+    const loadedPackage = this.getLoadedPackage(availablePackage.name);
+    if (loadedPackage) {
+      return loadedPackage.metadata;
+    }
+
     const packageName = availablePackage.name;
     const packagePath = availablePackage.path;
     let metadata;
@@ -793,7 +694,7 @@ module.exports = class PackageManager {
         const metadataPath = path.join(packagePath, 'package.json');
         metadata = JSON.parse(fs.readFileSync(metadataPath));
       }
-      this.normalizePackageMetadata(metadata);
+      this._normalizePackageMetadata(metadata);
     } catch (error) {
       if (!ignoreErrors) {
         throw error;
@@ -819,11 +720,61 @@ module.exports = class PackageManager {
     return metadata;
   }
 
-  normalizePackageMetadata(metadata) {
+  _normalizePackageMetadata(metadata) {
     if (metadata != null) {
       normalizePackageData =
         normalizePackageData || require('normalize-package-data');
       normalizePackageData(metadata);
     }
+  }
+
+  // _loadInstalledPackages loads installed packages for atom
+  async _loadInstalledPackages() {
+    const packages = [];
+    const packagesByName = new Set();
+
+    for (const packageDirPath of this.packageDirPaths) {
+      if (await this.nodeAPI.fs.isDirectory(packageDirPath)) {
+        // checks for directories.
+        // dirent is faster, but for checking symbolic link we need stat.
+        const packageNames = (await this.nodeAPI.fs
+          .readdir(packageDirPath, { withFileTypes: true }))
+          .filter(
+            (dirent) =>
+              dirent.isDirectory() ||
+              (dirent.isSymbolicLink() &&
+                fs.isDirectorySync(path.join(packageDirPath, dirent.name)))
+          )
+          .map((dirent) => dirent.name);
+
+        for (const packageName of packageNames) {
+          if (
+            !packageName.startsWith('.') &&
+            !packagesByName.has(packageName)
+          ) {
+            const packagePath = path.join(packageDirPath, packageName);
+            packages.push({
+              name: packageName,
+              path: packagePath,
+              isBundled: false,
+            });
+            packagesByName.add(packageName);
+          }
+        }
+      }
+    }
+
+    for (const packageName of Object.keys(this.bundledPackages)) {
+      if (!packagesByName.has(packageName)) {
+        packages.push({
+          name: packageName,
+          path: path.join(atomConfig.rootDir, 'packages', packageName),
+          isBundled: true,
+        });
+        packagesByName.add(packageName);
+      }
+    }
+
+    return packages.sort((a, b) => a.name.localeCompare(b.name));
   }
 };

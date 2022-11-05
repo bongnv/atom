@@ -3407,33 +3407,6 @@
       "type": "method"
     },
     {
-      "name": "getAvailablePackageMetadata",
-      "text": "getAvailablePackageMetadata()",
-      "snippet": null,
-      "description": "",
-      "descriptionMoreURL": "https://atom.io/docs/api/latest/PackageManager#instance-getAvailablePackageMetadata",
-      "leftLabel": "Array",
-      "type": "method"
-    },
-    {
-      "name": "getAvailablePackageNames",
-      "text": "getAvailablePackageNames()",
-      "snippet": null,
-      "description": "",
-      "descriptionMoreURL": "https://atom.io/docs/api/latest/PackageManager#instance-getAvailablePackageNames",
-      "leftLabel": "Array",
-      "type": "method"
-    },
-    {
-      "name": "getAvailablePackagePaths",
-      "text": "getAvailablePackagePaths()",
-      "snippet": null,
-      "description": "",
-      "descriptionMoreURL": "https://atom.io/docs/api/latest/PackageManager#instance-getAvailablePackagePaths",
-      "leftLabel": "Array",
-      "type": "method"
-    },
-    {
       "name": "getLoadedPackage",
       "text": null,
       "snippet": "getLoadedPackage(${1:name})",

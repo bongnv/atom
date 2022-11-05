@@ -231,8 +231,8 @@ module.exports = class TextEditorRegistry {
     atom.grammars.autoAssignLanguageMode(editor.getBuffer());
   }
 
-  async updateAndMonitorEditorSettings(editor, oldLanguageMode) {
-    await this.packageManager.getActivatePromise();
+  // TODO: bongnv - should be called after all packages are activated?
+  updateAndMonitorEditorSettings(editor, oldLanguageMode) {
     this.updateEditorSettingsForLanguageMode(editor, oldLanguageMode);
     this.subscribeToSettingsForEditorScope(editor);
   }

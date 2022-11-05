@@ -72,6 +72,7 @@ global.nodeAPI = {
       const stat = await fs.stat(filePath);
       return stat.size || -1;
     },
+    readdir: fs.readdir,
   },
   crypto: {
     createHash: crypto.createHash,

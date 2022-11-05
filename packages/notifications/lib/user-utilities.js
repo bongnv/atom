@@ -150,12 +150,10 @@ module.exports = {
   getNonCorePackages() {
     return new Promise(function (resolve, reject) {
       const nonCorePackages = atom.packages
-        .getAvailablePackageMetadata()
-        .filter((p) => !atom.packages.isBundledPackage(p.name));
-      const devPackageNames = atom.packages
-        .getAvailablePackagePaths()
-        .filter((p) => p.includes(DEV_PACKAGE_PATH))
-        .map((p) => path.basename(p));
+        .getInstalledPackages()
+        .filter((p) => !p.isBundled)
+        .map((p) => atom.packages.loadPackageMetadata(p));
+      const devPackageNames = [];
       return resolve(
         nonCorePackages.map(
           (pack) =>

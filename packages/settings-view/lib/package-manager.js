@@ -29,7 +29,7 @@ module.exports = PackageManager = (function () {
         return true;
       } else {
         return (
-          atom.packages.getAvailablePackageNames().indexOf(packageName) > -1
+          atom.packages.getInstalledPackages().map(p => p.name).indexOf(packageName) > -1
         );
       }
     }
@@ -56,7 +56,7 @@ module.exports = PackageManager = (function () {
     // FIXME: bongnv - implement a different approach to load packages
     // find a way to differentiate core and installed
     loadInstalled(callback) {
-      const packages = atom.packages.getAvailablePackages();
+      const packages = atom.packages.getInstalledPackages();
       const installedPackages = {
         core: [],
         dev: [],
@@ -69,7 +69,7 @@ module.exports = PackageManager = (function () {
         if (pack.isBundled) {
           installedPackages.core.push(metadata);
         } else {
-          installedPackages.dev.push(metadata);
+          installedPackages.user.push(metadata);
         }
       });
       return callback(null, installedPackages);

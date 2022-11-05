@@ -136,10 +136,6 @@ class AtomEnvironment {
     // Public: A {ContextMenuManager} instance
     this.contextMenu = new ContextMenuManager({ keymapManager: this.keymaps });
 
-    this.packages.setMenuManager(this.menu);
-    this.packages.setContextMenuManager(this.contextMenu);
-    this.packages.setThemeManager(this.themes);
-
     // Public: A {Project} instance
     this.project = new Project({
       notificationManager: this.notifications,
@@ -245,7 +241,11 @@ class AtomEnvironment {
     this.packages.initialize({
       devMode,
       configDirPath: this.configDirPath,
+      menuManager: this.menu,
+      contextMenuManager: this.contextMenu,
+      themeManager: this.themes,
     });
+
     this.themes.initialize({
       configDirPath: this.configDirPath,
       devMode,
