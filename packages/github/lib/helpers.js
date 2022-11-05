@@ -391,7 +391,7 @@ export function getCommitMessageEditors(repository, workspace) {
 let ChangedFileItem = null;
 export function getFilePatchPaneItems({ onlyStaged, empty } = {}, workspace) {
   if (ChangedFileItem === null) {
-    ChangedFileItem = require('./items/changed-file-item').default;
+    ChangedFileItem = require('./items/changed-file-item');
   }
 
   return workspace.getPaneItems().filter((item) => {

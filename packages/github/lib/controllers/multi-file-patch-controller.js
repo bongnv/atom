@@ -4,7 +4,7 @@ import path from 'path';
 
 import { autobind, equalSets } from '../helpers';
 import { addEvent } from '../reporter-proxy';
-import { MultiFilePatchPropType } from '../prop-types';
+import { MultiFilePatchPropType, ItemTypePropType } from '../prop-types';
 import ChangedFileItem from '../items/changed-file-item';
 import MultiFilePatchView from '../views/multi-file-patch-view';
 
@@ -12,6 +12,8 @@ export default class MultiFilePatchController extends React.Component {
   static propTypes = {
     repository: PropTypes.object.isRequired,
     stagingStatus: PropTypes.oneOf(['staged', 'unstaged']),
+    isPartiallyStaged: PropTypes.bool,
+    itemType: ItemTypePropType.isRequired,
     multiFilePatch: MultiFilePatchPropType.isRequired,
     hasUndoHistory: PropTypes.bool,
 

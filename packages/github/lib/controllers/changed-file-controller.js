@@ -2,11 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import MultiFilePatchController from './multi-file-patch-controller';
+import { ItemTypePropType } from '../prop-types';
 
 export default class ChangedFileController extends React.Component {
   static propTypes = {
     repository: PropTypes.object.isRequired,
     stagingStatus: PropTypes.oneOf(['staged', 'unstaged']),
+    isPartiallyStaged: PropTypes.bool,
+    itemType: ItemTypePropType.isRequired,
     relPath: PropTypes.string.isRequired,
 
     workspace: PropTypes.object.isRequired,

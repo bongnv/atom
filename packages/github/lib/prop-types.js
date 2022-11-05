@@ -183,10 +183,10 @@ function createItemTypePropType(required) {
   return function (props, propName, componentName) {
     if (lazyItemConstructors === null) {
       lazyItemConstructors = new Set();
-      lazyItemConstructors.add(require('./items/changed-file-item').default);
-      lazyItemConstructors.add(require('./items/commit-preview-item').default);
-      lazyItemConstructors.add(require('./items/commit-detail-item').default);
-      lazyItemConstructors.add(require('./items/issueish-detail-item').default);
+      lazyItemConstructors.add(require('./items/changed-file-item'));
+      lazyItemConstructors.add(require('./items/commit-preview-item'));
+      lazyItemConstructors.add(require('./items/commit-detail-item'));
+      lazyItemConstructors.add(require('./items/issueish-detail-item'));
     }
 
     if (props[propName] === undefined || props[propName] === null) {
