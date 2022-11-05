@@ -881,16 +881,19 @@ module.exports =
           if (!fs.existsSync(selectedPath)) { continue; }
 
           this.emitter.emit('will-delete-entry', {pathToDelete: selectedPath});
-          if (shell.moveItemToTrash(selectedPath)) {
+          shell.trashItem(selectedPath)
+          .then(() => {
             this.emitter.emit('entry-deleted', {pathToDelete: selectedPath});
-          } else {
+          })
+          .catch(() => {
             this.emitter.emit('delete-entry-failed', {pathToDelete: selectedPath});
             failedDeletions.push(selectedPath);
-          }
-
-          if (repo = repoForPath(selectedPath)) {
-            repo.getPathStatus(selectedPath);
-          }
+          })
+          .finally(() => {
+            if (repo = repoForPath(selectedPath)) {
+              repo.getPathStatus(selectedPath);
+            }
+          })
         }
 
         if (failedDeletions.length > 0) {
