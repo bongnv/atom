@@ -15,35 +15,41 @@ const CharacterPattern = new RegExp(`\
 
 module.exports = {
   activate() {
-    return this.commandDisposable = atom.commands.add('atom-text-editor', {
-      'autoflow:reflow-selection': event => {
+    return (this.commandDisposable = atom.commands.add('atom-text-editor', {
+      'autoflow:reflow-selection': (event) => {
         return this.reflowSelection(event.currentTarget.getModel());
-      }
-    }
-    );
+      },
+    }));
   },
 
   deactivate() {
     if (this.commandDisposable != null) {
       this.commandDisposable.dispose();
     }
-    return this.commandDisposable = null;
+    return (this.commandDisposable = null);
   },
 
   reflowSelection(editor) {
     let range = editor.getSelectedBufferRange();
-    if (range.isEmpty()) { range = editor.getCurrentParagraphBufferRange(); }
-    if (range == null) { return; }
+    if (range.isEmpty()) {
+      range = editor.getCurrentParagraphBufferRange();
+    }
+    if (range == null) {
+      return;
+    }
 
     const reflowOptions = {
-        wrapColumn: this.getPreferredLineLength(editor),
-        tabLength: this.getTabLength(editor)
-      };
-    const reflowedText = this.reflow(editor.getTextInRange(range), reflowOptions);
+      wrapColumn: this.getPreferredLineLength(editor),
+      tabLength: this.getTabLength(editor),
+    };
+    const reflowedText = this.reflow(
+      editor.getTextInRange(range),
+      reflowOptions
+    );
     return editor.getBuffer().setTextInRange(range, reflowedText);
   },
 
-  reflow(text, {wrapColumn, tabLength}) {
+  reflow(text, { wrapColumn, tabLength }) {
     let tabLengthInSpaces;
     const paragraphs = [];
     // Convert all \r\n and \r to \n. The text buffer will normalize them later
@@ -77,18 +83,22 @@ module.exports = {
       // reproduce them verbatim in the wrapped text.
       var beginningLinesToIgnore = [];
       var endingLinesToIgnore = [];
-      var latexTagRegex = /^\s*\\\w+(\[.*\])?\{\w+\}(\[.*\])?\s*$/g;    // e.g. \begin{verbatim}
-      var latexTagStartRegex = /^\s*\\\w+\s*\{\s*$/g;                   // e.g. \item{
-      var latexTagEndRegex = /^\s*\}\s*$/g;                             // e.g. }
-      while ((blockLines.length > 0) && (
-            blockLines[0].match(latexTagRegex) ||
-            blockLines[0].match(latexTagStartRegex))) {
+      var latexTagRegex = /^\s*\\\w+(\[.*\])?\{\w+\}(\[.*\])?\s*$/g; // e.g. \begin{verbatim}
+      var latexTagStartRegex = /^\s*\\\w+\s*\{\s*$/g; // e.g. \item{
+      var latexTagEndRegex = /^\s*\}\s*$/g; // e.g. }
+      while (
+        blockLines.length > 0 &&
+        (blockLines[0].match(latexTagRegex) ||
+          blockLines[0].match(latexTagStartRegex))
+      ) {
         beginningLinesToIgnore.push(blockLines[0]);
         blockLines.shift();
       }
-      while ((blockLines.length > 0) && (
-            blockLines[blockLines.length - 1].match(latexTagRegex) ||
-            blockLines[blockLines.length - 1].match(latexTagEndRegex))) {
+      while (
+        blockLines.length > 0 &&
+        (blockLines[blockLines.length - 1].match(latexTagRegex) ||
+          blockLines[blockLines.length - 1].match(latexTagEndRegex))
+      ) {
         endingLinesToIgnore.unshift(blockLines[blockLines.length - 1]);
         blockLines.pop();
       }
@@ -104,7 +114,9 @@ module.exports = {
 
       // TODO: this could be more language specific. Use the actual comment char.
       // Remember that `-` has to be the last character in the character class.
-      var linePrefix = blockLines[0].match(/^\s*(\/\/|\/\*|;;|#'|\|\|\||--|[#%*>-])?\s*/g)[0];
+      var linePrefix = blockLines[0].match(
+        /^\s*(\/\/|\/\*|;;|#'|\|\|\||--|[#%*>-])?\s*/g
+      )[0];
       var linePrefixTabExpanded = linePrefix;
       if (tabLengthInSpaces) {
         linePrefixTabExpanded = linePrefix.replace(/\t/g, tabLengthInSpaces);
@@ -112,10 +124,12 @@ module.exports = {
 
       if (linePrefix) {
         var escapedLinePrefix = _.escapeRegExp(linePrefix);
-        blockLines = blockLines.map(blockLine => blockLine.replace(new RegExp(`^${escapedLinePrefix}`), ''));
+        blockLines = blockLines.map((blockLine) =>
+          blockLine.replace(new RegExp(`^${escapedLinePrefix}`), '')
+        );
       }
 
-      blockLines = blockLines.map(blockLine => blockLine.replace(/^\s+/, ''));
+      blockLines = blockLines.map((blockLine) => blockLine.replace(/^\s+/, ''));
 
       var lines = [];
       var currentLine = [];
@@ -128,11 +142,13 @@ module.exports = {
       var firstLine = true;
       for (var segment of this.segmentText(blockLines.join(' '))) {
         if (this.wrapSegment(segment, currentLineLength, wrapColumn)) {
-
           // Independent of line prefix don't mess with it on the first line
           if (firstLine !== true) {
             // Handle C comments
-            if ((linePrefix.search(/^\s*\/\*/) !== -1) || (linePrefix.search(/^\s*-(?!-)/) !== -1)) {
+            if (
+              linePrefix.search(/^\s*\/\*/) !== -1 ||
+              linePrefix.search(/^\s*-(?!-)/) !== -1
+            ) {
               linePrefix = wrappedLinePrefix;
             }
           }
@@ -146,33 +162,47 @@ module.exports = {
       }
       lines.push(linePrefix + currentLine.join(''));
 
-      var wrappedLines = beginningLinesToIgnore.concat(lines.concat(endingLinesToIgnore));
+      var wrappedLines = beginningLinesToIgnore.concat(
+        lines.concat(endingLinesToIgnore)
+      );
       paragraphs.push(wrappedLines.join('\n').replace(/\s+\n/g, '\n'));
     }
 
-    return leadingVerticalSpace + paragraphs.join('\n\n') + trailingVerticalSpace;
+    return (
+      leadingVerticalSpace + paragraphs.join('\n\n') + trailingVerticalSpace
+    );
   },
 
   getTabLength(editor) {
     let left;
-    return (left = atom.config.get('editor.tabLength', {scope: editor.getRootScopeDescriptor()})) != null ? left : 2;
+    return (left = atom.config.get('editor.tabLength', {
+      scope: editor.getRootScopeDescriptor(),
+    })) != null
+      ? left
+      : 2;
   },
 
   getPreferredLineLength(editor) {
-    return atom.config.get('editor.preferredLineLength', {scope: editor.getRootScopeDescriptor()});
+    return atom.config.get('editor.preferredLineLength', {
+      scope: editor.getRootScopeDescriptor(),
+    });
   },
 
   wrapSegment(segment, currentLineLength, wrapColumn) {
-    return CharacterPattern.test(segment) &&
-      ((currentLineLength + segment.length) > wrapColumn) &&
-      ((currentLineLength > 0) || (segment.length < wrapColumn));
+    return (
+      CharacterPattern.test(segment) &&
+      currentLineLength + segment.length > wrapColumn &&
+      (currentLineLength > 0 || segment.length < wrapColumn)
+    );
   },
 
   segmentText(text) {
     let match;
     const segments = [];
     const re = /[\s]+|[^\s]+/g;
-    while ((match = re.exec(text))) { segments.push(match[0]); }
+    while ((match = re.exec(text))) {
+      segments.push(match[0]);
+    }
     return segments;
-  }
+  },
 };

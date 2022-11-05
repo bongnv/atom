@@ -7,13 +7,12 @@
  */
 let SelectNext;
 const _ = require('underscore-plus');
-const {CompositeDisposable, Range} = require('atom');
+const { CompositeDisposable, Range } = require('atom');
 
 // Find and select the next occurrence of the currently selected text.
 //
 // The word under the cursor will be selected if the selection is empty.
-module.exports =
-(SelectNext = (function() {
+module.exports = SelectNext = (function () {
   SelectNext = class SelectNext {
     static initClass() {
       this.prototype.selectionRanges = null;
@@ -33,14 +32,18 @@ module.exports =
     }
 
     findAndSelectAll() {
-      if (this.editor.getLastSelection().isEmpty()) { this.selectWord(); }
+      if (this.editor.getLastSelection().isEmpty()) {
+        this.selectWord();
+      }
       return this.selectAllOccurrences();
     }
 
     undoLastSelection() {
       this.updateSavedSelections();
 
-      if (this.selectionRanges.length < 1) { return; }
+      if (this.selectionRanges.length < 1) {
+        return;
+      }
 
       if (this.selectionRanges.length > 1) {
         this.selectionRanges.pop();
@@ -55,16 +58,20 @@ module.exports =
     skipCurrentSelection() {
       this.updateSavedSelections();
 
-      if (this.selectionRanges.length < 1) { return; }
+      if (this.selectionRanges.length < 1) {
+        return;
+      }
 
       if (this.selectionRanges.length > 1) {
         const lastSelection = this.selectionRanges.pop();
         this.editor.setSelectedBufferRanges(this.selectionRanges);
-        return this.selectNextOccurrence({start: lastSelection.end});
+        return this.selectNextOccurrence({ start: lastSelection.end });
       } else {
         this.selectNextOccurrence();
         this.selectionRanges.shift();
-        if (this.selectionRanges.length < 1) { return; }
+        if (this.selectionRanges.length < 1) {
+          return;
+        }
         return this.editor.setSelectedBufferRanges(this.selectionRanges);
       }
     }
@@ -72,8 +79,8 @@ module.exports =
     selectWord() {
       this.editor.selectWordsContainingCursors();
       const lastSelection = this.editor.getLastSelection();
-      if (this.wordSelected = this.isWordSelected(lastSelection)) {
-        const disposables = new CompositeDisposable;
+      if ((this.wordSelected = this.isWordSelected(lastSelection))) {
+        const disposables = new CompositeDisposable();
         const clearWordSelected = () => {
           this.wordSelected = null;
           return disposables.dispose();
@@ -85,21 +92,34 @@ module.exports =
 
     selectAllOccurrences() {
       const range = [[0, 0], this.editor.getEofBufferPosition()];
-      return this.scanForNextOccurrence(range, ({range, stop}) => {
+      return this.scanForNextOccurrence(range, ({ range, stop }) => {
         return this.addSelection(range);
       });
     }
 
-    selectNextOccurrence(options={}) {
-      const startingRange = options.start != null ? options.start : this.editor.getSelectedBufferRange().end;
-      let range = this.findNextOccurrence([startingRange, this.editor.getEofBufferPosition()]);
-      if (range == null) { range = this.findNextOccurrence([[0, 0], this.editor.getSelections()[0].getBufferRange().start]); }
-      if (range != null) { return this.addSelection(range); }
+    selectNextOccurrence(options = {}) {
+      const startingRange =
+        options.start != null
+          ? options.start
+          : this.editor.getSelectedBufferRange().end;
+      let range = this.findNextOccurrence([
+        startingRange,
+        this.editor.getEofBufferPosition(),
+      ]);
+      if (range == null) {
+        range = this.findNextOccurrence([
+          [0, 0],
+          this.editor.getSelections()[0].getBufferRange().start,
+        ]);
+      }
+      if (range != null) {
+        return this.addSelection(range);
+      }
     }
 
     findNextOccurrence(scanRange) {
       let foundRange = null;
-      this.scanForNextOccurrence(scanRange, function({range, stop}) {
+      this.scanForNextOccurrence(scanRange, function ({ range, stop }) {
         foundRange = range;
         return stop();
       });
@@ -108,7 +128,9 @@ module.exports =
 
     addSelection(range) {
       const reversed = this.editor.getLastSelection().isReversed();
-      const selection = this.editor.addSelectionForBufferRange(range, {reversed});
+      const selection = this.editor.addSelectionForBufferRange(range, {
+        reversed,
+      });
       return this.updateSavedSelections(selection);
     }
 
@@ -118,33 +140,51 @@ module.exports =
 
       if (this.wordSelected) {
         const nonWordCharacters = atom.config.get('editor.nonWordCharacters');
-        text = `(^|[ \t${_.escapeRegExp(nonWordCharacters)}]+)${text}(?=$|[\\s${_.escapeRegExp(nonWordCharacters)}]+)`;
+        text = `(^|[ \t${_.escapeRegExp(
+          nonWordCharacters
+        )}]+)${text}(?=$|[\\s${_.escapeRegExp(nonWordCharacters)}]+)`;
       }
 
-      return this.editor.scanInBufferRange(new RegExp(text, 'g'), range, function(result) {
-        let prefix;
-        if (prefix = result.match[1]) {
-          result.range = result.range.translate([0, prefix.length], [0, 0]);
+      return this.editor.scanInBufferRange(
+        new RegExp(text, 'g'),
+        range,
+        function (result) {
+          let prefix;
+          if ((prefix = result.match[1])) {
+            result.range = result.range.translate([0, prefix.length], [0, 0]);
+          }
+          return callback(result);
         }
-        return callback(result);
-      });
+      );
     }
 
-    updateSavedSelections(selection=null) {
+    updateSavedSelections(selection = null) {
       const selections = this.editor.getSelections();
-      if (selections.length < 3) { this.selectionRanges = []; }
+      if (selections.length < 3) {
+        this.selectionRanges = [];
+      }
       if (this.selectionRanges.length === 0) {
-        return selections.map((s) => this.selectionRanges.push(s.getBufferRange()));
+        return selections.map((s) =>
+          this.selectionRanges.push(s.getBufferRange())
+        );
       } else if (selection) {
         const selectionRange = selection.getBufferRange();
-        if (this.selectionRanges.some(existingRange => existingRange.isEqual(selectionRange))) { return; }
+        if (
+          this.selectionRanges.some((existingRange) =>
+            existingRange.isEqual(selectionRange)
+          )
+        ) {
+          return;
+        }
         return this.selectionRanges.push(selectionRange);
       }
     }
 
     isNonWordCharacter(character) {
       const nonWordCharacters = atom.config.get('editor.nonWordCharacters');
-      return new RegExp(`[ \t${_.escapeRegExp(nonWordCharacters)}]`).test(character);
+      return new RegExp(`[ \t${_.escapeRegExp(nonWordCharacters)}]`).test(
+        character
+      );
     }
 
     isNonWordCharacterToTheLeft(selection) {
@@ -162,14 +202,24 @@ module.exports =
     isWordSelected(selection) {
       if (selection.getBufferRange().isSingleLine()) {
         const selectionRange = selection.getBufferRange();
-        const lineRange = this.editor.bufferRangeForBufferRow(selectionRange.start.row);
-        const nonWordCharacterToTheLeft = _.isEqual(selectionRange.start, lineRange.start) ||
+        const lineRange = this.editor.bufferRangeForBufferRow(
+          selectionRange.start.row
+        );
+        const nonWordCharacterToTheLeft =
+          _.isEqual(selectionRange.start, lineRange.start) ||
           this.isNonWordCharacterToTheLeft(selection);
-        const nonWordCharacterToTheRight = _.isEqual(selectionRange.end, lineRange.end) ||
+        const nonWordCharacterToTheRight =
+          _.isEqual(selectionRange.end, lineRange.end) ||
           this.isNonWordCharacterToTheRight(selection);
-        const containsOnlyWordCharacters = !this.isNonWordCharacter(selection.getText());
+        const containsOnlyWordCharacters = !this.isNonWordCharacter(
+          selection.getText()
+        );
 
-        return nonWordCharacterToTheLeft && nonWordCharacterToTheRight && containsOnlyWordCharacters;
+        return (
+          nonWordCharacterToTheLeft &&
+          nonWordCharacterToTheRight &&
+          containsOnlyWordCharacters
+        );
       } else {
         return false;
       }
@@ -177,4 +227,4 @@ module.exports =
   };
   SelectNext.initClass();
   return SelectNext;
-})());
+})();

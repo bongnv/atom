@@ -11,7 +11,6 @@ bug report purposes.
 */
 
 module.exports = {
-
   generateException() {
     try {
       return a + 1;
@@ -25,34 +24,72 @@ module.exports = {
   // packageResponse
   // issuesResponse
   generateFakeFetchResponses(options) {
-    if (!window.fetch.isSpy) { spyOn(window, 'fetch'); }
+    if (!window.fetch.isSpy) {
+      spyOn(window, 'fetch');
+    }
 
-    return fetch.andCallFake(function(url) {
+    return fetch.andCallFake(function (url) {
       if (url.indexOf('is.gd') > -1) {
-        return textPromise((options != null ? options.shortenerResponse : undefined) != null ? (options != null ? options.shortenerResponse : undefined) : 'http://is.gd/cats');
+        return textPromise(
+          (options != null ? options.shortenerResponse : undefined) != null
+            ? options != null
+              ? options.shortenerResponse
+              : undefined
+            : 'http://is.gd/cats'
+        );
       }
 
       if (url.indexOf('atom.io/api/packages') > -1) {
-        return jsonPromise((options != null ? options.packageResponse : undefined) != null ? (options != null ? options.packageResponse : undefined) : {
-          repository: { url: 'https://github.com/atom/notifications'
-        },
-          releases: { latest: '0.0.0'
-        }
-        });
+        return jsonPromise(
+          (options != null ? options.packageResponse : undefined) != null
+            ? options != null
+              ? options.packageResponse
+              : undefined
+            : {
+                repository: { url: 'https://github.com/atom/notifications' },
+                releases: { latest: '0.0.0' },
+              }
+        );
       }
 
       if (url.indexOf('atom.io/api/updates') > -1) {
-        return(jsonPromise((options != null ? options.atomResponse : undefined) != null ? (options != null ? options.atomResponse : undefined) : {name: atom.getVersion()}));
+        return jsonPromise(
+          (options != null ? options.atomResponse : undefined) != null
+            ? options != null
+              ? options.atomResponse
+              : undefined
+            : { name: atom.getVersion() }
+        );
       }
 
       if ((options != null ? options.issuesErrorResponse : undefined) != null) {
-        return Promise.reject(options != null ? options.issuesErrorResponse : undefined);
+        return Promise.reject(
+          options != null ? options.issuesErrorResponse : undefined
+        );
       }
 
-      return jsonPromise((options != null ? options.issuesResponse : undefined) != null ? (options != null ? options.issuesResponse : undefined) : {items: []});
+      return jsonPromise(
+        (options != null ? options.issuesResponse : undefined) != null
+          ? options != null
+            ? options.issuesResponse
+            : undefined
+          : { items: [] }
+      );
     });
-  }
+  },
 };
 
-var jsonPromise = object => Promise.resolve({ok: true, json() { return Promise.resolve(object); }});
-var textPromise = text => Promise.resolve({ok: true, text() { return Promise.resolve(text); }});
+var jsonPromise = (object) =>
+  Promise.resolve({
+    ok: true,
+    json() {
+      return Promise.resolve(object);
+    },
+  });
+var textPromise = (text) =>
+  Promise.resolve({
+    ok: true,
+    text() {
+      return Promise.resolve(text);
+    },
+  });

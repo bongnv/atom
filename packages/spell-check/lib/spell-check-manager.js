@@ -256,12 +256,12 @@ class SpellCheckerManager {
                         // Figure out the character range of this line. We need this because
                         // @addMisspellings doesn't handle jumping across lines easily and the
                         // use of the number ranges is inclusive.
-                        const lineRange = new multirange.MultiRange(
-                            []
-                        ).append([[lineBeginIndex, lineEndIndex]]);
-                        const rangeRange = new multirange.MultiRange(
-                            []
-                        ).append([[range[0], range[1]]]);
+                        const lineRange = new multirange.MultiRange([]).append([
+                            [lineBeginIndex, lineEndIndex],
+                        ]);
+                        const rangeRange = new multirange.MultiRange([]).append(
+                            [[range[0], range[1]]]
+                        );
 
                         lineRange.intersect(rangeRange);
 

@@ -5,7 +5,7 @@
  */
 module.exports = {
   unescapeEscapeSequence(string) {
-    return string.replace(/\\(.)/gm, function(match, char) {
+    return string.replace(/\\(.)/gm, function (match, char) {
       if (char === 't') {
         return '\t';
       } else if (char === 'n') {
@@ -18,5 +18,5 @@ module.exports = {
         return match;
       }
     });
-  }
+  },
 };

@@ -10,27 +10,30 @@ let CopyDialog;
 const path = require('path');
 const fs = require('fs-plus');
 const Dialog = require('./dialog');
-const {repoForPath} = require("./helpers");
+const { repoForPath } = require('./helpers');
 
-module.exports =
-(CopyDialog = class CopyDialog extends Dialog {
-  constructor(initialPath, {onCopy}) {
+module.exports = CopyDialog = class CopyDialog extends Dialog {
+  constructor(initialPath, { onCopy }) {
     this.initialPath = initialPath;
     this.onCopy = onCopy;
     super({
       prompt: 'Enter the new path for the duplicate.',
       initialPath: atom.project.relativize(this.initialPath),
       select: true,
-      iconClass: 'icon-arrow-right'
+      iconClass: 'icon-arrow-right',
     });
   }
 
   onConfirm(newPath) {
     newPath = newPath.replace(/\s+$/, ''); // Remove trailing whitespace
     if (!path.isAbsolute(newPath)) {
-      const [rootPath] = Array.from(atom.project.relativizePath(this.initialPath));
+      const [rootPath] = Array.from(
+        atom.project.relativizePath(this.initialPath)
+      );
       newPath = path.join(rootPath, newPath);
-      if (!newPath) { return; }
+      if (!newPath) {
+        return;
+      }
     }
 
     if (this.initialPath === newPath) {
@@ -44,28 +47,38 @@ module.exports =
     }
 
     let activeEditor = atom.workspace.getActiveTextEditor();
-    if ((activeEditor != null ? activeEditor.getPath() : undefined) !== this.initialPath) { activeEditor = null; }
+    if (
+      (activeEditor != null ? activeEditor.getPath() : undefined) !==
+      this.initialPath
+    ) {
+      activeEditor = null;
+    }
     try {
       let repo;
       if (fs.isDirectorySync(this.initialPath)) {
         fs.copySync(this.initialPath, newPath);
         if (typeof this.onCopy === 'function') {
-          this.onCopy({initialPath: this.initialPath, newPath});
+          this.onCopy({ initialPath: this.initialPath, newPath });
         }
       } else {
         fs.copy(this.initialPath, newPath, () => {
           if (typeof this.onCopy === 'function') {
-            this.onCopy({initialPath: this.initialPath, newPath});
+            this.onCopy({ initialPath: this.initialPath, newPath });
           }
           return atom.workspace.open(newPath, {
             activatePane: true,
-            initialLine: (activeEditor != null ? activeEditor.getLastCursor().getBufferRow() : undefined),
-            initialColumn: (activeEditor != null ? activeEditor.getLastCursor().getBufferColumn() : undefined)
-          }
-          );
+            initialLine:
+              activeEditor != null
+                ? activeEditor.getLastCursor().getBufferRow()
+                : undefined,
+            initialColumn:
+              activeEditor != null
+                ? activeEditor.getLastCursor().getBufferColumn()
+                : undefined,
+          });
         });
       }
-      if (repo = repoForPath(newPath)) {
+      if ((repo = repoForPath(newPath))) {
         repo.getPathStatus(this.initialPath);
         repo.getPathStatus(newPath);
       }
@@ -74,4 +87,4 @@ module.exports =
       return this.showError(`${error.message}.`);
     }
   }
-});
+};

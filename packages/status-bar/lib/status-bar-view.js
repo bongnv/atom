@@ -7,11 +7,10 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let StatusBarView;
-const {Disposable} = require('atom');
+const { Disposable } = require('atom');
 const Tile = require('./tile');
 
-module.exports =
-(StatusBarView = class StatusBarView {
+module.exports = StatusBarView = class StatusBarView {
   constructor() {
     this.element = document.createElement('status-bar');
     this.element.classList.add('status-bar');
@@ -40,13 +39,17 @@ module.exports =
 
     this.bufferSubscriptions = [];
 
-    this.activeItemSubscription = atom.workspace.getCenter().onDidChangeActivePaneItem(() => {
-      this.unsubscribeAllFromBuffer();
-      this.storeActiveBuffer();
-      this.subscribeAllToBuffer();
+    this.activeItemSubscription = atom.workspace
+      .getCenter()
+      .onDidChangeActivePaneItem(() => {
+        this.unsubscribeAllFromBuffer();
+        this.storeActiveBuffer();
+        this.subscribeAllToBuffer();
 
-      return this.element.dispatchEvent(new CustomEvent('active-buffer-changed', {bubbles: true}));
-    });
+        return this.element.dispatchEvent(
+          new CustomEvent('active-buffer-changed', { bubbles: true })
+        );
+      });
 
     this.storeActiveBuffer();
   }
@@ -60,10 +63,15 @@ module.exports =
   addLeftTile(options) {
     let index;
     const newItem = options.item;
-    const newPriority = (options != null ? options.priority : undefined) != null ? (options != null ? options.priority : undefined) : this.leftTiles[this.leftTiles.length - 1].priority + 1;
+    const newPriority =
+      (options != null ? options.priority : undefined) != null
+        ? options != null
+          ? options.priority
+          : undefined
+        : this.leftTiles[this.leftTiles.length - 1].priority + 1;
     let nextItem = null;
     for (index = 0; index < this.leftTiles.length; index++) {
-      var {priority, item} = this.leftTiles[index];
+      var { priority, item } = this.leftTiles[index];
       if (priority > newPriority) {
         nextItem = item;
         break;
@@ -81,10 +89,15 @@ module.exports =
   addRightTile(options) {
     let index;
     const newItem = options.item;
-    const newPriority = (options != null ? options.priority : undefined) != null ? (options != null ? options.priority : undefined) : this.rightTiles[0].priority + 1;
+    const newPriority =
+      (options != null ? options.priority : undefined) != null
+        ? options != null
+          ? options.priority
+          : undefined
+        : this.rightTiles[0].priority + 1;
     let nextItem = null;
     for (index = 0; index < this.rightTiles.length; index++) {
-      var {priority, item} = this.rightTiles[index];
+      var { priority, item } = this.rightTiles[index];
       if (priority < newPriority) {
         nextItem = item;
         break;
@@ -116,16 +129,24 @@ module.exports =
   }
 
   storeActiveBuffer() {
-    return this.buffer = __guardMethod__(this.getActiveItem(), 'getBuffer', o => o.getBuffer());
+    return (this.buffer = __guardMethod__(
+      this.getActiveItem(),
+      'getBuffer',
+      (o) => o.getBuffer()
+    ));
   }
 
   subscribeToBuffer(event, callback) {
     this.bufferSubscriptions.push([event, callback]);
-    if (this.buffer) { return this.buffer.on(event, callback); }
+    if (this.buffer) {
+      return this.buffer.on(event, callback);
+    }
   }
 
   subscribeAllToBuffer() {
-    if (!this.buffer) { return; }
+    if (!this.buffer) {
+      return;
+    }
     return (() => {
       const result = [];
       for (var [event, callback] of this.bufferSubscriptions) {
@@ -136,7 +157,9 @@ module.exports =
   }
 
   unsubscribeAllFromBuffer() {
-    if (!this.buffer) { return; }
+    if (!this.buffer) {
+      return;
+    }
     return (() => {
       const result = [];
       for (var [event, callback] of this.bufferSubscriptions) {
@@ -145,10 +168,14 @@ module.exports =
       return result;
     })();
   }
-});
+};
 
 function __guardMethod__(obj, methodName, transform) {
-  if (typeof obj !== 'undefined' && obj !== null && typeof obj[methodName] === 'function') {
+  if (
+    typeof obj !== 'undefined' &&
+    obj !== null &&
+    typeof obj[methodName] === 'function'
+  ) {
     return transform(obj, methodName);
   } else {
     return undefined;

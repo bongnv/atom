@@ -6,14 +6,14 @@
  */
 const EditorPanel = require('../lib/editor-panel');
 
-describe("EditorPanel", function() {
+describe('EditorPanel', function () {
   let panel = null;
 
-  const getValueForId = function(id) {
+  const getValueForId = function (id) {
     const element = panel.element.querySelector(`#${id.replace(/\./g, '\\.')}`);
-    if ((element != null ? element.tagName : undefined) === "INPUT") {
+    if ((element != null ? element.tagName : undefined) === 'INPUT') {
       return element.checked;
-    } else if ((element != null ? element.tagName : undefined) === "SELECT") {
+    } else if ((element != null ? element.tagName : undefined) === 'SELECT') {
       return element.value;
     } else if (element != null) {
       return element.getModel().getText();
@@ -22,33 +22,33 @@ describe("EditorPanel", function() {
     }
   };
 
-  const setValueForId = function(id, value) {
+  const setValueForId = function (id, value) {
     const element = panel.element.querySelector(`#${id.replace(/\./g, '\\.')}`);
-    if (element.tagName === "INPUT") {
+    if (element.tagName === 'INPUT') {
       element.checked = value;
-      return element.dispatchEvent(new Event('change', {bubbles: true}));
-    } else if (element.tagName === "SELECT") {
+      return element.dispatchEvent(new Event('change', { bubbles: true }));
+    } else if (element.tagName === 'SELECT') {
       element.value = value;
-      return element.dispatchEvent(new Event('change', {bubbles: true}));
+      return element.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
       element.getModel().setText(value != null ? value.toString() : undefined);
       return window.advanceClock(10000); // wait for contents-modified to be triggered
     }
   };
 
-  beforeEach(function() {
+  beforeEach(function () {
     atom.config.set('editor.boolean', true);
     atom.config.set('editor.string', 'hey');
-    atom.config.set('editor.object', {boolean: true, int: 3, string: 'test'});
+    atom.config.set('editor.object', { boolean: true, int: 3, string: 'test' });
     atom.config.set('editor.simpleArray', ['a', 'b', 'c']);
-    atom.config.set('editor.complexArray', ['a', 'b', {c: true}]);
+    atom.config.set('editor.complexArray', ['a', 'b', { c: true }]);
 
-    atom.config.setSchema('', {type: 'object'});
+    atom.config.setSchema('', { type: 'object' });
 
-    return panel = new EditorPanel();
+    return (panel = new EditorPanel());
   });
 
-  it("automatically binds named fields to their corresponding config keys", function() {
+  it('automatically binds named fields to their corresponding config keys', function () {
     expect(getValueForId('editor.boolean')).toBeTruthy();
     expect(getValueForId('editor.string')).toBe('hey');
     expect(getValueForId('editor.object.boolean')).toBeTruthy();
@@ -67,7 +67,7 @@ describe("EditorPanel", function() {
     expect(getValueForId('editor.object.int')).toBe('6');
     expect(getValueForId('editor.object.string')).toBe('hi');
 
-    setValueForId('editor.string', "oh hi");
+    setValueForId('editor.string', 'oh hi');
     setValueForId('editor.boolean', true);
     setValueForId('editor.object.boolean', true);
     setValueForId('editor.object.int', 9);
@@ -88,9 +88,9 @@ describe("EditorPanel", function() {
     return expect(atom.config.get('editor.object.string')).toBeUndefined();
   });
 
-  it("does not save the config value until it has been changed to a new value", function() {
-    const observeHandler = jasmine.createSpy("observeHandler");
-    atom.config.observe("editor.simpleArray", observeHandler);
+  it('does not save the config value until it has been changed to a new value', function () {
+    const observeHandler = jasmine.createSpy('observeHandler');
+    atom.config.observe('editor.simpleArray', observeHandler);
     observeHandler.reset();
 
     window.advanceClock(10000); // wait for contents-modified to be triggered
@@ -104,24 +104,30 @@ describe("EditorPanel", function() {
     return expect(observeHandler).not.toHaveBeenCalled();
   });
 
-  it("does not update the editor text unless the value it parses to changes", function() {
-    setValueForId('editor.simpleArray', "a, b,");
+  it('does not update the editor text unless the value it parses to changes', function () {
+    setValueForId('editor.simpleArray', 'a, b,');
     expect(atom.config.get('editor.simpleArray')).toEqual(['a', 'b']);
     return expect(getValueForId('editor.simpleArray')).toBe('a, b,');
   });
 
-  it("only adds editors for arrays when all the values in the array are strings", function() {
+  it('only adds editors for arrays when all the values in the array are strings', function () {
     expect(getValueForId('editor.simpleArray')).toBe('a, b, c');
     expect(getValueForId('editor.complexArray')).toBeUndefined();
 
     setValueForId('editor.simpleArray', 'a, d');
 
     expect(atom.config.get('editor.simpleArray')).toEqual(['a', 'd']);
-    return expect(atom.config.get('editor.complexArray')).toEqual(['a', 'b', {c: true}]);
-});
+    return expect(atom.config.get('editor.complexArray')).toEqual([
+      'a',
+      'b',
+      { c: true },
+    ]);
+  });
 
-  return it("shows the package settings notes for core and editor settings", function() {
+  return it('shows the package settings notes for core and editor settings', function () {
     expect(panel.element.querySelector('#editor-settings-note')).toExist();
-    return expect(panel.element.querySelector('#editor-settings-note').textContent).toContain('Check language settings');
+    return expect(
+      panel.element.querySelector('#editor-settings-note').textContent
+    ).toContain('Check language settings');
   });
 });

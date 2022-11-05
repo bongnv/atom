@@ -28,4 +28,4 @@ class DefaultFileIcons {
   }
 }
 
-module.exports = new DefaultFileIcons;
+module.exports = new DefaultFileIcons();

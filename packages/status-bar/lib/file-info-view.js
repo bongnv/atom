@@ -6,12 +6,11 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let FileInfoView;
-const {Disposable} = require('atom');
+const { Disposable } = require('atom');
 const url = require('url');
 const fs = require('fs-plus');
 
-module.exports =
-(FileInfoView = class FileInfoView {
+module.exports = FileInfoView = class FileInfoView {
   constructor() {
     this.element = document.createElement('status-bar-file');
     this.element.classList.add('file-info', 'inline-block');
@@ -23,32 +22,36 @@ module.exports =
 
     this.element.getActiveItem = this.getActiveItem.bind(this);
 
-    this.activeItemSubscription = atom.workspace.getCenter().onDidChangeActivePaneItem(() => {
-      return this.subscribeToActiveItem();
-    });
+    this.activeItemSubscription = atom.workspace
+      .getCenter()
+      .onDidChangeActivePaneItem(() => {
+        return this.subscribeToActiveItem();
+      });
     this.subscribeToActiveItem();
 
     this.registerTooltip();
-    const clickHandler = event => {
+    const clickHandler = (event) => {
       const isShiftClick = event.shiftKey;
       this.showCopiedTooltip(isShiftClick);
       const text = this.getActiveItemCopyText(isShiftClick);
       atom.clipboard.write(text);
       return setTimeout(() => {
         return this.clearCopiedTooltip();
-      }
-      , 2000);
+      }, 2000);
     };
 
     this.element.addEventListener('click', clickHandler);
-    this.clickSubscription = new Disposable(() => this.element.removeEventListener('click', clickHandler));
+    this.clickSubscription = new Disposable(() =>
+      this.element.removeEventListener('click', clickHandler)
+    );
   }
 
   registerTooltip() {
-    return this.tooltip = atom.tooltips.add(this.element, { title() {
-      return "Click to copy absolute file path (Shift + Click to copy relative path)";
-    }
-  });
+    return (this.tooltip = atom.tooltips.add(this.element, {
+      title() {
+        return 'Click to copy absolute file path (Shift + Click to copy relative path)';
+      },
+    }));
   }
 
   clearCopiedTooltip() {
@@ -66,20 +69,23 @@ module.exports =
       this.copiedTooltip.dispose();
     }
     const text = this.getActiveItemCopyText(copyRelativePath);
-    return this.copiedTooltip = atom.tooltips.add(this.element, {
+    return (this.copiedTooltip = atom.tooltips.add(this.element, {
       title: `Copied: ${text}`,
       trigger: 'manual',
       delay: {
-        show: 0
-      }
-    }
-    );
+        show: 0,
+      },
+    }));
   }
 
   getActiveItemCopyText(copyRelativePath) {
     const activeItem = this.getActiveItem();
-    let path = __guardMethod__(activeItem, 'getPath', o => o.getPath());
-    if ((path == null)) { return __guardMethod__(activeItem, 'getTitle', o1 => o1.getTitle()) || ''; }
+    let path = __guardMethod__(activeItem, 'getPath', (o) => o.getPath());
+    if (path == null) {
+      return (
+        __guardMethod__(activeItem, 'getTitle', (o1) => o1.getTitle()) || ''
+      );
+    }
 
     // Make sure we try to relativize before parsing URLs.
     if (copyRelativePath) {
@@ -91,9 +97,7 @@ module.exports =
 
     // An item path could be a url, we only want to copy the `path` part
     if ((path != null ? path.indexOf('://') : undefined) > 0) {
-      ({
-        path
-      } = url.parse(path));
+      ({ path } = url.parse(path));
     }
     return path;
   }
@@ -107,21 +111,31 @@ module.exports =
       this.titleSubscription.dispose();
     }
 
-    if (activeItem = this.getActiveItem()) {
-      if (this.updateCallback == null) { this.updateCallback = () => this.update(); }
+    if ((activeItem = this.getActiveItem())) {
+      if (this.updateCallback == null) {
+        this.updateCallback = () => this.update();
+      }
 
       if (typeof activeItem.onDidChangeTitle === 'function') {
-        this.titleSubscription = activeItem.onDidChangeTitle(this.updateCallback);
+        this.titleSubscription = activeItem.onDidChangeTitle(
+          this.updateCallback
+        );
       } else if (typeof activeItem.on === 'function') {
         //TODO Remove once title-changed event support is removed
         activeItem.on('title-changed', this.updateCallback);
-        this.titleSubscription = { dispose: () => {
-          return (typeof activeItem.off === 'function' ? activeItem.off('title-changed', this.updateCallback) : undefined);
-        }
-      };
+        this.titleSubscription = {
+          dispose: () => {
+            return typeof activeItem.off === 'function'
+              ? activeItem.off('title-changed', this.updateCallback)
+              : undefined;
+          },
+        };
       }
 
-      this.modifiedSubscription = typeof activeItem.onDidChangeModified === 'function' ? activeItem.onDidChangeModified(this.updateCallback) : undefined;
+      this.modifiedSubscription =
+        typeof activeItem.onDidChangeModified === 'function'
+          ? activeItem.onDidChangeModified(this.updateCallback)
+          : undefined;
     }
 
     return this.update();
@@ -141,7 +155,7 @@ module.exports =
     if (this.copiedTooltip != null) {
       this.copiedTooltip.dispose();
     }
-    return (this.tooltip != null ? this.tooltip.dispose() : undefined);
+    return this.tooltip != null ? this.tooltip.dispose() : undefined;
   }
 
   getActiveItem() {
@@ -150,34 +164,49 @@ module.exports =
 
   update() {
     this.updatePathText();
-    return this.updateBufferHasModifiedText(__guardMethod__(this.getActiveItem(), 'isModified', o => o.isModified()));
+    return this.updateBufferHasModifiedText(
+      __guardMethod__(this.getActiveItem(), 'isModified', (o) => o.isModified())
+    );
   }
 
   updateBufferHasModifiedText(isModified) {
     if (isModified) {
       this.element.classList.add('buffer-modified');
-      return this.isModified = true;
+      return (this.isModified = true);
     } else {
       this.element.classList.remove('buffer-modified');
-      return this.isModified = false;
+      return (this.isModified = false);
     }
   }
 
   updatePathText() {
     let path, title;
-    if (path = __guardMethod__(this.getActiveItem(), 'getPath', o => o.getPath())) {
+    if (
+      (path = __guardMethod__(this.getActiveItem(), 'getPath', (o) =>
+        o.getPath()
+      ))
+    ) {
       const relativized = atom.project.relativize(path);
-      return this.currentPath.textContent = (relativized != null) ? fs.tildify(relativized) : path;
-    } else if ((title = __guardMethod__(this.getActiveItem(), 'getTitle', o1 => o1.getTitle()))) {
-      return this.currentPath.textContent = title;
+      return (this.currentPath.textContent =
+        relativized != null ? fs.tildify(relativized) : path);
+    } else if (
+      (title = __guardMethod__(this.getActiveItem(), 'getTitle', (o1) =>
+        o1.getTitle()
+      ))
+    ) {
+      return (this.currentPath.textContent = title);
     } else {
-      return this.currentPath.textContent = '';
+      return (this.currentPath.textContent = '');
     }
   }
-});
+};
 
 function __guardMethod__(obj, methodName, transform) {
-  if (typeof obj !== 'undefined' && obj !== null && typeof obj[methodName] === 'function') {
+  if (
+    typeof obj !== 'undefined' &&
+    obj !== null &&
+    typeof obj[methodName] === 'function'
+  ) {
     return transform(obj, methodName);
   } else {
     return undefined;

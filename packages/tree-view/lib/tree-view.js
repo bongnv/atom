@@ -11,11 +11,11 @@
  */
 let TreeView;
 const path = require('path');
-const {shell} = require('electron');
+const { shell } = require('electron');
 
 const _ = require('underscore-plus');
-const {BufferedProcess, CompositeDisposable, Emitter} = require('atom');
-const {repoForPath, getStyleObject, getFullExtension} = require("./helpers");
+const { BufferedProcess, CompositeDisposable, Emitter } = require('atom');
+const { repoForPath, getStyleObject, getFullExtension } = require('./helpers');
 const fs = require('fs-plus');
 
 const AddDialog = require('./add-dialog');
@@ -31,12 +31,12 @@ const RootDragAndDrop = require('./root-drag-and-drop');
 
 const TREE_VIEW_URI = 'atom://tree-view';
 
-const toggleConfig = keyPath => atom.config.set(keyPath, !atom.config.get(keyPath));
+const toggleConfig = (keyPath) =>
+  atom.config.set(keyPath, !atom.config.get(keyPath));
 
 let nextId = 1;
 
-module.exports =
-(TreeView = class TreeView {
+module.exports = TreeView = class TreeView {
   constructor(state) {
     this.moveConflictingEntry = this.moveConflictingEntry.bind(this);
     this.onStylesheetsChanged = this.onStylesheetsChanged.bind(this);
@@ -48,21 +48,27 @@ module.exports =
     this.element.tabIndex = -1;
 
     this.list = document.createElement('ol');
-    this.list.classList.add('tree-view-root', 'full-menu', 'list-tree', 'has-collapsable-children', 'focusable-panel');
+    this.list.classList.add(
+      'tree-view-root',
+      'full-menu',
+      'list-tree',
+      'has-collapsable-children',
+      'focusable-panel'
+    );
 
-    this.disposables = new CompositeDisposable;
-    this.emitter = new Emitter;
+    this.disposables = new CompositeDisposable();
+    this.emitter = new Emitter();
     this.roots = [];
     this.selectedPath = null;
     this.selectOnMouseUp = null;
     this.lastFocusedEntry = null;
     this.ignoredPatterns = [];
     this.useSyncFS = false;
-    this.currentlyOpening = new Map;
+    this.currentlyOpening = new Map();
     this.editorsToMove = [];
     this.editorsToDestroy = [];
 
-    this.dragEventCounts = new WeakMap;
+    this.dragEventCounts = new WeakMap();
     this.rootDragAndDrop = new RootDragAndDrop(this);
 
     this.handleEvents();
@@ -70,20 +76,30 @@ module.exports =
     process.nextTick(() => {
       this.onStylesheetsChanged();
       const onStylesheetsChanged = _.debounce(this.onStylesheetsChanged, 100);
-      this.disposables.add(atom.styles.onDidAddStyleElement(onStylesheetsChanged));
-      this.disposables.add(atom.styles.onDidRemoveStyleElement(onStylesheetsChanged));
-      return this.disposables.add(atom.styles.onDidUpdateStyleElement(onStylesheetsChanged));
+      this.disposables.add(
+        atom.styles.onDidAddStyleElement(onStylesheetsChanged)
+      );
+      this.disposables.add(
+        atom.styles.onDidRemoveStyleElement(onStylesheetsChanged)
+      );
+      return this.disposables.add(
+        atom.styles.onDidUpdateStyleElement(onStylesheetsChanged)
+      );
     });
 
     this.updateRoots(state.directoryExpansionStates);
 
-    if ((state.selectedPaths != null ? state.selectedPaths.length : undefined) > 0) {
-      for (var selectedPath of state.selectedPaths) { this.selectMultipleEntries(this.entryForPath(selectedPath)); }
+    if (
+      (state.selectedPaths != null ? state.selectedPaths.length : undefined) > 0
+    ) {
+      for (var selectedPath of state.selectedPaths) {
+        this.selectMultipleEntries(this.entryForPath(selectedPath));
+      }
     } else {
       this.selectEntry(this.roots[0]);
     }
 
-    if ((state.scrollTop != null) || (state.scrollLeft != null)) {
+    if (state.scrollTop != null || state.scrollLeft != null) {
       var observer = new IntersectionObserver(() => {
         if (this.isVisible()) {
           this.element.scrollTop = state.scrollTop;
@@ -94,137 +110,165 @@ module.exports =
       observer.observe(this.element);
     }
 
-    if (state.width > 0) { this.element.style.width = `${state.width}px`; }
+    if (state.width > 0) {
+      this.element.style.width = `${state.width}px`;
+    }
 
-    this.disposables.add(this.onWillMoveEntry(({initialPath, newPath}) => {
-      const editors = atom.workspace.getTextEditors();
-      if (fs.isDirectorySync(initialPath)) {
-        initialPath += path.sep; // Avoid moving lib2's editors when lib was moved
+    this.disposables.add(
+      this.onWillMoveEntry(({ initialPath, newPath }) => {
+        const editors = atom.workspace.getTextEditors();
+        if (fs.isDirectorySync(initialPath)) {
+          initialPath += path.sep; // Avoid moving lib2's editors when lib was moved
+          return (() => {
+            const result = [];
+            for (var editor of editors) {
+              var filePath = editor.getPath();
+              if (
+                filePath != null ? filePath.startsWith(initialPath) : undefined
+              ) {
+                result.push(this.editorsToMove.push(filePath));
+              } else {
+                result.push(undefined);
+              }
+            }
+            return result;
+          })();
+        } else {
+          return (() => {
+            const result1 = [];
+            for (var editor of editors) {
+              var filePath = editor.getPath();
+              if (filePath === initialPath) {
+                result1.push(this.editorsToMove.push(filePath));
+              } else {
+                result1.push(undefined);
+              }
+            }
+            return result1;
+          })();
+        }
+      })
+    );
+
+    this.disposables.add(
+      this.onEntryMoved(({ initialPath, newPath }) => {
         return (() => {
           const result = [];
-          for (var editor of editors) {
+          for (var editor of atom.workspace.getTextEditors()) {
             var filePath = editor.getPath();
-            if (filePath != null ? filePath.startsWith(initialPath) : undefined) {
-              result.push(this.editorsToMove.push(filePath));
+            var index = this.editorsToMove.indexOf(filePath);
+            if (index !== -1) {
+              editor
+                .getBuffer()
+                .setPath(filePath.replace(initialPath, newPath));
+              result.push(this.editorsToMove.splice(index, 1));
             } else {
               result.push(undefined);
             }
           }
           return result;
         })();
-      } else {
-        return (() => {
-          const result1 = [];
-          for (var editor of editors) {
-            var filePath = editor.getPath();
-            if (filePath === initialPath) {
-              result1.push(this.editorsToMove.push(filePath));
-            } else {
-              result1.push(undefined);
-            }
-          }
-          return result1;
-        })();
-      }
-    })
+      })
     );
 
-    this.disposables.add(this.onEntryMoved(({initialPath, newPath}) => {
-      return (() => {
-        const result = [];
-        for (var editor of atom.workspace.getTextEditors()) {
-          var filePath = editor.getPath();
-          var index = this.editorsToMove.indexOf(filePath);
-          if (index !== -1) {
-            editor.getBuffer().setPath(filePath.replace(initialPath, newPath));
-            result.push(this.editorsToMove.splice(index, 1));
-          } else {
-            result.push(undefined);
-          }
+    this.disposables.add(
+      this.onMoveEntryFailed(({ initialPath, newPath }) => {
+        const index = this.editorsToMove.indexOf(initialPath);
+        if (index !== -1) {
+          return this.editorsToMove.splice(index, 1);
         }
-        return result;
-      })();
-    })
+      })
     );
 
-    this.disposables.add(this.onMoveEntryFailed(({initialPath, newPath}) => {
-      const index = this.editorsToMove.indexOf(initialPath);
-      if (index !== -1) { return this.editorsToMove.splice(index, 1); }
-    })
+    this.disposables.add(
+      this.onWillDeleteEntry(({ pathToDelete }) => {
+        const editors = atom.workspace.getTextEditors();
+        if (fs.isDirectorySync(pathToDelete)) {
+          pathToDelete += path.sep; // Avoid destroying lib2's editors when lib was deleted
+          return (() => {
+            const result = [];
+            for (var editor of editors) {
+              var filePath = editor.getPath();
+              if (
+                (filePath != null
+                  ? filePath.startsWith(pathToDelete)
+                  : undefined) &&
+                !editor.isModified()
+              ) {
+                result.push(this.editorsToDestroy.push(filePath));
+              } else {
+                result.push(undefined);
+              }
+            }
+            return result;
+          })();
+        } else {
+          return (() => {
+            const result1 = [];
+            for (var editor of editors) {
+              var filePath = editor.getPath();
+              if (filePath === pathToDelete && !editor.isModified()) {
+                result1.push(this.editorsToDestroy.push(filePath));
+              } else {
+                result1.push(undefined);
+              }
+            }
+            return result1;
+          })();
+        }
+      })
     );
 
-    this.disposables.add(this.onWillDeleteEntry(({pathToDelete}) => {
-      const editors = atom.workspace.getTextEditors();
-      if (fs.isDirectorySync(pathToDelete)) {
-        pathToDelete += path.sep; // Avoid destroying lib2's editors when lib was deleted
+    this.disposables.add(
+      this.onEntryDeleted(({ pathToDelete }) => {
         return (() => {
           const result = [];
-          for (var editor of editors) {
-            var filePath = editor.getPath();
-            if ((filePath != null ? filePath.startsWith(pathToDelete) : undefined) && !editor.isModified()) {
-              result.push(this.editorsToDestroy.push(filePath));
+          for (var editor of atom.workspace.getTextEditors()) {
+            var index = this.editorsToDestroy.indexOf(editor.getPath());
+            if (index !== -1) {
+              editor.destroy();
+              result.push(this.editorsToDestroy.splice(index, 1));
             } else {
               result.push(undefined);
             }
           }
           return result;
         })();
-      } else {
-        return (() => {
-          const result1 = [];
-          for (var editor of editors) {
-            var filePath = editor.getPath();
-            if ((filePath === pathToDelete) && !editor.isModified()) {
-              result1.push(this.editorsToDestroy.push(filePath));
-            } else {
-              result1.push(undefined);
-            }
-          }
-          return result1;
-        })();
-      }
-    })
+      })
     );
 
-    this.disposables.add(this.onEntryDeleted(({pathToDelete}) => {
-      return (() => {
-        const result = [];
-        for (var editor of atom.workspace.getTextEditors()) {
-          var index = this.editorsToDestroy.indexOf(editor.getPath());
-          if (index !== -1) {
-            editor.destroy();
-            result.push(this.editorsToDestroy.splice(index, 1));
-          } else {
-            result.push(undefined);
-          }
+    this.disposables.add(
+      this.onDeleteEntryFailed(({ pathToDelete }) => {
+        const index = this.editorsToDestroy.indexOf(pathToDelete);
+        if (index !== -1) {
+          return this.editorsToDestroy.splice(index, 1);
         }
-        return result;
-      })();
-    })
-    );
-
-    this.disposables.add(this.onDeleteEntryFailed(({pathToDelete}) => {
-      const index = this.editorsToDestroy.indexOf(pathToDelete);
-      if (index !== -1) { return this.editorsToDestroy.splice(index, 1); }
-    })
+      })
     );
   }
 
   serialize() {
     return {
-      directoryExpansionStates: new (function(roots) {
-        for (var root of roots) { this[root.directory.path] = root.directory.serializeExpansionState(); }
-        return this;})(this.roots),
+      directoryExpansionStates: new (function (roots) {
+        for (var root of roots) {
+          this[root.directory.path] = root.directory.serializeExpansionState();
+        }
+        return this;
+      })(this.roots),
       deserializer: 'TreeView',
-      selectedPaths: Array.from(this.getSelectedEntries(), entry => entry.getPath()),
+      selectedPaths: Array.from(this.getSelectedEntries(), (entry) =>
+        entry.getPath()
+      ),
       scrollLeft: this.element.scrollLeft,
       scrollTop: this.element.scrollTop,
-      width: parseInt(this.element.style.width || 0)
+      width: parseInt(this.element.style.width || 0),
     };
   }
 
   destroy() {
-    for (var root of this.roots) { root.directory.destroy(); }
+    for (var root of this.roots) {
+      root.directory.destroy();
+    }
     this.disposables.dispose();
     this.rootDragAndDrop.dispose();
     return this.emitter.emit('did-destroy');
@@ -234,9 +278,13 @@ module.exports =
     return this.emitter.on('did-destroy', callback);
   }
 
-  getTitle() { return "Project"; }
+  getTitle() {
+    return 'Project';
+  }
 
-  getURI() { return TREE_VIEW_URI; }
+  getURI() {
+    return TREE_VIEW_URI;
+  }
 
   getPreferredLocation() {
     if (atom.config.get('tree-view.showOnRightSide')) {
@@ -246,9 +294,13 @@ module.exports =
     }
   }
 
-  getAllowedLocations() { return ["left", "right"]; }
+  getAllowedLocations() {
+    return ['left', 'right'];
+  }
 
-  isPermanentDockItem() { return true; }
+  isPermanentDockItem() {
+    return true;
+  }
 
   getPreferredWidth() {
     this.list.style.width = 'min-content';
@@ -294,86 +346,112 @@ module.exports =
   }
 
   handleEvents() {
-    this.element.addEventListener('click', e => {
+    this.element.addEventListener('click', (e) => {
       // This prevents accidental collapsing when a .entries element is the event target
-      if (e.target.classList.contains('entries')) { return; }
+      if (e.target.classList.contains('entries')) {
+        return;
+      }
 
-      if (!e.shiftKey && !e.metaKey && !e.ctrlKey) { return this.entryClicked(e); }
+      if (!e.shiftKey && !e.metaKey && !e.ctrlKey) {
+        return this.entryClicked(e);
+      }
     });
-    this.element.addEventListener('mousedown', e => this.onMouseDown(e));
-    this.element.addEventListener('mouseup', e => this.onMouseUp(e));
-    this.element.addEventListener('dragstart', e => this.onDragStart(e));
-    this.element.addEventListener('dragenter', e => this.onDragEnter(e));
-    this.element.addEventListener('dragleave', e => this.onDragLeave(e));
-    this.element.addEventListener('dragover', e => this.onDragOver(e));
-    this.element.addEventListener('drop', e => this.onDrop(e));
+    this.element.addEventListener('mousedown', (e) => this.onMouseDown(e));
+    this.element.addEventListener('mouseup', (e) => this.onMouseUp(e));
+    this.element.addEventListener('dragstart', (e) => this.onDragStart(e));
+    this.element.addEventListener('dragenter', (e) => this.onDragEnter(e));
+    this.element.addEventListener('dragleave', (e) => this.onDragLeave(e));
+    this.element.addEventListener('dragover', (e) => this.onDragOver(e));
+    this.element.addEventListener('drop', (e) => this.onDrop(e));
 
     atom.commands.add(this.element, {
-     'core:move-up': e => this.moveUp(e),
-     'core:move-down': e => this.moveDown(e),
-     'core:page-up': () => this.pageUp(),
-     'core:page-down': () => this.pageDown(),
-     'core:move-to-top': () => this.scrollToTop(),
-     'core:move-to-bottom': () => this.scrollToBottom(),
-     'tree-view:expand-item': () => this.openSelectedEntry({pending: true}, true),
-     'tree-view:recursive-expand-directory': () => this.expandDirectory(true),
-     'tree-view:collapse-directory': () => this.collapseDirectory(),
-     'tree-view:recursive-collapse-directory': () => this.collapseDirectory(true),
-     'tree-view:collapse-all': () => this.collapseDirectory(true, true),
-     'tree-view:open-selected-entry': () => this.openSelectedEntry(),
-     'tree-view:open-selected-entry-right': () => this.openSelectedEntryRight(),
-     'tree-view:open-selected-entry-left': () => this.openSelectedEntryLeft(),
-     'tree-view:open-selected-entry-up': () => this.openSelectedEntryUp(),
-     'tree-view:open-selected-entry-down': () => this.openSelectedEntryDown(),
-     'tree-view:move': () => this.moveSelectedEntry(),
-     'tree-view:copy': () => this.copySelectedEntries(),
-     'tree-view:cut': () => this.cutSelectedEntries(),
-     'tree-view:paste': () => this.pasteEntries(),
-     'tree-view:copy-full-path': () => this.copySelectedEntryPath(false),
-     'tree-view:show-in-file-manager': () => this.showSelectedEntryInFileManager(),
-     'tree-view:open-in-new-window': () => this.openSelectedEntryInNewWindow(),
-     'tree-view:copy-project-path': () => this.copySelectedEntryPath(true),
-     'tree-view:unfocus': () => this.unfocus(),
-     'tree-view:toggle-vcs-ignored-files'() { return toggleConfig('tree-view.hideVcsIgnoredFiles'); },
-     'tree-view:toggle-ignored-names'() { return toggleConfig('tree-view.hideIgnoredNames'); },
-     'tree-view:remove-project-folder': e => this.removeProjectFolder(e)
-   }
-    );
-
-    [0, 1, 2, 3, 4, 5, 6, 7, 8].forEach(index => {
-      return atom.commands.add(this.element, `tree-view:open-selected-entry-in-pane-${index + 1}`, () => {
-        return this.openSelectedEntryInPane(index);
-      });
+      'core:move-up': (e) => this.moveUp(e),
+      'core:move-down': (e) => this.moveDown(e),
+      'core:page-up': () => this.pageUp(),
+      'core:page-down': () => this.pageDown(),
+      'core:move-to-top': () => this.scrollToTop(),
+      'core:move-to-bottom': () => this.scrollToBottom(),
+      'tree-view:expand-item': () =>
+        this.openSelectedEntry({ pending: true }, true),
+      'tree-view:recursive-expand-directory': () => this.expandDirectory(true),
+      'tree-view:collapse-directory': () => this.collapseDirectory(),
+      'tree-view:recursive-collapse-directory': () =>
+        this.collapseDirectory(true),
+      'tree-view:collapse-all': () => this.collapseDirectory(true, true),
+      'tree-view:open-selected-entry': () => this.openSelectedEntry(),
+      'tree-view:open-selected-entry-right': () =>
+        this.openSelectedEntryRight(),
+      'tree-view:open-selected-entry-left': () => this.openSelectedEntryLeft(),
+      'tree-view:open-selected-entry-up': () => this.openSelectedEntryUp(),
+      'tree-view:open-selected-entry-down': () => this.openSelectedEntryDown(),
+      'tree-view:move': () => this.moveSelectedEntry(),
+      'tree-view:copy': () => this.copySelectedEntries(),
+      'tree-view:cut': () => this.cutSelectedEntries(),
+      'tree-view:paste': () => this.pasteEntries(),
+      'tree-view:copy-full-path': () => this.copySelectedEntryPath(false),
+      'tree-view:show-in-file-manager': () =>
+        this.showSelectedEntryInFileManager(),
+      'tree-view:open-in-new-window': () => this.openSelectedEntryInNewWindow(),
+      'tree-view:copy-project-path': () => this.copySelectedEntryPath(true),
+      'tree-view:unfocus': () => this.unfocus(),
+      'tree-view:toggle-vcs-ignored-files'() {
+        return toggleConfig('tree-view.hideVcsIgnoredFiles');
+      },
+      'tree-view:toggle-ignored-names'() {
+        return toggleConfig('tree-view.hideIgnoredNames');
+      },
+      'tree-view:remove-project-folder': (e) => this.removeProjectFolder(e),
     });
 
-    this.disposables.add(atom.workspace.getCenter().onDidChangeActivePaneItem(() => {
-      this.selectActiveFile();
-      if (atom.config.get('tree-view.autoReveal')) { return this.revealActiveFile({show: false, focus: false}); }
-    })
+    [0, 1, 2, 3, 4, 5, 6, 7, 8].forEach((index) => {
+      return atom.commands.add(
+        this.element,
+        `tree-view:open-selected-entry-in-pane-${index + 1}`,
+        () => {
+          return this.openSelectedEntryInPane(index);
+        }
+      );
+    });
+
+    this.disposables.add(
+      atom.workspace.getCenter().onDidChangeActivePaneItem(() => {
+        this.selectActiveFile();
+        if (atom.config.get('tree-view.autoReveal')) {
+          return this.revealActiveFile({ show: false, focus: false });
+        }
+      })
     );
-    this.disposables.add(atom.project.onDidChangePaths(() => {
-      return this.updateRoots();
-    })
+    this.disposables.add(
+      atom.project.onDidChangePaths(() => {
+        return this.updateRoots();
+      })
     );
-    this.disposables.add(atom.config.onDidChange('tree-view.hideVcsIgnoredFiles', () => {
-      return this.updateRoots();
-    })
+    this.disposables.add(
+      atom.config.onDidChange('tree-view.hideVcsIgnoredFiles', () => {
+        return this.updateRoots();
+      })
     );
-    this.disposables.add(atom.config.onDidChange('tree-view.hideIgnoredNames', () => {
-      return this.updateRoots();
-    })
+    this.disposables.add(
+      atom.config.onDidChange('tree-view.hideIgnoredNames', () => {
+        return this.updateRoots();
+      })
     );
-    this.disposables.add(atom.config.onDidChange('core.ignoredNames', () => {
-      if (atom.config.get('tree-view.hideIgnoredNames')) { return this.updateRoots(); }
-    })
+    this.disposables.add(
+      atom.config.onDidChange('core.ignoredNames', () => {
+        if (atom.config.get('tree-view.hideIgnoredNames')) {
+          return this.updateRoots();
+        }
+      })
     );
-    this.disposables.add(atom.config.onDidChange('tree-view.sortFoldersBeforeFiles', () => {
-      return this.updateRoots();
-    })
+    this.disposables.add(
+      atom.config.onDidChange('tree-view.sortFoldersBeforeFiles', () => {
+        return this.updateRoots();
+      })
     );
-    return this.disposables.add(atom.config.onDidChange('tree-view.squashDirectoryNames', () => {
-      return this.updateRoots();
-    })
+    return this.disposables.add(
+      atom.config.onDidChange('tree-view.squashDirectoryNames', () => {
+        return this.updateRoots();
+      })
     );
   }
 
@@ -382,14 +460,18 @@ module.exports =
   }
 
   show(focus) {
-    return atom.workspace.open(this, {
-      searchAllPanes: true,
-      activatePane: false,
-      activateItem: false,
-    }).then(() => {
-      atom.workspace.paneContainerForURI(this.getURI()).show();
-      if (focus) { return this.focus(); }
-    });
+    return atom.workspace
+      .open(this, {
+        searchAllPanes: true,
+        activatePane: false,
+        activateItem: false,
+      })
+      .then(() => {
+        atom.workspace.paneContainerForURI(this.getURI()).show();
+        if (focus) {
+          return this.focus();
+        }
+      });
   }
 
   hide() {
@@ -418,7 +500,7 @@ module.exports =
 
   entryClicked(e) {
     let entry;
-    if (entry = e.target.closest('.entry')) {
+    if ((entry = e.target.closest('.entry'))) {
       const isRecursive = e.altKey || false;
       this.selectEntry(entry);
       if (entry.classList.contains('directory')) {
@@ -435,12 +517,18 @@ module.exports =
     const alwaysOpenExisting = atom.config.get('tree-view.alwaysOpenExisting');
     if (detail === 1) {
       if (atom.config.get('core.allowPendingPaneItems')) {
-        const openPromise = atom.workspace.open(filePath, {pending: true, activatePane: false, searchAllPanes: alwaysOpenExisting});
+        const openPromise = atom.workspace.open(filePath, {
+          pending: true,
+          activatePane: false,
+          searchAllPanes: alwaysOpenExisting,
+        });
         this.currentlyOpening.set(filePath, openPromise);
         return openPromise.then(() => this.currentlyOpening.delete(filePath));
       }
     } else if (detail === 2) {
-      return this.openAfterPromise(filePath, {searchAllPanes: alwaysOpenExisting});
+      return this.openAfterPromise(filePath, {
+        searchAllPanes: alwaysOpenExisting,
+      });
     }
   }
 
@@ -453,13 +541,14 @@ module.exports =
     }
   }
 
-  updateRoots(expansionStates={}) {
+  updateRoots(expansionStates = {}) {
     let root;
     const selectedPaths = this.selectedPaths();
 
     const oldExpansionStates = {};
     for (root of this.roots) {
-      oldExpansionStates[root.directory.path] = root.directory.serializeExpansionState();
+      oldExpansionStates[root.directory.path] =
+        root.directory.serializeExpansionState();
       root.directory.destroy();
       root.remove();
     }
@@ -468,21 +557,30 @@ module.exports =
 
     const projectPaths = atom.project.getPaths();
     if (projectPaths.length > 0) {
-      if (!this.element.querySelector('tree-view-root')) { this.element.appendChild(this.list); }
+      if (!this.element.querySelector('tree-view-root')) {
+        this.element.appendChild(this.list);
+      }
 
-      const addProjectsViewElement = this.element.querySelector('#add-projects-view');
-      if (addProjectsViewElement) { this.element.removeChild(addProjectsViewElement); }
+      const addProjectsViewElement =
+        this.element.querySelector('#add-projects-view');
+      if (addProjectsViewElement) {
+        this.element.removeChild(addProjectsViewElement);
+      }
 
-      if (IgnoredNames == null) { IgnoredNames = require('./ignored-names'); }
+      if (IgnoredNames == null) {
+        IgnoredNames = require('./ignored-names');
+      }
 
       this.roots = (() => {
         const result = [];
         for (var projectPath of projectPaths) {
           var left;
           var stats = fs.lstatSyncNoException(projectPath);
-          if (!stats) { continue; }
+          if (!stats) {
+            continue;
+          }
           stats = _.pick(stats, ...Array.from(_.keys(stats)));
-          for (var key of ["atime", "birthtime", "ctime", "mtime"]) {
+          for (var key of ['atime', 'birthtime', 'ctime', 'mtime']) {
             stats[key] = stats[key].getTime();
           }
 
@@ -491,10 +589,16 @@ module.exports =
             fullPath: projectPath,
             symlink: false,
             isRoot: true,
-            expansionState: (left = expansionStates[projectPath] != null ? expansionStates[projectPath] : oldExpansionStates[projectPath]) != null ? left : {isExpanded: true},
+            expansionState:
+              (left =
+                expansionStates[projectPath] != null
+                  ? expansionStates[projectPath]
+                  : oldExpansionStates[projectPath]) != null
+                ? left
+                : { isExpanded: true },
             ignoredNames: new IgnoredNames(),
             useSyncFS: this.useSyncFS,
-            stats
+            stats,
           });
           root = new DirectoryView(directory).element;
           this.list.appendChild(root);
@@ -504,14 +608,26 @@ module.exports =
       })();
 
       // The DOM has been recreated; reselect everything
-      return selectedPaths.map((selectedPath) => this.selectMultipleEntries(this.entryForPath(selectedPath)));
+      return selectedPaths.map((selectedPath) =>
+        this.selectMultipleEntries(this.entryForPath(selectedPath))
+      );
     } else {
-      if (this.element.querySelector('.tree-view-root')) { this.element.removeChild(this.list); }
-      if (!this.element.querySelector('#add-projects-view')) { return this.element.appendChild(new AddProjectsView().element); }
+      if (this.element.querySelector('.tree-view-root')) {
+        this.element.removeChild(this.list);
+      }
+      if (!this.element.querySelector('#add-projects-view')) {
+        return this.element.appendChild(new AddProjectsView().element);
+      }
     }
   }
 
-  getActivePath() { return __guardMethod__(atom.workspace.getCenter().getActivePaneItem(), 'getPath', o => o.getPath()); }
+  getActivePath() {
+    return __guardMethod__(
+      atom.workspace.getCenter().getActivePaneItem(),
+      'getPath',
+      (o) => o.getPath()
+    );
+  }
 
   selectActiveFile() {
     const activeFilePath = this.getActivePath();
@@ -524,22 +640,34 @@ module.exports =
   }
 
   revealActiveFile(options = {}) {
-    if (!atom.project.getPaths().length) { return Promise.resolve(); }
+    if (!atom.project.getPaths().length) {
+      return Promise.resolve();
+    }
 
-    let {show, focus} = options;
+    let { show, focus } = options;
 
-    if (focus == null) { focus = atom.config.get('tree-view.focusOnReveal'); }
+    if (focus == null) {
+      focus = atom.config.get('tree-view.focusOnReveal');
+    }
     const promise = show || focus ? this.show(focus) : Promise.resolve();
     return promise.then(() => {
       let activeFilePath;
-      if (!(activeFilePath = this.getActivePath())) { return; }
+      if (!(activeFilePath = this.getActivePath())) {
+        return;
+      }
 
-      const [rootPath, relativePath] = Array.from(atom.project.relativizePath(activeFilePath));
-      if (rootPath == null) { return; }
+      const [rootPath, relativePath] = Array.from(
+        atom.project.relativizePath(activeFilePath)
+      );
+      if (rootPath == null) {
+        return;
+      }
 
       const activePathComponents = relativePath.split(path.sep);
       // Add the root folder to the path components
-      activePathComponents.unshift(rootPath.substr(rootPath.lastIndexOf(path.sep) + 1));
+      activePathComponents.unshift(
+        rootPath.substr(rootPath.lastIndexOf(path.sep) + 1)
+      );
       // And remove it from the current path
       let currentPath = rootPath.substr(0, rootPath.lastIndexOf(path.sep));
       return (() => {
@@ -561,8 +689,10 @@ module.exports =
 
   copySelectedEntryPath(relativePath = false) {
     let pathToCopy;
-    if (pathToCopy = this.selectedPath) {
-      if (relativePath) { pathToCopy = atom.project.relativize(pathToCopy); }
+    if ((pathToCopy = this.selectedPath)) {
+      if (relativePath) {
+        pathToCopy = atom.project.relativize(pathToCopy);
+      }
       return atom.clipboard.write(pathToCopy);
     }
   }
@@ -577,7 +707,12 @@ module.exports =
       }
 
       var entryLength = entry.getPath().length;
-      if ((entry.directory != null ? entry.directory.contains(entryPath) : undefined) && (entryLength > bestMatchLength)) {
+      if (
+        (entry.directory != null
+          ? entry.directory.contains(entryPath)
+          : undefined) &&
+        entryLength > bestMatchLength
+      ) {
         bestMatchEntry = entry;
         bestMatchLength = entryLength;
       }
@@ -604,7 +739,7 @@ module.exports =
         }
       }
 
-      if (nextEntry = this.nextEntry(selectedEntry)) {
+      if ((nextEntry = this.nextEntry(selectedEntry))) {
         this.selectEntry(nextEntry);
       }
     } else {
@@ -650,55 +785,69 @@ module.exports =
 
   previousEntry(entry) {
     let previousEntry = entry.previousSibling;
-    while ((previousEntry != null) && !previousEntry.matches('.entry')) {
+    while (previousEntry != null && !previousEntry.matches('.entry')) {
       previousEntry = previousEntry.previousSibling;
     }
 
-    if (previousEntry == null) { return null; }
+    if (previousEntry == null) {
+      return null;
+    }
 
     // If the previous entry is an expanded directory,
     // we need to select the last entry in that directory,
     // not the directory itself
     if (previousEntry.matches('.directory.expanded')) {
       const entries = previousEntry.querySelectorAll('.entry');
-      if (entries.length > 0) { return entries[entries.length - 1]; }
+      if (entries.length > 0) {
+        return entries[entries.length - 1];
+      }
     }
 
     return previousEntry;
   }
 
-  expandDirectory(isRecursive=false) {
+  expandDirectory(isRecursive = false) {
     const selectedEntry = this.selectedEntry();
-    if (selectedEntry == null) { return; }
+    if (selectedEntry == null) {
+      return;
+    }
 
     const directory = selectedEntry.closest('.directory');
-    if ((isRecursive === false) && directory.isExpanded) {
+    if (isRecursive === false && directory.isExpanded) {
       // Select the first entry in the expanded folder if it exists
-      if (directory.directory.getEntries().length > 0) { return this.moveDown(); }
+      if (directory.directory.getEntries().length > 0) {
+        return this.moveDown();
+      }
     } else {
       return directory.expand(isRecursive);
     }
   }
 
-  collapseDirectory(isRecursive=false, allDirectories=false) {
+  collapseDirectory(isRecursive = false, allDirectories = false) {
     let directory;
     if (allDirectories) {
-      for (var root of this.roots) { root.collapse(true); }
+      for (var root of this.roots) {
+        root.collapse(true);
+      }
       return;
     }
 
     const selectedEntry = this.selectedEntry();
-    if (selectedEntry == null) { return; }
+    if (selectedEntry == null) {
+      return;
+    }
 
-    if (directory = selectedEntry.closest('.expanded.directory')) {
+    if ((directory = selectedEntry.closest('.expanded.directory'))) {
       directory.collapse(isRecursive);
       return this.selectEntry(directory);
     }
   }
 
-  openSelectedEntry(options={}, expandDirectory=false) {
+  openSelectedEntry(options = {}, expandDirectory = false) {
     const selectedEntry = this.selectedEntry();
-    if (selectedEntry == null) { return; }
+    if (selectedEntry == null) {
+      return;
+    }
 
     if (selectedEntry.classList.contains('directory')) {
       if (expandDirectory) {
@@ -708,7 +857,7 @@ module.exports =
       }
     } else if (selectedEntry.classList.contains('file')) {
       if (atom.config.get('tree-view.alwaysOpenExisting')) {
-        options = Object.assign({searchAllPanes: true}, options);
+        options = Object.assign({ searchAllPanes: true }, options);
       }
       return this.openAfterPromise(selectedEntry.getPath(), options);
     }
@@ -716,7 +865,9 @@ module.exports =
 
   openSelectedEntrySplit(orientation, side) {
     const selectedEntry = this.selectedEntry();
-    if (selectedEntry == null) { return; }
+    if (selectedEntry == null) {
+      return;
+    }
 
     const pane = atom.workspace.getCenter().getActivePane();
     if (pane && selectedEntry.classList.contains('file')) {
@@ -747,7 +898,9 @@ module.exports =
 
   openSelectedEntryInPane(index) {
     const selectedEntry = this.selectedEntry();
-    if (selectedEntry == null) { return; }
+    if (selectedEntry == null) {
+      return;
+    }
 
     const pane = atom.workspace.getCenter().getPanes()[index];
     if (pane && selectedEntry.classList.contains('file')) {
@@ -759,7 +912,9 @@ module.exports =
     let oldPath;
     if (this.hasFocus()) {
       const entry = this.selectedEntry();
-      if ((entry == null) || this.roots.includes(entry)) { return; }
+      if (entry == null || this.roots.includes(entry)) {
+        return;
+      }
       oldPath = entry.getPath();
     } else {
       oldPath = this.getActivePath();
@@ -767,15 +922,18 @@ module.exports =
 
     if (oldPath) {
       const dialog = new MoveDialog(oldPath, {
-        willMove: ({initialPath, newPath}) => {
-          return this.emitter.emit('will-move-entry', {initialPath, newPath});
+        willMove: ({ initialPath, newPath }) => {
+          return this.emitter.emit('will-move-entry', { initialPath, newPath });
         },
-        onMove: ({initialPath, newPath}) => {
-          return this.emitter.emit('entry-moved', {initialPath, newPath});
+        onMove: ({ initialPath, newPath }) => {
+          return this.emitter.emit('entry-moved', { initialPath, newPath });
         },
-        onMoveFailed: ({initialPath, newPath}) => {
-          return this.emitter.emit('move-entry-failed', {initialPath, newPath});
-        }
+        onMoveFailed: ({ initialPath, newPath }) => {
+          return this.emitter.emit('move-entry-failed', {
+            initialPath,
+            newPath,
+          });
+        },
       });
       return dialog.attach();
     }
@@ -783,10 +941,14 @@ module.exports =
 
   showSelectedEntryInFileManager() {
     let filePath;
-    if (!(filePath = __guard__(this.selectedEntry(), x => x.getPath()))) { return; }
+    if (!(filePath = __guard__(this.selectedEntry(), (x) => x.getPath()))) {
+      return;
+    }
 
     if (!fs.existsSync(filePath)) {
-      return atom.notifications.addWarning(`Unable to show ${filePath} in ${this.getFileManagerName()}`);
+      return atom.notifications.addWarning(
+        `Unable to show ${filePath} in ${this.getFileManagerName()}`
+      );
     }
 
     return shell.showItemInFolder(filePath);
@@ -794,10 +956,19 @@ module.exports =
 
   showCurrentFileInFileManager() {
     let filePath;
-    if (!(filePath = __guard__(atom.workspace.getCenter().getActiveTextEditor(), x => x.getPath()))) { return; }
+    if (
+      !(filePath = __guard__(
+        atom.workspace.getCenter().getActiveTextEditor(),
+        (x) => x.getPath()
+      ))
+    ) {
+      return;
+    }
 
     if (!fs.existsSync(filePath)) {
-      return atom.notifications.addWarning(`Unable to show ${filePath} in ${this.getFileManagerName()}`);
+      return atom.notifications.addWarning(
+        `Unable to show ${filePath} in ${this.getFileManagerName()}`
+      );
     }
 
     return shell.showItemInFolder(filePath);
@@ -816,8 +987,8 @@ module.exports =
 
   openSelectedEntryInNewWindow() {
     let pathToOpen;
-    if (pathToOpen = __guard__(this.selectedEntry(), x => x.getPath())) {
-      return atom.open({pathsToOpen: [pathToOpen], newWindow: true});
+    if ((pathToOpen = __guard__(this.selectedEntry(), (x) => x.getPath()))) {
+      return atom.open({ pathsToOpen: [pathToOpen], newWindow: true });
     }
   }
 
@@ -825,17 +996,21 @@ module.exports =
     let oldPath;
     if (this.hasFocus()) {
       const entry = this.selectedEntry();
-      if (this.roots.includes(entry)) { return; }
+      if (this.roots.includes(entry)) {
+        return;
+      }
       oldPath = entry != null ? entry.getPath() : undefined;
     } else {
       oldPath = this.getActivePath();
     }
-    if (!oldPath) { return; }
+    if (!oldPath) {
+      return;
+    }
 
     const dialog = new CopyDialog(oldPath, {
-      onCopy: ({initialPath, newPath}) => {
-        return this.emitter.emit('entry-copied', {initialPath, newPath});
-      }
+      onCopy: ({ initialPath, newPath }) => {
+        return this.emitter.emit('entry-copied', { initialPath, newPath });
+      },
     });
     return dialog.attach();
   }
@@ -845,73 +1020,98 @@ module.exports =
     if (this.hasFocus()) {
       selectedPaths = this.selectedPaths();
       selectedEntries = this.getSelectedEntries();
-    } else if (activePath = this.getActivePath()) {
+    } else if ((activePath = this.getActivePath())) {
       selectedPaths = [activePath];
       selectedEntries = [this.entryForPath(activePath)];
     }
 
-    if ((selectedPaths != null ? selectedPaths.length : undefined) <= 0) { return; }
+    if ((selectedPaths != null ? selectedPaths.length : undefined) <= 0) {
+      return;
+    }
 
     for (var root of this.roots) {
       var needle;
-      if ((needle = root.getPath(), selectedPaths.includes(needle))) {
-        atom.confirm({
-          message: `The root directory '${root.directory.name}' can't be removed.`,
-          buttons: ['OK']
-        }, function() {} // noop
+      if (((needle = root.getPath()), selectedPaths.includes(needle))) {
+        atom.confirm(
+          {
+            message: `The root directory '${root.directory.name}' can't be removed.`,
+            buttons: ['OK'],
+          },
+          function () {} // noop
         );
         return;
       }
     }
 
-    return atom.confirm({
-      message: `Are you sure you want to delete the selected ${selectedPaths.length > 1 ? 'items' : 'item'}?`,
-      detailedMessage: `You are deleting:\n${selectedPaths.join('\n')}`,
-      buttons: ['Move to Trash', 'Cancel']
-    }, response => {
-      if (response === 0) { // Move to Trash
-        let firstSelectedEntry;
-        const failedDeletions = [];
-        for (var selectedPath of selectedPaths) {
-          // Don't delete entries which no longer exist. This can happen, for example, when:
-          // * The entry is deleted outside of Atom before "Move to Trash" is selected
-          // * A folder and one of its children are both selected for deletion,
-          //   but the parent folder is deleted first
-          var repo;
-          if (!fs.existsSync(selectedPath)) { continue; }
-
-          this.emitter.emit('will-delete-entry', {pathToDelete: selectedPath});
-          shell.trashItem(selectedPath)
-          .then(() => {
-            this.emitter.emit('entry-deleted', {pathToDelete: selectedPath});
-          })
-          .catch(() => {
-            this.emitter.emit('delete-entry-failed', {pathToDelete: selectedPath});
-            failedDeletions.push(selectedPath);
-          })
-          .finally(() => {
-            if (repo = repoForPath(selectedPath)) {
-              repo.getPathStatus(selectedPath);
+    return atom.confirm(
+      {
+        message: `Are you sure you want to delete the selected ${
+          selectedPaths.length > 1 ? 'items' : 'item'
+        }?`,
+        detailedMessage: `You are deleting:\n${selectedPaths.join('\n')}`,
+        buttons: ['Move to Trash', 'Cancel'],
+      },
+      (response) => {
+        if (response === 0) {
+          // Move to Trash
+          let firstSelectedEntry;
+          const failedDeletions = [];
+          for (var selectedPath of selectedPaths) {
+            // Don't delete entries which no longer exist. This can happen, for example, when:
+            // * The entry is deleted outside of Atom before "Move to Trash" is selected
+            // * A folder and one of its children are both selected for deletion,
+            //   but the parent folder is deleted first
+            var repo;
+            if (!fs.existsSync(selectedPath)) {
+              continue;
             }
-          })
-        }
 
-        if (failedDeletions.length > 0) {
-          atom.notifications.addError(this.formatTrashFailureMessage(failedDeletions), {
-            description: this.formatTrashEnabledMessage(),
-            detail: `${failedDeletions.join('\n')}`,
-            dismissable: true
+            this.emitter.emit('will-delete-entry', {
+              pathToDelete: selectedPath,
+            });
+            shell
+              .trashItem(selectedPath)
+              .then(() => {
+                this.emitter.emit('entry-deleted', {
+                  pathToDelete: selectedPath,
+                });
+              })
+              .catch(() => {
+                this.emitter.emit('delete-entry-failed', {
+                  pathToDelete: selectedPath,
+                });
+                failedDeletions.push(selectedPath);
+              })
+              .finally(() => {
+                if ((repo = repoForPath(selectedPath))) {
+                  repo.getPathStatus(selectedPath);
+                }
+              });
           }
-          );
-        }
 
-        // Focus the first parent folder
-        if (firstSelectedEntry = selectedEntries[0]) {
-          this.selectEntry(firstSelectedEntry.closest('.directory:not(.selected)'));
+          if (failedDeletions.length > 0) {
+            atom.notifications.addError(
+              this.formatTrashFailureMessage(failedDeletions),
+              {
+                description: this.formatTrashEnabledMessage(),
+                detail: `${failedDeletions.join('\n')}`,
+                dismissable: true,
+              }
+            );
+          }
+
+          // Focus the first parent folder
+          if ((firstSelectedEntry = selectedEntries[0])) {
+            this.selectEntry(
+              firstSelectedEntry.closest('.directory:not(.selected)')
+            );
+          }
+          if (atom.config.get('tree-view.squashDirectoryNames')) {
+            return this.updateRoots();
+          }
         }
-        if (atom.config.get('tree-view.squashDirectoryNames')) { return this.updateRoots(); }
       }
-    });
+    );
   }
 
   formatTrashFailureMessage(failedDeletions) {
@@ -922,9 +1122,12 @@ module.exports =
 
   formatTrashEnabledMessage() {
     switch (process.platform) {
-      case 'linux': return 'Is `gvfs-trash` installed?';
-      case 'darwin': return 'Is Trash enabled on the volume where the files are stored?';
-      case 'win32': return 'Is there a Recycle Bin on the drive where the files are stored?';
+      case 'linux':
+        return 'Is `gvfs-trash` installed?';
+      case 'darwin':
+        return 'Is Trash enabled on the volume where the files are stored?';
+      case 'win32':
+        return 'Is there a Recycle Bin on the drive where the files are stored?';
     }
   }
 
@@ -936,10 +1139,13 @@ module.exports =
   // Returns `copyPath`.
   copySelectedEntries() {
     const selectedPaths = this.selectedPaths();
-    if (!selectedPaths || (selectedPaths.length <= 0)) { return; }
+    if (!selectedPaths || selectedPaths.length <= 0) {
+      return;
+    }
     // save to localStorage so we can paste across multiple open apps
     window.localStorage.removeItem('tree-view:cutPath');
-    return window.localStorage['tree-view:copyPath'] = JSON.stringify(selectedPaths);
+    return (window.localStorage['tree-view:copyPath'] =
+      JSON.stringify(selectedPaths));
   }
 
   // Public: Cut the path of the selected entry element.
@@ -950,10 +1156,13 @@ module.exports =
   // Returns `cutPath`
   cutSelectedEntries() {
     const selectedPaths = this.selectedPaths();
-    if (!selectedPaths || (selectedPaths.length <= 0)) { return; }
+    if (!selectedPaths || selectedPaths.length <= 0) {
+      return;
+    }
     // save to localStorage so we can paste across multiple open apps
     window.localStorage.removeItem('tree-view:copyPath');
-    return window.localStorage['tree-view:cutPath'] = JSON.stringify(selectedPaths);
+    return (window.localStorage['tree-view:cutPath'] =
+      JSON.stringify(selectedPaths));
   }
 
   // Public: Paste a copied or cut item.
@@ -961,15 +1170,25 @@ module.exports =
   //         paste destination.
   pasteEntries() {
     const selectedEntry = this.selectedEntry();
-    if (!selectedEntry) { return; }
+    if (!selectedEntry) {
+      return;
+    }
 
-    const cutPaths = window.localStorage['tree-view:cutPath'] ? JSON.parse(window.localStorage['tree-view:cutPath']) : null;
-    const copiedPaths = window.localStorage['tree-view:copyPath'] ? JSON.parse(window.localStorage['tree-view:copyPath']) : null;
+    const cutPaths = window.localStorage['tree-view:cutPath']
+      ? JSON.parse(window.localStorage['tree-view:cutPath'])
+      : null;
+    const copiedPaths = window.localStorage['tree-view:copyPath']
+      ? JSON.parse(window.localStorage['tree-view:copyPath'])
+      : null;
     const initialPaths = copiedPaths || cutPaths;
-    if (!(initialPaths != null ? initialPaths.length : undefined)) { return; }
+    if (!(initialPaths != null ? initialPaths.length : undefined)) {
+      return;
+    }
 
     let newDirectoryPath = selectedEntry.getPath();
-    if (selectedEntry.classList.contains('file')) { newDirectoryPath = path.dirname(newDirectoryPath); }
+    if (selectedEntry.classList.contains('file')) {
+      newDirectoryPath = path.dirname(newDirectoryPath);
+    }
 
     return (() => {
       const result = [];
@@ -978,7 +1197,9 @@ module.exports =
           if (copiedPaths) {
             result.push(this.copyEntry(initialPath, newDirectoryPath));
           } else if (cutPaths) {
-            if (!this.moveEntry(initialPath, newDirectoryPath)) { break; } else {
+            if (!this.moveEntry(initialPath, newDirectoryPath)) {
+              break;
+            } else {
               result.push(undefined);
             }
           } else {
@@ -994,33 +1215,71 @@ module.exports =
 
   add(isCreatingFile) {
     let left, left1;
-    const selectedEntry = (left = this.selectedEntry()) != null ? left : this.roots[0];
-    const selectedPath = (left1 = (selectedEntry != null ? selectedEntry.getPath() : undefined)) != null ? left1 : '';
+    const selectedEntry =
+      (left = this.selectedEntry()) != null ? left : this.roots[0];
+    const selectedPath =
+      (left1 = selectedEntry != null ? selectedEntry.getPath() : undefined) !=
+      null
+        ? left1
+        : '';
 
     const dialog = new AddDialog(selectedPath, isCreatingFile);
-    dialog.onDidCreateDirectory(createdPath => {
-      __guard__(this.entryForPath(createdPath), x => x.reload());
+    dialog.onDidCreateDirectory((createdPath) => {
+      __guard__(this.entryForPath(createdPath), (x) => x.reload());
       this.selectEntryForPath(createdPath);
-      if (atom.config.get('tree-view.squashDirectoryNames')) { this.updateRoots(); }
-      return this.emitter.emit('directory-created', {path: createdPath});
-  });
-    dialog.onDidCreateFile(createdPath => {
-      __guard__(this.entryForPath(createdPath), x => x.reload());
+      if (atom.config.get('tree-view.squashDirectoryNames')) {
+        this.updateRoots();
+      }
+      return this.emitter.emit('directory-created', { path: createdPath });
+    });
+    dialog.onDidCreateFile((createdPath) => {
+      __guard__(this.entryForPath(createdPath), (x) => x.reload());
       atom.workspace.open(createdPath);
-      if (atom.config.get('tree-view.squashDirectoryNames')) { this.updateRoots(); }
-      return this.emitter.emit('file-created', {path: createdPath});
-  });
+      if (atom.config.get('tree-view.squashDirectoryNames')) {
+        this.updateRoots();
+      }
+      return this.emitter.emit('file-created', { path: createdPath });
+    });
     return dialog.attach();
   }
 
   removeProjectFolder(e) {
     // Remove the targeted project folder (generally this only happens through the context menu)
-    let pathToRemove = __guard__(__guard__(e.target.closest(".project-root > .header"), x1 => x1.querySelector(".name")), x => x.dataset.path);
+    let pathToRemove = __guard__(
+      __guard__(e.target.closest('.project-root > .header'), (x1) =>
+        x1.querySelector('.name')
+      ),
+      (x) => x.dataset.path
+    );
     // If an entry is selected, remove that entry's project folder
-    if (pathToRemove == null) { pathToRemove = __guard__(__guard__(__guard__(__guard__(this.selectedEntry(), x5 => x5.closest(".project-root")), x4 => x4.querySelector(".header")), x3 => x3.querySelector(".name")), x2 => x2.dataset.path); }
+    if (pathToRemove == null) {
+      pathToRemove = __guard__(
+        __guard__(
+          __guard__(
+            __guard__(this.selectedEntry(), (x5) =>
+              x5.closest('.project-root')
+            ),
+            (x4) => x4.querySelector('.header')
+          ),
+          (x3) => x3.querySelector('.name')
+        ),
+        (x2) => x2.dataset.path
+      );
+    }
     // Finally, if only one project folder exists and nothing is selected, remove that folder
-    if (this.roots.length === 1) { if (pathToRemove == null) { pathToRemove = __guard__(__guard__(this.roots[0].querySelector(".header"), x7 => x7.querySelector(".name")), x6 => x6.dataset.path); } }
-    if (pathToRemove != null) { return atom.project.removePath(pathToRemove); }
+    if (this.roots.length === 1) {
+      if (pathToRemove == null) {
+        pathToRemove = __guard__(
+          __guard__(this.roots[0].querySelector('.header'), (x7) =>
+            x7.querySelector('.name')
+          ),
+          (x6) => x6.dataset.path
+        );
+      }
+    }
+    if (pathToRemove != null) {
+      return atom.project.removePath(pathToRemove);
+    }
   }
 
   selectedEntry() {
@@ -1028,13 +1287,15 @@ module.exports =
   }
 
   selectEntry(entry) {
-    if (entry == null) { return; }
+    if (entry == null) {
+      return;
+    }
 
     this.selectedPath = entry.getPath();
     this.lastFocusedEntry = entry;
 
     const selectedEntries = this.getSelectedEntries();
-    if ((selectedEntries.length > 1) || (selectedEntries[0] !== entry)) {
+    if (selectedEntries.length > 1 || selectedEntries[0] !== entry) {
       this.deselect(selectedEntries);
       entry.classList.add('selected');
     }
@@ -1045,14 +1306,16 @@ module.exports =
     return this.list.querySelectorAll('.selected');
   }
 
-  deselect(elementsToDeselect=this.getSelectedEntries()) {
-    for (var selected of elementsToDeselect) { selected.classList.remove('selected'); }
+  deselect(elementsToDeselect = this.getSelectedEntries()) {
+    for (var selected of elementsToDeselect) {
+      selected.classList.remove('selected');
+    }
     return undefined;
   }
 
   scrollTop(top) {
     if (top != null) {
-      return this.element.scrollTop = top;
+      return (this.element.scrollTop = top);
     } else {
       return this.element.scrollTop;
     }
@@ -1060,36 +1323,42 @@ module.exports =
 
   scrollBottom(bottom) {
     if (bottom != null) {
-      return this.element.scrollTop = bottom - this.element.offsetHeight;
+      return (this.element.scrollTop = bottom - this.element.offsetHeight);
     } else {
       return this.element.scrollTop + this.element.offsetHeight;
     }
   }
 
-  scrollToEntry(entry, center=true) {
-    const element = (entry != null ? entry.classList.contains('directory') : undefined) ? entry.header : entry;
-    return (element != null ? element.scrollIntoViewIfNeeded(center) : undefined);
+  scrollToEntry(entry, center = true) {
+    const element = (
+      entry != null ? entry.classList.contains('directory') : undefined
+    )
+      ? entry.header
+      : entry;
+    return element != null ? element.scrollIntoViewIfNeeded(center) : undefined;
   }
 
   scrollToBottom() {
     let lastEntry;
-    if (lastEntry = _.last(this.list.querySelectorAll('.entry'))) {
+    if ((lastEntry = _.last(this.list.querySelectorAll('.entry')))) {
       this.selectEntry(lastEntry);
       return this.scrollToEntry(lastEntry);
     }
   }
 
   scrollToTop() {
-    if (this.roots[0] != null) { this.selectEntry(this.roots[0]); }
-    return this.element.scrollTop = 0;
+    if (this.roots[0] != null) {
+      this.selectEntry(this.roots[0]);
+    }
+    return (this.element.scrollTop = 0);
   }
 
   pageUp() {
-    return this.element.scrollTop -= this.element.offsetHeight;
+    return (this.element.scrollTop -= this.element.offsetHeight);
   }
 
   pageDown() {
-    return this.element.scrollTop += this.element.offsetHeight;
+    return (this.element.scrollTop += this.element.offsetHeight);
   }
 
   // Copies an entry from `initialPath` to `newDirectoryPath`
@@ -1101,7 +1370,10 @@ module.exports =
     // Note: A trailing path.sep is added to prevent false positives, such as test/a -> test/ab
     const realNewDirectoryPath = fs.realpathSync(newDirectoryPath) + path.sep;
     const realInitialPath = fs.realpathSync(initialPath) + path.sep;
-    if (initialPathIsDirectory && realNewDirectoryPath.startsWith(realInitialPath)) {
+    if (
+      initialPathIsDirectory &&
+      realNewDirectoryPath.startsWith(realInitialPath)
+    ) {
       if (!fs.isSymbolicLinkSync(initialPath)) {
         atom.notifications.addWarning('Cannot copy a folder into itself');
         return;
@@ -1118,7 +1390,10 @@ module.exports =
         newPath = `${originalNewPath}${fileCounter}`;
       } else {
         var extension = getFullExtension(originalNewPath);
-        var filePath = path.join(path.dirname(originalNewPath), path.basename(originalNewPath, extension));
+        var filePath = path.join(
+          path.dirname(originalNewPath),
+          path.basename(originalNewPath, extension)
+        );
         newPath = `${filePath}${fileCounter}${extension}`;
       }
       fileCounter += 1;
@@ -1126,7 +1401,7 @@ module.exports =
 
     try {
       let repo;
-      this.emitter.emit('will-copy-entry', {initialPath, newPath});
+      this.emitter.emit('will-copy-entry', { initialPath, newPath });
       if (initialPathIsDirectory) {
         // use fs.copy to copy directories since read/write will fail for directories
         fs.copySync(initialPath, newPath);
@@ -1135,16 +1410,18 @@ module.exports =
         // TODO: Replace with fs.copyFileSync
         fs.writeFileSync(newPath, fs.readFileSync(initialPath));
       }
-      this.emitter.emit('entry-copied', {initialPath, newPath});
+      this.emitter.emit('entry-copied', { initialPath, newPath });
 
-      if (repo = repoForPath(newPath)) {
+      if ((repo = repoForPath(newPath))) {
         repo.getPathStatus(initialPath);
         return repo.getPathStatus(newPath);
       }
-
     } catch (error) {
-      this.emitter.emit('copy-entry-failed', {initialPath, newPath});
-      return atom.notifications.addWarning(`Failed to copy entry ${initialPath} to ${newDirectoryPath}`, {detail: error.message});
+      this.emitter.emit('copy-entry-failed', { initialPath, newPath });
+      return atom.notifications.addWarning(
+        `Failed to copy entry ${initialPath} to ${newDirectoryPath}`,
+        { detail: error.message }
+      );
     }
   }
 
@@ -1156,7 +1433,10 @@ module.exports =
     try {
       const realNewDirectoryPath = fs.realpathSync(newDirectoryPath) + path.sep;
       const realInitialPath = fs.realpathSync(initialPath) + path.sep;
-      if (fs.isDirectorySync(initialPath) && realNewDirectoryPath.startsWith(realInitialPath)) {
+      if (
+        fs.isDirectorySync(initialPath) &&
+        realNewDirectoryPath.startsWith(realInitialPath)
+      ) {
         if (!fs.isSymbolicLinkSync(initialPath)) {
           atom.notifications.addWarning('Cannot move a folder into itself');
           return;
@@ -1164,29 +1444,38 @@ module.exports =
       }
     } catch (error1) {
       error = error1;
-      atom.notifications.addWarning(`Failed to move entry ${initialPath} to ${newDirectoryPath}`, {detail: error.message});
+      atom.notifications.addWarning(
+        `Failed to move entry ${initialPath} to ${newDirectoryPath}`,
+        { detail: error.message }
+      );
     }
 
     const newPath = path.join(newDirectoryPath, path.basename(initialPath));
 
     try {
       let repo;
-      this.emitter.emit('will-move-entry', {initialPath, newPath});
+      this.emitter.emit('will-move-entry', { initialPath, newPath });
       fs.moveSync(initialPath, newPath);
-      this.emitter.emit('entry-moved', {initialPath, newPath});
+      this.emitter.emit('entry-moved', { initialPath, newPath });
 
-      if (repo = repoForPath(newPath)) {
+      if ((repo = repoForPath(newPath))) {
         repo.getPathStatus(initialPath);
         repo.getPathStatus(newPath);
       }
-
     } catch (error2) {
       error = error2;
       if (error.code === 'EEXIST') {
-        return this.moveConflictingEntry(initialPath, newPath, newDirectoryPath);
+        return this.moveConflictingEntry(
+          initialPath,
+          newPath,
+          newDirectoryPath
+        );
       } else {
-        this.emitter.emit('move-entry-failed', {initialPath, newPath});
-        atom.notifications.addWarning(`Failed to move entry ${initialPath} to ${newDirectoryPath}`, {detail: error.message});
+        this.emitter.emit('move-entry-failed', { initialPath, newPath });
+        atom.notifications.addWarning(
+          `Failed to move entry ${initialPath} to ${newDirectoryPath}`,
+          { detail: error.message }
+        );
       }
     }
 
@@ -1199,16 +1488,20 @@ module.exports =
         // Files, symlinks, anything but a directory
         let repo;
         const chosen = atom.confirm({
-          message: `'${path.relative(newDirectoryPath, newPath)}' already exists`,
+          message: `'${path.relative(
+            newDirectoryPath,
+            newPath
+          )}' already exists`,
           detailedMessage: 'Do you want to replace it?',
-          buttons: ['Replace file', 'Skip', 'Cancel']});
+          buttons: ['Replace file', 'Skip', 'Cancel'],
+        });
 
         switch (chosen) {
           case 0: // Replace
             fs.renameSync(initialPath, newPath);
-            this.emitter.emit('entry-moved', {initialPath, newPath});
+            this.emitter.emit('entry-moved', { initialPath, newPath });
 
-            if (repo = repoForPath(newPath)) {
+            if ((repo = repoForPath(newPath))) {
               repo.getPathStatus(initialPath);
               repo.getPathStatus(newPath);
             }
@@ -1221,18 +1514,31 @@ module.exports =
         const entries = fs.readdirSync(initialPath);
         for (var entry of entries) {
           if (fs.existsSync(path.join(newPath, entry))) {
-            if (!this.moveConflictingEntry(path.join(initialPath, entry), path.join(newPath, entry), newDirectoryPath)) { return false; }
+            if (
+              !this.moveConflictingEntry(
+                path.join(initialPath, entry),
+                path.join(newPath, entry),
+                newDirectoryPath
+              )
+            ) {
+              return false;
+            }
           } else {
             this.moveEntry(path.join(initialPath, entry), newPath);
           }
         }
 
         // "Move" the containing folder by deleting it, since we've already moved everything in it
-        if (!fs.readdirSync(initialPath).length) { fs.rmdirSync(initialPath); }
+        if (!fs.readdirSync(initialPath).length) {
+          fs.rmdirSync(initialPath);
+        }
       }
     } catch (error) {
-      this.emitter.emit('move-entry-failed', {initialPath, newPath});
-      atom.notifications.addWarning(`Failed to move entry ${initialPath} to ${newPath}`, {detail: error.message});
+      this.emitter.emit('move-entry-failed', { initialPath, newPath });
+      atom.notifications.addWarning(
+        `Failed to move entry ${initialPath} to ${newPath}`,
+        { detail: error.message }
+      );
     }
 
     return true;
@@ -1241,15 +1547,19 @@ module.exports =
   onStylesheetsChanged() {
     // If visible, force a redraw so the scrollbars are styled correctly based on
     // the theme
-    if (!this.isVisible()) { return; }
+    if (!this.isVisible()) {
+      return;
+    }
     this.element.style.display = 'none';
     this.element.offsetWidth;
-    return this.element.style.display = '';
+    return (this.element.style.display = '');
   }
 
   onMouseDown(e) {
     let entryToSelect, shiftKey;
-    if (!(entryToSelect = e.target.closest('.entry'))) { return; }
+    if (!(entryToSelect = e.target.closest('.entry'))) {
+      return;
+    }
 
     e.stopPropagation();
 
@@ -1257,17 +1567,17 @@ module.exports =
     //       Right now removing metaKey if platform is not darwin breaks tests
     //       that set the metaKey to true when simulating a cmd+click on macos
     //       and ctrl+click on windows and linux.
-    const cmdKey = e.metaKey || (e.ctrlKey && (process.platform !== 'darwin'));
+    const cmdKey = e.metaKey || (e.ctrlKey && process.platform !== 'darwin');
 
     // return early if clicking on a selected entry
     if (entryToSelect.classList.contains('selected')) {
       // mouse right click or ctrl click as right click on darwin platforms
-      if ((e.button === 2) || (e.ctrlKey && (process.platform === 'darwin'))) {
+      if (e.button === 2 || (e.ctrlKey && process.platform === 'darwin')) {
         return;
       } else {
         // allow click on mouseup if not dragging
-        ({shiftKey} = e);
-        this.selectOnMouseUp = {shiftKey, cmdKey};
+        ({ shiftKey } = e);
+        this.selectOnMouseUp = { shiftKey, cmdKey };
         return;
       }
     }
@@ -1280,7 +1590,7 @@ module.exports =
       // select continuous from @lastFocusedEntry and deselect rest
       this.selectContinuousEntries(entryToSelect);
       return this.showMultiSelectMenuIfNecessary();
-    // only allow ctrl click for multi selection on non darwin systems
+      // only allow ctrl click for multi selection on non darwin systems
     } else if (cmdKey) {
       this.selectMultipleEntries(entryToSelect);
       this.lastFocusedEntry = entryToSelect;
@@ -1293,12 +1603,16 @@ module.exports =
 
   onMouseUp(e) {
     let entryToSelect;
-    if (this.selectOnMouseUp == null) { return; }
+    if (this.selectOnMouseUp == null) {
+      return;
+    }
 
-    const {shiftKey, cmdKey} = this.selectOnMouseUp;
+    const { shiftKey, cmdKey } = this.selectOnMouseUp;
     this.selectOnMouseUp = null;
 
-    if (!(entryToSelect = e.target.closest('.entry'))) { return; }
+    if (!(entryToSelect = e.target.closest('.entry'))) {
+      return;
+    }
 
     e.stopPropagation();
 
@@ -1310,7 +1624,7 @@ module.exports =
       // select continuous from @lastFocusedEntry and deselect rest
       this.selectContinuousEntries(entryToSelect);
       return this.showMultiSelectMenuIfNecessary();
-    // only allow ctrl click for multi selection on non darwin systems
+      // only allow ctrl click for multi selection on non darwin systems
     } else if (cmdKey) {
       this.deselect([entryToSelect]);
       this.lastFocusedEntry = entryToSelect;
@@ -1327,7 +1641,9 @@ module.exports =
   // => ['selected/path/one', 'selected/path/two', 'selected/path/three']
   // Returns Array of selected item paths
   selectedPaths() {
-    return Array.from(this.getSelectedEntries()).map((entry) => entry.getPath());
+    return Array.from(this.getSelectedEntries()).map((entry) =>
+      entry.getPath()
+    );
   }
 
   // Public: Selects items within a range defined by a currently selected entry and
@@ -1335,17 +1651,26 @@ module.exports =
   //
   // Returns array of selected elements
   selectContinuousEntries(entry, deselectOthers = true) {
-    const currentSelectedEntry = this.lastFocusedEntry != null ? this.lastFocusedEntry : this.selectedEntry();
+    const currentSelectedEntry =
+      this.lastFocusedEntry != null
+        ? this.lastFocusedEntry
+        : this.selectedEntry();
     const parentContainer = entry.parentElement;
     let elements = [];
     if (parentContainer === currentSelectedEntry.parentElement) {
       const entries = Array.from(parentContainer.querySelectorAll('.entry'));
       const entryIndex = entries.indexOf(entry);
       const selectedIndex = entries.indexOf(currentSelectedEntry);
-      elements = (__range__(entryIndex, selectedIndex, true).map((i) => entries[i]));
+      elements = __range__(entryIndex, selectedIndex, true).map(
+        (i) => entries[i]
+      );
 
-      if (deselectOthers) { this.deselect(); }
-      for (var element of elements) { element.classList.add('selected'); }
+      if (deselectOthers) {
+        this.deselect();
+      }
+      for (var element of elements) {
+        element.classList.add('selected');
+      }
     }
 
     return elements;
@@ -1393,31 +1718,50 @@ module.exports =
 
   onDragEnter(e) {
     let entry;
-    if (entry = e.target.closest('.entry.directory')) {
-      if (this.rootDragAndDrop.isDragging(e)) { return; }
-      if (!this.isAtomTreeViewEvent(e)) { return; }
+    if ((entry = e.target.closest('.entry.directory'))) {
+      if (this.rootDragAndDrop.isDragging(e)) {
+        return;
+      }
+      if (!this.isAtomTreeViewEvent(e)) {
+        return;
+      }
 
       e.stopPropagation();
 
-      if (!this.dragEventCounts.get(entry)) { this.dragEventCounts.set(entry, 0); }
-      if ((this.dragEventCounts.get(entry) === 0) && !entry.classList.contains('selected')) {
+      if (!this.dragEventCounts.get(entry)) {
+        this.dragEventCounts.set(entry, 0);
+      }
+      if (
+        this.dragEventCounts.get(entry) === 0 &&
+        !entry.classList.contains('selected')
+      ) {
         entry.classList.add('drag-over', 'selected');
       }
 
-      return this.dragEventCounts.set(entry, this.dragEventCounts.get(entry) + 1);
+      return this.dragEventCounts.set(
+        entry,
+        this.dragEventCounts.get(entry) + 1
+      );
     }
   }
 
   onDragLeave(e) {
     let entry;
-    if (entry = e.target.closest('.entry.directory')) {
-      if (this.rootDragAndDrop.isDragging(e)) { return; }
-      if (!this.isAtomTreeViewEvent(e)) { return; }
+    if ((entry = e.target.closest('.entry.directory'))) {
+      if (this.rootDragAndDrop.isDragging(e)) {
+        return;
+      }
+      if (!this.isAtomTreeViewEvent(e)) {
+        return;
+      }
 
       e.stopPropagation();
 
       this.dragEventCounts.set(entry, this.dragEventCounts.get(entry) - 1);
-      if ((this.dragEventCounts.get(entry) === 0) && entry.classList.contains('drag-over')) {
+      if (
+        this.dragEventCounts.get(entry) === 0 &&
+        entry.classList.contains('drag-over')
+      ) {
         return entry.classList.remove('drag-over', 'selected');
       }
     }
@@ -1426,52 +1770,52 @@ module.exports =
   // Handle entry name object dragstart event
   onDragStart(e) {
     let entry;
-    this.dragEventCounts = new WeakMap;
+    this.dragEventCounts = new WeakMap();
     this.selectOnMouseUp = null;
-    if (entry = e.target.closest('.entry')) {
+    if ((entry = e.target.closest('.entry'))) {
       e.stopPropagation();
 
       if (this.rootDragAndDrop.canDragStart(e)) {
         return this.rootDragAndDrop.onDragStart(e);
       }
 
-      const dragImage = document.createElement("ol");
-      dragImage.classList.add("entries", "list-tree");
-      dragImage.style.position = "absolute";
+      const dragImage = document.createElement('ol');
+      dragImage.classList.add('entries', 'list-tree');
+      dragImage.style.position = 'absolute';
       dragImage.style.top = 0;
       dragImage.style.left = 0;
       // Ensure the cloned file name element is rendered on a separate GPU layer
       // to prevent overlapping elements located at (0px, 0px) from being used as
       // the drag image.
-      dragImage.style.willChange = "transform";
+      dragImage.style.willChange = 'transform';
 
       const initialPaths = [];
       for (var target of this.getSelectedEntries()) {
-        var entryPath = target.querySelector(".name").dataset.path;
-        var parentSelected = target.parentNode.closest(".entry.selected");
+        var entryPath = target.querySelector('.name').dataset.path;
+        var parentSelected = target.parentNode.closest('.entry.selected');
         if (!parentSelected) {
           initialPaths.push(entryPath);
           var newElement = target.cloneNode(true);
-          if (newElement.classList.contains("directory")) {
-            newElement.querySelector(".entries").remove();
+          if (newElement.classList.contains('directory')) {
+            newElement.querySelector('.entries').remove();
           }
           var object = getStyleObject(target);
           for (var key in object) {
             var value = object[key];
             newElement.style[key] = value;
           }
-          newElement.style.paddingLeft = "1em";
-          newElement.style.paddingRight = "1em";
+          newElement.style.paddingLeft = '1em';
+          newElement.style.paddingRight = '1em';
           dragImage.append(newElement);
         }
       }
 
       document.body.appendChild(dragImage);
 
-      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setDragImage(dragImage, 0, 0);
-      e.dataTransfer.setData("initialPaths", JSON.stringify(initialPaths));
-      e.dataTransfer.setData("atom-tree-view-event", "true");
+      e.dataTransfer.setData('initialPaths', JSON.stringify(initialPaths));
+      e.dataTransfer.setData('atom-tree-view-event', 'true');
 
       return window.requestAnimationFrame(() => dragImage.remove());
     }
@@ -1480,14 +1824,21 @@ module.exports =
   // Handle entry dragover event; reset default dragover actions
   onDragOver(e) {
     let entry;
-    if (entry = e.target.closest('.entry.directory')) {
-      if (this.rootDragAndDrop.isDragging(e)) { return; }
-      if (!this.isAtomTreeViewEvent(e)) { return; }
+    if ((entry = e.target.closest('.entry.directory'))) {
+      if (this.rootDragAndDrop.isDragging(e)) {
+        return;
+      }
+      if (!this.isAtomTreeViewEvent(e)) {
+        return;
+      }
 
       e.preventDefault();
       e.stopPropagation();
 
-      if ((this.dragEventCounts.get(entry) > 0) && !entry.classList.contains('selected')) {
+      if (
+        this.dragEventCounts.get(entry) > 0 &&
+        !entry.classList.contains('selected')
+      ) {
         return entry.classList.add('drag-over', 'selected');
       }
     }
@@ -1496,23 +1847,34 @@ module.exports =
   // Handle entry drop event
   onDrop(e) {
     let entry;
-    this.dragEventCounts = new WeakMap;
-    if (entry = e.target.closest('.entry.directory')) {
-      if (this.rootDragAndDrop.isDragging(e)) { return; }
-      if (!this.isAtomTreeViewEvent(e)) { return; }
+    this.dragEventCounts = new WeakMap();
+    if ((entry = e.target.closest('.entry.directory'))) {
+      if (this.rootDragAndDrop.isDragging(e)) {
+        return;
+      }
+      if (!this.isAtomTreeViewEvent(e)) {
+        return;
+      }
 
       e.preventDefault();
       e.stopPropagation();
 
-      const newDirectoryPath = __guard__(entry.querySelector('.name'), x => x.dataset.path);
-      if (!newDirectoryPath) { return false; }
+      const newDirectoryPath = __guard__(
+        entry.querySelector('.name'),
+        (x) => x.dataset.path
+      );
+      if (!newDirectoryPath) {
+        return false;
+      }
 
       let initialPaths = e.dataTransfer.getData('initialPaths');
 
       if (initialPaths) {
         // Drop event from Atom
         initialPaths = JSON.parse(initialPaths);
-        if (initialPaths.includes(newDirectoryPath)) { return; }
+        if (initialPaths.includes(newDirectoryPath)) {
+          return;
+        }
 
         entry.classList.remove('drag-over', 'selected');
 
@@ -1520,16 +1882,20 @@ module.exports =
         return (() => {
           const result = [];
           for (let i = initialPaths.length - 1; i >= 0; i--) {
-          // Note: this is necessary on Windows to circumvent node-pathwatcher
-          // holding a lock on expanded folders and preventing them from
-          // being moved or deleted
-          // TODO: This can be removed when tree-view is switched to @atom/watcher
+            // Note: this is necessary on Windows to circumvent node-pathwatcher
+            // holding a lock on expanded folders and preventing them from
+            // being moved or deleted
+            // TODO: This can be removed when tree-view is switched to @atom/watcher
             var initialPath = initialPaths[i];
-            __guardMethod__(this.entryForPath(initialPath), 'collapse', o => o.collapse());
-            if (((process.platform === 'darwin') && e.metaKey) || e.ctrlKey) {
+            __guardMethod__(this.entryForPath(initialPath), 'collapse', (o) =>
+              o.collapse()
+            );
+            if ((process.platform === 'darwin' && e.metaKey) || e.ctrlKey) {
               result.push(this.copyEntry(initialPath, newDirectoryPath));
             } else {
-              if (!this.moveEntry(initialPath, newDirectoryPath)) { break; } else {
+              if (!this.moveEntry(initialPath, newDirectoryPath)) {
+                break;
+              } else {
                 result.push(undefined);
               }
             }
@@ -1542,10 +1908,12 @@ module.exports =
         return (() => {
           const result1 = [];
           for (var file of e.dataTransfer.files) {
-            if (((process.platform === 'darwin') && e.metaKey) || e.ctrlKey) {
+            if ((process.platform === 'darwin' && e.metaKey) || e.ctrlKey) {
               result1.push(this.copyEntry(file.path, newDirectoryPath));
             } else {
-              if (!this.moveEntry(file.path, newDirectoryPath)) { break; } else {
+              if (!this.moveEntry(file.path, newDirectoryPath)) {
+                break;
+              } else {
                 result1.push(undefined);
               }
             }
@@ -1557,7 +1925,8 @@ module.exports =
       // Drop event from OS that isn't targeting a folder: add a new project folder
       return (() => {
         const result2 = [];
-        for (entry of e.dataTransfer.files) {           result2.push(atom.project.addPath(entry.path));
+        for (entry of e.dataTransfer.files) {
+          result2.push(atom.project.addPath(entry.path));
         }
         return result2;
       })();
@@ -1566,7 +1935,7 @@ module.exports =
 
   isAtomTreeViewEvent(e) {
     for (var item of e.dataTransfer.items) {
-      if ((item.type === 'atom-tree-view-event') || (item.kind === 'file')) {
+      if (item.type === 'atom-tree-view-event' || item.kind === 'file') {
         return true;
       }
     }
@@ -1575,19 +1944,25 @@ module.exports =
   }
 
   isVisible() {
-    return (this.element.offsetWidth !== 0) || (this.element.offsetHeight !== 0);
+    return this.element.offsetWidth !== 0 || this.element.offsetHeight !== 0;
   }
-});
+};
 
 function __guardMethod__(obj, methodName, transform) {
-  if (typeof obj !== 'undefined' && obj !== null && typeof obj[methodName] === 'function') {
+  if (
+    typeof obj !== 'undefined' &&
+    obj !== null &&
+    typeof obj[methodName] === 'function'
+  ) {
     return transform(obj, methodName);
   } else {
     return undefined;
   }
 }
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null
+    ? transform(value)
+    : undefined;
 }
 function __range__(left, right, inclusive) {
   let range = [];

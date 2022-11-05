@@ -5,7 +5,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-const {CompositeDisposable, Emitter} = require('atom');
+const { CompositeDisposable, Emitter } = require('atom');
 const Grim = require('grim');
 const StatusBarView = require('./status-bar-view');
 const FileInfoView = require('./file-info-view');
@@ -22,17 +22,20 @@ module.exports = {
     this.statusBar = new StatusBarView();
     this.attachStatusBar();
 
-    this.subscriptions.add(atom.config.onDidChange('status-bar.fullWidth', () => {
-      return this.attachStatusBar();
-    })
+    this.subscriptions.add(
+      atom.config.onDidChange('status-bar.fullWidth', () => {
+        return this.attachStatusBar();
+      })
     );
 
     this.updateStatusBarVisibility();
 
-    this.statusBarVisibilitySubscription =
-      atom.config.observe('status-bar.isVisible', () => {
+    this.statusBarVisibilitySubscription = atom.config.observe(
+      'status-bar.isVisible',
+      () => {
         return this.updateStatusBarVisibility();
-      });
+      }
+    );
 
     atom.commands.add('atom-workspace', 'status-bar:toggle', () => {
       if (this.statusBarPanel.isVisible()) {
@@ -42,23 +45,35 @@ module.exports = {
       }
     });
 
-    const {safeMode, devMode} = atom.getLoadSettings();
+    const { safeMode, devMode } = atom.getLoadSettings();
     if (safeMode || devMode) {
-      const launchModeView = new LaunchModeView({safeMode, devMode});
-      this.statusBar.addLeftTile({item: launchModeView.element, priority: -1});
+      const launchModeView = new LaunchModeView({ safeMode, devMode });
+      this.statusBar.addLeftTile({
+        item: launchModeView.element,
+        priority: -1,
+      });
     }
 
     this.fileInfo = new FileInfoView();
-    this.statusBar.addLeftTile({item: this.fileInfo.element, priority: 0});
+    this.statusBar.addLeftTile({ item: this.fileInfo.element, priority: 0 });
 
     this.cursorPosition = new CursorPositionView();
-    this.statusBar.addLeftTile({item: this.cursorPosition.element, priority: 1});
+    this.statusBar.addLeftTile({
+      item: this.cursorPosition.element,
+      priority: 1,
+    });
 
     this.selectionCount = new SelectionCountView();
-    this.statusBar.addLeftTile({item: this.selectionCount.element, priority: 2});
+    this.statusBar.addLeftTile({
+      item: this.selectionCount.element,
+      priority: 2,
+    });
 
     this.gitInfo = new GitView();
-    return this.gitInfoTile = this.statusBar.addRightTile({item: this.gitInfo.element, priority: 0});
+    return (this.gitInfoTile = this.statusBar.addRightTile({
+      item: this.gitInfo.element,
+      priority: 0,
+    }));
   },
 
   deactivate() {
@@ -107,7 +122,9 @@ module.exports = {
     }
     this.emitters = null;
 
-    if (atom.__workspaceView != null) { return delete atom.__workspaceView.statusBar; }
+    if (atom.__workspaceView != null) {
+      return delete atom.__workspaceView.statusBar;
+    }
   },
 
   updateStatusBarVisibility() {
@@ -124,18 +141,20 @@ module.exports = {
       addRightTile: this.statusBar.addRightTile.bind(this.statusBar),
       getLeftTiles: this.statusBar.getLeftTiles.bind(this.statusBar),
       getRightTiles: this.statusBar.getRightTiles.bind(this.statusBar),
-      disableGitInfoTile: this.gitInfoTile.destroy.bind(this.gitInfoTile)
+      disableGitInfoTile: this.gitInfoTile.destroy.bind(this.gitInfoTile),
     };
   },
 
   attachStatusBar() {
-    if (this.statusBarPanel != null) { this.statusBarPanel.destroy(); }
+    if (this.statusBarPanel != null) {
+      this.statusBarPanel.destroy();
+    }
 
-    const panelArgs = {item: this.statusBar, priority: 0};
+    const panelArgs = { item: this.statusBar, priority: 0 };
     if (atom.config.get('status-bar.fullWidth')) {
-      return this.statusBarPanel = atom.workspace.addFooterPanel(panelArgs);
+      return (this.statusBarPanel = atom.workspace.addFooterPanel(panelArgs));
     } else {
-      return this.statusBarPanel = atom.workspace.addBottomPanel(panelArgs);
+      return (this.statusBarPanel = atom.workspace.addBottomPanel(panelArgs));
     }
   },
 
@@ -149,21 +168,21 @@ module.exports = {
 
     return {
       addLeftTile(...args) {
-        Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.");
+        Grim.deprecate('Use version ^1.0.0 of the status-bar Service API.');
         return statusbar.addLeftTile(...Array.from(args || []));
       },
       addRightTile(...args) {
-        Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.");
+        Grim.deprecate('Use version ^1.0.0 of the status-bar Service API.');
         return statusbar.addRightTile(...Array.from(args || []));
       },
       getLeftTiles() {
-        Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.");
+        Grim.deprecate('Use version ^1.0.0 of the status-bar Service API.');
         return statusbar.getLeftTiles();
       },
       getRightTiles() {
-        Grim.deprecate("Use version ^1.0.0 of the status-bar Service API.");
+        Grim.deprecate('Use version ^1.0.0 of the status-bar Service API.');
         return statusbar.getRightTiles();
-      }
+      },
     };
-  }
+  },
 };

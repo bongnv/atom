@@ -11,10 +11,9 @@ let AddDialog;
 const path = require('path');
 const fs = require('fs-plus');
 const Dialog = require('./dialog');
-const {repoForPath} = require('./helpers');
+const { repoForPath } = require('./helpers');
 
-module.exports =
-(AddDialog = class AddDialog extends Dialog {
+module.exports = AddDialog = class AddDialog extends Dialog {
   constructor(initialPath, isCreatingFile) {
     let directoryPath;
 
@@ -24,14 +23,21 @@ module.exports =
       directoryPath = initialPath;
     }
 
-    let [rootProjectPath, relativeDirectoryPath] = Array.from(atom.project.relativizePath(directoryPath));
-    if (relativeDirectoryPath.length > 0) { relativeDirectoryPath += path.sep; }
+    let [rootProjectPath, relativeDirectoryPath] = Array.from(
+      atom.project.relativizePath(directoryPath)
+    );
+    if (relativeDirectoryPath.length > 0) {
+      relativeDirectoryPath += path.sep;
+    }
 
     super({
-      prompt: "Enter the path for the new " + (isCreatingFile ? "file." : "folder."),
+      prompt:
+        'Enter the path for the new ' + (isCreatingFile ? 'file.' : 'folder.'),
       initialPath: relativeDirectoryPath,
       select: false,
-      iconClass: isCreatingFile ? 'icon-file-add' : 'icon-file-directory-create'
+      iconClass: isCreatingFile
+        ? 'icon-file-add'
+        : 'icon-file-directory-create',
     });
     this.isCreatingFile = isCreatingFile;
     this.rootProjectPath = rootProjectPath;
@@ -50,24 +56,30 @@ module.exports =
     const endsWithDirectorySeparator = newPath[newPath.length - 1] === path.sep;
     if (!path.isAbsolute(newPath)) {
       if (this.rootProjectPath == null) {
-        this.showError("You must open a directory to create a file with a relative path");
+        this.showError(
+          'You must open a directory to create a file with a relative path'
+        );
         return;
       }
 
       newPath = path.join(this.rootProjectPath, newPath);
     }
 
-    if (!newPath) { return; }
+    if (!newPath) {
+      return;
+    }
 
     try {
       if (fs.existsSync(newPath)) {
         return this.showError(`'${newPath}' already exists.`);
       } else if (this.isCreatingFile) {
         if (endsWithDirectorySeparator) {
-          return this.showError(`File names must not end with a '${path.sep}' character.`);
+          return this.showError(
+            `File names must not end with a '${path.sep}' character.`
+          );
         } else {
           fs.writeFileSync(newPath, '');
-          __guard__(repoForPath(newPath), x => x.getPathStatus(newPath));
+          __guard__(repoForPath(newPath), (x) => x.getPathStatus(newPath));
           this.emitter.emit('did-create-file', newPath);
           return this.close();
         }
@@ -80,8 +92,10 @@ module.exports =
       return this.showError(`${error.message}.`);
     }
   }
-});
+};
 
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null
+    ? transform(value)
+    : undefined;
 }

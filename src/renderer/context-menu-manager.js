@@ -9,15 +9,18 @@
 let ContextMenuManager;
 const path = require('path');
 const fs = require('fs-plus');
-const {calculateSpecificity, validateSelector} = require('clear-cut');
-const {Disposable} = require('event-kit');
+const { calculateSpecificity, validateSelector } = require('clear-cut');
+const { Disposable } = require('event-kit');
 const remote = require('@electron/remote');
 const _ = require('underscore-plus');
 
 const MenuHelpers = require('./menu-helpers');
-const {sortMenuItems} = require('./menu-sort-helpers');
+const { sortMenuItems } = require('./menu-sort-helpers');
 
-const platformContextMenu = __guard__(__guard__(require('../../package.json'), x1 => x1._atomMenu), x => x['context-menu']);
+const platformContextMenu = __guard__(
+  __guard__(require('../../package.json'), (x1) => x1._atomMenu),
+  (x) => x['context-menu']
+);
 
 // Extended: Provides a registry for commands that you'd like to appear in the
 // context menu.
@@ -49,22 +52,21 @@ const platformContextMenu = __guard__(__guard__(require('../../package.json'), x
 //
 // The format for use in {::add} is the same minus the `context-menu` key. See
 // {::add} for more information.
-module.exports =
-(ContextMenuManager = class ContextMenuManager {
-  constructor({keymapManager}) {
+module.exports = ContextMenuManager = class ContextMenuManager {
+  constructor({ keymapManager }) {
     this.keymapManager = keymapManager;
-    this.definitions = {'.overlayer': []}; // TODO: Remove once color picker package stops touching private data
+    this.definitions = { '.overlayer': [] }; // TODO: Remove once color picker package stops touching private data
     this.clear();
 
     this.keymapManager.onDidLoadBundledKeymaps(() => this.loadPlatformItems());
   }
 
-  initialize({devMode}) {
+  initialize({ devMode }) {
     this.devMode = devMode;
   }
 
   loadPlatformItems() {
-    const map = require("../../menus/" + process.platform + ".json");
+    const map = require('../../menus/' + process.platform + '.json');
     return this.add(map['context-menu']);
   }
 
@@ -127,7 +129,9 @@ module.exports =
 
     for (var selector in itemsBySelector) {
       var items = itemsBySelector[selector];
-      if (throwOnInvalidSelector) { validateSelector(selector); }
+      if (throwOnInvalidSelector) {
+        validateSelector(selector);
+      }
       itemSet = new ContextMenuItemSet(selector, items);
       addedItemSets.push(itemSet);
       this.itemSets.push(itemSet);
@@ -141,7 +145,7 @@ module.exports =
   }
 
   templateForElement(target) {
-    return this.templateForEvent({target});
+    return this.templateForEvent({ target });
   }
 
   templateForEvent(event) {
@@ -151,14 +155,19 @@ module.exports =
     while (currentTarget != null) {
       var item;
       var currentTargetItems = [];
-      var matchingItemSets =
-        this.itemSets.filter(itemSet => currentTarget.webkitMatchesSelector(itemSet.selector));
+      var matchingItemSets = this.itemSets.filter((itemSet) =>
+        currentTarget.webkitMatchesSelector(itemSet.selector)
+      );
 
       for (var itemSet of matchingItemSets) {
         for (item of itemSet.items) {
           var itemForEvent = this.cloneItemForEvent(item, event);
           if (itemForEvent) {
-            MenuHelpers.merge(currentTargetItems, itemForEvent, itemSet.specificity);
+            MenuHelpers.merge(
+              currentTargetItems,
+              itemForEvent,
+              itemSet.specificity
+            );
           }
         }
       }
@@ -184,8 +193,14 @@ module.exports =
       for (var id in template) {
         var item = template[id];
         if (item.command) {
-          var keymaps = this.keymapManager.findKeyBindings({command: item.command, target: document.activeElement});
-          var keystrokes = __guard__(keymaps != null ? keymaps[0] : undefined, x2 => x2.keystrokes);
+          var keymaps = this.keymapManager.findKeyBindings({
+            command: item.command,
+            target: document.activeElement,
+          });
+          var keystrokes = __guard__(
+            keymaps != null ? keymaps[0] : undefined,
+            (x2) => x2.keystrokes
+          );
           if (keystrokes) {
             // Electron does not support multi-keystroke accelerators. Therefore,
             // when the command maps to a multi-stroke key binding, show the
@@ -193,7 +208,8 @@ module.exports =
             if (keystrokes.includes(' ')) {
               item.label += ` [${_.humanizeKeystroke(keystrokes)}]`;
             } else {
-              item.accelerator = MenuHelpers.acceleratorForKeystroke(keystrokes);
+              item.accelerator =
+                MenuHelpers.acceleratorForKeystroke(keystrokes);
             }
           }
         }
@@ -214,7 +230,7 @@ module.exports =
       const result = [];
       while (index < menu.length) {
         if (menu[index].type === 'separator') {
-          if (!keepNextItemIfSeparator || (index === (menu.length - 1))) {
+          if (!keepNextItemIfSeparator || index === menu.length - 1) {
             result.push(menu.splice(index, 1));
           } else {
             result.push(index++);
@@ -241,18 +257,22 @@ module.exports =
 
   // Returns an object compatible with `::add()` or `null`.
   cloneItemForEvent(item, event) {
-    if (item.devMode && !this.devMode) { return null; }
+    if (item.devMode && !this.devMode) {
+      return null;
+    }
     item = Object.create(item);
     if (typeof item.shouldDisplay === 'function') {
-      if (!item.shouldDisplay(event)) { return null; }
+      if (!item.shouldDisplay(event)) {
+        return null;
+      }
     }
     if (typeof item.created === 'function') {
       item.created(event);
     }
     if (Array.isArray(item.submenu)) {
       item.submenu = item.submenu
-        .map(submenuItem => this.cloneItemForEvent(submenuItem, event))
-        .filter(submenuItem => submenuItem !== null);
+        .map((submenuItem) => this.cloneItemForEvent(submenuItem, event))
+        .filter((submenuItem) => submenuItem !== null);
     }
     return item;
   }
@@ -261,7 +281,9 @@ module.exports =
     this.activeElement = event.target;
     const menuTemplate = this.templateForEvent(event);
 
-    if ((menuTemplate != null ? menuTemplate.length : undefined) <= 0) { return; }
+    if ((menuTemplate != null ? menuTemplate.length : undefined) <= 0) {
+      return;
+    }
     remote.getCurrentWindow().emit('context-menu', menuTemplate);
   }
 
@@ -269,19 +291,21 @@ module.exports =
     this.activeElement = null;
     this.itemSets = [];
     const inspectElement = {
-      'atom-workspace': [{
-        label: 'Inspect Element',
-        command: 'application:inspect',
-        devMode: true,
-        created(event) {
-          const {pageX, pageY} = event;
-          return this.commandDetail = {x: pageX, y: pageY};
-        }
-      }]
+      'atom-workspace': [
+        {
+          label: 'Inspect Element',
+          command: 'application:inspect',
+          devMode: true,
+          created(event) {
+            const { pageX, pageY } = event;
+            return (this.commandDetail = { x: pageX, y: pageY });
+          },
+        },
+      ],
     };
     return this.add(inspectElement, false);
   }
-});
+};
 
 class ContextMenuItemSet {
   constructor(selector, items) {
@@ -292,5 +316,7 @@ class ContextMenuItemSet {
 }
 
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null
+    ? transform(value)
+    : undefined;
 }

@@ -7,14 +7,13 @@
  */
 let TabView;
 const path = require('path');
-const {Disposable, CompositeDisposable} = require('atom');
+const { Disposable, CompositeDisposable } = require('atom');
 const getIconServices = require('./get-icon-services');
 
 const layout = require('./layout');
 
-module.exports =
-(TabView = class TabView {
-  constructor({item, pane, didClickCloseIcon, tabs, location}) {
+module.exports = TabView = class TabView {
+  constructor({ item, pane, didClickCloseIcon, tabs, location }) {
     this.item = item;
     this.pane = pane;
     this.tabs = tabs;
@@ -33,7 +32,12 @@ module.exports =
     this.itemTitle.classList.add('title');
     this.element.appendChild(this.itemTitle);
 
-    if ((location === 'center') || !(typeof this.item.isPermanentDockItem === 'function' ? this.item.isPermanentDockItem() : undefined)) {
+    if (
+      location === 'center' ||
+      !(typeof this.item.isPermanentDockItem === 'function'
+        ? this.item.isPermanentDockItem()
+        : undefined)
+    ) {
       const closeIcon = document.createElement('div');
       closeIcon.classList.add('close-icon');
       closeIcon.onclick = didClickCloseIcon;
@@ -54,8 +58,8 @@ module.exports =
       this.element.classList.add('pending-tab');
     }
 
-    this.element.ondrag = e => layout.drag(e);
-    this.element.ondragend = e => layout.end(e);
+    this.element.ondrag = (e) => layout.drag(e);
+    this.element.ondragend = (e) => layout.end(e);
 
     this.element.pane = this.pane;
     this.element.item = this.item;
@@ -69,28 +73,38 @@ module.exports =
     };
 
     this.subscriptions.add(this.pane.onDidDestroy(() => this.destroy()));
-    this.subscriptions.add(this.pane.onItemDidTerminatePendingState(item => {
-      if (item === this.item) { return this.clearPending(); }
-    })
+    this.subscriptions.add(
+      this.pane.onItemDidTerminatePendingState((item) => {
+        if (item === this.item) {
+          return this.clearPending();
+        }
+      })
     );
 
     if (typeof this.item.onDidChangeTitle === 'function') {
-      const onDidChangeTitleDisposable = this.item.onDidChangeTitle(titleChangedHandler);
+      const onDidChangeTitleDisposable =
+        this.item.onDidChangeTitle(titleChangedHandler);
       if (Disposable.isDisposable(onDidChangeTitleDisposable)) {
         this.subscriptions.add(onDidChangeTitleDisposable);
       } else {
-        console.warn("::onDidChangeTitle does not return a valid Disposable!", this.item);
+        console.warn(
+          '::onDidChangeTitle does not return a valid Disposable!',
+          this.item
+        );
       }
     } else if (typeof this.item.on === 'function') {
       //TODO Remove once old events are no longer supported
       this.item.on('title-changed', titleChangedHandler);
-      this.subscriptions.add({dispose: () => {
-        return (typeof this.item.off === 'function' ? this.item.off('title-changed', titleChangedHandler) : undefined);
-      }
+      this.subscriptions.add({
+        dispose: () => {
+          return typeof this.item.off === 'function'
+            ? this.item.off('title-changed', titleChangedHandler)
+            : undefined;
+        },
       });
     }
 
-    const pathChangedHandler = path1 => {
+    const pathChangedHandler = (path1) => {
       this.path = path1;
       this.updateDataAttributes();
       this.updateTitle();
@@ -99,18 +113,25 @@ module.exports =
     };
 
     if (typeof this.item.onDidChangePath === 'function') {
-      const onDidChangePathDisposable = this.item.onDidChangePath(pathChangedHandler);
+      const onDidChangePathDisposable =
+        this.item.onDidChangePath(pathChangedHandler);
       if (Disposable.isDisposable(onDidChangePathDisposable)) {
         this.subscriptions.add(onDidChangePathDisposable);
       } else {
-        console.warn("::onDidChangePath does not return a valid Disposable!", this.item);
+        console.warn(
+          '::onDidChangePath does not return a valid Disposable!',
+          this.item
+        );
       }
     } else if (typeof this.item.on === 'function') {
       //TODO Remove once old events are no longer supported
       this.item.on('path-changed', pathChangedHandler);
-      this.subscriptions.add({dispose: () => {
-        return (typeof this.item.off === 'function' ? this.item.off('path-changed', pathChangedHandler) : undefined);
-      }
+      this.subscriptions.add({
+        dispose: () => {
+          return typeof this.item.off === 'function'
+            ? this.item.off('path-changed', pathChangedHandler)
+            : undefined;
+        },
       });
     }
 
@@ -118,23 +139,34 @@ module.exports =
       return this.updateIcon();
     };
 
-    this.subscriptions.add(getIconServices().onDidChange(() => this.updateIcon()));
+    this.subscriptions.add(
+      getIconServices().onDidChange(() => this.updateIcon())
+    );
 
     if (typeof this.item.onDidChangeIcon === 'function') {
-      const onDidChangeIconDisposable = typeof this.item.onDidChangeIcon === 'function' ? this.item.onDidChangeIcon(() => {
-        return this.updateIcon();
-      }) : undefined;
+      const onDidChangeIconDisposable =
+        typeof this.item.onDidChangeIcon === 'function'
+          ? this.item.onDidChangeIcon(() => {
+              return this.updateIcon();
+            })
+          : undefined;
       if (Disposable.isDisposable(onDidChangeIconDisposable)) {
         this.subscriptions.add(onDidChangeIconDisposable);
       } else {
-        console.warn("::onDidChangeIcon does not return a valid Disposable!", this.item);
+        console.warn(
+          '::onDidChangeIcon does not return a valid Disposable!',
+          this.item
+        );
       }
     } else if (typeof this.item.on === 'function') {
       //TODO Remove once old events are no longer supported
       this.item.on('icon-changed', iconChangedHandler);
-      this.subscriptions.add({dispose: () => {
-        return (typeof this.item.off === 'function' ? this.item.off('icon-changed', iconChangedHandler) : undefined);
-      }
+      this.subscriptions.add({
+        dispose: () => {
+          return typeof this.item.off === 'function'
+            ? this.item.off('icon-changed', iconChangedHandler)
+            : undefined;
+        },
       });
     }
 
@@ -143,44 +175,62 @@ module.exports =
     };
 
     if (typeof this.item.onDidChangeModified === 'function') {
-      const onDidChangeModifiedDisposable = this.item.onDidChangeModified(modifiedHandler);
+      const onDidChangeModifiedDisposable =
+        this.item.onDidChangeModified(modifiedHandler);
       if (Disposable.isDisposable(onDidChangeModifiedDisposable)) {
         this.subscriptions.add(onDidChangeModifiedDisposable);
       } else {
-        console.warn("::onDidChangeModified does not return a valid Disposable!", this.item);
+        console.warn(
+          '::onDidChangeModified does not return a valid Disposable!',
+          this.item
+        );
       }
     } else if (typeof this.item.on === 'function') {
       //TODO Remove once old events are no longer supported
       this.item.on('modified-status-changed', modifiedHandler);
-      this.subscriptions.add({dispose: () => {
-        return (typeof this.item.off === 'function' ? this.item.off('modified-status-changed', modifiedHandler) : undefined);
-      }
+      this.subscriptions.add({
+        dispose: () => {
+          return typeof this.item.off === 'function'
+            ? this.item.off('modified-status-changed', modifiedHandler)
+            : undefined;
+        },
       });
     }
 
     if (typeof this.item.onDidSave === 'function') {
-      const onDidSaveDisposable = this.item.onDidSave(event => {
+      const onDidSaveDisposable = this.item.onDidSave((event) => {
         this.terminatePendingState();
         if (event.path !== this.path) {
           this.path = event.path;
-          if (atom.config.get('tabs.enableVcsColoring')) { return this.setupVcsStatus(); }
+          if (atom.config.get('tabs.enableVcsColoring')) {
+            return this.setupVcsStatus();
+          }
         }
       });
 
       if (Disposable.isDisposable(onDidSaveDisposable)) {
         this.subscriptions.add(onDidSaveDisposable);
       } else {
-        console.warn("::onDidSave does not return a valid Disposable!", this.item);
+        console.warn(
+          '::onDidSave does not return a valid Disposable!',
+          this.item
+        );
       }
     }
-    this.subscriptions.add(atom.config.observe('tabs.showIcons', () => {
-      return this.updateIconVisibility();
-    })
+    this.subscriptions.add(
+      atom.config.observe('tabs.showIcons', () => {
+        return this.updateIconVisibility();
+      })
     );
 
-    return this.subscriptions.add(atom.config.observe('tabs.enableVcsColoring', isEnabled => {
-      if (isEnabled && (this.path != null)) { return this.setupVcsStatus(); } else { return this.unsetVcsStatus(); }
-    })
+    return this.subscriptions.add(
+      atom.config.observe('tabs.enableVcsColoring', (isEnabled) => {
+        if (isEnabled && this.path != null) {
+          return this.setupVcsStatus();
+        } else {
+          return this.unsetVcsStatus();
+        }
+      })
     );
   }
 
@@ -192,40 +242,46 @@ module.exports =
       this.updateTooltip();
 
       // Trigger again so the tooltip shows
-      return this.element.dispatchEvent(new CustomEvent('mouseenter', {bubbles: true}));
+      return this.element.dispatchEvent(
+        new CustomEvent('mouseenter', { bubbles: true })
+      );
     };
 
-    this.mouseEnterSubscription = { dispose: () => {
-      this.element.removeEventListener('mouseenter', onMouseEnter);
-      return this.mouseEnterSubscription = null;
-    }
-  };
+    this.mouseEnterSubscription = {
+      dispose: () => {
+        this.element.removeEventListener('mouseenter', onMouseEnter);
+        return (this.mouseEnterSubscription = null);
+      },
+    };
 
     return this.element.addEventListener('mouseenter', onMouseEnter);
   }
 
   updateTooltip() {
-    if (!this.hasBeenMousedOver) { return; }
+    if (!this.hasBeenMousedOver) {
+      return;
+    }
 
     this.destroyTooltip();
 
     if (this.path) {
-      return this.tooltip = atom.tooltips.add(this.element, {
+      return (this.tooltip = atom.tooltips.add(this.element, {
         title: this.path,
         html: false,
         delay: {
           show: 1000,
-          hide: 100
+          hide: 100,
         },
-        placement: 'bottom'
-      }
-      );
+        placement: 'bottom',
+      }));
     }
   }
 
   destroyTooltip() {
-    if (!this.hasBeenMousedOver) { return; }
-    return (this.tooltip != null ? this.tooltip.dispose() : undefined);
+    if (!this.hasBeenMousedOver) {
+      return;
+    }
+    return this.tooltip != null ? this.tooltip.dispose() : undefined;
   }
 
   destroy() {
@@ -252,22 +308,35 @@ module.exports =
       delete this.itemTitle.dataset.path;
     }
 
-    if ((itemClass = this.item.constructor != null ? this.item.constructor.name : undefined)) {
-      return this.element.dataset.type = itemClass;
+    if (
+      (itemClass =
+        this.item.constructor != null ? this.item.constructor.name : undefined)
+    ) {
+      return (this.element.dataset.type = itemClass);
     } else {
       return delete this.element.dataset.type;
     }
   }
 
-  updateTitle({updateSiblings, useLongTitle}={}) {
+  updateTitle({ updateSiblings, useLongTitle } = {}) {
     let title;
-    if (this.updatingTitle) { return; }
+    if (this.updatingTitle) {
+      return;
+    }
     this.updatingTitle = true;
 
     if (updateSiblings === false) {
       title = this.item.getTitle();
-      if (useLongTitle) { let left;
-      title = (left = (typeof this.item.getLongTitle === 'function' ? this.item.getLongTitle() : undefined)) != null ? left : title; }
+      if (useLongTitle) {
+        let left;
+        title =
+          (left =
+            typeof this.item.getLongTitle === 'function'
+              ? this.item.getLongTitle()
+              : undefined) != null
+            ? left
+            : title;
+      }
       this.itemTitle.textContent = title;
     } else {
       title = this.item.getTitle();
@@ -275,18 +344,26 @@ module.exports =
       for (var tab of this.tabs) {
         if (tab !== this) {
           if (tab.item.getTitle() === title) {
-            tab.updateTitle({updateSiblings: false, useLongTitle: true});
+            tab.updateTitle({ updateSiblings: false, useLongTitle: true });
             useLongTitle = true;
           }
         }
       }
-      if (useLongTitle) { let left1;
-      title = (left1 = (typeof this.item.getLongTitle === 'function' ? this.item.getLongTitle() : undefined)) != null ? left1 : title; }
+      if (useLongTitle) {
+        let left1;
+        title =
+          (left1 =
+            typeof this.item.getLongTitle === 'function'
+              ? this.item.getLongTitle()
+              : undefined) != null
+            ? left1
+            : title;
+      }
 
       this.itemTitle.textContent = title;
     }
 
-    return this.updatingTitle = false;
+    return (this.updatingTitle = false);
   }
 
   updateIcon() {
@@ -303,7 +380,9 @@ module.exports =
 
   terminatePendingState() {
     if (this.pane.clearPendingItem != null) {
-      if (this.pane.getPendingItem() === this.item) { return this.pane.clearPendingItem(); }
+      if (this.pane.getPendingItem() === this.item) {
+        return this.pane.clearPendingItem();
+      }
     } else if (this.item.terminatePendingState != null) {
       return this.item.terminatePendingState();
     }
@@ -323,18 +402,28 @@ module.exports =
   }
 
   updateModifiedStatus() {
-    if (typeof this.item.isModified === 'function' ? this.item.isModified() : undefined) {
-      if (!this.isModified) { this.element.classList.add('modified'); }
-      return this.isModified = true;
+    if (
+      typeof this.item.isModified === 'function'
+        ? this.item.isModified()
+        : undefined
+    ) {
+      if (!this.isModified) {
+        this.element.classList.add('modified');
+      }
+      return (this.isModified = true);
     } else {
-      if (this.isModified) { this.element.classList.remove('modified'); }
-      return this.isModified = false;
+      if (this.isModified) {
+        this.element.classList.remove('modified');
+      }
+      return (this.isModified = false);
     }
   }
 
   setupVcsStatus() {
-    if (this.path == null) { return; }
-    return this.repoForPath(this.path).then(repo => {
+    if (this.path == null) {
+      return;
+    }
+    return this.repoForPath(this.path).then((repo) => {
       this.subscribeToRepo(repo);
       return this.updateVcsStatus(repo);
     });
@@ -342,7 +431,9 @@ module.exports =
 
   // Subscribe to the project's repo for changes to the VCS status of the file.
   subscribeToRepo(repo) {
-    if (repo == null) { return; }
+    if (repo == null) {
+      return;
+    }
 
     // Remove previous repo subscriptions.
     if (this.repoSubscriptions != null) {
@@ -350,32 +441,42 @@ module.exports =
     }
     this.repoSubscriptions = new CompositeDisposable();
 
-    this.repoSubscriptions.add(repo.onDidChangeStatus(event => {
-      if (event.path === this.path) { return this.updateVcsStatus(repo, event.pathStatus); }
-    })
+    this.repoSubscriptions.add(
+      repo.onDidChangeStatus((event) => {
+        if (event.path === this.path) {
+          return this.updateVcsStatus(repo, event.pathStatus);
+        }
+      })
     );
-    return this.repoSubscriptions.add(repo.onDidChangeStatuses(() => {
-      return this.updateVcsStatus(repo);
-    })
+    return this.repoSubscriptions.add(
+      repo.onDidChangeStatuses(() => {
+        return this.updateVcsStatus(repo);
+      })
     );
   }
 
   repoForPath() {
     for (var dir of atom.project.getDirectories()) {
-      if (dir.contains(this.path)) { return atom.project.repositoryForDirectory(dir); }
+      if (dir.contains(this.path)) {
+        return atom.project.repositoryForDirectory(dir);
+      }
     }
     return Promise.resolve(null);
   }
 
   // Update the VCS status property of this tab using the repo.
   updateVcsStatus(repo, status) {
-    if (repo == null) { return; }
+    if (repo == null) {
+      return;
+    }
 
     let newStatus = null;
     if (repo.isPathIgnored(this.path)) {
       newStatus = 'ignored';
     } else {
-      if (status == null) { status = repo.getCachedPathStatus(this.path); }
+      if (status == null) {
+        status = repo.getCachedPathStatus(this.path);
+      }
       if (repo.isStatusModified(status)) {
         newStatus = 'modified';
       } else if (repo.isStatusNew(status)) {
@@ -390,7 +491,11 @@ module.exports =
   }
 
   updateVcsColoring() {
-    this.itemTitle.classList.remove('status-ignored', 'status-modified',  'status-added');
+    this.itemTitle.classList.remove(
+      'status-ignored',
+      'status-modified',
+      'status-added'
+    );
     if (this.status && atom.config.get('tabs.enableVcsColoring')) {
       return this.itemTitle.classList.add(`status-${this.status}`);
     }
@@ -403,4 +508,4 @@ module.exports =
     delete this.status;
     return this.updateVcsColoring();
   }
-});
+};

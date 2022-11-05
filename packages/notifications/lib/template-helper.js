@@ -13,5 +13,5 @@ module.exports = {
 
   render(template) {
     return document.importNode(template.content, true);
-  }
+  },
 };

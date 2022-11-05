@@ -8,7 +8,7 @@
  */
 let FindOptions;
 const _ = require('underscore-plus');
-const {Emitter} = require('atom');
+const { Emitter } = require('atom');
 
 const Params = [
   'findPattern',
@@ -19,24 +19,61 @@ const Params = [
   'caseSensitive',
   'inCurrentSelection',
   'leadingContextLineCount',
-  'trailingContextLineCount'
+  'trailingContextLineCount',
 ];
 
-module.exports =
-(FindOptions = class FindOptions {
-  constructor(state={}) {
+module.exports = FindOptions = class FindOptions {
+  constructor(state = {}) {
     let left, left1, left2, left3, left4, left5;
-    this.emitter = new Emitter;
+    this.emitter = new Emitter();
 
     this.findPattern = '';
-    this.replacePattern = state.replacePattern != null ? state.replacePattern : '';
+    this.replacePattern =
+      state.replacePattern != null ? state.replacePattern : '';
     this.pathsPattern = state.pathsPattern != null ? state.pathsPattern : '';
-    this.useRegex = (left = state.useRegex != null ? state.useRegex : atom.config.get('find-and-replace.useRegex')) != null ? left : false;
-    this.caseSensitive = (left1 = state.caseSensitive != null ? state.caseSensitive : atom.config.get('find-and-replace.caseSensitive')) != null ? left1 : false;
-    this.wholeWord = (left2 = state.wholeWord != null ? state.wholeWord : atom.config.get('find-and-replace.wholeWord')) != null ? left2 : false;
-    this.inCurrentSelection = (left3 = state.inCurrentSelection != null ? state.inCurrentSelection : atom.config.get('find-and-replace.inCurrentSelection')) != null ? left3 : false;
-    this.leadingContextLineCount = (left4 = state.leadingContextLineCount != null ? state.leadingContextLineCount : atom.config.get('find-and-replace.leadingContextLineCount')) != null ? left4 : 0;
-    this.trailingContextLineCount = (left5 = state.trailingContextLineCount != null ? state.trailingContextLineCount : atom.config.get('find-and-replace.trailingContextLineCount')) != null ? left5 : 0;
+    this.useRegex =
+      (left =
+        state.useRegex != null
+          ? state.useRegex
+          : atom.config.get('find-and-replace.useRegex')) != null
+        ? left
+        : false;
+    this.caseSensitive =
+      (left1 =
+        state.caseSensitive != null
+          ? state.caseSensitive
+          : atom.config.get('find-and-replace.caseSensitive')) != null
+        ? left1
+        : false;
+    this.wholeWord =
+      (left2 =
+        state.wholeWord != null
+          ? state.wholeWord
+          : atom.config.get('find-and-replace.wholeWord')) != null
+        ? left2
+        : false;
+    this.inCurrentSelection =
+      (left3 =
+        state.inCurrentSelection != null
+          ? state.inCurrentSelection
+          : atom.config.get('find-and-replace.inCurrentSelection')) != null
+        ? left3
+        : false;
+    this.leadingContextLineCount =
+      (left4 =
+        state.leadingContextLineCount != null
+          ? state.leadingContextLineCount
+          : atom.config.get('find-and-replace.leadingContextLineCount')) != null
+        ? left4
+        : 0;
+    this.trailingContextLineCount =
+      (left5 =
+        state.trailingContextLineCount != null
+          ? state.trailingContextLineCount
+          : atom.config.get('find-and-replace.trailingContextLineCount')) !=
+      null
+        ? left5
+        : 0;
   }
 
   onDidChange(callback) {
@@ -59,12 +96,14 @@ module.exports =
     return result;
   }
 
-  set(newParams={}) {
+  set(newParams = {}) {
     let changedParams = {};
     for (var key of Params) {
-      if ((newParams[key] != null) && (newParams[key] !== this[key])) {
-        if (changedParams == null) { changedParams = {}; }
-        this[key] = (changedParams[key] = newParams[key]);
+      if (newParams[key] != null && newParams[key] !== this[key]) {
+        if (changedParams == null) {
+          changedParams = {};
+        }
+        this[key] = changedParams[key] = newParams[key];
       }
     }
 
@@ -80,7 +119,11 @@ module.exports =
 
   getFindPatternRegex(forceUnicode = false) {
     let expression;
-    for (let i = 0, end = this.findPattern.length, asc = 0 <= end; asc ? i <= end : i >= end; asc ? i++ : i--) {
+    for (
+      let i = 0, end = this.findPattern.length, asc = 0 <= end;
+      asc ? i <= end : i >= end;
+      asc ? i++ : i--
+    ) {
       if (this.findPattern.charCodeAt(i) > 128) {
         forceUnicode = true;
         break;
@@ -88,8 +131,12 @@ module.exports =
     }
 
     let flags = 'gm';
-    if (!this.caseSensitive) { flags += 'i'; }
-    if (forceUnicode) { flags += 'u'; }
+    if (!this.caseSensitive) {
+      flags += 'i';
+    }
+    if (forceUnicode) {
+      flags += 'u';
+    }
 
     if (this.useRegex) {
       expression = this.findPattern;
@@ -97,14 +144,16 @@ module.exports =
       expression = escapeRegExp(this.findPattern);
     }
 
-    if (this.wholeWord) { expression = `\\b${expression}\\b`; }
+    if (this.wholeWord) {
+      expression = `\\b${expression}\\b`;
+    }
 
     return new RegExp(expression, flags);
   }
-});
+};
 
 // This is different from _.escapeRegExp, which escapes dashes. Escaped dashes
 // are not allowed outside of character classes in RegExps with the `u` flag.
 //
 // See atom/find-and-replace#1022
-var escapeRegExp = string => string.replace(/[\/\\^$*+?.()|[\]{}]/g, '\\$&');
+var escapeRegExp = (string) => string.replace(/[\/\\^$*+?.()|[\]{}]/g, '\\$&');

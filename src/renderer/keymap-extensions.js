@@ -9,39 +9,70 @@ const fs = require('fs-plus');
 const path = require('path');
 const KeymapManager = require('atom-keymap');
 
-const bundledKeymaps = __guard__(require('../../package.json'), x => x._atomKeymaps);
+const bundledKeymaps = __guard__(
+  require('../../package.json'),
+  (x) => x._atomKeymaps
+);
 
-KeymapManager.prototype.onDidLoadBundledKeymaps = function(callback) {
+KeymapManager.prototype.onDidLoadBundledKeymaps = function (callback) {
   return this.emitter.on('did-load-bundled-keymaps', callback);
 };
 
-KeymapManager.prototype.onDidLoadUserKeymap = function(callback) {
+KeymapManager.prototype.onDidLoadUserKeymap = function (callback) {
   return this.emitter.on('did-load-user-keymap', callback);
 };
 
 KeymapManager.prototype.canLoadBundledKeymapsFromMemory = () => true;
 
-KeymapManager.prototype.loadBundledKeymaps = function() {
-  this.add("core:base", require("../../keymaps/base.json"), 0, this.devMode != null ? this.devMode : false);
-  this.add("core:darwin", require("../../keymaps/darwin.json"), 0, this.devMode != null ? this.devMode : false);
-  this.add("core:linux", require("../../keymaps/linux.json"), 0, this.devMode != null ? this.devMode : false);
-  this.add("core:win32", require("../../keymaps/win32.json"), 0, this.devMode != null ? this.devMode : false);
+KeymapManager.prototype.loadBundledKeymaps = function () {
+  this.add(
+    'core:base',
+    require('../../keymaps/base.json'),
+    0,
+    this.devMode != null ? this.devMode : false
+  );
+  this.add(
+    'core:darwin',
+    require('../../keymaps/darwin.json'),
+    0,
+    this.devMode != null ? this.devMode : false
+  );
+  this.add(
+    'core:linux',
+    require('../../keymaps/linux.json'),
+    0,
+    this.devMode != null ? this.devMode : false
+  );
+  this.add(
+    'core:win32',
+    require('../../keymaps/win32.json'),
+    0,
+    this.devMode != null ? this.devMode : false
+  );
 
   return this.emitter.emit('did-load-bundled-keymaps');
 };
 
-KeymapManager.prototype.getUserKeymapPath = function() {
-  if (this.configDirPath == null) { return ""; }
+KeymapManager.prototype.getUserKeymapPath = function () {
+  if (this.configDirPath == null) {
+    return '';
+  }
   return path.join(this.configDirPath, 'keymap.json');
 };
 
-KeymapManager.prototype.loadUserKeymap = function() {
+KeymapManager.prototype.loadUserKeymap = function () {
   let message;
   const userKeymapPath = this.getUserKeymapPath();
-  if (!fs.isFileSync(userKeymapPath)) { return; }
+  if (!fs.isFileSync(userKeymapPath)) {
+    return;
+  }
 
   try {
-    this.loadKeymap(userKeymapPath, {watch: true, suppressErrors: true, priority: 100});
+    this.loadKeymap(userKeymapPath, {
+      watch: true,
+      suppressErrors: true,
+      priority: 100,
+    });
   } catch (error) {
     if (error.message.indexOf('Unable to watch path') > -1) {
       message = `\
@@ -52,36 +83,39 @@ On linux there are currently problems with watch sizes. See
 [this document][watches] for more info.
 [watches]:https://github.com/atom/atom/blob/master/docs/build-instructions/linux.md#typeerror-unable-to-watch-path\
 `;
-      this.notificationManager.addError(message, {dismissable: true});
+      this.notificationManager.addError(message, { dismissable: true });
     } else {
       const detail = error.path;
-      const {
-        stack
-      } = error;
-      this.notificationManager.addFatalError(error.message, {detail, stack, dismissable: true});
+      const { stack } = error;
+      this.notificationManager.addFatalError(error.message, {
+        detail,
+        stack,
+        dismissable: true,
+      });
     }
   }
 
   return this.emitter.emit('did-load-user-keymap');
 };
 
-
-KeymapManager.prototype.subscribeToFileReadFailure = function() {
-  return this.onDidFailToReadFile(error => {
+KeymapManager.prototype.subscribeToFileReadFailure = function () {
+  return this.onDidFailToReadFile((error) => {
     const userKeymapPath = this.getUserKeymapPath();
     const message = `Failed to load \`${userKeymapPath}\``;
 
-    const detail = (error.location != null) ?
-      error.stack
-    :
-      error.message;
+    const detail = error.location != null ? error.stack : error.message;
 
-    return this.notificationManager.addError(message, {detail, dismissable: true});
+    return this.notificationManager.addError(message, {
+      detail,
+      dismissable: true,
+    });
   });
 };
 
 module.exports = KeymapManager;
 
 function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return typeof value !== 'undefined' && value !== null
+    ? transform(value)
+    : undefined;
 }

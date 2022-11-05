@@ -6,14 +6,14 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 const _ = require('underscore-plus');
-const {Emitter} = require('atom');
+const { Emitter } = require('atom');
 
 const HISTORY_MAX = 25;
 
 class History {
-  constructor(items=[]) {
+  constructor(items = []) {
     this.items = items;
-    this.emitter = new Emitter;
+    this.emitter = new Emitter();
     this.length = this.items.length;
   }
 
@@ -41,46 +41,51 @@ class History {
 
   clear() {
     this.items = [];
-    return this.length = 0;
+    return (this.length = 0);
   }
 }
 
 // Adds the ability to cycle through history
 class HistoryCycler {
-
   // * `buffer` an {Editor} instance to attach the cycler to
   // * `history` a {History} object
   constructor(buffer, history) {
     this.buffer = buffer;
     this.history = history;
     this.index = this.history.length;
-    this.history.onDidAddItem(text => {
-      if (text !== this.buffer.getText()) { return this.buffer.setText(text); }
+    this.history.onDidAddItem((text) => {
+      if (text !== this.buffer.getText()) {
+        return this.buffer.setText(text);
+      }
     });
   }
 
   addEditorElement(editorElement) {
     return atom.commands.add(editorElement, {
       'core:move-up': () => this.previous(),
-      'core:move-down': () => this.next()
-    }
-    );
+      'core:move-down': () => this.next(),
+    });
   }
 
   previous() {
     let left;
-    if ((this.history.length === 0) || (this.atLastItem() && (this.buffer.getText() !== this.history.getLast()))) {
+    if (
+      this.history.length === 0 ||
+      (this.atLastItem() && this.buffer.getText() !== this.history.getLast())
+    ) {
       this.scratch = this.buffer.getText();
     } else if (this.index > 0) {
       this.index--;
     }
 
-    return this.buffer.setText((left = this.history.getAtIndex(this.index)) != null ? left : '');
+    return this.buffer.setText(
+      (left = this.history.getAtIndex(this.index)) != null ? left : ''
+    );
   }
 
   next() {
     let item;
-    if (this.index < (this.history.length - 1)) {
+    if (this.index < this.history.length - 1) {
       this.index++;
       item = this.history.getAtIndex(this.index);
     } else if (this.scratch) {
@@ -93,16 +98,18 @@ class HistoryCycler {
   }
 
   atLastItem() {
-    return this.index === (this.history.length - 1);
+    return this.index === this.history.length - 1;
   }
 
   store() {
     const text = this.buffer.getText();
-    if (!text || (text === this.history.getLast())) { return; }
+    if (!text || text === this.history.getLast()) {
+      return;
+    }
     this.scratch = null;
     this.history.add(text);
-    return this.index = this.history.length - 1;
+    return (this.index = this.history.length - 1);
   }
 }
 
-module.exports = {History, HistoryCycler};
+module.exports = { History, HistoryCycler };

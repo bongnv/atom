@@ -6,7 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let NotificationsLog;
-const {Emitter, CompositeDisposable, Disposable} = require('atom');
+const { Emitter, CompositeDisposable, Disposable } = require('atom');
 const NotificationsLogItem = require('./notifications-log-item');
 
 const typeIcons = {
@@ -14,10 +14,10 @@ const typeIcons = {
   error: 'flame',
   warning: 'alert',
   info: 'info',
-  success: 'check'
+  success: 'check',
 };
 
-module.exports = (NotificationsLog = (function() {
+module.exports = NotificationsLog = (function () {
   NotificationsLog = class NotificationsLog {
     static initClass() {
       this.prototype.subscriptions = null;
@@ -27,16 +27,20 @@ module.exports = (NotificationsLog = (function() {
         error: false,
         warning: false,
         info: false,
-        success: false
+        success: false,
       };
     }
 
     constructor(duplicateTimeDelay, typesHidden = null) {
       this.duplicateTimeDelay = duplicateTimeDelay;
-      if (typesHidden != null) { this.typesHidden = typesHidden; }
-      this.emitter = new Emitter;
-      this.subscriptions = new CompositeDisposable;
-      this.subscriptions.add(atom.notifications.onDidClearNotifications(() => this.clearLogItems()));
+      if (typesHidden != null) {
+        this.typesHidden = typesHidden;
+      }
+      this.emitter = new Emitter();
+      this.subscriptions = new CompositeDisposable();
+      this.subscriptions.add(
+        atom.notifications.onDidClearNotifications(() => this.clearLogItems())
+      );
       this.render();
       this.subscriptions.add(new Disposable(() => this.clearLogItems()));
     }
@@ -56,27 +60,53 @@ module.exports = (NotificationsLog = (function() {
       for (var type in typeIcons) {
         var icon = typeIcons[type];
         button = document.createElement('button');
-        button.classList.add('notification-type', 'btn', 'icon', `icon-${icon}`, type);
+        button.classList.add(
+          'notification-type',
+          'btn',
+          'icon',
+          `icon-${icon}`,
+          type
+        );
         button.classList.toggle('show-type', !this.typesHidden[type]);
         this.list.classList.toggle(`hide-${type}`, this.typesHidden[type]);
         button.dataset.type = type;
-        button.addEventListener('click', e => this.toggleType(e.target.dataset.type));
-        this.subscriptions.add(atom.tooltips.add(button, {title: `Toggle ${type} notifications`}));
+        button.addEventListener('click', (e) =>
+          this.toggleType(e.target.dataset.type)
+        );
+        this.subscriptions.add(
+          atom.tooltips.add(button, { title: `Toggle ${type} notifications` })
+        );
         header.appendChild(button);
       }
 
       button = document.createElement('button');
-      button.classList.add('notifications-clear-log', 'btn', 'icon', 'icon-trashcan');
-      button.addEventListener('click', e => atom.commands.dispatch(atom.views.getView(atom.workspace), "notifications:clear-log"));
-      this.subscriptions.add(atom.tooltips.add(button, {title: "Clear notifications"}));
+      button.classList.add(
+        'notifications-clear-log',
+        'btn',
+        'icon',
+        'icon-trashcan'
+      );
+      button.addEventListener('click', (e) =>
+        atom.commands.dispatch(
+          atom.views.getView(atom.workspace),
+          'notifications:clear-log'
+        )
+      );
+      this.subscriptions.add(
+        atom.tooltips.add(button, { title: 'Clear notifications' })
+      );
       header.appendChild(button);
 
       let lastNotification = null;
       for (var notification of atom.notifications.getNotifications()) {
         if (lastNotification != null) {
           // do not show duplicates unless some amount of time has passed
-          var timeSpan = notification.getTimestamp() - lastNotification.getTimestamp();
-          if ((timeSpan >= this.duplicateTimeDelay) || !notification.isEqual(lastNotification)) {
+          var timeSpan =
+            notification.getTimestamp() - lastNotification.getTimestamp();
+          if (
+            timeSpan >= this.duplicateTimeDelay ||
+            !notification.isEqual(lastNotification)
+          ) {
             this.addNotification(notification);
           }
         } else {
@@ -86,7 +116,9 @@ module.exports = (NotificationsLog = (function() {
         lastNotification = notification;
       }
 
-      return this.subscriptions.add(new Disposable(() => this.element.remove()));
+      return this.subscriptions.add(
+        new Disposable(() => this.element.remove())
+      );
     }
 
     destroy() {
@@ -94,24 +126,38 @@ module.exports = (NotificationsLog = (function() {
       return this.emitter.emit('did-destroy');
     }
 
-    getElement() { return this.element; }
+    getElement() {
+      return this.element;
+    }
 
-    getURI() { return 'atom://notifications/log'; }
+    getURI() {
+      return 'atom://notifications/log';
+    }
 
-    getTitle() { return 'Log'; }
+    getTitle() {
+      return 'Log';
+    }
 
-    getLongTitle() { return 'Notifications Log'; }
+    getLongTitle() {
+      return 'Notifications Log';
+    }
 
-    getIconName() { return 'alert'; }
+    getIconName() {
+      return 'alert';
+    }
 
-    getDefaultLocation() { return 'bottom'; }
+    getDefaultLocation() {
+      return 'bottom';
+    }
 
-    getAllowedLocations() { return ['left', 'right', 'bottom']; }
+    getAllowedLocations() {
+      return ['left', 'right', 'bottom'];
+    }
 
     serialize() {
       return {
         typesHidden: this.typesHidden,
-        deserializer: 'notifications/NotificationsLog'
+        deserializer: 'notifications/NotificationsLog',
       };
     }
 
@@ -119,7 +165,7 @@ module.exports = (NotificationsLog = (function() {
       const button = this.element.querySelector(`.notification-type.${type}`);
       const hide = !button.classList.toggle('show-type', force);
       this.list.classList.toggle(`hide-${type}`, hide);
-      return this.typesHidden[type] = hide;
+      return (this.typesHidden[type] = hide);
     }
 
     addNotification(notification) {
@@ -138,10 +184,12 @@ module.exports = (NotificationsLog = (function() {
     }
 
     clearLogItems() {
-      for (var logItem of this.logItems) { logItem.destroy(); }
-      return this.logItems = [];
+      for (var logItem of this.logItems) {
+        logItem.destroy();
+      }
+      return (this.logItems = []);
     }
   };
   NotificationsLog.initClass();
   return NotificationsLog;
-})());
+})();

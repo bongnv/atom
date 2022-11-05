@@ -3,14 +3,17 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-const path = require("path");
+const path = require('path');
 
 module.exports = {
   repoForPath(goalPath) {
     const iterable = atom.project.getPaths();
     for (let i = 0; i < iterable.length; i++) {
       var projectPath = iterable[i];
-      if ((goalPath === projectPath) || (goalPath.indexOf(projectPath + path.sep) === 0)) {
+      if (
+        goalPath === projectPath ||
+        goalPath.indexOf(projectPath + path.sep) === 0
+      ) {
         return atom.project.getRepositories()[i];
       }
     }
@@ -22,7 +25,9 @@ module.exports = {
     const styleObject = {};
     for (var property in styleProperties) {
       var value = styleProperties.getPropertyValue(property);
-      var camelizedAttr = property.replace(/\-([a-z])/g, (a, b) => b.toUpperCase());
+      var camelizedAttr = property.replace(/\-([a-z])/g, (a, b) =>
+        b.toUpperCase()
+      );
       styleObject[camelizedAttr] = value;
     }
     return styleObject;
@@ -31,6 +36,10 @@ module.exports = {
   getFullExtension(filePath) {
     const basename = path.basename(filePath);
     const position = basename.indexOf('.');
-    if (position > 0) { return basename.slice(position); } else { return ''; }
-  }
+    if (position > 0) {
+      return basename.slice(position);
+    } else {
+      return '';
+    }
+  },
 };

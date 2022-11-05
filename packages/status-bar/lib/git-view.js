@@ -9,11 +9,10 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 let GitView;
-const _ = require("underscore-plus");
-const {CompositeDisposable, GitRepositoryAsync} = require("atom");
+const _ = require('underscore-plus');
+const { CompositeDisposable, GitRepositoryAsync } = require('atom');
 
-module.exports =
-(GitView = class GitView {
+module.exports = GitView = class GitView {
   constructor() {
     this.element = document.createElement('status-bar-git');
     this.element.classList.add('git-view');
@@ -22,9 +21,11 @@ module.exports =
     this.createCommitsArea();
     this.createStatusArea();
 
-    this.activeItemSubscription = atom.workspace.getCenter().onDidChangeActivePaneItem(() => {
-      return this.subscribeToActiveItem();
-    });
+    this.activeItemSubscription = atom.workspace
+      .getCenter()
+      .onDidChangeActivePaneItem(() => {
+        return this.subscribeToActiveItem();
+      });
     this.projectPathSubscription = atom.project.onDidChangePaths(() => {
       return this.subscribeToRepositories();
     });
@@ -45,7 +46,7 @@ module.exports =
     this.branchLabel = document.createElement('span');
     this.branchLabel.classList.add('branch-label');
     this.branchArea.appendChild(this.branchLabel);
-    return this.element.branchLabel = this.branchLabel;
+    return (this.element.branchLabel = this.branchLabel);
   }
 
   createCommitsArea() {
@@ -54,11 +55,19 @@ module.exports =
     this.element.appendChild(this.commitsArea);
 
     this.commitsAhead = document.createElement('span');
-    this.commitsAhead.classList.add('icon', 'icon-arrow-up', 'commits-ahead-label');
+    this.commitsAhead.classList.add(
+      'icon',
+      'icon-arrow-up',
+      'commits-ahead-label'
+    );
     this.commitsArea.appendChild(this.commitsAhead);
 
     this.commitsBehind = document.createElement('span');
-    this.commitsBehind.classList.add('icon', 'icon-arrow-down', 'commits-behind-label');
+    this.commitsBehind.classList.add(
+      'icon',
+      'icon-arrow-down',
+      'commits-behind-label'
+    );
     return this.commitsArea.appendChild(this.commitsBehind);
   }
 
@@ -70,7 +79,7 @@ module.exports =
     this.gitStatusIcon = document.createElement('span');
     this.gitStatusIcon.classList.add('icon');
     this.gitStatus.appendChild(this.gitStatusIcon);
-    return this.element.gitStatusIcon = this.gitStatusIcon;
+    return (this.element.gitStatusIcon = this.gitStatusIcon);
   }
 
   subscribeToActiveItem() {
@@ -79,7 +88,9 @@ module.exports =
     if (this.savedSubscription != null) {
       this.savedSubscription.dispose();
     }
-    this.savedSubscription = __guardMethod__(activeItem, 'onDidSave', o => o.onDidSave(() => this.update()));
+    this.savedSubscription = __guardMethod__(activeItem, 'onDidSave', (o) =>
+      o.onDidSave(() => this.update())
+    );
 
     return this.update();
   }
@@ -88,20 +99,26 @@ module.exports =
     if (this.repositorySubscriptions != null) {
       this.repositorySubscriptions.dispose();
     }
-    this.repositorySubscriptions = new CompositeDisposable;
+    this.repositorySubscriptions = new CompositeDisposable();
 
     return (() => {
       const result = [];
       for (var repo of atom.project.getRepositories()) {
         if (repo != null) {
-          this.repositorySubscriptions.add(repo.onDidChangeStatus(({path, status}) => {
-            if (path === this.getActiveItemPath()) { return this.update(); }
-          })
+          this.repositorySubscriptions.add(
+            repo.onDidChangeStatus(({ path, status }) => {
+              if (path === this.getActiveItemPath()) {
+                return this.update();
+              }
+            })
           );
-          result.push(this.repositorySubscriptions.add(repo.onDidChangeStatuses(() => {
-            return this.update();
-          })
-          ));
+          result.push(
+            this.repositorySubscriptions.add(
+              repo.onDidChangeStatuses(() => {
+                return this.update();
+              })
+            )
+          );
         }
       }
       return result;
@@ -130,15 +147,19 @@ module.exports =
     if (this.commitsBehindTooltipDisposable != null) {
       this.commitsBehindTooltipDisposable.dispose();
     }
-    return (this.statusTooltipDisposable != null ? this.statusTooltipDisposable.dispose() : undefined);
+    return this.statusTooltipDisposable != null
+      ? this.statusTooltipDisposable.dispose()
+      : undefined;
   }
 
   getActiveItemPath() {
-    return __guardMethod__(this.getActiveItem(), 'getPath', o => o.getPath());
+    return __guardMethod__(this.getActiveItem(), 'getPath', (o) => o.getPath());
   }
 
   getRepositoryForActiveItem() {
-    const [rootDir] = Array.from(atom.project.relativizePath(this.getActiveItemPath()));
+    const [rootDir] = Array.from(
+      atom.project.relativizePath(this.getActiveItemPath())
+    );
     const rootDirIndex = atom.project.getPaths().indexOf(rootDir);
     if (rootDirIndex >= 0) {
       return atom.project.getRepositories()[rootDirIndex];
@@ -166,24 +187,31 @@ module.exports =
     if (this.showGitInformation(repo)) {
       const head = repo.getShortHead(this.getActiveItemPath());
       this.branchLabel.textContent = head;
-      if (head) { this.branchArea.style.display = ''; }
+      if (head) {
+        this.branchArea.style.display = '';
+      }
       if (this.branchTooltipDisposable != null) {
         this.branchTooltipDisposable.dispose();
       }
-      return this.branchTooltipDisposable = atom.tooltips.add(this.branchArea, {title: `On branch ${head}`});
+      return (this.branchTooltipDisposable = atom.tooltips.add(
+        this.branchArea,
+        { title: `On branch ${head}` }
+      ));
     } else {
-      return this.branchArea.style.display = 'none';
+      return (this.branchArea.style.display = 'none');
     }
   }
 
   showGitInformation(repo) {
     let itemPath;
-    if (repo == null) { return false; }
+    if (repo == null) {
+      return false;
+    }
 
     if ((itemPath = this.getActiveItemPath())) {
       return atom.project.contains(itemPath);
     } else {
-      return (this.getActiveItem() == null);
+      return this.getActiveItem() == null;
     }
   }
 
@@ -194,14 +222,17 @@ module.exports =
     }
 
     const itemPath = this.getActiveItemPath();
-    const {ahead, behind} = repo.getCachedUpstreamAheadBehindCount(itemPath);
+    const { ahead, behind } = repo.getCachedUpstreamAheadBehindCount(itemPath);
     if (ahead > 0) {
       this.commitsAhead.textContent = ahead;
       this.commitsAhead.style.display = '';
       if (this.commitsAheadTooltipDisposable != null) {
         this.commitsAheadTooltipDisposable.dispose();
       }
-      this.commitsAheadTooltipDisposable = atom.tooltips.add(this.commitsAhead, {title: `${_.pluralize(ahead, 'commit')} ahead of upstream`});
+      this.commitsAheadTooltipDisposable = atom.tooltips.add(
+        this.commitsAhead,
+        { title: `${_.pluralize(ahead, 'commit')} ahead of upstream` }
+      );
     } else {
       this.commitsAhead.style.display = 'none';
     }
@@ -212,20 +243,30 @@ module.exports =
       if (this.commitsBehindTooltipDisposable != null) {
         this.commitsBehindTooltipDisposable.dispose();
       }
-      this.commitsBehindTooltipDisposable = atom.tooltips.add(this.commitsBehind, {title: `${_.pluralize(behind, 'commit')} behind upstream`});
+      this.commitsBehindTooltipDisposable = atom.tooltips.add(
+        this.commitsBehind,
+        { title: `${_.pluralize(behind, 'commit')} behind upstream` }
+      );
     } else {
       this.commitsBehind.style.display = 'none';
     }
 
-    if ((ahead > 0) || (behind > 0)) {
-      return this.commitsArea.style.display = '';
+    if (ahead > 0 || behind > 0) {
+      return (this.commitsArea.style.display = '');
     } else {
-      return this.commitsArea.style.display = 'none';
+      return (this.commitsArea.style.display = 'none');
     }
   }
 
   clearStatus() {
-    return this.gitStatusIcon.classList.remove('icon-diff-modified', 'status-modified', 'icon-diff-added', 'status-added', 'icon-diff-ignored', 'status-ignored');
+    return this.gitStatusIcon.classList.remove(
+      'icon-diff-modified',
+      'status-modified',
+      'icon-diff-added',
+      'status-added',
+      'icon-diff-ignored',
+      'status-ignored'
+    );
   }
 
   updateAsNewFile() {
@@ -233,15 +274,20 @@ module.exports =
     this.clearStatus();
 
     this.gitStatusIcon.classList.add('icon-diff-added', 'status-added');
-    if (textEditor = atom.workspace.getActiveTextEditor()) {
+    if ((textEditor = atom.workspace.getActiveTextEditor())) {
       this.gitStatusIcon.textContent = `+${textEditor.getLineCount()}`;
-      this.updateTooltipText(`${_.pluralize(textEditor.getLineCount(), 'line')} in this new file not yet committed`);
+      this.updateTooltipText(
+        `${_.pluralize(
+          textEditor.getLineCount(),
+          'line'
+        )} in this new file not yet committed`
+      );
     } else {
       this.gitStatusIcon.textContent = '';
       this.updateTooltipText();
     }
 
-    return this.gitStatus.style.display = '';
+    return (this.gitStatus.style.display = '');
   }
 
   updateAsModifiedFile(repo, path) {
@@ -251,28 +297,43 @@ module.exports =
     this.gitStatusIcon.classList.add('icon-diff-modified', 'status-modified');
     if (stats.added && stats.deleted) {
       this.gitStatusIcon.textContent = `+${stats.added}, -${stats.deleted}`;
-      this.updateTooltipText(`${_.pluralize(stats.added, 'line')} added and ${_.pluralize(stats.deleted, 'line')} deleted in this file not yet committed`);
+      this.updateTooltipText(
+        `${_.pluralize(stats.added, 'line')} added and ${_.pluralize(
+          stats.deleted,
+          'line'
+        )} deleted in this file not yet committed`
+      );
     } else if (stats.added) {
       this.gitStatusIcon.textContent = `+${stats.added}`;
-      this.updateTooltipText(`${_.pluralize(stats.added, 'line')} added to this file not yet committed`);
+      this.updateTooltipText(
+        `${_.pluralize(
+          stats.added,
+          'line'
+        )} added to this file not yet committed`
+      );
     } else if (stats.deleted) {
       this.gitStatusIcon.textContent = `-${stats.deleted}`;
-      this.updateTooltipText(`${_.pluralize(stats.deleted, 'line')} deleted from this file not yet committed`);
+      this.updateTooltipText(
+        `${_.pluralize(
+          stats.deleted,
+          'line'
+        )} deleted from this file not yet committed`
+      );
     } else {
       this.gitStatusIcon.textContent = '';
       this.updateTooltipText();
     }
 
-    return this.gitStatus.style.display = '';
+    return (this.gitStatus.style.display = '');
   }
 
   updateAsIgnoredFile() {
     this.clearStatus();
 
-    this.gitStatusIcon.classList.add('icon-diff-ignored',  'status-ignored');
+    this.gitStatusIcon.classList.add('icon-diff-ignored', 'status-ignored');
     this.gitStatusIcon.textContent = '';
     this.gitStatus.style.display = '';
-    return this.updateTooltipText("File is ignored by git");
+    return this.updateTooltipText('File is ignored by git');
   }
 
   updateTooltipText(text) {
@@ -280,20 +341,24 @@ module.exports =
       this.statusTooltipDisposable.dispose();
     }
     if (text) {
-      return this.statusTooltipDisposable = atom.tooltips.add(this.gitStatusIcon, {title: text});
+      return (this.statusTooltipDisposable = atom.tooltips.add(
+        this.gitStatusIcon,
+        { title: text }
+      ));
     }
   }
 
   updateStatusText(repo) {
     const hideStatus = () => {
       this.clearStatus();
-      return this.gitStatus.style.display = 'none';
+      return (this.gitStatus.style.display = 'none');
     };
 
     const itemPath = this.getActiveItemPath();
-    if (this.showGitInformation(repo) && (itemPath != null)) {
+    if (this.showGitInformation(repo) && itemPath != null) {
       let left;
-      const status = (left = repo.getCachedPathStatus(itemPath)) != null ? left : 0;
+      const status =
+        (left = repo.getCachedPathStatus(itemPath)) != null ? left : 0;
       if (repo.isStatusNew(status)) {
         return this.updateAsNewFile();
       }
@@ -311,10 +376,14 @@ module.exports =
       return hideStatus();
     }
   }
-});
+};
 
 function __guardMethod__(obj, methodName, transform) {
-  if (typeof obj !== 'undefined' && obj !== null && typeof obj[methodName] === 'function') {
+  if (
+    typeof obj !== 'undefined' &&
+    obj !== null &&
+    typeof obj[methodName] === 'function'
+  ) {
     return transform(obj, methodName);
   } else {
     return undefined;

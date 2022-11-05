@@ -7,14 +7,13 @@
 let RootDragAndDropHandler;
 const url = require('url');
 
-const {ipcRenderer} = require('electron');
+const { ipcRenderer } = require('electron');
 const remote = require('@electron/remote');
 
 // TODO: Support dragging external folders and using the drag-and-drop indicators for them
 // Currently they're handled in TreeView's drag listeners
 
-module.exports =
-(RootDragAndDropHandler = class RootDragAndDropHandler {
+module.exports = RootDragAndDropHandler = class RootDragAndDropHandler {
   constructor(treeView) {
     this.onDragStart = this.onDragStart.bind(this);
     this.onDragLeave = this.onDragLeave.bind(this);
@@ -23,38 +22,68 @@ module.exports =
     this.onDropOnOtherWindow = this.onDropOnOtherWindow.bind(this);
     this.onDrop = this.onDrop.bind(this);
     this.treeView = treeView;
-    ipcRenderer.on('tree-view:project-folder-dropped', this.onDropOnOtherWindow);
+    ipcRenderer.on(
+      'tree-view:project-folder-dropped',
+      this.onDropOnOtherWindow
+    );
     this.handleEvents();
   }
 
   dispose() {
-    return ipcRenderer.removeListener('tree-view:project-folder-dropped', this.onDropOnOtherWindow);
+    return ipcRenderer.removeListener(
+      'tree-view:project-folder-dropped',
+      this.onDropOnOtherWindow
+    );
   }
 
   handleEvents() {
     // onDragStart is called directly by TreeView's onDragStart
     // will be cleaned up by tree view, since they are tree-view's handlers
-    this.treeView.element.addEventListener('dragenter', this.onDragEnter.bind(this));
-    this.treeView.element.addEventListener('dragend', this.onDragEnd.bind(this));
-    this.treeView.element.addEventListener('dragleave', this.onDragLeave.bind(this));
-    this.treeView.element.addEventListener('dragover', this.onDragOver.bind(this));
-    return this.treeView.element.addEventListener('drop', this.onDrop.bind(this));
+    this.treeView.element.addEventListener(
+      'dragenter',
+      this.onDragEnter.bind(this)
+    );
+    this.treeView.element.addEventListener(
+      'dragend',
+      this.onDragEnd.bind(this)
+    );
+    this.treeView.element.addEventListener(
+      'dragleave',
+      this.onDragLeave.bind(this)
+    );
+    this.treeView.element.addEventListener(
+      'dragover',
+      this.onDragOver.bind(this)
+    );
+    return this.treeView.element.addEventListener(
+      'drop',
+      this.onDrop.bind(this)
+    );
   }
 
   onDragStart(e) {
-    if (!this.treeView.list.contains(e.target)) { return; }
+    if (!this.treeView.list.contains(e.target)) {
+      return;
+    }
 
     this.prevDropTargetIndex = null;
     e.dataTransfer.setData('atom-tree-view-root-event', 'true');
     const projectRoot = e.target.closest('.project-root');
-    const {
-      directory
-    } = projectRoot;
+    const { directory } = projectRoot;
 
-    e.dataTransfer.setData('project-root-index', Array.from(projectRoot.parentElement.children).indexOf(projectRoot));
+    e.dataTransfer.setData(
+      'project-root-index',
+      Array.from(projectRoot.parentElement.children).indexOf(projectRoot)
+    );
 
     let rootIndex = -1;
-    for (let index = 0; index < this.treeView.roots.length; index++) { var root = this.treeView.roots[index]; if (root.directory === directory) { rootIndex = index; break; } }
+    for (let index = 0; index < this.treeView.roots.length; index++) {
+      var root = this.treeView.roots[index];
+      if (root.directory === directory) {
+        rootIndex = index;
+        break;
+      }
+    }
 
     e.dataTransfer.setData('from-root-index', rootIndex);
     e.dataTransfer.setData('from-root-path', directory.path);
@@ -64,37 +93,53 @@ module.exports =
 
     if (['darwin', 'linux'].includes(process.platform)) {
       let pathUri;
-      if (!this.uriHasProtocol(directory.path)) { pathUri = `file://${directory.path}`; }
+      if (!this.uriHasProtocol(directory.path)) {
+        pathUri = `file://${directory.path}`;
+      }
       return e.dataTransfer.setData('text/uri-list', pathUri);
     }
   }
 
   uriHasProtocol(uri) {
     try {
-      return (url.parse(uri).protocol != null);
+      return url.parse(uri).protocol != null;
     } catch (error) {
       return false;
     }
   }
 
   onDragEnter(e) {
-    if (!this.treeView.list.contains(e.target)) { return; }
-    if (!this.isAtomTreeViewEvent(e)) { return; }
+    if (!this.treeView.list.contains(e.target)) {
+      return;
+    }
+    if (!this.isAtomTreeViewEvent(e)) {
+      return;
+    }
 
     return e.stopPropagation();
   }
 
   onDragLeave(e) {
-    if (!this.treeView.list.contains(e.target)) { return; }
-    if (!this.isAtomTreeViewEvent(e)) { return; }
+    if (!this.treeView.list.contains(e.target)) {
+      return;
+    }
+    if (!this.isAtomTreeViewEvent(e)) {
+      return;
+    }
 
     e.stopPropagation();
-    if (e.target === e.currentTarget) { return this.removePlaceholder(); }
+    if (e.target === e.currentTarget) {
+      return this.removePlaceholder();
+    }
   }
 
   onDragEnd(e) {
-    if (!e.target.matches('.project-root-header')) { return; }
-    if (!this.isAtomTreeViewEvent(e)) { return; }
+    if (!e.target.matches('.project-root-header')) {
+      return;
+    }
+    if (!this.isAtomTreeViewEvent(e)) {
+      return;
+    }
 
     e.stopPropagation();
     return this.clearDropTarget();
@@ -102,8 +147,12 @@ module.exports =
 
   onDragOver(e) {
     let element;
-    if (!this.treeView.list.contains(e.target)) { return; }
-    if (!this.isAtomTreeViewEvent(e)) { return; }
+    if (!this.treeView.list.contains(e.target)) {
+      return;
+    }
+    if (!this.isAtomTreeViewEvent(e)) {
+      return;
+    }
 
     e.preventDefault();
     e.stopPropagation();
@@ -116,8 +165,12 @@ module.exports =
     }
 
     const newDropTargetIndex = this.getDropTargetIndex(e);
-    if (newDropTargetIndex == null) { return; }
-    if (this.prevDropTargetIndex === newDropTargetIndex) { return; }
+    if (newDropTargetIndex == null) {
+      return;
+    }
+    if (this.prevDropTargetIndex === newDropTargetIndex) {
+      return;
+    }
     this.prevDropTargetIndex = newDropTargetIndex;
 
     const projectRoots = this.treeView.roots;
@@ -129,7 +182,10 @@ module.exports =
     } else {
       element = projectRoots[newDropTargetIndex - 1];
       element.classList.add('drop-target-is-after');
-      return element.parentElement.insertBefore(this.getPlaceholder(), element.nextSibling);
+      return element.parentElement.insertBefore(
+        this.getPlaceholder(),
+        element.nextSibling
+      );
     }
   }
 
@@ -142,7 +198,7 @@ module.exports =
   }
 
   clearDropTarget() {
-    const element = this.treeView.element.querySelector(".is-dragging");
+    const element = this.treeView.element.querySelector('.is-dragging');
     if (element != null) {
       element.classList.remove('is-dragging');
     }
@@ -154,17 +210,21 @@ module.exports =
 
   onDrop(e) {
     let projectPaths;
-    if (!this.treeView.list.contains(e.target)) { return; }
-    if (!this.isAtomTreeViewEvent(e)) { return; }
+    if (!this.treeView.list.contains(e.target)) {
+      return;
+    }
+    if (!this.isAtomTreeViewEvent(e)) {
+      return;
+    }
 
     e.preventDefault();
     e.stopPropagation();
 
-    const {dataTransfer} = e;
+    const { dataTransfer } = e;
 
     const fromWindowId = parseInt(dataTransfer.getData('from-window-id'));
-    const fromRootPath  = dataTransfer.getData('from-root-path');
-    const fromIndex     = parseInt(dataTransfer.getData('project-root-index'));
+    const fromRootPath = dataTransfer.getData('from-root-path');
+    const fromIndex = parseInt(dataTransfer.getData('project-root-index'));
     const fromRootIndex = parseInt(dataTransfer.getData('from-root-index'));
 
     let toIndex = this.getDropTargetIndex(e);
@@ -175,7 +235,9 @@ module.exports =
       if (fromIndex !== toIndex) {
         projectPaths = atom.project.getPaths();
         projectPaths.splice(fromIndex, 1);
-        if (toIndex > fromIndex) { toIndex -= 1; }
+        if (toIndex > fromIndex) {
+          toIndex -= 1;
+        }
         projectPaths.splice(toIndex, 0, fromRootPath);
         return atom.project.setPaths(projectPaths);
       }
@@ -187,23 +249,35 @@ module.exports =
       if (!isNaN(fromWindowId)) {
         // Let the window where the drag started know that the tab was dropped
         const browserWindow = remote.BrowserWindow.fromId(fromWindowId);
-        return (browserWindow != null ? browserWindow.webContents.send('tree-view:project-folder-dropped', fromIndex) : undefined);
+        return browserWindow != null
+          ? browserWindow.webContents.send(
+              'tree-view:project-folder-dropped',
+              fromIndex
+            )
+          : undefined;
       }
     }
   }
 
   getDropTargetIndex(e) {
-    if (this.isPlaceholder(e.target)) { return; }
+    if (this.isPlaceholder(e.target)) {
+      return;
+    }
 
     const projectRoots = this.treeView.roots;
     let projectRoot = e.target.closest('.project-root');
-    if (!projectRoot) { projectRoot = projectRoots[projectRoots.length - 1]; }
+    if (!projectRoot) {
+      projectRoot = projectRoots[projectRoots.length - 1];
+    }
 
-    if (!projectRoot) { return 0; }
+    if (!projectRoot) {
+      return 0;
+    }
 
     const projectRootIndex = this.treeView.roots.indexOf(projectRoot);
 
-    const center = projectRoot.getBoundingClientRect().top + (projectRoot.offsetHeight / 2);
+    const center =
+      projectRoot.getBoundingClientRect().top + projectRoot.offsetHeight / 2;
 
     if (e.pageY < center) {
       return projectRootIndex;
@@ -248,7 +322,7 @@ module.exports =
     if (this.placeholderEl != null) {
       this.placeholderEl.remove();
     }
-    return this.placeholderEl = null;
+    return (this.placeholderEl = null);
   }
 
   isPlaceholder(element) {
@@ -256,6 +330,8 @@ module.exports =
   }
 
   getWindowId() {
-    return this.processId != null ? this.processId : (this.processId = atom.getCurrentWindow().id);
+    return this.processId != null
+      ? this.processId
+      : (this.processId = atom.getCurrentWindow().id);
   }
-});
+};

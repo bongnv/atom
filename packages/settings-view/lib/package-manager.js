@@ -9,27 +9,28 @@
  */
 let PackageManager;
 const _ = require('underscore-plus');
-const {BufferedProcess, CompositeDisposable, Emitter} = require('atom');
+const { BufferedProcess, CompositeDisposable, Emitter } = require('atom');
 const semver = require('semver');
 
-module.exports =
-(PackageManager = (function() {
+module.exports = PackageManager = (function () {
   PackageManager = class PackageManager {
     static initClass() {
       // Millisecond expiry for cached loadOutdated, etc. values
-      this.prototype.CACHE_EXPIRY = 1000*60*10;
+      this.prototype.CACHE_EXPIRY = 1000 * 60 * 10;
     }
 
     constructor() {
       this.packagePromises = [];
-      this.emitter = new Emitter;
+      this.emitter = new Emitter();
     }
 
     isPackageInstalled(packageName) {
       if (atom.packages.isPackageLoaded(packageName)) {
         return true;
       } else {
-        return atom.packages.getAvailablePackageNames().indexOf(packageName) > -1;
+        return (
+          atom.packages.getAvailablePackageNames().indexOf(packageName) > -1
+        );
       }
     }
 
@@ -38,14 +39,18 @@ module.exports =
       const grammars = (left = atom.grammars.getGrammars()) != null ? left : [];
       for (let grammar of Array.from(grammars)) {
         if (grammar.path) {
-          if (grammar.packageName === packageName) { return true; }
+          if (grammar.packageName === packageName) {
+            return true;
+          }
         }
       }
 
       const pack = atom.packages.getLoadedPackage(packageName);
-      if ((pack != null) && !atom.packages.isPackageActive(packageName)) { pack.activateConfig(); }
+      if (pack != null && !atom.packages.isPackageActive(packageName)) {
+        pack.activateConfig();
+      }
       const schema = atom.config.getSchema(packageName);
-      return (schema != null) && (schema.type !== 'any');
+      return schema != null && schema.type !== 'any';
     }
 
     // FIXME: bongnv - implement a different approach to load packages
@@ -58,7 +63,7 @@ module.exports =
         user: [],
         deprecated: [],
         git: [],
-      }
+      };
       packages.forEach((pack) => {
         const metadata = atom.packages.loadPackageMetadata(pack);
         if (pack.isBundled) {
@@ -66,13 +71,15 @@ module.exports =
         } else {
           installedPackages.dev.push(metadata);
         }
-      })
+      });
       return callback(null, installedPackages);
     }
 
     getVersionPinnedPackages() {
       let left;
-      return (left = atom.config.get('core.versionPinnedPackages')) != null ? left : [];
+      return (left = atom.config.get('core.versionPinnedPackages')) != null
+        ? left
+        : [];
     }
 
     loadPackage(packageName, callback) {
@@ -83,7 +90,13 @@ module.exports =
     }
 
     loadCompatiblePackageVersion(packageName, callback) {
-      const args = ['view', packageName, '--json', '--compatible', this.normalizeVersion(atom.getVersion())];
+      const args = [
+        'view',
+        packageName,
+        '--json',
+        '--compatible',
+        this.normalizeVersion(atom.getVersion()),
+      ];
       const errorMessage = `Fetching package '${packageName}' failed.`;
       // TODO: bongnv - find a way to load compatible packages
       return callback(null, []);
@@ -91,7 +104,7 @@ module.exports =
 
     getInstalled() {
       return new Promise((resolve, reject) => {
-        return this.loadInstalled(function(error, result) {
+        return this.loadInstalled(function (error, result) {
           if (error) {
             return reject(error);
           } else {
@@ -102,85 +115,118 @@ module.exports =
     }
 
     getPackage(packageName) {
-      return this.packagePromises[packageName] != null ? this.packagePromises[packageName] : (this.packagePromises[packageName] = new Promise((resolve, reject) => {
-        return this.loadPackage(packageName, function(error, result) {
-          if (error) {
-            return reject(error);
-          } else {
-            return resolve(result);
-          }
-        });
-      }));
+      return this.packagePromises[packageName] != null
+        ? this.packagePromises[packageName]
+        : (this.packagePromises[packageName] = new Promise(
+            (resolve, reject) => {
+              return this.loadPackage(packageName, function (error, result) {
+                if (error) {
+                  return reject(error);
+                } else {
+                  return resolve(result);
+                }
+              });
+            }
+          ));
     }
 
     satisfiesVersion(version, metadata) {
-      const engine = metadata.engines?.atom != null ? metadata.engines?.atom : '*';
-      if (!semver.validRange(engine)) { return false; }
+      const engine =
+        metadata.engines?.atom != null ? metadata.engines?.atom : '*';
+      if (!semver.validRange(engine)) {
+        return false;
+      }
       return semver.satisfies(version, engine);
     }
 
     normalizeVersion(version) {
-      if (typeof version === 'string') { [version] = version.split('-'); }
+      if (typeof version === 'string') {
+        [version] = version.split('-');
+      }
       return version;
     }
 
     unload(name) {
       if (atom.packages.isPackageLoaded(name)) {
-        if (atom.packages.isPackageActive(name)) { atom.packages.deactivatePackage(name); }
+        if (atom.packages.isPackageActive(name)) {
+          atom.packages.deactivatePackage(name);
+        }
         return atom.packages.unloadPackage(name);
       }
     }
 
     installAlternative(pack, alternativePackageName, callback) {
-      const eventArg = {pack, alternative: alternativePackageName};
+      const eventArg = { pack, alternative: alternativePackageName };
       this.emitter.emit('package-installing-alternative', eventArg);
 
       const uninstallPromise = new Promise((resolve, reject) => {
-        return this.uninstall(pack, function(error) {
-          if (error) { return reject(error); } else { return resolve(); }
+        return this.uninstall(pack, function (error) {
+          if (error) {
+            return reject(error);
+          } else {
+            return resolve();
+          }
         });
       });
 
       const installPromise = new Promise((resolve, reject) => {
-        return this.install({name: alternativePackageName}, function(error) {
-          if (error) { return reject(error); } else { return resolve(); }
+        return this.install({ name: alternativePackageName }, function (error) {
+          if (error) {
+            return reject(error);
+          } else {
+            return resolve();
+          }
         });
       });
 
-      return Promise.all([uninstallPromise, installPromise]).then(() => {
-        callback(null, eventArg);
-        return this.emitter.emit('package-installed-alternative', eventArg);
-    }).catch(error => {
-        console.error(error.message, error.stack);
-        callback(error, eventArg);
-        eventArg.error = error;
-        return this.emitter.emit('package-install-alternative-failed', eventArg);
-      });
+      return Promise.all([uninstallPromise, installPromise])
+        .then(() => {
+          callback(null, eventArg);
+          return this.emitter.emit('package-installed-alternative', eventArg);
+        })
+        .catch((error) => {
+          console.error(error.message, error.stack);
+          callback(error, eventArg);
+          eventArg.error = error;
+          return this.emitter.emit(
+            'package-install-alternative-failed',
+            eventArg
+          );
+        });
     }
 
-    getPackageTitle({name}) {
+    getPackageTitle({ name }) {
       return _.undasherize(_.uncamelcase(name));
     }
 
-    getRepositoryUrl({metadata}) {
+    getRepositoryUrl({ metadata }) {
       let left;
-      const {repository} = metadata;
-      let repoUrl = (left = repository?.url != null ? repository?.url : repository) != null ? left : '';
+      const { repository } = metadata;
+      let repoUrl =
+        (left = repository?.url != null ? repository?.url : repository) != null
+          ? left
+          : '';
       if (repoUrl.match('git@github')) {
         const repoName = repoUrl.split(':')[1];
         repoUrl = `https://github.com/${repoName}`;
       }
-      return repoUrl.replace(/\.git$/, '').replace(/\/+$/, '').replace(/^git\+/, '');
+      return repoUrl
+        .replace(/\.git$/, '')
+        .replace(/\/+$/, '')
+        .replace(/^git\+/, '');
     }
 
-    getRepositoryBugUri({metadata}) {
+    getRepositoryBugUri({ metadata }) {
       let bugUri;
-      const {bugs} = metadata;
+      const { bugs } = metadata;
       if (typeof bugs === 'string') {
         bugUri = bugs;
       } else {
         let left;
-        bugUri = (left = bugs?.url != null ? bugs?.url : bugs?.email) != null ? left : this.getRepositoryUrl({metadata}) + '/issues/new';
+        bugUri =
+          (left = bugs?.url != null ? bugs?.url : bugs?.email) != null
+            ? left
+            : this.getRepositoryUrl({ metadata }) + '/issues/new';
         if (bugUri.includes('@')) {
           bugUri = 'mailto:' + bugUri;
         }
@@ -200,8 +246,8 @@ module.exports =
     }
 
     on(selectors, callback) {
-      const subscriptions = new CompositeDisposable;
-      for (let selector of Array.from(selectors.split(" "))) {
+      const subscriptions = new CompositeDisposable();
+      for (let selector of Array.from(selectors.split(' '))) {
         subscriptions.add(this.emitter.on(selector, callback));
       }
       return subscriptions;
@@ -209,4 +255,4 @@ module.exports =
   };
   PackageManager.initClass();
   return PackageManager;
-})());
+})();

@@ -4,26 +4,30 @@
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-describe('PHP in HTML', function() {
+describe('PHP in HTML', function () {
   let grammar = null;
 
-  beforeEach(function() {
+  beforeEach(function () {
     waitsForPromise(() => atom.packages.activatePackage('language-php'));
 
-    waitsForPromise(() => // While not used explicitly in any tests, we still activate language-html
-    // to mirror how language-php behaves outside of specs
-    atom.packages.activatePackage('language-html'));
+    waitsForPromise(() =>
+      // While not used explicitly in any tests, we still activate language-html
+      // to mirror how language-php behaves outside of specs
+      atom.packages.activatePackage('language-html')
+    );
 
-    return runs(() => grammar = atom.grammars.grammarForScopeName('text.html.php'));
+    return runs(
+      () => (grammar = atom.grammars.grammarForScopeName('text.html.php'))
+    );
   });
 
-  it('parses the grammar', function() {
+  it('parses the grammar', function () {
     expect(grammar).toBeTruthy();
     return expect(grammar.scopeName).toBe('text.html.php');
   });
 
-  describe('PHP tags', function() {
-    it('tokenizes starting and closing PHP tags on the same line', function() {
+  describe('PHP tags', function () {
+    it('tokenizes starting and closing PHP tags on the same line', function () {
       const startTags = ['<?php', '<?=', '<?'];
 
       return (() => {
@@ -31,19 +35,67 @@ describe('PHP in HTML', function() {
         for (var startTag of startTags) {
           var tokens = grammar.tokenizeLines(`${startTag} /* stuff */ ?>`);
 
-          expect(tokens[0][0]).toEqual({value: startTag, scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.begin.php']});
-          expect(tokens[0][1]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php']});
-          expect(tokens[0][2]).toEqual({value: '/*', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[0][4]).toEqual({value: '*/', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[0][5]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php']});
-          expect(tokens[0][6]).toEqual({value: '?', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php', 'source.php']});
-          result.push(expect(tokens[0][7]).toEqual({value: '>', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php']}));
+          expect(tokens[0][0]).toEqual({
+            value: startTag,
+            scopes: [
+              'text.html.php',
+              'meta.embedded.line.php',
+              'punctuation.section.embedded.begin.php',
+            ],
+          });
+          expect(tokens[0][1]).toEqual({
+            value: ' ',
+            scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php'],
+          });
+          expect(tokens[0][2]).toEqual({
+            value: '/*',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.line.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[0][4]).toEqual({
+            value: '*/',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.line.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[0][5]).toEqual({
+            value: ' ',
+            scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php'],
+          });
+          expect(tokens[0][6]).toEqual({
+            value: '?',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.line.php',
+              'punctuation.section.embedded.end.php',
+              'source.php',
+            ],
+          });
+          result.push(
+            expect(tokens[0][7]).toEqual({
+              value: '>',
+              scopes: [
+                'text.html.php',
+                'meta.embedded.line.php',
+                'punctuation.section.embedded.end.php',
+              ],
+            })
+          );
         }
         return result;
       })();
-  });
+    });
 
-    it('tokenizes starting and closing PHP tags on different lines', function() {
+    it('tokenizes starting and closing PHP tags on different lines', function () {
       const startTags = ['<?php', '<?=', '<?'];
 
       return (() => {
@@ -51,56 +103,270 @@ describe('PHP in HTML', function() {
         for (var startTag of startTags) {
           var tokens = grammar.tokenizeLines(`${startTag}\n/* stuff */ ?>`);
 
-          expect(tokens[0][0]).toEqual({value: startTag, scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.begin.php']});
-          expect(tokens[1][0]).toEqual({value: '/*', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[1][2]).toEqual({value: '*/', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[1][3]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php']});
-          expect(tokens[1][4]).toEqual({value: '?', scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php', 'source.php']});
-          expect(tokens[1][5]).toEqual({value: '>', scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php']});
+          expect(tokens[0][0]).toEqual({
+            value: startTag,
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.begin.php',
+            ],
+          });
+          expect(tokens[1][0]).toEqual({
+            value: '/*',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[1][2]).toEqual({
+            value: '*/',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[1][3]).toEqual({
+            value: ' ',
+            scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php'],
+          });
+          expect(tokens[1][4]).toEqual({
+            value: '?',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.end.php',
+              'source.php',
+            ],
+          });
+          expect(tokens[1][5]).toEqual({
+            value: '>',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.end.php',
+            ],
+          });
 
           tokens = grammar.tokenizeLines(`${startTag} /* stuff */\n?>`);
 
-          expect(tokens[0][0]).toEqual({value: startTag, scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.begin.php']});
-          expect(tokens[0][1]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php']});
-          expect(tokens[0][2]).toEqual({value: '/*', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[0][4]).toEqual({value: '*/', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[1][0]).toEqual({value: '?', scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php', 'source.php']});
-          expect(tokens[1][1]).toEqual({value: '>', scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php']});
+          expect(tokens[0][0]).toEqual({
+            value: startTag,
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.begin.php',
+            ],
+          });
+          expect(tokens[0][1]).toEqual({
+            value: ' ',
+            scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php'],
+          });
+          expect(tokens[0][2]).toEqual({
+            value: '/*',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[0][4]).toEqual({
+            value: '*/',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[1][0]).toEqual({
+            value: '?',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.end.php',
+              'source.php',
+            ],
+          });
+          expect(tokens[1][1]).toEqual({
+            value: '>',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.end.php',
+            ],
+          });
 
           tokens = grammar.tokenizeLines(`${startTag}\n/* stuff */\n?>`);
 
-          expect(tokens[0][0]).toEqual({value: startTag, scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.begin.php']});
-          expect(tokens[1][0]).toEqual({value: '/*', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[1][2]).toEqual({value: '*/', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-          expect(tokens[2][0]).toEqual({value: '?', scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php', 'source.php']});
-          result.push(expect(tokens[2][1]).toEqual({value: '>', scopes: ['text.html.php', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php']}));
+          expect(tokens[0][0]).toEqual({
+            value: startTag,
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.begin.php',
+            ],
+          });
+          expect(tokens[1][0]).toEqual({
+            value: '/*',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[1][2]).toEqual({
+            value: '*/',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'source.php',
+              'comment.block.php',
+              'punctuation.definition.comment.php',
+            ],
+          });
+          expect(tokens[2][0]).toEqual({
+            value: '?',
+            scopes: [
+              'text.html.php',
+              'meta.embedded.block.php',
+              'punctuation.section.embedded.end.php',
+              'source.php',
+            ],
+          });
+          result.push(
+            expect(tokens[2][1]).toEqual({
+              value: '>',
+              scopes: [
+                'text.html.php',
+                'meta.embedded.block.php',
+                'punctuation.section.embedded.end.php',
+              ],
+            })
+          );
         }
         return result;
       })();
-  });
+    });
 
-    it('tokenizes `include` on the same line as <?php', function() {
+    it('tokenizes `include` on the same line as <?php', function () {
       // https://github.com/atom/language-php/issues/154
-      const {tokens} = grammar.tokenizeLine("<?php include 'test'?>");
+      const { tokens } = grammar.tokenizeLine("<?php include 'test'?>");
 
-      expect(tokens[2]).toEqual({value: 'include', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.include.php', 'keyword.control.import.include.php']});
-      expect(tokens[4]).toEqual({value: "'", scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.include.php', 'string.quoted.single.php', 'punctuation.definition.string.begin.php']});
-      expect(tokens[6]).toEqual({value: "'", scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.include.php', 'string.quoted.single.php', 'punctuation.definition.string.end.php']});
-      expect(tokens[7]).toEqual({value: '?', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php', 'source.php']});
-      return expect(tokens[8]).toEqual({value: '>', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php']});
-  });
+      expect(tokens[2]).toEqual({
+        value: 'include',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.include.php',
+          'keyword.control.import.include.php',
+        ],
+      });
+      expect(tokens[4]).toEqual({
+        value: "'",
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.include.php',
+          'string.quoted.single.php',
+          'punctuation.definition.string.begin.php',
+        ],
+      });
+      expect(tokens[6]).toEqual({
+        value: "'",
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.include.php',
+          'string.quoted.single.php',
+          'punctuation.definition.string.end.php',
+        ],
+      });
+      expect(tokens[7]).toEqual({
+        value: '?',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.end.php',
+          'source.php',
+        ],
+      });
+      return expect(tokens[8]).toEqual({
+        value: '>',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.end.php',
+        ],
+      });
+    });
 
-    it('tokenizes namespaces immediately following <?php', function() {
-      const {tokens} = grammar.tokenizeLine('<?php namespace Test;');
+    it('tokenizes namespaces immediately following <?php', function () {
+      const { tokens } = grammar.tokenizeLine('<?php namespace Test;');
 
-      expect(tokens[1]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'meta.namespace.php']});
-      expect(tokens[2]).toEqual({value: 'namespace', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'meta.namespace.php', 'keyword.other.namespace.php']});
-      expect(tokens[3]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'meta.namespace.php']});
-      expect(tokens[4]).toEqual({value: 'Test', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'meta.namespace.php', 'entity.name.type.namespace.php']});
-      return expect(tokens[5]).toEqual({value: ';', scopes: ['text.html.php', 'meta.embedded.block.php', 'source.php', 'punctuation.terminator.expression.php']});
-  });
+      expect(tokens[1]).toEqual({
+        value: ' ',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.block.php',
+          'source.php',
+          'meta.namespace.php',
+        ],
+      });
+      expect(tokens[2]).toEqual({
+        value: 'namespace',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.block.php',
+          'source.php',
+          'meta.namespace.php',
+          'keyword.other.namespace.php',
+        ],
+      });
+      expect(tokens[3]).toEqual({
+        value: ' ',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.block.php',
+          'source.php',
+          'meta.namespace.php',
+        ],
+      });
+      expect(tokens[4]).toEqual({
+        value: 'Test',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.block.php',
+          'source.php',
+          'meta.namespace.php',
+          'entity.name.type.namespace.php',
+        ],
+      });
+      return expect(tokens[5]).toEqual({
+        value: ';',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.block.php',
+          'source.php',
+          'punctuation.terminator.expression.php',
+        ],
+      });
+    });
 
-    it('does not tokenize PHP tag syntax within PHP syntax itself inside HTML script tags (regression)', function() {
+    it('does not tokenize PHP tag syntax within PHP syntax itself inside HTML script tags (regression)', function () {
       const lines = grammar.tokenizeLines(`\
 <script>
 <?php
@@ -110,75 +376,369 @@ describe('PHP in HTML', function() {
   */
 ?>
 </script>\
-`
+`);
+
+      expect(lines[0][0]).toEqual({
+        value: '<',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'punctuation.definition.tag.html',
+        ],
+      });
+      expect(lines[0][1]).toEqual({
+        value: 'script',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'entity.name.tag.script.html',
+        ],
+      });
+      expect(lines[0][2]).toEqual({
+        value: '>',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'punctuation.definition.tag.html',
+        ],
+      });
+      expect(lines[1][0]).toEqual({
+        value: '<?php',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'punctuation.section.embedded.begin.php',
+        ],
+      });
+      expect(lines[2][0]).toEqual({
+        value: '  ',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'source.php',
+        ],
+      });
+      expect(lines[2][1]).toEqual({
+        value: '/*',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'source.php',
+          'comment.block.php',
+          'punctuation.definition.comment.php',
+        ],
+      });
+      expect(lines[3][0]).toEqual({
+        value: '    ?>',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'source.php',
+          'comment.block.php',
+        ],
+      });
+      expect(lines[4][0]).toEqual({
+        value: '    <?php',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'source.php',
+          'comment.block.php',
+        ],
+      });
+      expect(lines[5][0]).toEqual({
+        value: '  ',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'source.php',
+          'comment.block.php',
+        ],
+      });
+      expect(lines[5][1]).toEqual({
+        value: '*/',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'source.php',
+          'comment.block.php',
+          'punctuation.definition.comment.php',
+        ],
+      });
+      expect(lines[6][0]).toEqual({
+        value: '?',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'punctuation.section.embedded.end.php',
+          'source.php',
+        ],
+      });
+      expect(lines[6][1]).toEqual({
+        value: '>',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'source.js.embedded.html',
+          'meta.embedded.block.php',
+          'punctuation.section.embedded.end.php',
+        ],
+      });
+      expect(lines[7][0]).toEqual({
+        value: '</',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'punctuation.definition.tag.html',
+        ],
+      });
+      expect(lines[7][1]).toEqual({
+        value: 'script',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'entity.name.tag.script.html',
+        ],
+      });
+      return expect(lines[7][2]).toEqual({
+        value: '>',
+        scopes: [
+          'text.html.php',
+          'meta.tag.script.html',
+          'punctuation.definition.tag.html',
+        ],
+      });
+    });
+
+    return it('does not tokenize PHP tag syntax within PHP syntax itself inside HTML attributes (regression)', function () {
+      const { tokens } = grammar.tokenizeLine(
+        '<img src="<?php /* ?> <?php */ ?>" />'
       );
 
-      expect(lines[0][0]).toEqual({value: '<', scopes: ['text.html.php', 'meta.tag.script.html', 'punctuation.definition.tag.html']});
-      expect(lines[0][1]).toEqual({value: 'script', scopes: ['text.html.php', 'meta.tag.script.html', 'entity.name.tag.script.html']});
-      expect(lines[0][2]).toEqual({value: '>', scopes: ['text.html.php', 'meta.tag.script.html', 'punctuation.definition.tag.html']});
-      expect(lines[1][0]).toEqual({value: '<?php', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'punctuation.section.embedded.begin.php']});
-      expect(lines[2][0]).toEqual({value: '  ', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'source.php']});
-      expect(lines[2][1]).toEqual({value: '/*', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-      expect(lines[3][0]).toEqual({value: '    ?>', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'source.php', 'comment.block.php']});
-      expect(lines[4][0]).toEqual({value: '    <?php', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'source.php', 'comment.block.php']});
-      expect(lines[5][0]).toEqual({value: '  ', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'source.php', 'comment.block.php']});
-      expect(lines[5][1]).toEqual({value: '*/', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-      expect(lines[6][0]).toEqual({value: '?', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php', 'source.php']});
-      expect(lines[6][1]).toEqual({value: '>', scopes: ['text.html.php', 'meta.tag.script.html', 'source.js.embedded.html', 'meta.embedded.block.php', 'punctuation.section.embedded.end.php']});
-      expect(lines[7][0]).toEqual({value: '</', scopes: ['text.html.php', 'meta.tag.script.html', 'punctuation.definition.tag.html']});
-      expect(lines[7][1]).toEqual({value: 'script', scopes: ['text.html.php', 'meta.tag.script.html', 'entity.name.tag.script.html']});
-      return expect(lines[7][2]).toEqual({value: '>', scopes: ['text.html.php', 'meta.tag.script.html', 'punctuation.definition.tag.html']});
+      expect(tokens[0]).toEqual({
+        value: '<',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'punctuation.definition.tag.begin.html',
+        ],
+      });
+      expect(tokens[1]).toEqual({
+        value: 'img',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'entity.name.tag.inline.img.html',
+        ],
+      });
+      expect(tokens[2]).toEqual({
+        value: ' ',
+        scopes: ['text.html.php', 'meta.tag.inline.img.html'],
+      });
+      expect(tokens[3]).toEqual({
+        value: 'src',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'entity.other.attribute-name.html',
+        ],
+      });
+      expect(tokens[4]).toEqual({
+        value: '=',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'punctuation.separator.key-value.html',
+        ],
+      });
+      expect(tokens[5]).toEqual({
+        value: '"',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'punctuation.definition.string.begin.html',
+        ],
+      });
+      expect(tokens[6]).toEqual({
+        value: '<?php',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.begin.php',
+        ],
+      });
+      expect(tokens[7]).toEqual({
+        value: ' ',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'source.php',
+        ],
+      });
+      expect(tokens[8]).toEqual({
+        value: '/*',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'source.php',
+          'comment.block.php',
+          'punctuation.definition.comment.php',
+        ],
+      });
+      expect(tokens[9]).toEqual({
+        value: ' ?> <?php ',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'source.php',
+          'comment.block.php',
+        ],
+      });
+      expect(tokens[10]).toEqual({
+        value: '*/',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'source.php',
+          'comment.block.php',
+          'punctuation.definition.comment.php',
+        ],
+      });
+      expect(tokens[11]).toEqual({
+        value: ' ',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'source.php',
+        ],
+      });
+      expect(tokens[12]).toEqual({
+        value: '?',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.end.php',
+          'source.php',
+        ],
+      });
+      expect(tokens[13]).toEqual({
+        value: '>',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.end.php',
+        ],
+      });
+      expect(tokens[14]).toEqual({
+        value: '"',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'meta.attribute-with-value.html',
+          'string.quoted.double.html',
+          'punctuation.definition.string.end.html',
+        ],
+      });
+      return expect(tokens[15]).toEqual({
+        value: ' />',
+        scopes: [
+          'text.html.php',
+          'meta.tag.inline.img.html',
+          'punctuation.definition.tag.end.html',
+        ],
+      });
+    });
   });
 
-    return it('does not tokenize PHP tag syntax within PHP syntax itself inside HTML attributes (regression)', function() {
-      const {tokens} = grammar.tokenizeLine('<img src="<?php /* ?> <?php */ ?>" />');
-
-      expect(tokens[0]).toEqual({value: '<', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'punctuation.definition.tag.begin.html']});
-      expect(tokens[1]).toEqual({value: 'img', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'entity.name.tag.inline.img.html']});
-      expect(tokens[2]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.tag.inline.img.html']});
-      expect(tokens[3]).toEqual({value: 'src', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'entity.other.attribute-name.html']});
-      expect(tokens[4]).toEqual({value: '=', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'punctuation.separator.key-value.html']});
-      expect(tokens[5]).toEqual({value: '"', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'punctuation.definition.string.begin.html']});
-      expect(tokens[6]).toEqual({value: '<?php', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'punctuation.section.embedded.begin.php']});
-      expect(tokens[7]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'source.php']});
-      expect(tokens[8]).toEqual({value: '/*', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-      expect(tokens[9]).toEqual({value: ' ?> <?php ', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'source.php', 'comment.block.php']});
-      expect(tokens[10]).toEqual({value: '*/', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'source.php', 'comment.block.php', 'punctuation.definition.comment.php']});
-      expect(tokens[11]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'source.php']});
-      expect(tokens[12]).toEqual({value: '?', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php', 'source.php']});
-      expect(tokens[13]).toEqual({value: '>', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php']});
-      expect(tokens[14]).toEqual({value: '"', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'meta.attribute-with-value.html', 'string.quoted.double.html', 'punctuation.definition.string.end.html']});
-      return expect(tokens[15]).toEqual({value: ' />', scopes: ['text.html.php', 'meta.tag.inline.img.html', 'punctuation.definition.tag.end.html']});
-  });
-});
-
-  describe('shebang', function() {
-    it('recognises shebang on the first line of document', function() {
+  describe('shebang', function () {
+    it('recognises shebang on the first line of document', function () {
       const lines = grammar.tokenizeLines(`\
 #!/usr/bin/env php
 <?php echo "test"; ?>\
-`
-      );
+`);
 
-      expect(lines[0][0]).toEqual({value: '#!', scopes: ['text.html.php', 'comment.line.shebang.php', 'punctuation.definition.comment.php']});
-      expect(lines[0][1]).toEqual({value: '/usr/bin/env php', scopes: ['text.html.php', 'comment.line.shebang.php']});
-      return expect(lines[1][0]).toEqual({value: '<?php', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.begin.php']});
-  });
+      expect(lines[0][0]).toEqual({
+        value: '#!',
+        scopes: [
+          'text.html.php',
+          'comment.line.shebang.php',
+          'punctuation.definition.comment.php',
+        ],
+      });
+      expect(lines[0][1]).toEqual({
+        value: '/usr/bin/env php',
+        scopes: ['text.html.php', 'comment.line.shebang.php'],
+      });
+      return expect(lines[1][0]).toEqual({
+        value: '<?php',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.begin.php',
+        ],
+      });
+    });
 
-    return it('does not recognize shebang on any of the other lines', function() {
+    return it('does not recognize shebang on any of the other lines', function () {
       const lines = grammar.tokenizeLines(`\
 
 #!/usr/bin/env php
 <?php echo "test"; ?>\
-`
-      );
+`);
 
-      return expect(lines[1][0]).toEqual({value: '#!/usr/bin/env php', scopes: ['text.html.php']});
+      return expect(lines[1][0]).toEqual({
+        value: '#!/usr/bin/env php',
+        scopes: ['text.html.php'],
+      });
+    });
   });
-});
 
-  return describe('firstLineMatch', function() {
-    it('recognises opening PHP tags', function() {
+  return describe('firstLineMatch', function () {
+    it('recognises opening PHP tags', function () {
       const valid = `\
 <?php
 <?PHP
@@ -189,15 +749,21 @@ describe('PHP in HTML', function() {
 <?php namespace foo;\
 `;
       for (var line of valid.split(/\n/)) {
-        expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).not.toBeNull();
+        expect(
+          grammar.firstLineRegex.scanner.findNextMatchSync(line)
+        ).not.toBeNull();
       }
 
       // Do not allow matching XML declaration until the grammar scoring system takes into account
       // the length of the first line match so that longer matches get the priority over shorter matches.
-      return expect(grammar.firstLineRegex.scanner.findNextMatchSync('<?xml version="1.0" encoding="UTF-8"?>')).toBeNull();
+      return expect(
+        grammar.firstLineRegex.scanner.findNextMatchSync(
+          '<?xml version="1.0" encoding="UTF-8"?>'
+        )
+      ).toBeNull();
     });
 
-    it('recognises interpreter directives', function() {
+    it('recognises interpreter directives', function () {
       let line;
       const valid = `\
 #!/usr/bin/php
@@ -215,7 +781,9 @@ describe('PHP in HTML', function() {
 #!/usr/bin/env php\
 `;
       for (line of valid.split(/\n/)) {
-        expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).not.toBeNull();
+        expect(
+          grammar.firstLineRegex.scanner.findNextMatchSync(line)
+        ).not.toBeNull();
       }
 
       const invalid = `\
@@ -230,13 +798,17 @@ describe('PHP in HTML', function() {
       return (() => {
         const result = [];
         for (line of invalid.split(/\n/)) {
-          result.push(expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).toBeNull());
+          result.push(
+            expect(
+              grammar.firstLineRegex.scanner.findNextMatchSync(line)
+            ).toBeNull()
+          );
         }
         return result;
       })();
     });
 
-    it('recognises Emacs modelines', function() {
+    it('recognises Emacs modelines', function () {
       let line;
       const valid = `\
 #-*- PHP -*-
@@ -254,7 +826,9 @@ describe('PHP in HTML', function() {
 "-*- font:x;foo : bar ; mode : php ; bar : foo ; foooooo:baaaaar;fo:ba-*-";\
 `;
       for (line of valid.split(/\n/)) {
-        expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).not.toBeNull();
+        expect(
+          grammar.firstLineRegex.scanner.findNextMatchSync(line)
+        ).not.toBeNull();
       }
 
       const invalid = `\
@@ -275,13 +849,17 @@ describe('PHP in HTML', function() {
       return (() => {
         const result = [];
         for (line of invalid.split(/\n/)) {
-          result.push(expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).toBeNull());
+          result.push(
+            expect(
+              grammar.firstLineRegex.scanner.findNextMatchSync(line)
+            ).toBeNull()
+          );
         }
         return result;
       })();
     });
 
-    it('recognises Vim modelines', function() {
+    it('recognises Vim modelines', function () {
       let line;
       const valid = `\
 vim: se filetype=php:
@@ -307,7 +885,9 @@ vim: se filetype=php:
 # vim:noexpandtab titlestring=hi\|there\\\\ ft=phtml ts=4\
 `;
       for (line of valid.split(/\n/)) {
-        expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).not.toBeNull();
+        expect(
+          grammar.firstLineRegex.scanner.findNextMatchSync(line)
+        ).not.toBeNull();
       }
 
       const invalid = `\
@@ -328,27 +908,100 @@ _vi: se filetype=php:
       return (() => {
         const result = [];
         for (line of invalid.split(/\n/)) {
-          result.push(expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).toBeNull());
+          result.push(
+            expect(
+              grammar.firstLineRegex.scanner.findNextMatchSync(line)
+            ).toBeNull()
+          );
         }
         return result;
       })();
     });
 
-    return it('should tokenize <?php use Some\\Name ?>', function() {
+    return it('should tokenize <?php use Some\\Name ?>', function () {
       const lines = grammar.tokenizeLines(`\
 <?php use Some\\Name ?>
 <article>\
-`
-      );
-      expect(lines[0][0]).toEqual({value: '<?php', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.begin.php']});
-      expect(lines[0][1]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php']});
-      expect(lines[0][2]).toEqual({value: 'use', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.use.php', 'keyword.other.use.php']});
-      expect(lines[0][3]).toEqual({value: ' ', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.use.php']});
-      expect(lines[0][4]).toEqual({value: 'Some', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.use.php', 'support.other.namespace.php']});
-      expect(lines[0][5]).toEqual({value: '\\', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.use.php', 'support.other.namespace.php', 'punctuation.separator.inheritance.php']});
-      expect(lines[0][6]).toEqual({value: 'Name', scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php', 'meta.use.php', 'support.class.php']});
-      expect(lines[0][8]).toEqual({value: '?', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php', 'source.php']});
-      return expect(lines[0][9]).toEqual({value: '>', scopes: ['text.html.php', 'meta.embedded.line.php', 'punctuation.section.embedded.end.php']});
+`);
+      expect(lines[0][0]).toEqual({
+        value: '<?php',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.begin.php',
+        ],
+      });
+      expect(lines[0][1]).toEqual({
+        value: ' ',
+        scopes: ['text.html.php', 'meta.embedded.line.php', 'source.php'],
+      });
+      expect(lines[0][2]).toEqual({
+        value: 'use',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.use.php',
+          'keyword.other.use.php',
+        ],
+      });
+      expect(lines[0][3]).toEqual({
+        value: ' ',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.use.php',
+        ],
+      });
+      expect(lines[0][4]).toEqual({
+        value: 'Some',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.use.php',
+          'support.other.namespace.php',
+        ],
+      });
+      expect(lines[0][5]).toEqual({
+        value: '\\',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.use.php',
+          'support.other.namespace.php',
+          'punctuation.separator.inheritance.php',
+        ],
+      });
+      expect(lines[0][6]).toEqual({
+        value: 'Name',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'source.php',
+          'meta.use.php',
+          'support.class.php',
+        ],
+      });
+      expect(lines[0][8]).toEqual({
+        value: '?',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.end.php',
+          'source.php',
+        ],
+      });
+      return expect(lines[0][9]).toEqual({
+        value: '>',
+        scopes: [
+          'text.html.php',
+          'meta.embedded.line.php',
+          'punctuation.section.embedded.end.php',
+        ],
+      });
+    });
   });
-});
 });

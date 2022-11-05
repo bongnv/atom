@@ -4,33 +4,43 @@
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-describe("CoffeeScript (Literate) grammar", function() {
+describe('CoffeeScript (Literate) grammar', function () {
   let grammar = null;
 
-  beforeEach(function() {
-    waitsForPromise(() => atom.packages.activatePackage("language-coffee-script"));
+  beforeEach(function () {
+    waitsForPromise(() =>
+      atom.packages.activatePackage('language-coffee-script')
+    );
 
-    return runs(() => grammar = atom.grammars.grammarForScopeName("source.litcoffee"));
+    return runs(
+      () => (grammar = atom.grammars.grammarForScopeName('source.litcoffee'))
+    );
   });
 
-  it("parses the grammar", function() {
+  it('parses the grammar', function () {
     expect(grammar).toBeTruthy();
-    return expect(grammar.scopeName).toBe("source.litcoffee");
+    return expect(grammar.scopeName).toBe('source.litcoffee');
   });
 
-  it("recognizes a code block after a list", function() {
+  it('recognizes a code block after a list', function () {
     const tokens = grammar.tokenizeLines(`\
 1. Example
 2. List
 
     1 + 2\
-`
-    );
-    return expect(tokens[3][1]).toEqual({value: "1", scopes: ["source.litcoffee", "markup.raw.block.markdown", "constant.numeric.decimal.coffee"]});
-});
+`);
+    return expect(tokens[3][1]).toEqual({
+      value: '1',
+      scopes: [
+        'source.litcoffee',
+        'markup.raw.block.markdown',
+        'constant.numeric.decimal.coffee',
+      ],
+    });
+  });
 
-  return describe("firstLineMatch", function() {
-    it("recognises interpreter directives", function() {
+  return describe('firstLineMatch', function () {
+    it('recognises interpreter directives', function () {
       let line;
       const valid = `\
 #!/usr/local/bin/coffee --no-header --literate -w
@@ -38,7 +48,9 @@ describe("CoffeeScript (Literate) grammar", function() {
 #!/usr/local/bin/env coffee --literate -w\
 `;
       for (line of valid.split(/\n/)) {
-        expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).not.toBeNull();
+        expect(
+          grammar.firstLineRegex.scanner.findNextMatchSync(line)
+        ).not.toBeNull();
       }
 
       const invalid = `\
@@ -49,13 +61,17 @@ describe("CoffeeScript (Literate) grammar", function() {
       return (() => {
         const result = [];
         for (line of invalid.split(/\n/)) {
-          result.push(expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).toBeNull());
+          result.push(
+            expect(
+              grammar.firstLineRegex.scanner.findNextMatchSync(line)
+            ).toBeNull()
+          );
         }
         return result;
       })();
     });
 
-    it("recognises Emacs modelines", function() {
+    it('recognises Emacs modelines', function () {
       let line;
       const valid = `\
 #-*- litcoffee -*-
@@ -73,7 +89,9 @@ describe("CoffeeScript (Literate) grammar", function() {
 "-*- font:x;foo : bar ; mode : LiTcOFFEe ; bar : foo ; foooooo:baaaaar;fo:ba-*-";\
 `;
       for (line of valid.split(/\n/)) {
-        expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).not.toBeNull();
+        expect(
+          grammar.firstLineRegex.scanner.findNextMatchSync(line)
+        ).not.toBeNull();
       }
 
       const invalid = `\
@@ -94,13 +112,17 @@ describe("CoffeeScript (Literate) grammar", function() {
       return (() => {
         const result = [];
         for (line of invalid.split(/\n/)) {
-          result.push(expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).toBeNull());
+          result.push(
+            expect(
+              grammar.firstLineRegex.scanner.findNextMatchSync(line)
+            ).toBeNull()
+          );
         }
         return result;
       })();
     });
 
-    return it("recognises Vim modelines", function() {
+    return it('recognises Vim modelines', function () {
       let line;
       const valid = `\
 vim: se filetype=litcoffee:
@@ -126,7 +148,9 @@ vim: se filetype=litcoffee:
 # vim:noexpandtab titlestring=hi\|there\\\\ ft=litcoffee ts=4\
 `;
       for (line of valid.split(/\n/)) {
-        expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).not.toBeNull();
+        expect(
+          grammar.firstLineRegex.scanner.findNextMatchSync(line)
+        ).not.toBeNull();
       }
 
       const invalid = `\
@@ -147,7 +171,11 @@ _vi: se filetype=litcoffee:
       return (() => {
         const result = [];
         for (line of invalid.split(/\n/)) {
-          result.push(expect(grammar.firstLineRegex.scanner.findNextMatchSync(line)).toBeNull());
+          result.push(
+            expect(
+              grammar.firstLineRegex.scanner.findNextMatchSync(line)
+            ).toBeNull()
+          );
         }
         return result;
       })();

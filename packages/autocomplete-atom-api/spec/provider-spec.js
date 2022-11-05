@@ -7,10 +7,10 @@
  */
 const temp = require('temp');
 
-describe("Atom API autocompletions", function() {
+describe('Atom API autocompletions', function () {
   let [editor, provider] = Array.from([]);
 
-  const getCompletions = function() {
+  const getCompletions = function () {
     const cursor = editor.getLastCursor();
     const start = cursor.getBeginningOfCurrentWordBufferPosition();
     const end = cursor.getBufferPosition();
@@ -19,27 +19,39 @@ describe("Atom API autocompletions", function() {
       editor,
       bufferPosition: end,
       scopeDescriptor: cursor.getScopeDescriptor(),
-      prefix
+      prefix,
     };
     return provider.getSuggestions(request);
   };
 
-  beforeEach(function() {
-    waitsForPromise(() => atom.packages.activatePackage('autocomplete-atom-api'));
-    runs(() => provider = atom.packages.getActivePackage('autocomplete-atom-api').mainModule.getProvider());
+  beforeEach(function () {
+    waitsForPromise(() =>
+      atom.packages.activatePackage('autocomplete-atom-api')
+    );
+    runs(
+      () =>
+        (provider = atom.packages
+          .getActivePackage('autocomplete-atom-api')
+          .mainModule.getProvider())
+    );
     waitsFor(() => Object.keys(provider.completions).length > 0);
-    waitsFor(() => (provider.packageDirectories != null ? provider.packageDirectories.length : undefined) > 0);
+    waitsFor(
+      () =>
+        (provider.packageDirectories != null
+          ? provider.packageDirectories.length
+          : undefined) > 0
+    );
     waitsForPromise(() => atom.workspace.open('test.js'));
-    return runs(() => editor = atom.workspace.getActiveTextEditor());
+    return runs(() => (editor = atom.workspace.getActiveTextEditor()));
   });
 
-  it("only includes completions in files that are in an Atom package or Atom core", function() {
+  it('only includes completions in files that are in an Atom package or Atom core', function () {
     const emptyProjectPath = temp.mkdirSync('atom-project-');
     atom.project.setPaths([emptyProjectPath]);
 
     waitsForPromise(() => atom.workspace.open('empty.js'));
 
-    return runs(function() {
+    return runs(function () {
       expect(provider.packageDirectories.length).toBe(0);
       editor = atom.workspace.getActiveTextEditor();
       editor.setText('atom.');
@@ -49,13 +61,13 @@ describe("Atom API autocompletions", function() {
     });
   });
 
-  it("only includes completions in .atom/init", function() {
+  it('only includes completions in .atom/init', function () {
     const emptyProjectPath = temp.mkdirSync('some-guy');
     atom.project.setPaths([emptyProjectPath]);
 
     waitsForPromise(() => atom.workspace.open('.atom/init.coffee'));
 
-    return runs(function() {
+    return runs(function () {
       expect(provider.packageDirectories.length).toBe(0);
       editor = atom.workspace.getActiveTextEditor();
       editor.setText('atom.');
@@ -65,13 +77,13 @@ describe("Atom API autocompletions", function() {
     });
   });
 
-  it("does not fail when no editor path", function() {
+  it('does not fail when no editor path', function () {
     const emptyProjectPath = temp.mkdirSync('some-guy');
     atom.project.setPaths([emptyProjectPath]);
 
     waitsForPromise(() => atom.workspace.open());
 
-    return runs(function() {
+    return runs(function () {
       expect(provider.packageDirectories.length).toBe(0);
       editor = atom.workspace.getActiveTextEditor();
       editor.setText('atom.');
@@ -80,7 +92,7 @@ describe("Atom API autocompletions", function() {
     });
   });
 
-  it("includes properties and functions on the atom global", function() {
+  it('includes properties and functions on the atom global', function () {
     editor.setText('atom.');
     editor.setCursorBufferPosition([0, Infinity]);
 
@@ -104,10 +116,12 @@ describe("Atom API autocompletions", function() {
     expect(getCompletions()[6].snippet).toBe('confirm(${1:options})');
     expect(getCompletions()[6].type).toBe('method');
     expect(getCompletions()[6].leftLabel).toBe('Number');
-    return expect(getCompletions()[6].descriptionMoreURL).toBe('https://atom.io/docs/api/latest/AtomEnvironment#instance-confirm');
+    return expect(getCompletions()[6].descriptionMoreURL).toBe(
+      'https://atom.io/docs/api/latest/AtomEnvironment#instance-confirm'
+    );
   });
 
-  return it("includes methods on atom global properties", function() {
+  return it('includes methods on atom global properties', function () {
     editor.setText('atom.clipboard.');
     editor.setCursorBufferPosition([0, Infinity]);
 
