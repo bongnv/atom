@@ -21,7 +21,7 @@ module.exports = {
       /\/\.github\//,
       /\/docs\//,
       /\/spec\//,
-      /^\/packages\/[\d\w-]+\/(?!keymaps|menus|styles|package\.json|settings|grammars)/,
+      /^\/packages\/[\d\w-]+\/(?!keymaps|menus|styles|package\.json|settings|grammars|index\.less)/,
       /\/package-lock\.json$/,
       /\/.travis.yml$/i,
       /\/README\.md$/i,
