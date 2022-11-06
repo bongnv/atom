@@ -3334,24 +3334,6 @@
   ],
   "Package": [
     {
-      "name": "getBuildFailureOutput",
-      "text": "getBuildFailureOutput()",
-      "snippet": null,
-      "description": "If a previous rebuild failed, get the contents of stderr.",
-      "descriptionMoreURL": "https://atom.io/docs/api/latest/Package#instance-getBuildFailureOutput",
-      "leftLabel": "String",
-      "type": "method"
-    },
-    {
-      "name": "isCompatible",
-      "text": "isCompatible()",
-      "snippet": null,
-      "description": "Are all native modules depended on by this package correctly\ncompiled against the current version of Atom?",
-      "descriptionMoreURL": "https://atom.io/docs/api/latest/Package#instance-isCompatible",
-      "leftLabel": "Boolean",
-      "type": "method"
-    },
-    {
       "name": "onDidDeactivate",
       "text": null,
       "snippet": "onDidDeactivate(${1:callback})",

@@ -932,7 +932,11 @@ class AtomEnvironment {
       this.reopenProjectMenuManager.update();
     });
 
-    const output = await Promise.all([loadStatePromise, loadHistoryPromise]);
+    const output = await Promise.all([
+      loadStatePromise,
+      loadHistoryPromise,
+      this.updateProcessEnvAndTriggerHooks(),
+    ]);
 
     StartupTime.addMarker('window:environment:start-editor-window:end');
 
@@ -1038,6 +1042,15 @@ class AtomEnvironment {
     if (styleElement.textContent.indexOf('scrollbar') >= 0) {
       TextEditor.didUpdateScrollbarStyles();
     }
+  }
+
+  updateProcessEnvAndTriggerHooks() {
+    return new Promise((resolve) => {
+      // TODO: bongnv - do we need to update process env?
+      this.emitter.emit('loaded-shell-environment');
+      this.packages.triggerActivationHook('core:loaded-shell-environment');
+      resolve();
+    })
   }
 
   /*
