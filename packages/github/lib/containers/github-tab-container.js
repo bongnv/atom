@@ -85,7 +85,7 @@ export default class GitHubTabContainer extends React.Component {
       aheadCount: async (query) => {
         const branches = await query.branches;
         const currentBranch = branches.getHeadBranch();
-        return repository.getAheadCount(currentBranch.getName());
+        return await repository.getAheadCount(currentBranch.getName());
       },
       pushInProgress: repository.getOperationStates().isPushInProgress(),
     });

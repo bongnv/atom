@@ -29,7 +29,7 @@ export default class GitHubTabController extends React.Component {
     currentRemote: RemotePropType.isRequired,
     branches: BranchSetPropType.isRequired,
     currentBranch: BranchPropType.isRequired,
-    aheadCount: PropTypes.number.isRequired,
+    aheadCount: PropTypes.number,
     manyRemotesAvailable: PropTypes.bool.isRequired,
     pushInProgress: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
