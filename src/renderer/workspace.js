@@ -1416,31 +1416,31 @@ module.exports = class Workspace extends Model {
           throw error;
         }
       }
-    }
 
-    const fileSize = await this.nodeAPI.fs.getSize(filePath);
+      const fileSize = await this.nodeAPI.fs.getSize(filePath);
 
-    if (fileSize >= this.config.get('core.warnOnLargeFileLimit') * 1048576) {
-      // 40MB by default
-      await new Promise((resolve, reject) => {
-        this.applicationDelegate.confirm(
-          {
-            message:
-              'Atom will be unresponsive during the loading of very large files.',
-            detail: 'Do you still want to load this file?',
-            buttons: ['Proceed', 'Cancel'],
-          },
-          (response) => {
-            if (response === 1) {
-              const error = new Error();
-              error.code = 'CANCELLED';
-              reject(error);
-            } else {
-              resolve();
+      if (fileSize >= this.config.get('core.warnOnLargeFileLimit') * 1048576) {
+        // 40MB by default
+        await new Promise((resolve, reject) => {
+          this.applicationDelegate.confirm(
+            {
+              message:
+                'Atom will be unresponsive during the loading of very large files.',
+              detail: 'Do you still want to load this file?',
+              buttons: ['Proceed', 'Cancel'],
+            },
+            (response) => {
+              if (response === 1) {
+                const error = new Error();
+                error.code = 'CANCELLED';
+                reject(error);
+              } else {
+                resolve();
+              }
             }
-          }
-        );
-      });
+          );
+        });
+      }
     }
 
     const buffer = await this.project.bufferForPath(filePath, options);
