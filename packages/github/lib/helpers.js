@@ -538,7 +538,7 @@ let domPurify = null;
 
 export function renderMarkdown(md) {
   if (marked === null) {
-    marked = require('marked');
+    marked = require('marked').marked;
 
     if (domPurify === null) {
       const createDOMPurify = require('dompurify');

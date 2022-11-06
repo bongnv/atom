@@ -50,7 +50,7 @@ exports.toHTML = async function (text, filePath, grammar) {
 
 var render = function (text, filePath) {
   if (marked == null || yamlFrontMatter == null || cheerio == null) {
-    marked = require('marked');
+    marked = require('marked').marked;
     yamlFrontMatter = require('yaml-front-matter');
     cheerio = require('cheerio');
 
