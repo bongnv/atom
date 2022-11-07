@@ -6,12 +6,8 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-let MenuManager;
-const path = require('path');
-
 const _ = require('underscore-plus');
 const { ipcRenderer } = require('electron');
-const fs = require('fs-plus');
 const { Disposable } = require('event-kit');
 
 const MenuHelpers = require('./menu-helpers');
@@ -68,7 +64,7 @@ const platformMenu = __guard__(
 // ```
 //
 // See {::add} for more info about adding menu's directly.
-module.exports = MenuManager = class MenuManager {
+class MenuManager {
   constructor({ keymapManager, packageManager }) {
     this.keymapManager = keymapManager;
     this.packageManager = packageManager;
@@ -298,6 +294,8 @@ module.exports = MenuManager = class MenuManager {
     return this.update();
   }
 };
+
+module.exports = MenuManager;
 
 function __guard__(value, transform) {
   return typeof value !== 'undefined' && value !== null

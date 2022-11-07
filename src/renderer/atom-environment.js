@@ -1050,7 +1050,7 @@ class AtomEnvironment {
       this.emitter.emit('loaded-shell-environment');
       this.packages.triggerActivationHook('core:loaded-shell-environment');
       resolve();
-    })
+    });
   }
 
   /*

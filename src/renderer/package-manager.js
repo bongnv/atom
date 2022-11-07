@@ -60,7 +60,13 @@ module.exports = class PackageManager {
     this.installedPackages = [];
   }
 
-  initialize({ configDirPath, contextMenuManager, devMode, menuManager, themeManager } = {}) {
+  initialize({
+    configDirPath,
+    contextMenuManager,
+    devMode,
+    menuManager,
+    themeManager,
+  } = {}) {
     this.devMode = devMode;
     this.contextMenuManager = contextMenuManager;
     this.menuManager = menuManager;
@@ -737,8 +743,9 @@ module.exports = class PackageManager {
       if (await this.nodeAPI.fs.isDirectory(packageDirPath)) {
         // checks for directories.
         // dirent is faster, but for checking symbolic link we need stat.
-        const packageNames = (await this.nodeAPI.fs
-          .readdir(packageDirPath, { withFileTypes: true }))
+        const packageNames = (
+          await this.nodeAPI.fs.readdir(packageDirPath, { withFileTypes: true })
+        )
           .filter(
             (dirent) =>
               dirent.isDirectory() ||

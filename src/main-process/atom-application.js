@@ -1432,7 +1432,15 @@ module.exports = class AtomApplication extends EventEmitter {
           const areDirectories = await Promise.all(
             pathsToOpen.map(
               (pathToOpen) =>
-                new Promise((resolve) => fs.isDirectory(pathToOpen, resolve))
+                new Promise((resolve, reject) =>
+                  fs.lstat(pathToOpen, (err, stats) => {
+                    if (err) {
+                      reject(err);
+                      return;
+                    }
+                    resolve(stats.isDirectory());
+                  })
+                )
             )
           );
           if (!areDirectories.some(Boolean)) {

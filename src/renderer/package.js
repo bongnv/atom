@@ -2,7 +2,6 @@ const path = require('path');
 const asyncEach = require('async/each');
 const fs = require('fs-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
-const dedent = require('dedent');
 
 const { requireModule } = require('../module-utils');
 

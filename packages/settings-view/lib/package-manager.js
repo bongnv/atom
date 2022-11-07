@@ -29,7 +29,10 @@ module.exports = PackageManager = (function () {
         return true;
       } else {
         return (
-          atom.packages.getInstalledPackages().map(p => p.name).indexOf(packageName) > -1
+          atom.packages
+            .getInstalledPackages()
+            .map((p) => p.name)
+            .indexOf(packageName) > -1
         );
       }
     }

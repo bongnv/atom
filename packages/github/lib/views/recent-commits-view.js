@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import cx from 'classnames';
 import { emojify } from 'node-emoji';
+import _ from 'underscore-plus';
 
 import Commands, { Command } from '../atom/commands';
 import RefHolder from '../models/ref-holder';
@@ -109,7 +110,7 @@ class RecentCommitView extends React.Component {
 
     return (
       <span className="github-RecentCommit-authors">
-        {authors.map(this.renderAuthor)}
+        {_.uniq(authors, (author) => author.getEmail()).map(this.renderAuthor)}
       </span>
     );
   }
