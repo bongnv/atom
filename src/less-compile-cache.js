@@ -4,12 +4,11 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-let LessCompileCache;
 const path = require('path');
 const LessCache = require('less-cache');
 
 // {LessCache} wrapper used by {ThemeManager} to read stylesheets.
-module.exports = LessCompileCache = class LessCompileCache {
+module.exports = class LessCompileCache {
   constructor({
     resourcePath,
     importPaths,

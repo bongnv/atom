@@ -875,7 +875,6 @@ class AtomEnvironment {
         this.document.body.classList.add('hidden-title-bar');
       }
 
-      this.document.body.appendChild(this.workspace.getElement());
       if (this.backgroundStylesheet) this.backgroundStylesheet.remove();
 
       let previousProjectPaths = this.project.getPaths();

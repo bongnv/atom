@@ -6,9 +6,6 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-let ContextMenuManager;
-const path = require('path');
-const fs = require('fs-plus');
 const { calculateSpecificity, validateSelector } = require('clear-cut');
 const { Disposable } = require('event-kit');
 const remote = require('@electron/remote');
@@ -16,11 +13,6 @@ const _ = require('underscore-plus');
 
 const MenuHelpers = require('./menu-helpers');
 const { sortMenuItems } = require('./menu-sort-helpers');
-
-const platformContextMenu = __guard__(
-  __guard__(require('../../package.json'), (x1) => x1._atomMenu),
-  (x) => x['context-menu']
-);
 
 // Extended: Provides a registry for commands that you'd like to appear in the
 // context menu.
@@ -52,7 +44,7 @@ const platformContextMenu = __guard__(
 //
 // The format for use in {::add} is the same minus the `context-menu` key. See
 // {::add} for more information.
-module.exports = ContextMenuManager = class ContextMenuManager {
+module.exports = class ContextMenuManager {
   constructor({ keymapManager }) {
     this.keymapManager = keymapManager;
     this.definitions = { '.overlayer': [] }; // TODO: Remove once color picker package stops touching private data

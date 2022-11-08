@@ -4,13 +4,12 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-let LayerDecoration;
 let idCounter = 0;
 const nextId = () => idCounter++;
 
 // Essential: Represents a decoration that applies to every marker on a given
 // layer. Created via {TextEditor::decorateMarkerLayer}.
-module.exports = LayerDecoration = class LayerDecoration {
+module.exports = class LayerDecoration {
   constructor(markerLayer, decorationManager, properties) {
     this.markerLayer = markerLayer;
     this.decorationManager = decorationManager;

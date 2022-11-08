@@ -39,7 +39,7 @@ process.on('unhandledRejection', function (error, promise) {
   );
 });
 
-function initializeWindow() {
+const initializeWindow = async () => {
   const AtomEnvironment = require('./atom-environment');
   const ApplicationDelegate = require('./application-delegate');
   const Clipboard = require('./clipboard');
@@ -64,8 +64,28 @@ function initializeWindow() {
     env: process.env,
   });
 
-  return atom.startEditorWindow();
-}
+  const React = require('react');
+  const ReactDom = require('react-dom');
+  const WorkspaceView = require('./components/workspace-view');
+  await new Promise((resolve) => {
+    ReactDom.render(
+      <WorkspaceView
+        onWorkspaceReady={(workspaceElement) => {
+          atom.workspace.element = workspaceElement;
+          workspaceElement.initialize(atom.workspace, {
+            config: atom.workspace.config,
+            project: atom.workspace.project,
+            viewRegistry: atom.workspace.viewRegistry,
+            styleManager: atom.workspace.styleManager,
+          });
+          resolve();
+        }}
+      />,
+      document.body
+    );
+  });
+  await atom.startEditorWindow();
+};
 
 window.onload = function () {
   StartupTime.addMarker('window:onload:start');

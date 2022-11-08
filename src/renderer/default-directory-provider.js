@@ -3,13 +3,12 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
-let DefaultDirectoryProvider;
 const { Directory } = require('pathwatcher');
 const fs = require('fs-plus');
 const path = require('path');
 const url = require('url');
 
-module.exports = DefaultDirectoryProvider = class DefaultDirectoryProvider {
+module.exports = class DefaultDirectoryProvider {
   // Public: Create a Directory that corresponds to the specified URI.
   //
   // * `uri` {String} The path to the directory to add. This is guaranteed not to

@@ -293,7 +293,7 @@ class MenuManager {
     });
     return this.update();
   }
-};
+}
 
 module.exports = MenuManager;
 

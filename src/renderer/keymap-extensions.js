@@ -9,11 +9,6 @@ const fs = require('fs-plus');
 const path = require('path');
 const KeymapManager = require('atom-keymap');
 
-const bundledKeymaps = __guard__(
-  require('../../package.json'),
-  (x) => x._atomKeymaps
-);
-
 KeymapManager.prototype.onDidLoadBundledKeymaps = function (callback) {
   return this.emitter.on('did-load-bundled-keymaps', callback);
 };
@@ -113,9 +108,3 @@ KeymapManager.prototype.subscribeToFileReadFailure = function () {
 };
 
 module.exports = KeymapManager;
-
-function __guard__(value, transform) {
-  return typeof value !== 'undefined' && value !== null
-    ? transform(value)
-    : undefined;
-}
