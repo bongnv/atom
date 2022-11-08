@@ -14,11 +14,8 @@ const { repoForPath } = require('./helpers');
 module.exports = MoveDialog = class MoveDialog extends Dialog {
   constructor(initialPath, { willMove, onMove, onMoveFailed }) {
     let prompt;
-    this.initialPath = initialPath;
-    this.willMove = willMove;
-    this.onMove = onMove;
-    this.onMoveFailed = onMoveFailed;
-    if (fs.isDirectorySync(this.initialPath)) {
+
+    if (fs.isDirectorySync(initialPath)) {
       prompt = 'Enter the new path for the directory.';
     } else {
       prompt = 'Enter the new path for the file.';
@@ -26,10 +23,15 @@ module.exports = MoveDialog = class MoveDialog extends Dialog {
 
     super({
       prompt,
-      initialPath: atom.project.relativize(this.initialPath),
+      initialPath: atom.project.relativize(initialPath),
       select: true,
       iconClass: 'icon-arrow-right',
     });
+
+    this.initialPath = initialPath;
+    this.willMove = willMove;
+    this.onMove = onMove;
+    this.onMoveFailed = onMoveFailed;
   }
 
   onConfirm(newPath) {

@@ -5,6 +5,22 @@ const scrollbarStyle = require('scrollbar-style');
 const _ = require('underscore-plus');
 
 class WorkspaceElement extends HTMLElement {
+  constructor() {
+    super();
+
+    this.handleCenterEnter = this.handleCenterEnter.bind(this);
+    this.handleCenterLeave = this.handleCenterLeave.bind(this);
+    this.handleEdgesMouseMove = _.throttle(
+      this.handleEdgesMouseMove.bind(this),
+      100
+    );
+    this.handleDockDragEnd = this.handleDockDragEnd.bind(this);
+    this.handleDragStart = this.handleDragStart.bind(this);
+    this.handleDragEnd = this.handleDragEnd.bind(this);
+    this.handleDrop = this.handleDrop.bind(this);
+    this.updateHoveredDock = this.updateHoveredDock.bind(this);
+  }
+
   connectedCallback() {
     this.focus();
     this.htmlElement = document.querySelector('html');
@@ -82,17 +98,6 @@ class WorkspaceElement extends HTMLElement {
   }
 
   initialize(model, { config, project, styleManager, viewRegistry }) {
-    this.handleCenterEnter = this.handleCenterEnter.bind(this);
-    this.handleCenterLeave = this.handleCenterLeave.bind(this);
-    this.handleEdgesMouseMove = _.throttle(
-      this.handleEdgesMouseMove.bind(this),
-      100
-    );
-    this.handleDockDragEnd = this.handleDockDragEnd.bind(this);
-    this.handleDragStart = this.handleDragStart.bind(this);
-    this.handleDragEnd = this.handleDragEnd.bind(this);
-    this.handleDrop = this.handleDrop.bind(this);
-
     this.model = model;
     this.viewRegistry = viewRegistry;
     this.project = project;
