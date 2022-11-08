@@ -87,31 +87,29 @@ const initializeWindow = async () => {
   await atom.startEditorWindow();
 };
 
-window.onload = function () {
-  StartupTime.addMarker('window:onload:start');
-  try {
-    if (getWindowLoadSettings().profileStartup) {
-      console.profile('startup');
-      StartupTime.addMarker('window:initialize:start');
-      initializeWindow().then(function () {
-        electron.ipcRenderer.send('window-command', 'window:loaded');
-        setLoadTime();
-        StartupTime.addMarker('window:initialize:end');
-        console.profileEnd('startup');
-        console.log(
-          'Switch to the Profiles tab to view the created startup profile'
-        );
-      });
-    } else {
-      StartupTime.addMarker('window:initialize:start');
-      initializeWindow().then(() => {
-        electron.ipcRenderer.send('window-command', 'window:loaded');
-        setLoadTime();
-        StartupTime.addMarker('window:initialize:end');
-      });
-    }
-  } catch (error) {
-    handleSetupError(error);
+StartupTime.addMarker('window:onload:start');
+try {
+  if (getWindowLoadSettings().profileStartup) {
+    console.profile('startup');
+    StartupTime.addMarker('window:initialize:start');
+    initializeWindow().then(function () {
+      electron.ipcRenderer.send('window-command', 'window:loaded');
+      setLoadTime();
+      StartupTime.addMarker('window:initialize:end');
+      console.profileEnd('startup');
+      console.log(
+        'Switch to the Profiles tab to view the created startup profile'
+      );
+    });
+  } else {
+    StartupTime.addMarker('window:initialize:start');
+    initializeWindow().then(() => {
+      electron.ipcRenderer.send('window-command', 'window:loaded');
+      setLoadTime();
+      StartupTime.addMarker('window:initialize:end');
+    });
   }
-  StartupTime.addMarker('window:onload:end');
-};
+} catch (error) {
+  handleSetupError(error);
+}
+StartupTime.addMarker('window:onload:end');
