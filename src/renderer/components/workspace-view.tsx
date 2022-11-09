@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
+import { WorkspaceElement } from '../workspace-element';
 
 type Props = {
-  onReady: Function;
+  onReady: (ref: WorkspaceElement) => void;
 };
 
 export const WorkspaceView = ({ onReady }: Props) => {

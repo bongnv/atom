@@ -309,7 +309,6 @@ module.exports = class AtomApplication extends EventEmitter {
       pidToKillWhenClosed,
       devMode,
       newWindow,
-      profileStartup,
       clearWindowState,
       addToLastWindow,
       preserveFocus,
@@ -330,7 +329,6 @@ module.exports = class AtomApplication extends EventEmitter {
         pidToKillWhenClosed,
         newWindow,
         devMode,
-        profileStartup,
         clearWindowState,
         addToLastWindow,
       });
@@ -345,7 +343,6 @@ module.exports = class AtomApplication extends EventEmitter {
         pidToKillWhenClosed,
         newWindow,
         devMode,
-        profileStartup,
         clearWindowState,
         addToLastWindow,
       });
@@ -554,7 +551,7 @@ module.exports = class AtomApplication extends EventEmitter {
         const window = this.focusedWindow();
         if (window) window.minimize();
       });
-      this.on('application:zoom', function () {
+      this.on('application:zoom', function() {
         const window = this.focusedWindow();
         if (window) window.maximize();
       });
@@ -1063,7 +1060,6 @@ module.exports = class AtomApplication extends EventEmitter {
   //   :pidToKillWhenClosed - The integer of the pid to kill
   //   :newWindow - Boolean of whether this should be opened in a new window.
   //   :devMode - Boolean to control the opened window's dev mode.
-  //   :profileStartup - Boolean to control creating a profile of the startup time.
   //   :window - {AtomWindow} to open file paths in.
   //   :addToLastWindow - Boolean of whether this should be opened in last focused window.
   openPath({
@@ -1071,7 +1067,6 @@ module.exports = class AtomApplication extends EventEmitter {
     pidToKillWhenClosed,
     newWindow,
     devMode,
-    profileStartup,
     window,
     clearWindowState,
     addToLastWindow,
@@ -1081,7 +1076,6 @@ module.exports = class AtomApplication extends EventEmitter {
       pidToKillWhenClosed,
       newWindow,
       devMode,
-      profileStartup,
       window,
       clearWindowState,
       addToLastWindow,
@@ -1107,7 +1101,6 @@ module.exports = class AtomApplication extends EventEmitter {
     newWindow,
     devMode,
     windowDimensions,
-    profileStartup,
     window,
     clearWindowState,
     addToLastWindow,
@@ -1205,7 +1198,6 @@ module.exports = class AtomApplication extends EventEmitter {
         locationsToOpen,
         devMode,
         windowDimensions,
-        profileStartup,
         clearWindowState,
       });
       this.addWindow(openedWindow);
@@ -1267,8 +1259,7 @@ module.exports = class AtomApplication extends EventEmitter {
     } catch (error) {
       if (error.code !== 'ESRCH') {
         console.log(
-          `Killing process ${pid} failed: ${
-            error.code != null ? error.code : error.message
+          `Killing process ${pid} failed: ${error.code != null ? error.code : error.message
           }`
         );
       }

@@ -103,7 +103,7 @@ module.exports = [
   // renderer
   merge(commonConfig, {
     name: 'renderer',
-    entry: './src/renderer/index.js',
+    entry: './src/renderer/index.ts',
     target: 'electron-renderer',
     externalsPresets: {
       electronRenderer: true,

@@ -445,6 +445,7 @@ function createWorkspaceElement() {
 }
 
 module.exports = {
+  WorkspaceElement,
   registerWorkspaceElement,
   createWorkspaceElement,
 };

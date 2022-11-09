@@ -67,12 +67,6 @@ module.exports = function parseCommandLine(processArgs) {
     .boolean('n')
     .describe('n', 'Open a new window.');
   options
-    .boolean('profile-startup')
-    .describe(
-      'profile-startup',
-      'Create a profile of the startup execution time.'
-    );
-  options
     .alias('w', 'wait')
     .boolean('w')
     .describe('w', 'Wait for window to be closed before returning.');
@@ -138,7 +132,6 @@ module.exports = function parseCommandLine(processArgs) {
 
   const logFile = args['log-file'];
   const userDataDir = args['user-data-dir'];
-  const profileStartup = args['profile-startup'];
   const clearWindowState = args['clear-window-state'];
   let pathsToOpen = [];
   let urlsToOpen = [];
@@ -173,7 +166,6 @@ module.exports = function parseCommandLine(processArgs) {
     newWindow,
     logFile,
     userDataDir,
-    profileStartup,
     clearWindowState,
     addToLastWindow,
   };
