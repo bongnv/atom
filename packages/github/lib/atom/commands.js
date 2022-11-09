@@ -53,13 +53,13 @@ export class Command extends React.Component {
     this.observeTarget(this.props);
   }
 
-  componentWillReceiveProps(newProps) {
+  componentDidUpdate(prevProps) {
     if (
       ['registry', 'target', 'command', 'callback'].some(
-        (p) => newProps[p] !== this.props[p]
+        (p) => prevProps[p] !== this.props[p]
       )
     ) {
-      this.observeTarget(newProps);
+      this.observeTarget(this.props);
     }
   }
 
