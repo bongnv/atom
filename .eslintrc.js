@@ -48,5 +48,19 @@ module.exports = {
         waitsForPromise: true,
       },
     },
+    {
+      files: ['*.ts', '*.tsx'],
+      extends: [
+        'plugin:@typescript-eslint/recommended',
+      ],
+      parser: '@typescript-eslint/parser',
+      plugins: ['@typescript-eslint'],
+    },
+    {
+      files: ['src/task/*.js'],
+      globals: {
+        emit: true,
+      },
+    },
   ],
 };

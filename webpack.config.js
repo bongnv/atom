@@ -12,7 +12,7 @@ const commonConfig = {
   mode: isDev ? 'development' : 'production',
   devtool: isDev ? 'inline-source-map' : 'source-map',
   resolve: {
-    extensions: ['.js', '.json', '.wasm', '.coffee', '.node', '.ts', '.tsx'],
+    extensions: ['.js', '.json', '.wasm', '.node', '.ts', '.tsx'],
   },
   module: {
     parser: {
@@ -114,16 +114,22 @@ module.exports = [
     module: {
       rules: [
         {
-          test: /\.css$/,
-          use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
-        },
-        {
           test: /\.m?js$/,
           exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
             options: {
               babelrc: true,
+            },
+          },
+        },
+        {
+          test: /\.tsx?$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'ts-loader',
+            options: {
+              onlyCompileBundledFiles: true,
             },
           },
         },

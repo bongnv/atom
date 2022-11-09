@@ -140,8 +140,8 @@
   "scripts": {
     "test": "node script/test.js",
     "start": "NODE_ENV=development electron-forge start --enable-logging -- --dev",
-    "lint": "eslint --fix --ext .js,.ts .",
-    "lint:src": "eslint --fix --ext .js,.ts src/",
+    "lint": "eslint --fix --ext .js,.ts,.tsx .",
+    "lint:src": "eslint --fix --ext .js,.ts,.tsx src/",
     "package": "NODE_ENV=production electron-forge package",
     "prettier": "prettier --write .",
     "make": "electron-forge make"
@@ -169,6 +169,10 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.67",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.67",
     "@electron-forge/maker-zip": "^6.0.0-beta.67",
+    "@types/prop-types": "^15.7.5",
+    "@types/react": "^18.0.25",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
     "babel-loader": "^8.2.5",
     "babel-plugin-add-module-exports": "^1.0.4",
     "babel-plugin-relay": "^14.1.0",
@@ -186,6 +190,8 @@
     "pegjs": "^0.10.0",
     "pegjs-loader": "^0.5.6",
     "prettier": "^2.7.1",
+    "ts-loader": "^9.4.1",
+    "typescript": "^4.8.4",
     "webpack": "^5.74.0",
     "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0"

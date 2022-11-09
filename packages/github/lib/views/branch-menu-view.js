@@ -30,7 +30,10 @@ export default class BranchMenuView extends React.Component {
       ? 'detached'
       : this.props.currentBranch.getName();
 
-    if (this.state.checkedOutBranch && this.state.checkedOutBranch == currentBranchName) {
+    if (
+      this.state.checkedOutBranch &&
+      this.state.checkedOutBranch == currentBranchName
+    ) {
       this.setState({ checkedOutBranch: null }, () => {
         this.editorElement.getModel().setText('');
       });
@@ -163,7 +166,10 @@ export default class BranchMenuView extends React.Component {
   checkout = async (branchName, options) => {
     this.editorElement.classList.remove('is-focused');
     await new Promise((resolve) => {
-      this.setState({ checkedOutBranch: branchName, createNew: false }, resolve);
+      this.setState(
+        { checkedOutBranch: branchName, createNew: false },
+        resolve
+      );
     });
     try {
       await this.props.checkout(branchName, options);
