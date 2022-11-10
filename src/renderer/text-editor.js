@@ -4,7 +4,7 @@ const fs = require('fs-plus');
 const Grim = require('grim');
 const dedent = require('dedent');
 const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
-const TextMateScopeSelector = require('first-mate').ScopeSelector;
+const { ScopeSelector } = require('../shared/first-mate/first-mate');
 
 const TextBuffer = require('../shared/text-buffer/text-buffer');
 const { Point, Range } = TextBuffer;

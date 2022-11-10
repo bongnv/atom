@@ -10,6 +10,10 @@ const BufferedProcess = require('./buffered-process');
 const GitRepository = require('./renderer/git-repository');
 const Notification = require('./renderer/notification');
 const { watchPath } = require('./shared/path-watcher');
+const {
+  ScopeSelector,
+  GrammarRegistry,
+} = require('./shared/first-mate/first-mate');
 
 const atomExport = {
   BufferedNodeProcess,
@@ -25,6 +29,8 @@ const atomExport = {
   Disposable,
   CompositeDisposable,
   watchPath,
+  ScopeSelector,
+  GrammarRegistry,
 };
 
 // Shell integration is required by both Squirrel and Settings-View

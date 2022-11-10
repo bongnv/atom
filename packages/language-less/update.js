@@ -52,7 +52,7 @@ functionsPromise.then(function (results) {
   const { builtins } =
     config['.source.css.less .meta.property-value'].autocomplete.symbols;
   builtins.suggestions = suggestions;
-  return CSON.writeFileSync(configPath, config);
+  return fs.writeFileSync(configPath, JSON.stringify(config));
 });
 
 var sanitizeFunc = function (functionExample) {

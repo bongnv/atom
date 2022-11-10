@@ -1,6 +1,6 @@
 const _ = require('underscore-plus');
 const { CompositeDisposable, Emitter } = require('event-kit');
-const { OnigRegExp } = require('oniguruma');
+const { OnigRegExp } = require('napi-oniguruma');
 
 const TokenizedLine = require('./tokenized-line');
 const TokenIterator = require('./token-iterator');

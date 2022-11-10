@@ -301,9 +301,7 @@ class Range {
   //
   // * `otherRange` A {Range} or range-compatible {Array}.
   coversSameRows(other) {
-    return (
-      this.start.row === other.start.row && this.end.row === other.end.row
-    );
+    return this.start.row === other.start.row && this.end.row === other.end.row;
   }
 
   // Public: Determines whether this range intersects with the argument.
@@ -336,8 +334,7 @@ class Range {
   containsRange(otherRange, exclusive) {
     const { start, end } = this.constructor.fromObject(otherRange);
     return (
-      this.containsPoint(start, exclusive) &&
-      this.containsPoint(end, exclusive)
+      this.containsPoint(start, exclusive) && this.containsPoint(end, exclusive)
     );
   }
 
@@ -402,7 +399,7 @@ class Range {
   toString() {
     return `[${this.start} - ${this.end}]`;
   }
-};
+}
 
 Range.initClass();
 

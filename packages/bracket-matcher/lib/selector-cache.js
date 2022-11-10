@@ -1,4 +1,4 @@
-const { ScopeSelector } = require('first-mate');
+const { ScopeSelector } = require('atom');
 const cache = {};
 
 exports.get = function (selector) {

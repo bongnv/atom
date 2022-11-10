@@ -1,6 +1,6 @@
 const _ = require('underscore-plus');
 const Grim = require('grim');
-const FirstMate = require('first-mate');
+const { GrammarRegistry: FirstMateGrammarRegistry } = require('atom');
 const { Disposable, CompositeDisposable } = require('event-kit');
 const fs = require('fs-plus');
 
@@ -21,7 +21,7 @@ module.exports = class GrammarRegistry {
   constructor({ config } = {}) {
     this.config = config;
     this.subscriptions = new CompositeDisposable();
-    this.textmateRegistry = new FirstMate.GrammarRegistry({
+    this.textmateRegistry = new FirstMateGrammarRegistry({
       maxTokensPerLine: 100,
       maxLineLength: 1000,
     });
