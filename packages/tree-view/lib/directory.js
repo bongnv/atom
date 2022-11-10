@@ -275,14 +275,15 @@ module.exports = class Directory {
     try {
       this.watchSubscription = await watchPath(this.path, {}, (events) => {
         for (const event of events) {
-          switch (event.action) {
-            case 'renamed':
-            case 'modified':
-              this.reload();
-              break;
-            case 'deleted':
-              this.destroy();
-              break;
+          if (event.action === 'deleted' && this.path === event.path) {
+            this.destroy();
+            return;
+          }
+
+          if (['modified', 'deleted'].includes(event.action)
+            && this.path === path.dirname(event.path)) {
+            this.reload();
+            return;
           }
         }
       });
@@ -481,7 +482,7 @@ module.exports = class Directory {
     if (squashedDirs.length > 1) {
       this.squashedNames = [
         squashedDirs.slice(0, squashedDirs.length - 1).join(path.sep) +
-          path.sep,
+        path.sep,
         _.last(squashedDirs),
       ];
     }
