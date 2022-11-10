@@ -70,7 +70,7 @@ module.exports = Dialog = class Dialog {
         selectionEnd = initialPath.length - extension.length;
       }
       this.miniEditor.setSelectedBufferRange(
-        Range(Point(0, selectionStart), Point(0, selectionEnd))
+        new Range(new Point(0, selectionStart), new Point(0, selectionEnd))
       );
     }
   }

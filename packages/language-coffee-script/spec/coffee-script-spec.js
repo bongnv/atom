@@ -4219,7 +4219,7 @@ a = 2\
 
     return it("doesn't tokenize nested brackets as destructuring assignments", function () {
       const { tokens } = grammar.tokenizeLine(
-        '[Point(0, 1), [Point(0, 0), Point(0, 1)]]'
+        '[new Point(0, 1), [new Point(0, 0),new Point(0, 1)]]'
       );
       expect(tokens[0]).not.toEqual({
         value: '[',

@@ -3,13 +3,14 @@ const Grim = require('grim');
 const FirstMate = require('first-mate');
 const { Disposable, CompositeDisposable } = require('event-kit');
 const fs = require('fs-plus');
-const { Point, Range } = require('text-buffer');
 
 const ScopeDescriptor = require('../shared/scope-descriptor');
 const TextMateLanguageMode = require('./text-mate-language-mode');
 const TreeSitterLanguageMode = require('./tree-sitter-language-mode');
 const TreeSitterGrammar = require('./tree-sitter-grammar');
 const Token = require('./token');
+const Point = require('../shared/text-buffer/point');
+const Range = require('../shared/text-buffer/range');
 
 const PATH_SPLIT_REGEX = new RegExp('[/.]');
 
@@ -664,6 +665,6 @@ module.exports = class GrammarRegistry {
 
 function getGrammarSelectionContent(buffer) {
   return buffer.getTextInRange(
-    Range(Point(0, 0), buffer.positionForCharacterIndex(1024))
+    new Range(new Point(0, 0), buffer.positionForCharacterIndex(1024))
   );
 }

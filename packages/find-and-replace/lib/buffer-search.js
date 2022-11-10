@@ -179,7 +179,7 @@ module.exports = class BufferSearch {
         );
       }
       if (searchRanges.length === 0) {
-        searchRanges.push(Range(start, end));
+        searchRanges.push(new Range(start, end));
       }
 
       const buffer = this.editor.getBuffer();

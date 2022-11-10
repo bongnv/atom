@@ -1,7 +1,9 @@
-const { Point, Range } = require('text-buffer');
 const { Emitter } = require('event-kit');
 const _ = require('underscore-plus');
+
 const Model = require('./model');
+const Point = require('../shared/text-buffer/point');
+const Range = require('../shared/text-buffer/range');
 
 const EmptyLineRegExp = /(\r\n[\t ]*\r\n)|(\n[\t ]*\n)/g;
 
@@ -508,8 +510,8 @@ module.exports = class Cursor extends Model {
     const previousNonBlankRow = this.editor.buffer.previousNonBlankRow(
       currentBufferPosition.row
     );
-    const scanRange = Range(
-      Point(previousNonBlankRow || 0, 0),
+    const scanRange = new Range(
+      new Point(previousNonBlankRow || 0, 0),
       currentBufferPosition
     );
 
@@ -524,7 +526,7 @@ module.exports = class Cursor extends Model {
         range.start.row < currentBufferPosition.row &&
         currentBufferPosition.column > 0
       ) {
-        return Point(currentBufferPosition.row, 0);
+        return new Point(currentBufferPosition.row, 0);
       } else if (currentBufferPosition.isGreaterThan(range.end)) {
         return Point.fromObject(range.end);
       } else {
@@ -543,7 +545,7 @@ module.exports = class Cursor extends Model {
   //      (default: {::wordRegExp})
   getNextWordBoundaryBufferPosition(options = {}) {
     const currentBufferPosition = this.getBufferPosition();
-    const scanRange = Range(
+    const scanRange = new Range(
       currentBufferPosition,
       this.editor.getEofBufferPosition()
     );
@@ -555,7 +557,7 @@ module.exports = class Cursor extends Model {
 
     if (range) {
       if (range.start.row > currentBufferPosition.row) {
-        return Point(range.start.row, 0);
+        return new Point(range.start.row, 0);
       } else if (currentBufferPosition.isLessThan(range.start)) {
         return Point.fromObject(range.start);
       } else {
@@ -816,7 +818,7 @@ module.exports = class Cursor extends Model {
       EmptyLineRegExp,
       scanRange,
       ({ range, stop }) => {
-        position = range.start.traverse(Point(1, 0));
+        position = range.start.traverse(new Point(1, 0));
         if (!position.isEqual(start)) stop();
       }
     );
@@ -836,7 +838,7 @@ module.exports = class Cursor extends Model {
       EmptyLineRegExp,
       scanRange,
       ({ range, stop }) => {
-        position = range.start.traverse(Point(1, 0));
+        position = range.start.traverse(new Point(1, 0));
         if (!position.isEqual(start)) stop();
       }
     );

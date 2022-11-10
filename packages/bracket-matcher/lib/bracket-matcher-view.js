@@ -4,14 +4,14 @@ const { Range, Point } = require('atom');
 const TagFinder = require('./tag-finder');
 
 const MAX_ROWS_TO_SCAN = 10000;
-const ONE_CHAR_FORWARD_TRAVERSAL = Object.freeze(Point(0, 1));
-const ONE_CHAR_BACKWARD_TRAVERSAL = Object.freeze(Point(0, -1));
-const TWO_CHARS_BACKWARD_TRAVERSAL = Object.freeze(Point(0, -2));
+const ONE_CHAR_FORWARD_TRAVERSAL = Object.freeze(new Point(0, 1));
+const ONE_CHAR_BACKWARD_TRAVERSAL = Object.freeze(new Point(0, -1));
+const TWO_CHARS_BACKWARD_TRAVERSAL = Object.freeze(new Point(0, -2));
 const MAX_ROWS_TO_SCAN_FORWARD_TRAVERSAL = Object.freeze(
-  Point(MAX_ROWS_TO_SCAN, 0)
+  new Point(MAX_ROWS_TO_SCAN, 0)
 );
 const MAX_ROWS_TO_SCAN_BACKWARD_TRAVERSAL = Object.freeze(
-  Point(-MAX_ROWS_TO_SCAN, 0)
+  new Point(-MAX_ROWS_TO_SCAN, 0)
 );
 
 module.exports = class BracketMatcherView {
@@ -100,11 +100,11 @@ module.exports = class BracketMatcherView {
     let highlightTag = false;
     let highlightPair = false;
     if (position && matchPosition) {
-      this.bracket1Range = startRange = Range(
+      this.bracket1Range = startRange = new Range(
         position,
         position.traverse(ONE_CHAR_FORWARD_TRAVERSAL)
       );
-      this.bracket2Range = endRange = Range(
+      this.bracket2Range = endRange = new Range(
         matchPosition,
         matchPosition.traverse(ONE_CHAR_FORWARD_TRAVERSAL)
       );

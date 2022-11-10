@@ -1,6 +1,5 @@
 const _ = require('underscore-plus');
 const { CompositeDisposable, Emitter } = require('event-kit');
-const { Point, Range } = require('text-buffer');
 const { OnigRegExp } = require('oniguruma');
 
 const TokenizedLine = require('./tokenized-line');
@@ -12,6 +11,8 @@ const {
   fromFirstMateScopeId,
 } = require('./first-mate-helpers');
 const { selectorMatchesAnyScope } = require('./selectors');
+const Point = require('../shared/text-buffer/point');
+const Range = require('../shared/text-buffer/range');
 
 const NON_WHITESPACE_REGEX = /\S/;
 
@@ -361,7 +362,7 @@ class TextMateLanguageMode {
 
       this.emitter.emit(
         'did-change-highlighting',
-        Range(Point(startRow, 0), Point(endRow + 1, 0))
+        new Range(new Point(startRow, 0), new Point(endRow + 1, 0))
       );
     }
 
@@ -718,14 +719,17 @@ class TextMateLanguageMode {
     if (point.column >= this.buffer.lineLengthForRow(point.row)) {
       const endRow = this.endRowForFoldAtRow(point.row, tabLength);
       if (endRow != null) {
-        return Range(Point(point.row, Infinity), Point(endRow, Infinity));
+        return new Range(
+          new Point(point.row, Infinity),
+          new Point(endRow, Infinity)
+        );
       }
     }
 
     for (let row = point.row - 1; row >= 0; row--) {
       const endRow = this.endRowForFoldAtRow(row, tabLength);
       if (endRow != null && endRow >= point.row) {
-        return Range(Point(row, Infinity), Point(endRow, Infinity));
+        return new Range(new Point(row, Infinity), new Point(endRow, Infinity));
       }
     }
     return null;
@@ -742,7 +746,9 @@ class TextMateLanguageMode {
       ) {
         const endRow = this.endRowForFoldAtRow(row, tabLength);
         if (endRow != null) {
-          result.push(Range(Point(row, Infinity), Point(endRow, Infinity)));
+          result.push(
+            new Range(new Point(row, Infinity), new Point(endRow, Infinity))
+          );
           row = endRow + 1;
           continue;
         }
@@ -759,7 +765,9 @@ class TextMateLanguageMode {
     while (row < lineCount) {
       const endRow = this.endRowForFoldAtRow(row, tabLength);
       if (endRow != null) {
-        result.push(Range(Point(row, Infinity), Point(endRow, Infinity)));
+        result.push(
+          new Range(new Point(row, Infinity), new Point(endRow, Infinity))
+        );
       }
       row++;
     }
@@ -926,7 +934,7 @@ class TextMateHighlightIterator {
     if (this.tagIndex == null) {
       this.tagIndex = this.currentLineTags.length;
     }
-    this.position = Point(
+    this.position = new Point(
       position.row,
       Math.min(this.currentLineLength, currentColumn)
     );
@@ -949,7 +957,7 @@ class TextMateHighlightIterator {
           if (this.isAtTagBoundary()) {
             break;
           } else {
-            this.position = Point(
+            this.position = new Point(
               this.position.row,
               Math.min(
                 this.currentLineLength,
@@ -988,7 +996,7 @@ class TextMateHighlightIterator {
   }
 
   moveToNextLine() {
-    this.position = Point(this.position.row + 1, 0);
+    this.position = new Point(this.position.row + 1, 0);
     const tokenizedLine = this.languageMode.tokenizedLineForRow(
       this.position.row
     );

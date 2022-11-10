@@ -1,7 +1,8 @@
-const TextBuffer = require('text-buffer');
-const { Point, Range } = TextBuffer;
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
 
+const TextBuffer = require('./shared/text-buffer/text-buffer');
+const Point = require('./shared/text-buffer/point');
+const Range = require('./shared/text-buffer/range');
 const Directory = require('./shared/directory');
 const File = require('./shared/file');
 const BufferedNodeProcess = require('./buffered-node-process');

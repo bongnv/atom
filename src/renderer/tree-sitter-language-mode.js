@@ -1,5 +1,4 @@
 const Parser = require('tree-sitter');
-const { Point, Range, spliceArray } = require('text-buffer');
 const { Patch } = require('superstring');
 const { Emitter } = require('event-kit');
 
@@ -9,6 +8,9 @@ const TokenizedLine = require('./tokenized-line');
 const TextMateLanguageMode = require('./text-mate-language-mode');
 const { matcherForSelector } = require('./selectors');
 const TreeIndenter = require('./tree-indenter');
+const Point = require('../shared/text-buffer/point');
+const Range = require('../shared/text-buffer/range');
+const { spliceArray } = require('../shared/text-buffer/helpers');
 
 let nextId = 0;
 const MAX_RANGE = new Range(Point.ZERO, Point.INFINITY).freeze();
@@ -240,7 +242,7 @@ class TreeSitterLanguageMode {
   isFoldableAtRow(row) {
     if (this.isFoldableCache[row] != null) return this.isFoldableCache[row];
     const result =
-      this.getFoldableRangeContainingPoint(Point(row, Infinity), 0, true) !=
+      this.getFoldableRangeContainingPoint(new Point(row, Infinity), 0, true) !=
       null;
     this.isFoldableCache[row] = result;
     return result;
@@ -419,11 +421,11 @@ class TreeSitterLanguageMode {
       } else {
         const { endPosition } = node;
         if (endPosition.column === 0) {
-          foldEnd = Point(endPosition.row - 1, Infinity);
+          foldEnd = new Point(endPosition.row - 1, Infinity);
         } else if (childCount > 0) {
           foldEnd = endPosition;
         } else {
-          foldEnd = Point(endPosition.row, 0);
+          foldEnd = new Point(endPosition.row, 0);
         }
       }
 

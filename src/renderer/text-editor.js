@@ -4,9 +4,10 @@ const fs = require('fs-plus');
 const Grim = require('grim');
 const dedent = require('dedent');
 const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
-const TextBuffer = require('text-buffer');
-const { Point, Range } = TextBuffer;
 const TextMateScopeSelector = require('first-mate').ScopeSelector;
+
+const TextBuffer = require('../shared/text-buffer/text-buffer');
+const { Point, Range } = TextBuffer;
 
 const DecorationManager = require('./decoration-manager');
 const Cursor = require('./cursor');
@@ -1590,7 +1591,8 @@ module.exports = class TextEditor {
   }
 
   bufferRowForScreenRow(screenRow) {
-    return this.displayLayer.translateScreenPosition(Point(screenRow, 0)).row;
+    return this.displayLayer.translateScreenPosition(new Point(screenRow, 0))
+      .row;
   }
 
   bufferRowsForScreenRows(startScreenRow, endScreenRow) {
@@ -1601,7 +1603,7 @@ module.exports = class TextEditor {
   }
 
   screenRowForBufferRow(row) {
-    return this.displayLayer.translateBufferPosition(Point(row, 0)).row;
+    return this.displayLayer.translateBufferPosition(new Point(row, 0)).row;
   }
 
   getRightmostScreenPosition() {
@@ -1825,7 +1827,10 @@ module.exports = class TextEditor {
 
         startRow = this.displayLayer.findBoundaryPrecedingBufferRow(startRow);
         endRow = this.displayLayer.findBoundaryFollowingBufferRow(endRow + 1);
-        const linesRange = new Range(Point(startRow, 0), Point(endRow, 0));
+        const linesRange = new Range(
+          new Point(startRow, 0),
+          new Point(endRow, 0)
+        );
 
         // If selected line range is preceded by a fold, one line above on screen
         // could be multiple lines in the buffer.
@@ -1911,7 +1916,10 @@ module.exports = class TextEditor {
 
         startRow = this.displayLayer.findBoundaryPrecedingBufferRow(startRow);
         endRow = this.displayLayer.findBoundaryFollowingBufferRow(endRow + 1);
-        const linesRange = new Range(Point(startRow, 0), Point(endRow, 0));
+        const linesRange = new Range(
+          new Point(startRow, 0),
+          new Point(endRow, 0)
+        );
 
         // If selected line range is followed by a fold, one line below on screen
         // could be multiple lines in the buffer. But at the same time, if the
@@ -2701,7 +2709,7 @@ module.exports = class TextEditor {
       options
     );
     const end = this.displayLayer.clipScreenPosition(screenRange.end, options);
-    return Range(start, end);
+    return new Range(start, end);
   }
 
   /*
@@ -4777,7 +4785,7 @@ module.exports = class TextEditor {
     const range =
       languageMode.getFoldableRangeContainingPoint &&
       languageMode.getFoldableRangeContainingPoint(
-        Point(row, Infinity),
+        new Point(row, Infinity),
         this.getTabLength()
       );
     if (range) return this.displayLayer.foldBufferRange(range);
@@ -4787,7 +4795,7 @@ module.exports = class TextEditor {
   unfoldCurrentRow() {
     const { row } = this.getCursorBufferPosition();
     return this.displayLayer.destroyFoldsContainingBufferPositions(
-      [Point(row, Infinity)],
+      [new Point(row, Infinity)],
       false
     );
   }
@@ -4800,7 +4808,7 @@ module.exports = class TextEditor {
   //
   // * `bufferRow` A {Number}.
   foldBufferRow(bufferRow) {
-    let position = Point(bufferRow, Infinity);
+    let position = new Point(bufferRow, Infinity);
     const languageMode = this.buffer.getLanguageMode();
     while (true) {
       const foldableRange =
@@ -4811,7 +4819,7 @@ module.exports = class TextEditor {
         );
       if (foldableRange) {
         const existingFolds = this.displayLayer.foldsIntersectingBufferRange(
-          Range(foldableRange.start, foldableRange.start)
+          new Range(foldableRange.start, foldableRange.start)
         );
         if (existingFolds.length === 0) {
           this.displayLayer.foldBufferRange(foldableRange);
@@ -4820,7 +4828,7 @@ module.exports = class TextEditor {
             existingFolds[0]
           );
           if (firstExistingFoldRange.start.isLessThan(position)) {
-            position = Point(firstExistingFoldRange.start.row, 0);
+            position = new Point(firstExistingFoldRange.start.row, 0);
             continue;
           }
         }
@@ -4833,7 +4841,7 @@ module.exports = class TextEditor {
   //
   // * `bufferRow` A {Number}
   unfoldBufferRow(bufferRow) {
-    const position = Point(bufferRow, Infinity);
+    const position = new Point(bufferRow, Infinity);
     return this.displayLayer.destroyFoldsContainingBufferPositions([position]);
   }
 
@@ -4925,9 +4933,9 @@ module.exports = class TextEditor {
   //
   // Returns a {Boolean}.
   isFoldedAtBufferRow(bufferRow) {
-    const range = Range(
-      Point(bufferRow, 0),
-      Point(bufferRow, this.buffer.lineLengthForRow(bufferRow))
+    const range = new Range(
+      new Point(bufferRow, 0),
+      new Point(bufferRow, this.buffer.lineLengthForRow(bufferRow))
     );
     return this.displayLayer.foldsIntersectingBufferRange(range).length > 0;
   }
@@ -4949,7 +4957,7 @@ module.exports = class TextEditor {
   // Returns the new {Fold}.
   foldBufferRowRange(startRow, endRow) {
     return this.foldBufferRange(
-      Range(Point(startRow, Infinity), Point(endRow, Infinity))
+      new Range(new Point(startRow, Infinity), new Point(endRow, Infinity))
     );
   }
 
@@ -5200,7 +5208,7 @@ module.exports = class TextEditor {
     const languageMode = this.buffer.getLanguageMode();
     return (
       (languageMode.getNonWordCharacters &&
-        languageMode.getNonWordCharacters(position || Point(0, 0))) ||
+        languageMode.getNonWordCharacters(position || new Point(0, 0))) ||
       DEFAULT_NON_WORD_CHARACTERS
     );
   }
@@ -5760,7 +5768,7 @@ module.exports = class TextEditor {
               this.getTabLength()
             );
             this.buffer.insert(
-              Point(row, indentColumn),
+              new Point(row, indentColumn),
               commentStartString + ' '
             );
           } else {

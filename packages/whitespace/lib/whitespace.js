@@ -226,9 +226,9 @@ module.exports = class Whitespace {
                 continue;
             }
             buffer.delete(
-              Range(
-                Point(row, trailingWhitespaceStart),
-                Point(row, line.length)
+              new Range(
+                new Point(row, trailingWhitespaceStart),
+                new Point(row, line.length)
               )
             );
           }

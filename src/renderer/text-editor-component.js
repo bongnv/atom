@@ -1,9 +1,10 @@
 const etch = require('etch');
-const { Point, Range } = require('text-buffer');
 const LineTopIndex = require('line-top-index');
 const electron = require('electron');
 
 const { isPairedCharacter } = require('./text-utils');
+const Point = require('../shared/text-buffer/point');
+const Range = require('../shared/text-buffer/range');
 
 const clipboard = electron.clipboard;
 const $ = etch.dom;
@@ -2046,9 +2047,9 @@ module.exports = class TextEditorComponent {
       clickedScreenRow,
       Infinity,
     ]).row;
-    const clickedLineBufferRange = Range(
-      Point(startBufferRow, 0),
-      Point(endBufferRow + 1, 0)
+    const clickedLineBufferRange = new Range(
+      new Point(startBufferRow, 0),
+      new Point(endBufferRow + 1, 0)
     );
 
     let initialBufferRange;
@@ -2085,9 +2086,9 @@ module.exports = class TextEditorComponent {
       didDrag: (event) => {
         this.autoscrollOnMouseDrag(event, true);
         const dragRow = this.screenPositionForMouseEvent(event).row;
-        const draggedLineScreenRange = Range(
-          Point(dragRow, 0),
-          Point(dragRow + 1, 0)
+        const draggedLineScreenRange = new Range(
+          new Point(dragRow, 0)(),
+          new Point(dragRow + 1, 0)
         );
         model
           .getLastSelection()
@@ -2786,7 +2787,7 @@ module.exports = class TextEditorComponent {
     }
     const column = textNodeStartColumn + characterIndex;
 
-    return Point(row, column);
+    return new Point(row, column);
   }
 
   didResetDisplayLayer() {
