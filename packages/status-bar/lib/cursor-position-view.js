@@ -103,8 +103,11 @@ module.exports = CursorPositionView = class CursorPositionView {
     return (this.updateSubscription = atom.views.updateDocument(() => {
       let position;
       this.viewUpdatePending = false;
-      if (position = atom.workspace && atom.workspace.getActiveTextEditor() &&
-        atom.workspace.getActiveTextEditor().getCursorBufferPosition()
+      if (
+        (position =
+          atom.workspace &&
+          atom.workspace.getActiveTextEditor() &&
+          atom.workspace.getActiveTextEditor().getCursorBufferPosition())
       ) {
         this.row = position.row + 1;
         this.column = position.column + 1;

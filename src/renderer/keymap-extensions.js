@@ -7,7 +7,7 @@
  */
 const fs = require('fs-plus');
 const path = require('path');
-const KeymapManager = require('atom-keymap');
+const KeymapManager = require('./keymap/keymap-manager');
 
 KeymapManager.prototype.onDidLoadBundledKeymaps = function (callback) {
   return this.emitter.on('did-load-bundled-keymaps', callback);

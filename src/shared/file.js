@@ -324,7 +324,7 @@ class File {
 
         readStream.on('end', () => resolve(content.join('')));
 
-        return readStream.on('error', function(error) {
+        return readStream.on('error', function (error) {
           if (error.code === 'ENOENT') {
             return resolve(null);
           } else {
@@ -413,7 +413,7 @@ class File {
     const encoding = this.getEncoding();
     if (encoding === 'utf8') {
       return new Promise((resolve, reject) =>
-        fs.writeFile(filePath, contents, { encoding }, function(err, result) {
+        fs.writeFile(filePath, contents, { encoding }, function (err, result) {
           if (err != null) {
             return reject(err);
           } else {
@@ -429,7 +429,7 @@ class File {
         fs.writeFile(
           filePath,
           iconv.encode(contents, encoding),
-          function(err, result) {
+          function (err, result) {
             if (err != null) {
               return reject(err);
             } else {
@@ -480,10 +480,10 @@ class File {
     return this.watchSubscription != null
       ? this.watchSubscription
       : (this.watchSubscription = await watchPath(this.path, {}, (events) => {
-        for (const event of events) {
-          this.handleNativeChangeEvent(event);
-        }
-      }));
+          for (const event of events) {
+            this.handleNativeChangeEvent(event);
+          }
+        }));
   }
 
   unsubscribeFromNativeChangeEvents() {

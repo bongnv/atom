@@ -481,7 +481,7 @@ module.exports = class Directory {
     if (squashedDirs.length > 1) {
       this.squashedNames = [
         squashedDirs.slice(0, squashedDirs.length - 1).join(path.sep) +
-        path.sep,
+          path.sep,
         _.last(squashedDirs),
       ];
     }

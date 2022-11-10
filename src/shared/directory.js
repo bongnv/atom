@@ -407,12 +407,12 @@ class Directory {
     return this.watchSubscription != null
       ? this.watchSubscription
       : (this.watchSubscription = await watchPath(this.path, {}, (events) => {
-        for (const event of events) {
-          if (event.action === 'modified') {
-            return this.emitter.emit('did-change');
+          for (const event of events) {
+            if (event.action === 'modified') {
+              return this.emitter.emit('did-change');
+            }
           }
-        }
-      }));
+        }));
   }
 
   unsubscribeFromNativeChangeEvents() {

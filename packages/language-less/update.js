@@ -10,7 +10,7 @@
 const path = require('path');
 const request = require('request');
 const Promise = require('bluebird');
-const CSON = require('season');
+const fs = require('fs');
 
 const FunctionsURL =
   'https://raw.githubusercontent.com/less/less-docs/master/content/functions/data/functions.json';
@@ -47,8 +47,8 @@ functionsPromise.then(function (results) {
     }
   }
 
-  const configPath = path.join(__dirname, 'settings', 'language-less.cson');
-  const config = CSON.readFileSync(configPath);
+  const configPath = path.join(__dirname, 'settings', 'language-less.json');
+  const config = JSON.parse(fs.readFileSync(configPath));
   const { builtins } =
     config['.source.css.less .meta.property-value'].autocomplete.symbols;
   builtins.suggestions = suggestions;
