@@ -103,7 +103,7 @@
     "stable": "^0.1.8",
     "stack-trace": "^1.0.0-pre1",
     "stacktrace-parser": "^0.1.10",
-    "superstring": "github:pulsar-edit/superstring#eb0cc0990017dc7aa4a7322ab0f65021765886d3",
+    "superstring": "github:bongnv/superstring#6964467af6a89c39e1ece35da391f83278c3057f",
     "temp": "^0.9.4",
     "tinycolor2": "^1.4.2",
     "tree-kill": "^1.2.2",
