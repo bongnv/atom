@@ -1,7 +1,7 @@
 const _ = require('underscore-plus');
 const url = require('url');
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
-const { Directory } = require('pathwatcher');
+const Directory = require('../shared/directory');
 const Grim = require('grim');
 
 const DefaultDirectorySearcher = require('./default-directory-searcher');
@@ -2081,7 +2081,7 @@ module.exports = class Workspace extends Model {
       const onPathsSearchedOption = options.onPathsSearched;
       let totalNumberOfPathsSearched = 0;
       const numberOfPathsSearchedForSearcher = new Map();
-      onPathsSearched = function (searcher, numberOfPathsSearched) {
+      onPathsSearched = (searcher, numberOfPathsSearched) => {
         const oldValue = numberOfPathsSearchedForSearcher.get(searcher);
         if (oldValue) {
           totalNumberOfPathsSearched -= oldValue;
@@ -2091,7 +2091,7 @@ module.exports = class Workspace extends Model {
         return onPathsSearchedOption(totalNumberOfPathsSearched);
       };
     } else {
-      onPathsSearched = function () {};
+      onPathsSearched = () => {};
     }
 
     // Kick off all of the searches and unify them into one Promise.
@@ -2147,7 +2147,7 @@ module.exports = class Workspace extends Model {
     // package relies on this behavior.
     let isCancelled = false;
     const cancellablePromise = new Promise((resolve, reject) => {
-      const onSuccess = function () {
+      const onSuccess = () => {
         if (isCancelled) {
           resolve('cancelled');
         } else {
@@ -2155,7 +2155,7 @@ module.exports = class Workspace extends Model {
         }
       };
 
-      const onFailure = function (error) {
+      const onFailure = (error) => {
         for (let promise of allSearches) {
           promise.cancel();
         }

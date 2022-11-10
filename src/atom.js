@@ -1,7 +1,9 @@
 const TextBuffer = require('text-buffer');
 const { Point, Range } = TextBuffer;
-const { File, Directory } = require('pathwatcher');
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
+
+const Directory = require('./shared/directory');
+const File = require('./shared/file');
 const BufferedNodeProcess = require('./buffered-node-process');
 const BufferedProcess = require('./buffered-process');
 const GitRepository = require('./renderer/git-repository');

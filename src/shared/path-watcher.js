@@ -597,12 +597,12 @@ function stopAllWatchers() {
 }
 
 // Private: Show the currently active native watchers in a formatted {String}.
-watchPath.printWatchers = function () {
+watchPath.printWatchers = () => {
   return PathWatcherManager.active().print();
 };
 
 // Private: Access the active {NativeWatcherRegistry}.
-watchPath.getRegistry = function () {
+watchPath.getRegistry = () => {
   return PathWatcherManager.active().getRegistry();
 };
 

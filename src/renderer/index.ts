@@ -9,7 +9,6 @@ import AtomEnvironment from './atom-environment';
 import ApplicationDelegate from './application-delegate';
 import Clipboard from './clipboard';
 import TextEditor from './text-editor';
-import getWindowLoadSettings from './get-window-load-settings';
 
 const initializeAtom = async () => {
   const clipboard = new Clipboard();

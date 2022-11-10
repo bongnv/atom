@@ -1,7 +1,7 @@
 const path = require('path');
 const _ = require('underscore-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
-const { File } = require('pathwatcher');
+const File = require('../shared/file');
 const fs = require('fs-plus');
 
 const LessCompileCache = require('../less-compile-cache');

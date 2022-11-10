@@ -2,7 +2,7 @@ const path = require('path');
 const _ = require('underscore-plus');
 const { CompositeDisposable, Emitter } = require('atom');
 const fs = require('fs-plus');
-const PathWatcher = require('pathwatcher');
+const { watchPath } = require('atom');
 const File = require('./file');
 const { repoForPath } = require('./helpers');
 
@@ -259,7 +259,7 @@ module.exports = class Directory {
   // Public: Stop watching this directory for changes.
   unwatch() {
     if (this.watchSubscription != null) {
-      this.watchSubscription.close();
+      this.watchSubscription.dispose();
       this.watchSubscription = null;
     }
 
@@ -270,20 +270,25 @@ module.exports = class Directory {
   }
 
   // Public: Watch this directory for changes.
-  watch() {
+  async watch() {
     if (this.watchSubscription != null) return;
     try {
-      this.watchSubscription = PathWatcher.watch(this.path, (eventType) => {
-        switch (eventType) {
-          case 'change':
-            this.reload();
-            break;
-          case 'delete':
-            this.destroy();
-            break;
+      this.watchSubscription = await watchPath(this.path, {}, (events) => {
+        for (const event of events) {
+          switch (event.action) {
+            case 'renamed':
+            case 'modified':
+              this.reload();
+              break;
+            case 'deleted':
+              this.destroy();
+              break;
+          }
         }
       });
-    } catch (error) {}
+    } catch (error) {
+      // TODO: bongnv - comment why we need to ignore error
+    }
   }
 
   getEntries() {
@@ -476,7 +481,7 @@ module.exports = class Directory {
     if (squashedDirs.length > 1) {
       this.squashedNames = [
         squashedDirs.slice(0, squashedDirs.length - 1).join(path.sep) +
-          path.sep,
+        path.sep,
         _.last(squashedDirs),
       ];
     }

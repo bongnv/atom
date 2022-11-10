@@ -551,7 +551,7 @@ module.exports = class AtomApplication extends EventEmitter {
         const window = this.focusedWindow();
         if (window) window.minimize();
       });
-      this.on('application:zoom', function() {
+      this.on('application:zoom', () => {
         const window = this.focusedWindow();
         if (window) window.maximize();
       });
@@ -1259,7 +1259,8 @@ module.exports = class AtomApplication extends EventEmitter {
     } catch (error) {
       if (error.code !== 'ESRCH') {
         console.log(
-          `Killing process ${pid} failed: ${error.code != null ? error.code : error.message
+          `Killing process ${pid} failed: ${
+            error.code != null ? error.code : error.message
           }`
         );
       }

@@ -72,7 +72,7 @@ module.exports = SelectionCountView = class SelectionCountView {
   }
 
   getActiveTextEditor() {
-    return atom.workspace.getActiveTextEditor();
+    return atom.workspace && atom.workspace.getActiveTextEditor();
   }
 
   scheduleUpdateCount() {
