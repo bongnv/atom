@@ -249,11 +249,13 @@ module.exports = TreeView = class TreeView {
 
   serialize() {
     return {
-      directoryExpansionStates: new (function (roots) {
+      directoryExpansionStates: ((roots) => {
+        const states = {};
         for (var root of roots) {
-          this[root.directory.path] = root.directory.serializeExpansionState();
+          states[root.directory.path] =
+            root.directory.serializeExpansionState();
         }
-        return this;
+        return states;
       })(this.roots),
       deserializer: 'TreeView',
       selectedPaths: Array.from(this.getSelectedEntries(), (entry) =>
@@ -1923,13 +1925,10 @@ module.exports = TreeView = class TreeView {
       }
     } else if (e.dataTransfer.files.length) {
       // Drop event from OS that isn't targeting a folder: add a new project folder
-      return (() => {
-        const result2 = [];
-        for (entry of e.dataTransfer.files) {
-          result2.push(atom.project.addPath(entry.path));
-        }
-        return result2;
-      })();
+      for (entry of e.dataTransfer.files) {
+        atom.project.addPath(entry.path);
+      }
+      return;
     }
   }
 

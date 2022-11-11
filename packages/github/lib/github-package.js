@@ -556,7 +556,7 @@ export default class GithubPackage {
     this.workdirCache.invalidate();
 
     if (!this.project.contains(projectPath)) {
-      this.project.addPath(projectPath);
+      await this.project.addPath(projectPath);
     }
 
     await this.refreshAtomGitRepository(projectPath);
@@ -578,7 +578,7 @@ export default class GithubPackage {
     }
 
     this.workdirCache.invalidate();
-    this.project.addPath(projectPath);
+    await this.project.addPath(projectPath);
     await this.scheduleActiveContextUpdate();
 
     reporterProxy.addEvent('clone-repository', { project: 'github' });

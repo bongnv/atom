@@ -38,35 +38,6 @@ function pathFromGitFile(gitFile) {
 // directory or one of its ancestors. If so, a Directory that corresponds to the
 // `.git` folder will be returned. Otherwise, returns `null`.
 //
-// * `directory` {Directory} to explore whether it is part of a Git repository.
-function findGitDirectorySync(directory) {
-  // TODO: Fix node-pathwatcher/src/directory.coffee so the following methods
-  // can return cached values rather than always returning new objects:
-  // getParent(), getFile(), getSubdirectory().
-  let gitDir = directory.getSubdirectory('.git');
-  if (typeof gitDir.getPath === 'function') {
-    const gitDirPath = pathFromGitFileSync(gitDir.getPath());
-    if (gitDirPath) {
-      gitDir = new Directory(directory.resolve(gitDirPath));
-    }
-  }
-  if (
-    typeof gitDir.existsSync === 'function' &&
-    gitDir.existsSync() &&
-    isValidGitDirectorySync(gitDir)
-  ) {
-    return gitDir;
-  } else if (directory.isRoot()) {
-    return null;
-  } else {
-    return findGitDirectorySync(directory.getParent());
-  }
-}
-
-// Checks whether a valid `.git` directory is contained within the given
-// directory or one of its ancestors. If so, a Directory that corresponds to the
-// `.git` folder will be returned. Otherwise, returns `null`.
-//
 // Returns a {Promise} that resolves to
 // * `directory` {Directory} to explore whether it is part of a Git repository.
 async function findGitDirectory(directory) {
@@ -165,24 +136,13 @@ class GitRepositoryProvider {
     // we must check directory and its parent directories to find the nearest
     // .git folder.
     const gitDir = await findGitDirectory(directory);
-    return this.repositoryForGitDirectory(gitDir);
-  }
-
-  // Returns either:
-  // * {GitRepository} if the given directory has a Git repository.
-  // * `null` if the given directory does not have a Git repository.
-  repositoryForDirectorySync(directory) {
-    // Only one GitRepository should be created for each .git folder. Therefore,
-    // we must check directory and its parent directories to find the nearest
-    // .git folder.
-    const gitDir = findGitDirectorySync(directory);
-    return this.repositoryForGitDirectory(gitDir);
+    return await this.repositoryForGitDirectory(gitDir);
   }
 
   // Returns either:
   // * {GitRepository} if the given Git directory has a Git repository.
   // * `null` if the given directory does not have a Git repository.
-  repositoryForGitDirectory(gitDir) {
+  async repositoryForGitDirectory(gitDir) {
     if (!gitDir) {
       return null;
     }
@@ -190,7 +150,7 @@ class GitRepositoryProvider {
     const gitDirPath = gitDir.getPath();
     let repo = this.pathToRepository[gitDirPath];
     if (!repo) {
-      repo = GitRepository.open(gitDirPath, {
+      repo = await GitRepository.open(gitDirPath, {
         project: this.project,
         config: this.config,
       });

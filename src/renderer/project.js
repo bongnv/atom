@@ -89,10 +89,10 @@ module.exports = class Project extends Model {
 
   // Layers the contents of a project's file's config
   // on top of the current global config.
-  replace(projectSpecification) {
+  async replace(projectSpecification) {
     if (projectSpecification == null) {
       atom.config.clearProjectSettings();
-      this.setPaths([]);
+      await this.setPaths([]);
     } else {
       if (projectSpecification.originPath == null) {
         return;
@@ -108,7 +108,7 @@ module.exports = class Project extends Model {
         projectSpecification.config,
         projectSpecification.originPath
       );
-      this.setPaths(projectSpecification.paths);
+      await this.setPaths(projectSpecification.paths);
     }
     this.emitter.emit('did-replace', projectSpecification);
   }
@@ -121,7 +121,7 @@ module.exports = class Project extends Model {
   Section: Serialization
   */
 
-  deserialize(state) {
+  async deserialize(state) {
     this.retiredBufferIDs = new Set();
     this.retiredBufferPaths = new Set();
 
@@ -148,14 +148,13 @@ module.exports = class Project extends Model {
       bufferPromises.push(handleBufferState(bufferState));
     }
 
-    return Promise.all(bufferPromises).then((buffers) => {
-      this.buffers = buffers.filter(Boolean);
-      for (let buffer of this.buffers) {
-        this.grammarRegistry.maintainLanguageMode(buffer);
-        this.subscribeToBuffer(buffer);
-      }
-      this.setPaths(state.paths || [], { mustExist: true, exact: true });
-    });
+    const buffers = await Promise.all(bufferPromises);
+    this.buffers = buffers.filter(Boolean);
+    for (let buffer of this.buffers) {
+      this.grammarRegistry.maintainLanguageMode(buffer);
+      this.subscribeToBuffer(buffer);
+    }
+    await this.setPaths(state.paths || [], { mustExist: true, exact: true });
   }
 
   serialize(options = {}) {
@@ -163,7 +162,7 @@ module.exports = class Project extends Model {
       deserializer: 'Project',
       paths: this.getPaths(),
       buffers: _.compact(
-        this.buffers.map(function (buffer) {
+        this.buffers.map((buffer) => {
           if (buffer.isRetained()) {
             const isUnloading = options.isUnloading === true;
             return buffer.serialize({
@@ -370,7 +369,7 @@ module.exports = class Project extends Model {
   //     do exist will still be added to the project. Default: `false`.
   //   * `exact` If `true`, only add a `projectPath` if it names an existing directory. If `false` and any `projectPath`
   //     is a file or does not exist, its parent directory will be added instead. Default: `false`.
-  setPaths(projectPaths, options = {}) {
+  async setPaths(projectPaths, options = {}) {
     for (let repository of this.repositories) {
       if (repository != null) repository.destroy();
     }
@@ -387,7 +386,7 @@ module.exports = class Project extends Model {
     const missingProjectPaths = [];
     for (let projectPath of projectPaths) {
       try {
-        this.addPath(projectPath, {
+        await this.addPath(projectPath, {
           emitEvent: false,
           mustExist: true,
           exact: options.exact === true,
@@ -418,7 +417,7 @@ module.exports = class Project extends Model {
   //     not exist is ignored. Default: `false`.
   //   * `exact` If `true`, only add `projectPath` if it names an existing directory. If `false`, if `projectPath` is a
   //     a file or does not exist, its parent directory will be added instead.
-  addPath(projectPath, options = {}) {
+  async addPath(projectPath, options = {}) {
     const directory = this.getDirectoryForProjectPath(projectPath);
     let ok = true;
     if (options.exact === true) {
@@ -470,8 +469,8 @@ module.exports = class Project extends Model {
 
     let repo = null;
     for (let provider of this.repositoryProviders) {
-      if (provider.repositoryForDirectorySync) {
-        repo = provider.repositoryForDirectorySync(directory);
+      if (provider.repositoryForDirectory) {
+        repo = await provider.repositoryForDirectory(directory);
       }
       if (repo) {
         break;

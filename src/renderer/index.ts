@@ -23,7 +23,7 @@ const initializeAtom = async () => {
   window.atom = atom;
   etch.setScheduler(atom.views);
 
-  atom.initialize({
+  await atom.initialize({
     window,
     document,
     configDirPath: process.env.ATOM_HOME,

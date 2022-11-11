@@ -4,7 +4,6 @@ const async = require('async');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { GitRepository } = require('atom');
 const { Minimatch } = require('minimatch');
 const childProcess = require('child_process');
 const { rgPath } = require('vscode-ripgrep');
@@ -25,41 +24,19 @@ class PathLoader {
     rootPath,
     ignoreVcsIgnores,
     traverseSymlinkDirectories,
-    ignoredNames,
-    useRipGrep
+    ignoredNames
   ) {
     this.rootPath = rootPath;
     this.ignoreVcsIgnores = ignoreVcsIgnores;
     this.traverseSymlinkDirectories = traverseSymlinkDirectories;
     this.ignoredNames = ignoredNames;
-    this.useRipGrep = useRipGrep;
     this.paths = [];
     this.inodes = new Set();
-    this.repo = null;
-    if (ignoreVcsIgnores && !this.useRipGrep) {
-      const repo = GitRepository.open(this.rootPath, {
-        refreshOnWindowFocus: false,
-      });
-      if (
-        (repo && repo.relativize(path.join(this.rootPath, 'test'))) === 'test'
-      ) {
-        this.repo = repo;
-      }
-    }
   }
 
   load(done) {
-    if (this.useRipGrep) {
-      this.loadFromRipGrep().then(done);
-
-      return;
-    }
-
-    this.loadPath(this.rootPath, true, () => {
-      this.flushPaths();
-      if (this.repo != null) this.repo.destroy();
-      done();
-    });
+    this.loadFromRipGrep().then(done);
+    return;
   }
 
   async loadFromRipGrep() {
@@ -106,17 +83,6 @@ class PathLoader {
     });
   }
 
-  isIgnored(loadedPath) {
-    const relativePath = path.relative(this.rootPath, loadedPath);
-    if (this.repo && this.repo.isPathIgnored(relativePath)) {
-      return true;
-    } else {
-      for (let ignoredName of this.ignoredNames) {
-        if (ignoredName.match(relativePath)) return true;
-      }
-    }
-  }
-
   pathLoaded(loadedPath, done) {
     if (!emittedPaths.has(loadedPath)) {
       this.paths.push(loadedPath);
@@ -133,67 +99,13 @@ class PathLoader {
     emit('load-paths:paths-found', this.paths);
     this.paths = [];
   }
-
-  loadPath(pathToLoad, root, done) {
-    if (this.isIgnored(pathToLoad) && !root) return done();
-
-    fs.lstat(pathToLoad, (error, stats) => {
-      if (error != null) {
-        return done();
-      }
-      if (stats.isSymbolicLink()) {
-        fs.stat(pathToLoad, (error, stats) => {
-          if (error != null) return done();
-          if (this.inodes.has(stats.ino)) {
-            return done();
-          } else {
-            this.inodes.add(stats.ino);
-          }
-
-          if (stats.isFile()) {
-            this.pathLoaded(pathToLoad, done);
-          } else if (stats.isDirectory()) {
-            if (this.traverseSymlinkDirectories) {
-              this.loadFolder(pathToLoad, done);
-            } else {
-              done();
-            }
-          } else {
-            done();
-          }
-        });
-      } else {
-        this.inodes.add(stats.ino);
-        if (stats.isDirectory()) {
-          this.loadFolder(pathToLoad, done);
-        } else if (stats.isFile()) {
-          this.pathLoaded(pathToLoad, done);
-        } else {
-          done();
-        }
-      }
-    });
-  }
-
-  loadFolder(folderPath, done) {
-    fs.readdir(folderPath, (_, children = []) => {
-      async.each(
-        children,
-        (childName, next) => {
-          this.loadPath(path.join(folderPath, childName), false, next);
-        },
-        done
-      );
-    });
-  }
 }
 
 module.exports = function (
   rootPaths,
   followSymlinks,
   ignoreVcsIgnores,
-  ignores,
-  useRipGrep
+  ignores
 ) {
   const ignoredNames = [];
   for (let ignore of ignores) {
@@ -218,8 +130,7 @@ module.exports = function (
         rootPath,
         ignoreVcsIgnores,
         followSymlinks,
-        ignoredNames,
-        useRipGrep
+        ignoredNames
       ).load(next),
     this.async()
   );

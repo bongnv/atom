@@ -39,8 +39,8 @@ let nextId = 0;
 // {GitRepository} = require 'atom'
 // ```
 module.exports = class GitRepository {
-  static exists(path) {
-    const git = this.open(path);
+  static async exists(path) {
+    const git = await this.open(path);
     if (git) {
       git.destroy();
       return true;
@@ -63,12 +63,12 @@ module.exports = class GitRepository {
   // Returns a {GitRepository} instance or `null` if the repository could not be opened.
   static open(path, options) {
     if (!path) {
-      return null;
+      return Promise.resolve(null);
     }
     try {
-      return new GitRepository(path, options);
+      return Promise.resolve(new GitRepository(path, options));
     } catch (error) {
-      return null;
+      return Promise.resolve(null);
     }
   }
 

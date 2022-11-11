@@ -202,7 +202,7 @@ class AtomEnvironment {
     );
   }
 
-  initialize(params = {}) {
+  async initialize(params = {}) {
     this.window = params.window;
     this.document = params.document;
     this.configDirPath = params.configDirPath;
@@ -223,7 +223,7 @@ class AtomEnvironment {
     this.config.resetUserSettings(userSettings);
 
     if (projectSpecification != null && projectSpecification.config != null) {
-      this.project.replace(projectSpecification);
+      await this.project.replace(projectSpecification);
     }
 
     this.menu.initialize();
@@ -1207,7 +1207,9 @@ class AtomEnvironment {
     if (state && this.project.getPaths().length === 0) {
       this.attemptRestoreProjectStateForPaths(state, projectPaths);
     } else {
-      projectPaths.map((folder) => this.project.addPath(folder));
+      await Promise.all(
+        projectPaths.map((folder) => this.project.addPath(folder))
+      );
     }
   }
 
