@@ -310,6 +310,9 @@ export class RendererProcess {
         // The default of contextIsolation is changed to true so we'll have to set it to false.
         // See https://github.com/electron/electron/issues/23506 for more information
         contextIsolation: false,
+
+        // TODO: bongnv - recheck this
+        nativeWindowOpen: false,
       },
     });
     this.webContents = this.win.webContents;
@@ -433,7 +436,7 @@ export class Operation {
     this.resolve = resolve;
     this.reject = reject;
     this.promise = null;
-    this.cancellationResolve = () => {};
+    this.cancellationResolve = () => { };
     this.startTime = null;
     this.endTime = null;
     this.status = Operation.status.PENDING;

@@ -9,7 +9,7 @@ module.exports = function start(startTime) {
   global.shellStartTime = startTime;
   StartupTime.addMarker('main-process:start');
 
-  process.on('uncaughtException', function (error = {}) {
+  process.on('uncaughtException', function(error = {}) {
     if (error.message != null) {
       console.log(error.message);
     }
@@ -19,7 +19,7 @@ module.exports = function start(startTime) {
     }
   });
 
-  process.on('unhandledRejection', function (error = {}) {
+  process.on('unhandledRejection', function(error = {}) {
     if (error.message != null) {
       console.log(error.message);
     }
@@ -70,12 +70,16 @@ module.exports = function start(startTime) {
   app.on('open-file', addPathToOpen);
   app.on('open-url', addUrlToOpen);
 
+  app.on('browser-window-created', (_, window) => {
+    require("@electron/remote/main").enable(window.webContents)
+  });
+
   if (args.userDataDir != null) {
     app.setPath('userData', args.userDataDir);
   }
 
   StartupTime.addMarker('main-process:electron-onready:start');
-  app.on('ready', function () {
+  app.on('ready', function() {
     StartupTime.addMarker('main-process:electron-onready:end');
     app.removeListener('open-file', addPathToOpen);
     app.removeListener('open-url', addUrlToOpen);

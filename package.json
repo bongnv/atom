@@ -13,7 +13,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@atom/fuzzy-native": "^1.2.1",
+    "@atom/fuzzy-native": "github:bongnv/fuzzy-native#71b6e32021b60d0325db85294e2123cd3b418ce4",
     "@electron/remote": "^2.0.8",
     "async": "^3.2.4",
     "atom-pathspec": "^0.0.0",
@@ -179,7 +179,7 @@
     "babel-plugin-relay": "^14.1.0",
     "chai": "4.3.4",
     "copy-webpack-plugin": "^11.0.0",
-    "electron": "13.6.9",
+    "electron": "14.2.9",
     "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
