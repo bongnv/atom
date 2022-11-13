@@ -115,7 +115,7 @@
     "tree-sitter-embedded-template": "github:bongnv/tree-sitter-embedded-template#705cdc76611d6aaf1626634eff53bcdaa82f71b4",
     "tree-sitter-go": "github:bongnv/tree-sitter-go#f9cdca41f2952e9550a2cdd61d8431d734752ab8",
     "tree-sitter-html": "github:bongnv/tree-sitter-html#52f548900dac65330a00937690700fffac2aae32",
-    "tree-sitter-java-dev": "^0.16.0-dev2",
+    "tree-sitter-java": "github:bongnv/tree-sitter-java#7b22d0000eda64f3a00b21ffa69cbc4661ca9a63",
     "tree-sitter-javascript": "github:bongnv/tree-sitter-javascript#b916569c63043a5888574f8c8a08ff0818702da2",
     "tree-sitter-jsdoc": "github:bongnv/tree-sitter-jsdoc#7a35748519988082ebab2e518144c6ee74718d7e",
     "tree-sitter-json": "github:bongnv/tree-sitter-json#af5368a89870750af5a55561b72cee2d48a765ca",
