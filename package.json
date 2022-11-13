@@ -107,7 +107,7 @@
     "temp": "^0.9.4",
     "tinycolor2": "^1.4.2",
     "tree-kill": "^1.2.2",
-    "tree-sitter": "github:bongnv/node-tree-sitter#b274a9af382c309f211017817cb21d1277225f88",
+    "tree-sitter": "github:bongnv/node-tree-sitter#c8b60201c739d45b718daccc9c10414c317f2b18",
     "tree-sitter-bash": "github:bongnv/tree-sitter-bash#05a4e06b7742b57f4444c353e17d33f9b69ac61b",
     "tree-sitter-c": "github:bongnv/tree-sitter-c#4b93b87d8648538b6ba410aa5225c81604fcec04",
     "tree-sitter-cpp": "github:bongnv/tree-sitter-cpp#5fd68f6dca8f5058683dc7dbb19b1749081c66b6",
