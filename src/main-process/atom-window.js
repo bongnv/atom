@@ -67,11 +67,6 @@ module.exports = class AtomWindow extends EventEmitter {
         contextIsolation: false,
 
         preload: pathConfig.preloadEntry,
-
-        // Explicity set nativeWindowOpen to false because its default value will change to true in Electron 15
-        // Ref: https://github.com/electron/electron/issues/28511
-        // TODO: bongnv - would it better to be true?
-        nativeWindowOpen: false,
       },
       simpleFullscreen: this.getSimpleFullscreen(),
     };
