@@ -21,8 +21,6 @@
     "atom-slick": "^2.0.0",
     "binary-search": "^1.3.6",
     "bintrees": "^1.0.2",
-    "bytes": "^3.1.2",
-    "chart.js": "2.9.4",
     "cheerio": "^1.0.0-rc.12",
     "classnames": "^2.3.2",
     "clear-cut": "^2.0.2",
