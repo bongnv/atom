@@ -16,7 +16,7 @@
     "@electron/remote": "^2.0.8",
     "async": "^3.2.4",
     "atom-pathspec": "^0.0.0",
-    "atom-select-list": "^0.8.1",
+    "atom-select-list": "github:bongnv/atom-select-list#8404ec81d184a3118c4845839c4f13746d6e5c37",
     "atom-slick": "^2.0.0",
     "binary-search": "^1.3.6",
     "bintrees": "^1.0.2",
