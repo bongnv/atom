@@ -1,11 +1,10 @@
-require('../install-global-atom');
 const url = require('url');
 
 const { userAgent } = process.env;
 const [taskPath] = process.argv.slice(2);
 
-const setupGlobals = function () {
-  global.attachEvent = function () {};
+const setupGlobals = () => {
+  global.attachEvent = () => { };
   const console = {
     warn() {
       return global.emit('task:warn', ...arguments);
@@ -16,23 +15,23 @@ const setupGlobals = function () {
     error() {
       return global.emit('task:error', ...arguments);
     },
-    trace() {},
+    trace() { },
   };
   global.__defineGetter__('console', () => console);
 
   global.document = {
     createElement() {
       return {
-        setAttribute() {},
+        setAttribute() { },
         getElementsByTagName() {
           return [];
         },
-        appendChild() {},
+        appendChild() { },
       };
     },
     documentElement: {
-      insertBefore() {},
-      removeChild() {},
+      insertBefore() { },
+      removeChild() { },
     },
     getElementById() {
       return {};
@@ -50,18 +49,18 @@ const setupGlobals = function () {
   return (global.window = global);
 };
 
-const handleEvents = function () {
+const handleEvents = () => {
   process.on('uncaughtException', (error) =>
     console.error(error.message, error.stack)
   );
 
-  return process.on('message', function ({ event, args } = {}) {
+  return process.on('message', ({ event, args } = {}) => {
     if (event !== 'start') {
       return;
     }
 
     let isAsync = false;
-    const async = function () {
+    const async = () => {
       isAsync = true;
       return (result) => global.emit('task:completed', result);
     };
@@ -72,9 +71,9 @@ const handleEvents = function () {
   });
 };
 
-const setupDeprecations = function () {
+const setupDeprecations = () => {
   const Grim = require('grim');
-  return Grim.on('updated', function () {
+  return Grim.on('updated', () => {
     const deprecations = Grim.getDeprecations().map((deprecation) =>
       deprecation.serialize()
     );

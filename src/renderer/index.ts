@@ -3,7 +3,7 @@ import * as Remote from '@electron/remote';
 import etch from 'etch';
 
 import StartupTime from '../shared/startup-time';
-import '../install-global-atom';
+import './install-global-atom';
 import { renderApp } from './app';
 import AtomEnvironment from './atom-environment';
 import ApplicationDelegate from './application-delegate';

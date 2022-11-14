@@ -35,7 +35,7 @@ const commonConfig = {
       },
     ],
   },
-  externals: ['atom', nodeExternals()],
+  externals: [nodeExternals()],
   externalsType: 'commonjs',
   externalsPresets: {
     node: true,
@@ -105,6 +105,7 @@ module.exports = [
     name: 'renderer',
     entry: './src/renderer/index.ts',
     target: 'electron-renderer',
+    externals: ['atom'],
     externalsPresets: {
       electronRenderer: true,
     },
