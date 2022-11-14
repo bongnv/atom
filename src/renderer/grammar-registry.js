@@ -9,8 +9,8 @@ const TextMateLanguageMode = require('./text-mate-language-mode');
 const TreeSitterLanguageMode = require('./tree-sitter-language-mode');
 const TreeSitterGrammar = require('./tree-sitter-grammar');
 const Token = require('./token');
-const Point = require('../shared/text-buffer/point');
-const Range = require('../shared/text-buffer/range');
+const Point = require('./text-buffer/point');
+const Range = require('./text-buffer/range');
 
 const PATH_SPLIT_REGEX = new RegExp('[/.]');
 

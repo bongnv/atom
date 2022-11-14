@@ -2,8 +2,8 @@ const { Emitter } = require('event-kit');
 const _ = require('underscore-plus');
 
 const Model = require('./model');
-const Point = require('../shared/text-buffer/point');
-const Range = require('../shared/text-buffer/range');
+const Point = require('./text-buffer/point');
+const Range = require('./text-buffer/range');
 
 const EmptyLineRegExp = /(\r\n[\t ]*\r\n)|(\n[\t ]*\n)/g;
 

@@ -4,7 +4,7 @@ const _ = require('underscore-plus');
 const fs = require('fs-plus');
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
 
-const TextBuffer = require('../shared/text-buffer/text-buffer');
+const TextBuffer = require('./text-buffer/text-buffer');
 const { watchPath } = require('../shared/path-watcher');
 
 const DefaultDirectoryProvider = require('./default-directory-provider');

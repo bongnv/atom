@@ -1,11 +1,11 @@
 const path = require('path');
 const _ = require('underscore-plus');
 const { Emitter, CompositeDisposable } = require('event-kit');
-const File = require('../shared/file');
 const fs = require('fs-plus');
 
 const LessCompileCache = require('../less-compile-cache');
 const atomConfig = require('../shared/path-config');
+const File = require('./file');
 
 // Extended: Handles loading and activating available themes.
 //

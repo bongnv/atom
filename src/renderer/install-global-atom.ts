@@ -6,10 +6,10 @@ const install = () => {
   }
   installed = true;
 
-  var Module = require('module');
-  var originalRequire = Module.prototype.require;
+  const Module = require('module');
+  const originalRequire = Module.prototype.require;
 
-  Module.prototype.require = function(name: string) {
+  Module.prototype.require = function (name: string) {
     if (name == 'atom') {
       return require('./atom.js');
     }

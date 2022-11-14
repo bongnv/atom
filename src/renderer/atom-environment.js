@@ -4,7 +4,7 @@ const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
 const StartupTime = require('../shared/startup-time');
 const getReleaseChannel = require('../shared/get-release-channel');
 const Config = require('../shared/config');
-const TextBuffer = require('../shared/text-buffer/text-buffer');
+const TextBuffer = require('./text-buffer/text-buffer');
 
 const WindowEventHandler = require('./window-event-handler');
 const StateStore = require('./state-store');

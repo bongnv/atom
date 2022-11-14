@@ -1,9 +1,9 @@
 const _ = require('underscore-plus');
 const url = require('url');
 const { Emitter, Disposable, CompositeDisposable } = require('event-kit');
-const Directory = require('../shared/directory');
 const Grim = require('grim');
 
+const Directory = require('./directory');
 const DefaultDirectorySearcher = require('./default-directory-searcher');
 const RipgrepDirectorySearcher = require('./ripgrep-directory-searcher');
 const Dock = require('./dock');

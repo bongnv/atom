@@ -4,7 +4,7 @@ const { userAgent } = process.env;
 const [taskPath] = process.argv.slice(2);
 
 const setupGlobals = () => {
-  global.attachEvent = () => { };
+  global.attachEvent = () => {};
   const console = {
     warn() {
       return global.emit('task:warn', ...arguments);
@@ -15,23 +15,23 @@ const setupGlobals = () => {
     error() {
       return global.emit('task:error', ...arguments);
     },
-    trace() { },
+    trace() {},
   };
   global.__defineGetter__('console', () => console);
 
   global.document = {
     createElement() {
       return {
-        setAttribute() { },
+        setAttribute() {},
         getElementsByTagName() {
           return [];
         },
-        appendChild() { },
+        appendChild() {},
       };
     },
     documentElement: {
-      insertBefore() { },
-      removeChild() { },
+      insertBefore() {},
+      removeChild() {},
     },
     getElementById() {
       return {};

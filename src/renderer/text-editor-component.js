@@ -3,8 +3,8 @@ const LineTopIndex = require('line-top-index');
 const electron = require('electron');
 
 const { isPairedCharacter } = require('./text-utils');
-const Point = require('../shared/text-buffer/point');
-const Range = require('../shared/text-buffer/range');
+const Point = require('./text-buffer/point');
+const Range = require('./text-buffer/range');
 
 const clipboard = electron.clipboard;
 const $ = etch.dom;

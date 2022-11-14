@@ -4,9 +4,9 @@ const fs = require('fs-plus');
 const Grim = require('grim');
 const dedent = require('dedent');
 const { CompositeDisposable, Disposable, Emitter } = require('event-kit');
-const { ScopeSelector } = require('../shared/first-mate/first-mate');
+const { ScopeSelector } = require('./first-mate/first-mate');
 
-const TextBuffer = require('../shared/text-buffer/text-buffer');
+const TextBuffer = require('./text-buffer/text-buffer');
 const { Point, Range } = TextBuffer;
 
 const DecorationManager = require('./decoration-manager');

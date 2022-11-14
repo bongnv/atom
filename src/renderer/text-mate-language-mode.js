@@ -11,8 +11,8 @@ const {
   fromFirstMateScopeId,
 } = require('./first-mate-helpers');
 const { selectorMatchesAnyScope } = require('./selectors');
-const Point = require('../shared/text-buffer/point');
-const Range = require('../shared/text-buffer/range');
+const Point = require('./text-buffer/point');
+const Range = require('./text-buffer/range');
 
 const NON_WHITESPACE_REGEX = /\S/;
 

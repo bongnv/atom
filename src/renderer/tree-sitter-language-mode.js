@@ -8,9 +8,9 @@ const TokenizedLine = require('./tokenized-line');
 const TextMateLanguageMode = require('./text-mate-language-mode');
 const { matcherForSelector } = require('./selectors');
 const TreeIndenter = require('./tree-indenter');
-const Point = require('../shared/text-buffer/point');
-const Range = require('../shared/text-buffer/range');
-const { spliceArray } = require('../shared/text-buffer/helpers');
+const Point = require('./text-buffer/point');
+const Range = require('./text-buffer/range');
+const { spliceArray } = require('./text-buffer/helpers');
 
 let nextId = 0;
 const MAX_RANGE = new Range(Point.ZERO, Point.INFINITY).freeze();

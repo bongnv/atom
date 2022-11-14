@@ -1,8 +1,8 @@
 const { pick } = require('underscore-plus');
 const { Emitter } = require('event-kit');
 
-const Point = require('../shared/text-buffer/point');
-const Range = require('../shared/text-buffer/range');
+const Point = require('./text-buffer/point');
+const Range = require('./text-buffer/range');
 
 const NonWhitespaceRegExp = /\S/;
 let nextId = 0;
