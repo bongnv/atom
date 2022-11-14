@@ -1,6 +1,5 @@
 const { CompositeDisposable, Disposable, Point, Range } = require('atom');
 const path = require('path');
-const fuzzaldrin = require('fuzzaldrin');
 const fuzzaldrinPlus = require('fuzzaldrin-plus');
 
 const ProviderManager = require('./provider-manager');
@@ -260,11 +259,6 @@ module.exports = class AutocompleteManager {
     this.subscriptions.add(
       atom.config.observe('autocomplete-plus.consumeSuffix', (value) => {
         this.consumeSuffix = value;
-      })
-    );
-    this.subscriptions.add(
-      atom.config.observe('autocomplete-plus.useAlternateScoring', (value) => {
-        this.useAlternateScoring = value;
       })
     );
     this.subscriptions.add(
@@ -542,9 +536,7 @@ module.exports = class AutocompleteManager {
 
   filterSuggestions(suggestions, { prefix }) {
     const results = [];
-    const fuzzaldrinProvider = this.useAlternateScoring
-      ? fuzzaldrinPlus
-      : fuzzaldrin;
+    const fuzzaldrinProvider = fuzzaldrinPlus;
     for (let i = 0; i < suggestions.length; i++) {
       // sortScore mostly preserves in the original sorting. The function is
       // chosen such that suggestions with a very high match score can break out.

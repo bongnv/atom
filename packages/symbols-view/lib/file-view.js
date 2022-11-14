@@ -3,7 +3,7 @@
 import { CompositeDisposable } from 'atom';
 import SymbolsView from './symbols-view';
 import TagGenerator from './tag-generator';
-import { match } from 'fuzzaldrin';
+import { match } from 'fuzzaldrin-plus';
 
 export default class FileView extends SymbolsView {
   constructor(stack) {

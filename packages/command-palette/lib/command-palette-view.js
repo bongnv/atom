@@ -2,7 +2,6 @@
 
 import SelectListView from 'atom-select-list';
 import { humanizeKeystroke } from 'underscore-plus';
-import fuzzaldrin from 'fuzzaldrin';
 import fuzzaldrinPlus from 'fuzzaldrin-plus';
 
 export default class CommandPaletteView {
@@ -146,14 +145,10 @@ export default class CommandPaletteView {
     if (props.hasOwnProperty('preserveLastSearch')) {
       this.preserveLastSearch = props.preserveLastSearch;
     }
-
-    if (props.hasOwnProperty('useAlternateScoring')) {
-      this.useAlternateScoring = props.useAlternateScoring;
-    }
   }
 
   get fuzz() {
-    return this.useAlternateScoring ? fuzzaldrinPlus : fuzzaldrin;
+    return fuzzaldrinPlus;
   }
 
   highlightMatchesInElement(text, query, el) {

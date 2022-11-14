@@ -68,7 +68,7 @@ Then add these to your keymap file:
 - Shows suggestions while typing
 - Includes a default provider (`SymbolProvider`):
   - Wordlist generation happens when you open a file, while editing the file, and on save
-  - Suggestions are calculated using `fuzzaldrin`
+  - Suggestions are calculated using `fuzzaldrin-plus`
 - Exposes a provider API which can be used to extend the functionality of the package and provide targeted / contextually correct suggestions
 - Disable autocomplete for file(s) via blacklisting, e.g. `*.md` to blacklist Markdown files
 - Disable autocomplete for editor scope(s) via blacklisting

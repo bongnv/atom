@@ -4,7 +4,6 @@ const {
   shouldShowPrompt,
 } = require('./experiment-prompt');
 const fs = require('fs-plus');
-const fuzzaldrin = require('fuzzaldrin');
 const fuzzaldrinPlus = require('fuzzaldrin-plus');
 const NativeFuzzy = require('@atom/fuzzy-native');
 const SCORING_SYSTEMS = require('./scoring-systems');
@@ -95,9 +94,6 @@ module.exports = class FuzzyFinderView {
         let matches;
 
         switch (this.scoringSystem) {
-          case SCORING_SYSTEMS.STANDARD:
-            matches = fuzzaldrin.match(label, filterQuery);
-            break;
           case SCORING_SYSTEMS.FAST:
             this.nativeFuzzyForResults.setCandidates([0], [label]);
             const items = this.nativeFuzzyForResults.match(filterQuery, {
@@ -162,9 +158,7 @@ module.exports = class FuzzyFinderView {
       atom.config.observe('fuzzy-finder.scoringSystem', (newValue) => {
         this.scoringSystem = newValue;
 
-        if (this.scoringSystem === SCORING_SYSTEMS.STANDARD) {
-          this.selectListView.update({ filter: null });
-        } else if (this.scoringSystem === SCORING_SYSTEMS.FAST) {
+        if (this.scoringSystem === SCORING_SYSTEMS.FAST) {
           if (!this.nativeFuzzy) {
             this.nativeFuzzy = new NativeFuzzy.Matcher(
               indexArray(this.items.length),

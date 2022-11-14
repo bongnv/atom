@@ -46,7 +46,6 @@
     "fs-extra": "^10.1.0",
     "fs-plus": "^3.1.1",
     "fstream": "1.0.12",
-    "fuzzaldrin": "^2.1.0",
     "fuzzaldrin-plus": "^0.6.0",
     "git-utils": "github:bongnv/git-utils#2a44f4205374d3a54ae609352760cd89e80b7f0c",
     "glob": "^7.2.3",

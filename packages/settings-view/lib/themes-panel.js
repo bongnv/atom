@@ -1,7 +1,7 @@
 /** @babel */
 /** @jsx etch.dom */
 
-import fuzzaldrin from 'fuzzaldrin';
+import fuzzaldrin from 'fuzzaldrin-plus';
 import etch from 'etch';
 import _ from 'underscore-plus';
 import { CompositeDisposable, TextEditor } from 'atom';

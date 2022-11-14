@@ -3,7 +3,7 @@
 
 import { CompositeDisposable, TextEditor } from 'atom';
 import etch from 'etch';
-import fuzzaldrin from 'fuzzaldrin';
+import fuzzaldrin from 'fuzzaldrin-plus';
 
 import CollapsibleSectionPanel from './collapsible-section-panel';
 import PackageCard from './package-card';
@@ -129,7 +129,7 @@ export default class InstalledPackagesPanel extends CollapsibleSectionPanel {
     return etch.destroy(this);
   }
 
-  update() {}
+  update() { }
 
   render() {
     return (

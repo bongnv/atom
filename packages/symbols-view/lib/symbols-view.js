@@ -4,7 +4,7 @@ import path from 'path';
 import { Point } from 'atom';
 import SelectListView from 'atom-select-list';
 import fs from 'fs-plus';
-import { match } from 'fuzzaldrin';
+import { match } from 'fuzzaldrin-plus';
 
 export default class SymbolsView {
   static highlightMatches(context, name, matches, offsetIndex) {

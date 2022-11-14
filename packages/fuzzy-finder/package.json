@@ -9,7 +9,6 @@
     "async": "0.2.6",
     "atom-select-list": "^0.7.0",
     "fs-plus": "^3.0.0",
-    "fuzzaldrin": "^2.0",
     "fuzzaldrin-plus": "^0.6.0",
     "@atom/fuzzy-native": "^1.1.2",
     "humanize-plus": "~1.8.2",
@@ -83,7 +82,6 @@
       "default": "fast",
       "description": "Scoring system to use. \"standard\" is the system used by other modals in Atom. \"alternate\" is an improved scoring system. \"fast\" is a much faster system, specially suitable for large projects. Default: \"fast\"",
       "enum": [
-        "standard",
         "alternate",
         "fast"
       ]

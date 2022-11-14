@@ -133,14 +133,6 @@ module.exports = class SuggestionListElement {
       )
     );
     this.subscriptions.add(
-      atom.config.observe(
-        'autocomplete-plus.useAlternateScoring',
-        (useAlternateScoring) => {
-          this.useAlternateScoring = useAlternateScoring;
-        }
-      )
-    );
-    this.subscriptions.add(
       atom.config.observe('autocomplete-plus.moveToCancel', (moveToCancel) => {
         this.moveToCancel = moveToCancel;
       })
@@ -514,10 +506,9 @@ module.exports = class SuggestionListElement {
   }
 
   updateUIForChangedProps() {
-    this.scroller.style['max-height'] = `${
-      this.maxVisibleSuggestions * this.uiProps.itemHeight +
+    this.scroller.style['max-height'] = `${this.maxVisibleSuggestions * this.uiProps.itemHeight +
       this.uiProps.paddingHeight
-    }px`;
+      }px`;
     this.element.style.width = `${this.uiProps.width}px`;
     if (this.suggestionListFollows === 'Word') {
       this.element.style['margin-left'] = `${this.uiProps.marginLeft}px`;
@@ -817,27 +808,9 @@ module.exports = class SuggestionListElement {
       return;
     }
     const matches = {};
-    if (this.useAlternateScoring) {
-      const matchIndices = fuzzaldrinPlus.match(text, replacementPrefix);
-      for (const i of matchIndices) {
-        matches[i] = true;
-      }
-    } else {
-      let wordIndex = 0;
-      for (let i = 0; i < replacementPrefix.length; i++) {
-        const ch = replacementPrefix[i];
-        while (
-          wordIndex < text.length &&
-          text[wordIndex].toLowerCase() !== ch.toLowerCase()
-        ) {
-          wordIndex += 1;
-        }
-        if (wordIndex >= text.length) {
-          break;
-        }
-        matches[wordIndex] = true;
-        wordIndex += 1;
-      }
+    const matchIndices = fuzzaldrinPlus.match(text, replacementPrefix);
+    for (const i of matchIndices) {
+      matches[i] = true;
     }
     return matches;
   }

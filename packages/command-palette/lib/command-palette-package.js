@@ -18,11 +18,6 @@ class CommandPalettePackage {
       })
     );
     this.disposables.add(
-      atom.config.observe('command-palette.useAlternateScoring', (newValue) => {
-        this.commandPaletteView.update({ useAlternateScoring: newValue });
-      })
-    );
-    this.disposables.add(
       atom.config.observe('command-palette.preserveLastSearch', (newValue) => {
         this.commandPaletteView.update({ preserveLastSearch: newValue });
       })
