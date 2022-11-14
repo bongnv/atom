@@ -1,7 +1,7 @@
 const { CompositeDisposable } = require('atom');
 const SnippetParser = require('./snippet-parser');
 const { isString } = require('./type-helpers');
-const zadeh = require("zadeh");
+const zadeh = require('zadeh');
 const { marked } = require('marked');
 const createDOMPurify = require('dompurify');
 
@@ -506,9 +506,10 @@ module.exports = class SuggestionListElement {
   }
 
   updateUIForChangedProps() {
-    this.scroller.style['max-height'] = `${this.maxVisibleSuggestions * this.uiProps.itemHeight +
+    this.scroller.style['max-height'] = `${
+      this.maxVisibleSuggestions * this.uiProps.itemHeight +
       this.uiProps.paddingHeight
-      }px`;
+    }px`;
     this.element.style.width = `${this.uiProps.width}px`;
     if (this.suggestionListFollows === 'Word') {
       this.element.style['margin-left'] = `${this.uiProps.marginLeft}px`;

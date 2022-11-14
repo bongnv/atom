@@ -5,8 +5,8 @@ const FuzzyFinderView = require('./fuzzy-finder-view');
 const PathLoader = require('./path-loader');
 
 module.exports = class ProjectView extends FuzzyFinderView {
-  constructor(paths, metricsReporter) {
-    super(metricsReporter);
+  constructor(paths) {
+    super();
     this.disposables = new CompositeDisposable();
     this.paths = paths;
     this.reloadPaths = !this.paths || this.paths.length === 0;
@@ -223,7 +223,7 @@ module.exports = class ProjectView extends FuzzyFinderView {
       if (fn) {
         fn();
       }
-    }, this.metricsReporter);
+    });
 
     return this.loadPathsTask;
   }

@@ -5,7 +5,6 @@ import { EndpointPropType } from '../prop-types';
 import Decoration from '../atom/decoration';
 import Marker from '../atom/marker';
 import ReviewsItem from '../items/reviews-item';
-import { addEvent } from '../reporter-proxy';
 
 export default class CommentGutterDecorationController extends React.Component {
   static propTypes = {
@@ -72,9 +71,5 @@ export default class CommentGutterDecorationController extends React.Component {
       searchAllPanes: true,
     });
     reviewsItem.jumpToThread(threadId);
-    addEvent('open-review-thread', {
-      package: 'github',
-      from: this.props.parent,
-    });
   }
 }

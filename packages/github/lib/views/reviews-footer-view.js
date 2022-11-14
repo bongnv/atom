@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { addEvent } from '../reporter-proxy';
-
 export default class ReviewsFooterView extends React.Component {
   static propTypes = {
     commentsResolved: PropTypes.number.isRequired,
@@ -11,13 +9,6 @@ export default class ReviewsFooterView extends React.Component {
 
     // Controller actions
     openReviews: PropTypes.func.isRequired,
-  };
-
-  logStartReviewClick = () => {
-    addEvent('start-pr-review', {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   render() {
@@ -54,7 +45,6 @@ export default class ReviewsFooterView extends React.Component {
         <a
           href={this.props.pullRequestURL}
           className="github-ReviewsFooterView-reviewChangesButton btn"
-          onClick={this.logStartReviewClick}
         >
           Start a new review
         </a>

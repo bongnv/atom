@@ -3,7 +3,7 @@ const { Task } = require('atom');
 const path = require('path');
 
 module.exports = {
-  startTask(callback, metricsReporter) {
+  startTask(callback) {
     const results = [];
     const taskPath = require('./load-paths-handler.js?raw');
     const followSymlinks = atom.config.get('core.followSymlinks');
@@ -32,8 +32,6 @@ module.exports = {
         const duration = Math.round(performance.now() - startTime);
         const numFiles = results.length;
         const crawlerType = useRipGrep ? 'ripgrep' : 'fs';
-
-        metricsReporter.sendCrawlEvent(duration, numFiles, crawlerType);
       }
     );
 

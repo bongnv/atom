@@ -7,7 +7,6 @@ import Issueish from '../models/issueish';
 import { shell } from 'electron';
 import * as remote from '@electron/remote';
 const { Menu, MenuItem } = remote;
-import { addEvent } from '../reporter-proxy';
 
 const StatePropType = PropTypes.oneOf([
   'EXPECTED',
@@ -103,10 +102,6 @@ export class BareIssueishListController extends React.Component {
 
   openOnGitHub = async (url) => {
     await shell.openExternal(url);
-    addEvent('open-issueish-in-browser', {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   showActionsMenu = /* istanbul ignore next */ (issueish) => {

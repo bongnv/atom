@@ -38,7 +38,6 @@ import {
   autobind,
 } from '../helpers';
 import { GitError } from '../git-shell-out-strategy';
-import { incrementCounter, addEvent } from '../reporter-proxy';
 
 export default class RootController extends React.Component {
   static propTypes = {
@@ -122,21 +121,6 @@ export default class RootController extends React.Component {
     this.subscription = new CompositeDisposable(
       this.props.repository.onPullError(this.gitTabTracker.ensureVisible)
     );
-
-    this.props.commands.onDidDispatch((event) => {
-      if (
-        event.type &&
-        event.type.startsWith('github:') &&
-        event.detail &&
-        event.detail[0] &&
-        event.detail[0].contextCommand
-      ) {
-        addEvent('context-menu-action', {
-          package: 'github',
-          command: event.type,
-        });
-      }
-    });
   }
 
   componentDidMount() {
@@ -1129,7 +1113,6 @@ class TabTracker {
   }
 
   reveal() {
-    incrementCounter(`${this.name}-tab-open`);
     return this.getWorkspace().open(this.uri, {
       searchAllPanes: true,
       activateItem: true,
@@ -1138,7 +1121,6 @@ class TabTracker {
   }
 
   hide() {
-    incrementCounter(`${this.name}-tab-close`);
     return this.getWorkspace().hide(this.uri);
   }
 

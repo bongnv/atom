@@ -7,7 +7,6 @@ import {
   GithubLoginModelPropType,
   WorkdirContextPoolPropType,
 } from '../prop-types';
-import { addEvent } from '../reporter-proxy';
 import Repository from '../models/repository';
 import { getEndpoint } from '../models/endpoint';
 import IssueishDetailContainer from '../containers/issueish-detail-container';
@@ -172,11 +171,6 @@ export default class IssueishDetailItem extends Component {
           prevState.repo === prev.repo &&
           prevState.issueishNumber === prev.issueishNumber
         ) {
-          addEvent('open-issueish-in-pane', {
-            package: 'github',
-            from: 'issueish-link',
-            target: 'current-tab',
-          });
           return {
             owner,
             repo,

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { Range } from 'atom';
 
 import { EndpointPropType } from '../prop-types';
-import { addEvent } from '../reporter-proxy';
 import Marker from '../atom/marker';
 import Decoration from '../atom/decoration';
 import ReviewsItem from '../items/reviews-item';
@@ -188,10 +187,6 @@ export default class EditorCommentDecorationsController extends React.Component 
       searchAllPanes: true,
     });
     reviewsItem.jumpToThread(threadId);
-    addEvent('open-review-thread', {
-      package: 'github',
-      from: this.constructor.name,
-    });
   };
 }
 

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import path from 'path';
 
 import { autobind, equalSets } from '../helpers';
-import { addEvent } from '../reporter-proxy';
 import { MultiFilePatchPropType, ItemTypePropType } from '../prop-types';
 import ChangedFileItem from '../items/changed-file-item';
 import MultiFilePatchView from '../views/multi-file-patch-view';
@@ -104,12 +103,6 @@ export default class MultiFilePatchController extends React.Component {
   }
 
   undoLastDiscard(filePatch, { eventSource } = {}) {
-    addEvent('undo-last-discard', {
-      package: 'github',
-      component: this.constructor.name,
-      eventSource,
-    });
-
     return this.props.undoLastDiscard(
       filePatch.getPath(),
       this.props.repository

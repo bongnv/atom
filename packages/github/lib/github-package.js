@@ -22,7 +22,6 @@ import ContextMenuInterceptor from './context-menu-interceptor';
 import AsyncQueue from './async-queue';
 import WorkerManager from './worker-manager';
 import getRepoPipelineManager from './get-repo-pipeline-manager';
-import { reporterProxy } from './reporter-proxy';
 
 const defaultState = {
   newProject: true,
@@ -403,10 +402,6 @@ export default class GithubPackage {
     this.rerender();
   }
 
-  consumeReporter(reporter) {
-    reporterProxy.setReporter(reporter);
-  }
-
   createGitTimingsView() {
     return StubItem.create(
       'git-timings-view',
@@ -580,8 +575,6 @@ export default class GithubPackage {
     this.workdirCache.invalidate();
     await this.project.addPath(projectPath);
     await this.scheduleActiveContextUpdate();
-
-    reporterProxy.addEvent('clone-repository', { project: 'github' });
   };
 
   getRepositoryForWorkdir(projectPath) {

@@ -5,7 +5,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import IssueishDetailItem from '../items/issueish-detail-item';
-import { addEvent } from '../reporter-proxy';
 
 // eslint-disable-next-line no-shadow
 export default function IssueishLink({ url, children, ...others }) {
@@ -51,10 +50,6 @@ export function openIssueishLinkInNewTab(url, options = {}) {
 
 export async function openLinkInBrowser(uri) {
   await shell.openExternal(uri);
-  addEvent('open-issueish-in-browser', {
-    package: 'github',
-    from: 'issueish-link',
-  });
 }
 
 function getAtomUriForGithubUrl(githubUrl) {
@@ -100,11 +95,5 @@ function getUriForData({
 }
 
 function openInNewTab(uri, { activate } = { activate: true }) {
-  return atom.workspace.open(uri, { activateItem: activate }).then(() => {
-    addEvent('open-issueish-in-pane', {
-      package: 'github',
-      from: 'issueish-link',
-      target: 'new-tab',
-    });
-  });
+  return atom.workspace.open(uri, { activateItem: activate });
 }

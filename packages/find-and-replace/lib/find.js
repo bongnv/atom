@@ -15,9 +15,6 @@ const FindView = require('./find-view');
 const ProjectFindView = require('./project-find-view');
 const { ResultsModel } = require('./project/results-model');
 const ResultsPaneView = require('./project/results-pane');
-const ReporterProxy = require('./reporter-proxy');
-
-const metricsReporter = new ReporterProxy();
 
 module.exports = {
   activate({ findOptions, findHistory, replaceHistory, pathsHistory } = {}) {
@@ -44,7 +41,7 @@ module.exports = {
 
     this.findOptions = new FindOptions(findOptions);
     this.findModel = new BufferSearch(this.findOptions);
-    this.resultsModel = new ResultsModel(this.findOptions, metricsReporter);
+    this.resultsModel = new ResultsModel(this.findOptions);
 
     this.subscriptions.add(
       atom.workspace.getCenter().observeActivePaneItem((paneItem) => {
@@ -263,11 +260,6 @@ module.exports = {
         },
       })
     );
-  },
-
-  consumeMetricsReporter(service) {
-    metricsReporter.setReporter(service);
-    return new Disposable(() => metricsReporter.unsetReporter());
   },
 
   consumeElementIcons(service) {

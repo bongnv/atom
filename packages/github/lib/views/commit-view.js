@@ -15,7 +15,6 @@ import Author from '../models/author';
 import ObserveModel from './observe-model';
 import { LINE_ENDING_REGEX, autobind } from '../helpers';
 import { AuthorPropType, UserStorePropType } from '../prop-types';
-import { incrementCounter } from '../reporter-proxy';
 
 const TOOLTIP_DELAY = 200;
 
@@ -528,12 +527,10 @@ export default class CommitView extends React.Component {
       },
       () => {
         if (this.state.showCoAuthorInput) {
-          incrementCounter('show-co-author-input');
           this.refCoAuthorSelect.map((c) => c.focus());
         } else {
           // if input is closed, remove all co-authors
           this.props.updateSelectedCoAuthors([]);
-          incrementCounter('hide-co-author-input');
         }
       }
     );
@@ -579,7 +576,6 @@ export default class CommitView extends React.Component {
   }
 
   amendLastCommit() {
-    incrementCounter('amend');
     this.commit(null, true);
   }
 
@@ -716,7 +712,6 @@ export default class CommitView extends React.Component {
   }
 
   onSelectedCoAuthorsChanged(selectedCoAuthors) {
-    incrementCounter('selected-co-authors-changed');
     const newAuthor = selectedCoAuthors.find((author) => author.isNew());
 
     if (newAuthor) {

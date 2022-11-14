@@ -5,7 +5,6 @@ import { graphql, createFragmentContainer } from 'react-relay';
 import EnableableOperation from '../models/enableable-operation';
 import { GitError } from '../git-shell-out-strategy';
 import { RemoteSetPropType, BranchSetPropType } from '../prop-types';
-import { incrementCounter } from '../reporter-proxy';
 
 class CheckoutState {
   constructor(name) {
@@ -199,14 +198,10 @@ export class BarePullRequestCheckoutController extends React.Component {
 
       // Check out the existing local ref.
       await this.props.localRepository.checkout(localRefName);
-      try {
-        await this.props.localRepository.pull(fullHeadRef, {
-          remoteName: sourceRemoteName,
-          ffOnly: true,
-        });
-      } finally {
-        incrementCounter('checkout-pr');
-      }
+      await this.props.localRepository.pull(fullHeadRef, {
+        remoteName: sourceRemoteName,
+        ffOnly: true,
+      });
 
       return;
     }
@@ -224,8 +219,6 @@ export class BarePullRequestCheckoutController extends React.Component {
         startPoint: `refs/remotes/${sourceRemoteName}/${pullRequest.headRefName}`,
       }
     );
-
-    incrementCounter('checkout-pr');
   }
 }
 

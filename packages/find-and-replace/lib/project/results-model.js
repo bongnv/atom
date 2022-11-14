@@ -72,8 +72,7 @@ class Result {
 exports.Result = Result;
 
 exports.ResultsModel = class ResultsModel {
-  constructor(findOptions, metricsReporter) {
-    this.metricsReporter = metricsReporter;
+  constructor(findOptions) {
     this.onContentsModified = this.onContentsModified.bind(this);
     this.findOptions = findOptions;
     this.emitter = new Emitter();
@@ -261,11 +260,6 @@ exports.ResultsModel = class ResultsModel {
     } else {
       const resultsSummary = this.getResultsSummary();
 
-      this.metricsReporter.sendSearchEvent(
-        Date.now() - startTime,
-        resultsSummary.matchCount,
-        useRipgrep ? 'ripgrep' : 'standard'
-      );
       this.inProgressSearchPromise = null;
       this.emitter.emit('did-finish-searching', resultsSummary);
     }

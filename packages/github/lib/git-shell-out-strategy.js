@@ -13,7 +13,6 @@ import { parse as parseStatus } from 'what-the-status';
 import GitPromptServer from './git-prompt-server';
 import GitTempDir from './git-temp-dir';
 import AsyncQueue from './async-queue';
-import { incrementCounter } from './reporter-proxy';
 import {
   getDugitePath,
   getAtomHelperPath,
@@ -409,9 +408,6 @@ export default class GitShellOutStrategy {
             reject(err);
           }
 
-          if (!IGNORED_GIT_COMMANDS.includes(commandName)) {
-            incrementCounter(commandName);
-          }
           resolve(stdout);
         });
       },

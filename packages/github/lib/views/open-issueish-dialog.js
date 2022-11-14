@@ -6,7 +6,6 @@ import IssueishDetailItem from '../items/issueish-detail-item';
 import TabGroup from '../tab-group';
 import DialogView from './dialog-view';
 import { TabbableTextEditor } from './tabbable';
-import { addEvent } from '../reporter-proxy';
 
 const ISSUEISH_URL_REGEX =
   /^(?:https?:\/\/)?(github.com)\/([^/]+)\/([^/]+)\/(?:issues|pull)\/(\d+)/;
@@ -119,6 +118,5 @@ export async function openIssueishItem(issueishURL, { workspace, workdir }) {
     workdir,
   });
   const item = await workspace.open(uri, { searchAllPanes: true });
-  addEvent('open-issueish-in-pane', { package: 'github', from: 'dialog' });
   return item;
 }

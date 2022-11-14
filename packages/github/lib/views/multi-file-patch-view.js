@@ -5,7 +5,6 @@ import { Range } from 'atom';
 import { CompositeDisposable, Disposable } from 'event-kit';
 
 import { autobind, NBSP_CHARACTER, blankLabel } from '../helpers';
-import { addEvent } from '../reporter-proxy';
 import {
   RefHolderPropType,
   MultiFilePatchPropType,
@@ -634,10 +633,6 @@ export default class MultiFilePatchView extends React.Component {
 
   renderDiffGate(filePatch, position, orderOffset) {
     const showDiff = () => {
-      addEvent('expand-file-patch', {
-        component: this.constructor.name,
-        package: 'github',
-      });
       this.props.multiFilePatch.expandFilePatch(filePatch);
     };
     return (
@@ -1560,13 +1555,6 @@ export default class MultiFilePatchView extends React.Component {
       performance.clearMarks(`MultiFilePatchView-${action}-start`);
       performance.clearMarks(`MultiFilePatchView-${action}-end`);
       performance.clearMeasures(`MultiFilePatchView-${action}`);
-      addEvent(`MultiFilePatchView-${action}`, {
-        package: 'github',
-        filePatchesLineCounts: this.props.multiFilePatch
-          .getFilePatches()
-          .map((fp) => fp.getPatch().getChangedLineCount()),
-        duration: perf.duration,
-      });
     }
   }
 }

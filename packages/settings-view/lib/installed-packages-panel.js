@@ -129,7 +129,7 @@ export default class InstalledPackagesPanel extends CollapsibleSectionPanel {
     return etch.destroy(this);
   }
 
-  update() { }
+  update() {}
 
   render() {
     return (

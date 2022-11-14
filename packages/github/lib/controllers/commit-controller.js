@@ -12,7 +12,6 @@ import CommitPreviewItem from '../items/commit-preview-item';
 import { AuthorPropType, UserStorePropType } from '../prop-types';
 import { watchWorkspaceItem } from '../watch-workspace-item';
 import { autobind } from '../helpers';
-import { addEvent } from '../reporter-proxy';
 
 export const COMMIT_GRAMMAR_SCOPE = 'text.git-commit';
 
@@ -286,7 +285,6 @@ export default class CommitController extends React.Component {
     const commitEditor = await this.props.workspace.open(
       this.getCommitMessagePath()
     );
-    addEvent('open-commit-message-editor', { package: 'github' });
 
     const grammar =
       this.props.grammars.grammarForScopeName(COMMIT_GRAMMAR_SCOPE);

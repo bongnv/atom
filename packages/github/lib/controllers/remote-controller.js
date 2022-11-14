@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { shell } from 'electron';
 
-import { incrementCounter } from '../reporter-proxy';
 import {
   RemotePropType,
   RemoteSetPropType,
@@ -72,6 +71,5 @@ export default class RemoteController extends React.Component {
     createPrUrl += '?expand=1';
 
     await shell.openExternal(createPrUrl);
-    incrementCounter('create-pull-request');
   };
 }

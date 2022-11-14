@@ -433,7 +433,7 @@ export class Operation {
     this.resolve = resolve;
     this.reject = reject;
     this.promise = null;
-    this.cancellationResolve = () => { };
+    this.cancellationResolve = () => {};
     this.startTime = null;
     this.endTime = null;
     this.status = Operation.status.PENDING;

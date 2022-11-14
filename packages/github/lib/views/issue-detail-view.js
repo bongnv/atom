@@ -9,7 +9,6 @@ import Octicon from '../atom/octicon';
 import IssueishBadge from '../views/issueish-badge';
 import GithubDotcomMarkdown from '../views/github-dotcom-markdown';
 import PeriodicRefresher from '../periodic-refresher';
-import { addEvent } from '../reporter-proxy';
 import { GHOST_USER } from '../helpers';
 
 export class BareIssueDetailView extends React.Component {
@@ -139,7 +138,6 @@ export class BareIssueDetailView extends React.Component {
                   className="github-IssueishDetailView-headerLink"
                   title="open on GitHub.com"
                   href={issue.url}
-                  onClick={this.recordOpenInBrowserEvent}
                 >
                   {repo.owner.login}/{repo.name}#{issue.number}
                 </a>
@@ -165,13 +163,6 @@ export class BareIssueDetailView extends React.Component {
   handleRefreshClick = (e) => {
     e.preventDefault();
     this.refresher.refreshNow(true);
-  };
-
-  recordOpenInBrowserEvent = () => {
-    addEvent('open-issue-in-browser', {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   refresh = () => {

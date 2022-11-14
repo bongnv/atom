@@ -12,7 +12,6 @@ import {
   RefresherPropType,
 } from '../prop-types';
 import GitHubTabView from '../views/github-tab-view';
-import { incrementCounter } from '../reporter-proxy';
 
 export default class GitHubTabController extends React.Component {
   static propTypes = {
@@ -104,7 +103,6 @@ export default class GitHubTabController extends React.Component {
     this.props.openPublishDialog(this.props.repository);
 
   handleLogin = (token) => {
-    incrementCounter('github-login');
     this.props.loginModel.setToken(
       this.currentEndpoint().getLoginAccount(),
       token
@@ -112,7 +110,6 @@ export default class GitHubTabController extends React.Component {
   };
 
   handleLogout = () => {
-    incrementCounter('github-logout');
     this.props.loginModel.removeToken(this.currentEndpoint().getLoginAccount());
   };
 

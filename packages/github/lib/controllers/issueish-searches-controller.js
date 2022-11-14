@@ -13,7 +13,6 @@ import IssueishSearchContainer from '../containers/issueish-search-container';
 import CurrentPullRequestContainer from '../containers/current-pull-request-container';
 import IssueishDetailItem from '../items/issueish-detail-item';
 import ReviewsItem from '../items/reviews-item';
-import { addEvent } from '../reporter-proxy';
 
 export default class IssueishSearchesController extends React.Component {
   static propTypes = {
@@ -100,12 +99,7 @@ export default class IssueishSearchesController extends React.Component {
       number: issueish.getNumber(),
       workdir: this.props.workingDirectory,
     });
-    return this.props.workspace.open(uri).then(() => {
-      addEvent('open-reviews-tab', {
-        package: 'github',
-        from: this.constructor.name,
-      });
-    });
+    return this.props.workspace.open(uri);
   };
 
   onOpenIssueish = (issueish) => {

@@ -20,7 +20,6 @@ import RefHolder from '../models/ref-holder';
 import ChangedFileItem from '../items/changed-file-item';
 import Commands, { Command } from '../atom/commands';
 import { autobind } from '../helpers';
-import { addEvent } from '../reporter-proxy';
 
 const debounce = (fn, wait) => {
   let timeout;
@@ -571,13 +570,6 @@ export default class StagingView extends React.Component {
 
   discardChanges({ eventSource } = {}) {
     const filePaths = this.getSelectedItemFilePaths();
-    addEvent('discard-unstaged-changes', {
-      package: 'github',
-      component: 'StagingView',
-      fileCount: filePaths.length,
-      type: 'selected',
-      eventSource,
-    });
     return this.props.discardWorkDirChangesForPaths(filePaths);
   }
 
@@ -668,13 +660,7 @@ export default class StagingView extends React.Component {
     const filePaths = this.props.unstagedChanges.map(
       (filePatch) => filePatch.filePath
     );
-    addEvent('discard-unstaged-changes', {
-      package: 'github',
-      component: 'StagingView',
-      fileCount: filePaths.length,
-      type: 'all',
-      eventSource,
-    });
+
     return this.props.discardWorkDirChangesForPaths(filePaths);
   }
 
@@ -1170,12 +1156,6 @@ export default class StagingView extends React.Component {
     if (!this.props.hasUndoHistory) {
       return;
     }
-
-    addEvent('undo-last-discard', {
-      package: 'github',
-      component: 'StagingView',
-      eventSource,
-    });
 
     this.props.undoLastDiscard();
   }

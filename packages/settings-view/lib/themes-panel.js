@@ -121,7 +121,7 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
     );
   }
 
-  update() { }
+  update() {}
 
   focus() {
     this.refs.filterEditor.element.focus();
@@ -561,11 +561,12 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
       this.packages.git.length
     );
 
-    this.refs.totalPackages.textContent = `${this.packages.user.length +
+    this.refs.totalPackages.textContent = `${
+      this.packages.user.length +
       this.packages.core.length +
       this.packages.dev.length +
       this.packages.git.length
-      }`;
+    }`;
   }
 
   updateFilteredSectionCounts() {

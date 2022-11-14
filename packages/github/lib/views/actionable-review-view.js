@@ -6,7 +6,6 @@ import * as remote from '@electron/remote';
 import { TextBuffer } from 'atom';
 import AtomTextEditor from '../atom/atom-text-editor';
 import RefHolder from '../models/ref-holder';
-import { addEvent } from '../reporter-proxy';
 import Commands, { Command } from '../atom/commands';
 const { Menu, MenuItem } = remote;
 
@@ -143,18 +142,10 @@ export default class ActionableReviewView extends React.Component {
       )}`;
 
     await shell.openExternal(url);
-    addEvent('report-abuse', {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   openOnGitHub = async (url) => {
     await shell.openExternal(url);
-    addEvent('open-comment-in-browser', {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   showActionsMenu = (event, content, author) => {

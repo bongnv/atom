@@ -20,7 +20,6 @@ import unresolveReviewThreadMutation from '../mutations/unresolve-review-thread'
 import updatePrReviewCommentMutation from '../mutations/update-pr-review-comment';
 import updatePrReviewSummaryMutation from '../mutations/update-pr-review-summary';
 import IssueishDetailItem from '../items/issueish-detail-item';
-import { addEvent } from '../reporter-proxy';
 
 // Milliseconds to update highlightedThreadIDs
 const FLASH_DELAY = 1500;
@@ -168,7 +167,6 @@ export class BareReviewsController extends React.Component {
       initialColumn: 0,
       pending: true,
     });
-    addEvent('reviews-dock-open-file', { package: 'github' });
   };
 
   openDiff = async (filePath, lineNumber) => {
@@ -177,18 +175,10 @@ export class BareReviewsController extends React.Component {
       changedFilePath: filePath,
       changedFilePosition: lineNumber,
     });
-    addEvent('reviews-dock-open-diff', {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   openPR = async () => {
     await this.getPRDetailItem();
-    addEvent('reviews-dock-open-pr', {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   getPRDetailItem = () => {
@@ -209,14 +199,12 @@ export class BareReviewsController extends React.Component {
 
   moreContext = () => {
     this.setState((prev) => ({ contextLines: prev.contextLines + 1 }));
-    addEvent('reviews-dock-show-more-context', { package: 'github' });
   };
 
   lessContext = () => {
     this.setState((prev) => ({
       contextLines: Math.max(prev.contextLines - 1, 1),
     }));
-    addEvent('reviews-dock-show-less-context', { package: 'github' });
   };
 
   openIssueish = async (owner, repo, number) => {
@@ -319,7 +307,6 @@ export class BareReviewsController extends React.Component {
           viewerLogin: this.props.viewer.login,
         });
         this.highlightThread(thread.id);
-        addEvent('resolve-comment-thread', { package: 'github' });
       } catch (err) {
         this.showThreadID(thread.id);
         this.props.reportRelayError(
@@ -339,7 +326,6 @@ export class BareReviewsController extends React.Component {
           viewerLogin: this.props.viewer.login,
         });
         this.highlightThread(thread.id);
-        addEvent('unresolve-comment-thread', { package: 'github' });
       } catch (err) {
         this.props.reportRelayError(
           'Unable to unresolve the comment thread',
@@ -393,7 +379,6 @@ export class BareReviewsController extends React.Component {
         event: 'COMMENT',
         reviewID,
       });
-      addEvent('add-single-comment', { package: 'github' });
     } catch (error) {
       if (callbacks.didFailComment) {
         callbacks.didFailComment();
@@ -428,7 +413,6 @@ export class BareReviewsController extends React.Component {
         commentId,
         commentBody,
       });
-      addEvent('update-review-comment', { package: 'github' });
     } catch (error) {
       this.props.reportRelayError('Unable to update comment', error);
       throw error;
@@ -441,7 +425,6 @@ export class BareReviewsController extends React.Component {
         reviewId,
         reviewBody,
       });
-      addEvent('update-review-summary', { package: 'github' });
     } catch (error) {
       this.props.reportRelayError('Unable to update review summary', error);
       throw error;

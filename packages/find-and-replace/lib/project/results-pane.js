@@ -400,10 +400,7 @@ module.exports = class ResultsPaneView {
   dontOverrideTab() {
     const view = ResultsPaneView.projectFindView;
     view.handleEvents.resetInterface();
-    view.model = new ResultsModel(
-      view.model.findOptions,
-      view.model.metricsReporter
-    );
+    view.model = new ResultsModel(view.model.findOptions);
     this.uri = `${ResultsPaneView.URI}/${this.model.getLastFindPattern()}`;
     this.refs.dontOverrideTab.classList.add('disabled');
 

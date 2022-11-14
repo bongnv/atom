@@ -10,7 +10,6 @@ import {
   EndpointPropType,
   RefHolderPropType,
 } from '../prop-types';
-import { addEvent } from '../reporter-proxy';
 import PeriodicRefresher from '../periodic-refresher';
 import Octicon from '../atom/octicon';
 import PullRequestChangedFilesContainer from '../containers/pr-changed-files-container';
@@ -295,7 +294,6 @@ export class BarePullRequestDetailView extends React.Component {
                   className="github-IssueishDetailView-headerLink"
                   title="open on GitHub.com"
                   href={pullRequest.url}
-                  onClick={this.recordOpenInBrowserEvent}
                 >
                   {repo.owner.login}/{repo.name}#{pullRequest.number}
                 </a>
@@ -339,25 +337,8 @@ export class BarePullRequestDetailView extends React.Component {
     this.refresher.refreshNow(true);
   };
 
-  recordOpenInBrowserEvent = () => {
-    addEvent('open-pull-request-in-browser', {
-      package: 'github',
-      component: this.constructor.name,
-    });
-  };
-
   onTabSelected = (index) => {
     this.props.onTabSelected(index);
-    const eventName = [
-      'open-pr-tab-overview',
-      'open-pr-tab-build-status',
-      'open-pr-tab-commits',
-      'open-pr-tab-files-changed',
-    ][index];
-    addEvent(eventName, {
-      package: 'github',
-      component: this.constructor.name,
-    });
   };
 
   refresh = () => {

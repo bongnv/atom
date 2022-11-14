@@ -1,7 +1,6 @@
 /** @babel */
 
 import { CompositeDisposable } from 'atom';
-import ReporterProxy from './reporter-proxy';
 
 let WelcomeView, GuideView;
 
@@ -9,9 +8,7 @@ const WELCOME_URI = 'atom://welcome/welcome';
 const GUIDE_URI = 'atom://welcome/guide';
 
 export default class WelcomePackage {
-  constructor() {
-    this.reporterProxy = new ReporterProxy();
-  }
+  constructor() {}
 
   async activate() {
     this.subscriptions = new CompositeDisposable();
@@ -38,7 +35,6 @@ export default class WelcomePackage {
 
     if (atom.config.get('welcome.showOnStartup')) {
       await this.show();
-      this.reporterProxy.sendEvent('show-on-initial-load');
     }
   }
 
@@ -49,21 +45,17 @@ export default class WelcomePackage {
     ]);
   }
 
-  consumeReporter(reporter) {
-    return this.reporterProxy.setReporter(reporter);
-  }
-
   deactivate() {
     this.subscriptions.dispose();
   }
 
   createWelcomeView(state) {
     if (WelcomeView == null) WelcomeView = require('./welcome-view');
-    return new WelcomeView({ reporterProxy: this.reporterProxy, ...state });
+    return new WelcomeView({ ...state });
   }
 
   createGuideView(state) {
     if (GuideView == null) GuideView = require('./guide-view');
-    return new GuideView({ reporterProxy: this.reporterProxy, ...state });
+    return new GuideView({ ...state });
   }
 }

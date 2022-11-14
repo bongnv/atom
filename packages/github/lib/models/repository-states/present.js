@@ -16,7 +16,6 @@ import Remote from '../remote';
 import RemoteSet from '../remote-set';
 import Commit from '../commit';
 import OperationStates from '../operation-states';
-import { addEvent } from '../../reporter-proxy';
 import { filePathEndsWith } from '../../helpers';
 
 /**
@@ -346,12 +345,6 @@ export default class Present extends State {
               ...unstagedFiles,
               ...mergeConflictFiles,
             }).length;
-            addEvent('commit', {
-              package: 'github',
-              partial: unstagedCount > 0,
-              amend: !!options.amend,
-              coAuthorCount: coAuthors ? coAuthors.length : 0,
-            });
           },
           message,
           options
@@ -476,7 +469,6 @@ export default class Present extends State {
       async () => {
         try {
           await this.git().reset('soft', 'HEAD~');
-          addEvent('undo-last-commit', { package: 'github' });
         } catch (e) {
           if (/unknown revision/.test(e.stdErr)) {
             // Initial commit
