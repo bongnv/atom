@@ -76,7 +76,7 @@
     "node-emoji": "^1.11.0",
     "node-uuid": "^1.4.8",
     "normalize-package-data": "3.0.2",
-    "nsfw": "2.2.2",
+    "nsfw": "^2.2.3",
     "nslog": "^3.0.0",
     "postcss": "8.2.10",
     "postcss-selector-parser": "6.0.4",
