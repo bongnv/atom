@@ -164,7 +164,7 @@
     "babel-plugin-relay": "^14.1.0",
     "chai": "4.3.4",
     "copy-webpack-plugin": "^11.0.0",
-    "electron": "19.1.1",
+    "electron": "19.1.5",
     "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
