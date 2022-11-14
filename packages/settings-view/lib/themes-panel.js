@@ -1,10 +1,10 @@
 /** @babel */
 /** @jsx etch.dom */
 
-import fuzzaldrin from 'fuzzaldrin-plus';
 import etch from 'etch';
 import _ from 'underscore-plus';
 import { CompositeDisposable, TextEditor } from 'atom';
+import zadeh from 'zadeh';
 
 import CollapsibleSectionPanel from './collapsible-section-panel';
 import PackageCard from './package-card';
@@ -121,7 +121,7 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
     );
   }
 
-  update() {}
+  update() { }
 
   focus() {
     this.refs.filterEditor.element.focus();
@@ -517,7 +517,7 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
               ? pack.owner
               : ownerFromRepository(pack.repository);
           const filterText = `${pack.name} ${owner}`;
-          return fuzzaldrin.score(filterText, text) > 0;
+          return zadeh.score(filterText, text) > 0;
         }
       });
 
@@ -561,12 +561,11 @@ export default class ThemesPanel extends CollapsibleSectionPanel {
       this.packages.git.length
     );
 
-    this.refs.totalPackages.textContent = `${
-      this.packages.user.length +
+    this.refs.totalPackages.textContent = `${this.packages.user.length +
       this.packages.core.length +
       this.packages.dev.length +
       this.packages.git.length
-    }`;
+      }`;
   }
 
   updateFilteredSectionCounts() {

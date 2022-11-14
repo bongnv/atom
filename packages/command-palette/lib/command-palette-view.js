@@ -2,7 +2,7 @@
 
 import SelectListView from 'atom-select-list';
 import { humanizeKeystroke } from 'underscore-plus';
-import fuzzaldrinPlus from 'fuzzaldrin-plus';
+import zadeh from 'zadeh';
 
 export default class CommandPaletteView {
   constructor(initiallyVisibleItemCount = 10) {
@@ -148,7 +148,7 @@ export default class CommandPaletteView {
   }
 
   get fuzz() {
-    return fuzzaldrinPlus;
+    return zadeh;
   }
 
   highlightMatchesInElement(text, query, el) {

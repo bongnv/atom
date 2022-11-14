@@ -1,12 +1,6 @@
 const { Point, CompositeDisposable } = require('atom');
-const {
-  renderExperimentPrompt,
-  shouldShowPrompt,
-} = require('./experiment-prompt');
 const fs = require('fs-plus');
-const fuzzaldrinPlus = require('fuzzaldrin-plus');
-const NativeFuzzy = require('@atom/fuzzy-native');
-const SCORING_SYSTEMS = require('./scoring-systems');
+const zadeh = require('zadeh');
 
 const path = require('path');
 const SelectListView = require('atom-select-list');
@@ -17,11 +11,10 @@ const getIconServices = require('./get-icon-services');
 const MAX_RESULTS = 10;
 
 module.exports = class FuzzyFinderView {
-  constructor(metricsReporter) {
+  constructor() {
     this.previousQueryWasLineJump = false;
     this.items = [];
     this.filterFn = this.filterFn.bind(this);
-    this.metricsReporter = metricsReporter;
 
     this.selectListView = new SelectListView({
       items: this.items,
@@ -85,28 +78,13 @@ module.exports = class FuzzyFinderView {
             errorMessage: null,
           });
         }
-
-        return this.updateExperimentPrompt();
       },
       elementForItem: ({ filePath, label, ownerGitHubUsername }) => {
         const filterQuery = this.selectListView.getFilterQuery();
 
         let matches;
 
-        switch (this.scoringSystem) {
-          case SCORING_SYSTEMS.FAST:
-            this.nativeFuzzyForResults.setCandidates([0], [label]);
-            const items = this.nativeFuzzyForResults.match(filterQuery, {
-              maxResults: 1,
-              recordMatchIndexes: true,
-            });
-            matches = items.length ? items[0].matchIndexes : [];
-            break;
-          default:
-            matches = fuzzaldrinPlus.match(label, filterQuery);
-            break;
-        }
-
+        matches = zadeh.match(label, filterQuery);
         const repository = repositoryForPath(filePath);
 
         return new FuzzyFinderItem({
@@ -154,31 +132,6 @@ module.exports = class FuzzyFinderView {
     });
 
     this.subscriptions = new CompositeDisposable();
-    this.subscriptions.add(
-      atom.config.observe('fuzzy-finder.scoringSystem', (newValue) => {
-        this.scoringSystem = newValue;
-
-        if (this.scoringSystem === SCORING_SYSTEMS.FAST) {
-          if (!this.nativeFuzzy) {
-            this.nativeFuzzy = new NativeFuzzy.Matcher(
-              indexArray(this.items.length),
-              this.items.map((el) => el.label)
-            );
-
-            // We need a separate instance of the fuzzy finder to calculate the
-            // matched paths only for the returned results. This speeds up considerably
-            // the filtering of items.
-            this.nativeFuzzyForResults = new NativeFuzzy.Matcher([], []);
-          }
-
-          this.selectListView.update({ filter: this.filterFn });
-        } else {
-          this.selectListView.update({ filter: this.filterFn });
-        }
-
-        this.updateExperimentPrompt();
-      })
-    );
   }
 
   get element() {
@@ -347,14 +300,6 @@ module.exports = class FuzzyFinderView {
   setItems(items) {
     this.items = items;
 
-    if (this.scoringSystem === SCORING_SYSTEMS.FAST) {
-      // Beware: this operation is quite slow for large projects!
-      this.nativeFuzzy.setCandidates(
-        indexArray(this.items.length),
-        this.items.map((item) => item.label)
-      );
-    }
-
     if (this.isQueryALineJump()) {
       this.selectListView.update({
         items: [],
@@ -368,23 +313,6 @@ module.exports = class FuzzyFinderView {
         infoMessage: null,
         loadingMessage: null,
         loadingBadge: null,
-      });
-    }
-
-    return this.updateExperimentPrompt();
-  }
-
-  updateExperimentPrompt() {
-    if (
-      this.selectListView.getQuery().length ||
-      !shouldShowPrompt(this.items.length)
-    ) {
-      return this.selectListView.update({
-        infoMessage: null,
-      });
-    } else {
-      return this.selectListView.update({
-        infoMessage: renderExperimentPrompt(this.metricsReporter),
       });
     }
   }
@@ -423,21 +351,9 @@ module.exports = class FuzzyFinderView {
     let results;
     const startTime = performance.now();
 
-    if (this.scoringSystem === SCORING_SYSTEMS.FAST) {
-      results = this.nativeFuzzy
-        .match(query, { maxResults: MAX_RESULTS })
-        .map(({ id }) => this.items[id]);
-    } else {
-      results = fuzzaldrinPlus.filter(items, query, { key: 'label' });
-    }
+    results = zadeh.filter(items, query, { key: 'label' });
 
     const duration = Math.round(performance.now() - startTime);
-
-    this.metricsReporter.sendFilterEvent(
-      duration,
-      items.length,
-      this.scoringSystem
-    );
 
     return results;
   }

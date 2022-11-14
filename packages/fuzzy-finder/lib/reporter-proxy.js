@@ -44,16 +44,6 @@ module.exports = class ReporterProxy {
     this._addTiming(duration, metadata);
   }
 
-  sendFilterEvent(duration, numFiles, scoringSystem) {
-    const metadata = {
-      ec: 'time-to-filter',
-      el: scoringSystem,
-      ev: numFiles,
-    };
-
-    this._addTimingThrottled(duration, metadata);
-  }
-
   incrementCounter(counterName) {
     if (this.reporter) {
       this.reporter.incrementCounter(counterName);

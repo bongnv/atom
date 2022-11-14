@@ -1,6 +1,6 @@
 const { CompositeDisposable, Disposable, Point, Range } = require('atom');
 const path = require('path');
-const fuzzaldrinPlus = require('fuzzaldrin-plus');
+const zadeh = require('zadeh');
 
 const ProviderManager = require('./provider-manager');
 const SuggestionList = require('./suggestion-list');
@@ -536,7 +536,6 @@ module.exports = class AutocompleteManager {
 
   filterSuggestions(suggestions, { prefix }) {
     const results = [];
-    const fuzzaldrinProvider = fuzzaldrinPlus;
     for (let i = 0; i < suggestions.length; i++) {
       // sortScore mostly preserves in the original sorting. The function is
       // chosen such that suggestions with a very high match score can break out.
@@ -560,7 +559,7 @@ module.exports = class AutocompleteManager {
       }
       if (
         firstCharIsMatch &&
-        (score = fuzzaldrinProvider.score(text, suggestionPrefix)) > 0
+        (score = zadeh.score(text, suggestionPrefix)) > 0
       ) {
         suggestion.score = score * suggestion.sortScore;
         results.push(suggestion);

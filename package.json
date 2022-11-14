@@ -13,7 +13,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@atom/fuzzy-native": "github:bongnv/fuzzy-native#71b6e32021b60d0325db85294e2123cd3b418ce4",
     "@electron/remote": "^2.0.8",
     "async": "^3.2.4",
     "atom-pathspec": "^0.0.0",
@@ -42,7 +41,6 @@
     "fs-admin": "0.19.0",
     "fs-extra": "^10.1.0",
     "fs-plus": "^3.1.1",
-    "fuzzaldrin-plus": "^0.6.0",
     "git-utils": "github:bongnv/git-utils#2a44f4205374d3a54ae609352760cd89e80b7f0c",
     "glob": "^7.2.3",
     "graphql": "^16.6.0",
@@ -120,7 +118,8 @@
     "winreg": "^1.2.1",
     "yaml-front-matter": "^4.1.1",
     "yargs": "16.1.0",
-    "yubikiri": "^2.0.0"
+    "yubikiri": "^2.0.0",
+    "zadeh": "^3.0.0-beta.4"
   },
   "private": true,
   "scripts": {

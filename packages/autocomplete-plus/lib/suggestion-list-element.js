@@ -1,7 +1,7 @@
 const { CompositeDisposable } = require('atom');
 const SnippetParser = require('./snippet-parser');
 const { isString } = require('./type-helpers');
-const fuzzaldrinPlus = require('fuzzaldrin-plus');
+const zadeh = require("zadeh");
 const { marked } = require('marked');
 const createDOMPurify = require('dompurify');
 
@@ -808,7 +808,7 @@ module.exports = class SuggestionListElement {
       return;
     }
     const matches = {};
-    const matchIndices = fuzzaldrinPlus.match(text, replacementPrefix);
+    const matchIndices = zadeh.match(text, replacementPrefix);
     for (const i of matchIndices) {
       matches[i] = true;
     }

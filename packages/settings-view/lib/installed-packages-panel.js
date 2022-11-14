@@ -3,7 +3,7 @@
 
 import { CompositeDisposable, TextEditor } from 'atom';
 import etch from 'etch';
-import fuzzaldrin from 'fuzzaldrin-plus';
+import zadeh from 'zadeh';
 
 import CollapsibleSectionPanel from './collapsible-section-panel';
 import PackageCard from './package-card';
@@ -377,7 +377,7 @@ export default class InstalledPackagesPanel extends CollapsibleSectionPanel {
               ? pack.owner
               : ownerFromRepository(pack.repository);
           const filterText = `${pack.name} ${owner}`;
-          return fuzzaldrin.score(filterText, text) > 0;
+          return zadeh.score(filterText, text) > 0;
         }
       });
 
