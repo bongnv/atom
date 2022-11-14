@@ -33,6 +33,7 @@ module.exports = class FuzzyFinderView {
 
         return query;
       },
+      filter: this.filterFn,
       didCancelSelection: () => {
         this.cancel();
       },
@@ -83,8 +84,7 @@ module.exports = class FuzzyFinderView {
         const filterQuery = this.selectListView.getFilterQuery();
 
         let matches;
-
-        matches = zadeh.match(label, filterQuery);
+        matches = filterQuery.length > 0 ? zadeh.match(label, filterQuery) : [];
         const repository = repositoryForPath(filePath);
 
         return new FuzzyFinderItem({
@@ -344,7 +344,7 @@ module.exports = class FuzzyFinderView {
   }
 
   filterFn(items, query) {
-    if (!query) {
+    if (!query || query.length == 0) {
       return items;
     }
 
